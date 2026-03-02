@@ -35,6 +35,8 @@
     <script>
         function generateProblem() {
             const canvas = document.getElementById('circuitCanvas');
+            // Check if canvas exists to prevent errors
+            if (!canvas) return; 
             const ctx = canvas.getContext('2d');
             
             // 1. Generate Random Logic
@@ -43,10 +45,10 @@
             const i1 = Math.floor(Math.random() * 5) + 1; // 1 to 5mA
             const i2 = Math.floor(Math.random() * 5) + 1; // 1 to 5mA
 
-            const v2 = v1;
-            const i3 = i1 + i2;
-            const i4 = i3;
-            const v3 = vTotal - v1;
+            const v2 = v1; //
+            const i3 = i1 + i2; //
+            const i4 = i3; //
+            const v3 = vTotal - v1; //
 
             // 2. Draw Circuit
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -119,11 +121,17 @@
 
         function toggleSolutions() {
             const solDiv = document.getElementById('solutions');
-            solDiv.style.display = solDiv.style.display === 'none' ? 'block' : 'none';
+            if (solDiv) {
+                solDiv.style.display = solDiv.style.display === 'none' ? 'block' : 'none';
+            }
         }
 
-        // Initialize on load
-        window.onload = generateProblem;
+        // Initialize on load using a safer method
+        if (document.readyState === 'complete') {
+            generateProblem();
+        } else {
+            window.addEventListener('load', generateProblem);
+        }
     </script>
 </body>
 </html>
