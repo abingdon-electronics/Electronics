@@ -3,38 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Circuit Quiz</title>
+    <title>Abingdon School - Circuit Quiz</title>
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333; }
-        .circuit-container { border: 1px solid #ccc; padding: 20px; text-align: center; margin-bottom: 20px; background-color: #fcfcfc; border-radius: 8px; }
-        canvas { background-color: white; border: 1px solid #eee; border-radius: 4px; max-width: 100%; height: auto; }
+        /* Abingdon Brand Colors: Cerise Pink (#E64097) and Black (#000000) */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #000; background-color: #fafafa; }
+        
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: #000; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .header span { color: #E64097; font-weight: bold; }
+        
+        .circuit-container { border: 2px solid #eaeaea; padding: 20px; text-align: center; margin-bottom: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
         
         /* Interactive Quiz Section */
-        .quiz-section { background-color: #eaf4ff; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #b6d4fe; margin-bottom: 20px; position: relative; }
+        .quiz-section { background-color: #fdf4f8; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #f2c7db; margin-bottom: 20px; position: relative; }
         
-        /* Scoreboard */
-        .scoreboard { position: absolute; top: 15px; right: 20px; background-color: #fff; padding: 8px 15px; border: 2px solid #0d6efd; border-radius: 8px; font-weight: bold; font-size: 16px; color: #0d6efd; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        /* Scoreboard styled with Abingdon Pink */
+        .scoreboard { position: absolute; top: 15px; right: 20px; background-color: #fff; padding: 8px 15px; border: 2px solid #E64097; border-radius: 6px; font-weight: bold; font-size: 16px; color: #E64097; box-shadow: 0 2px 4px rgba(230, 64, 151, 0.1); }
         
         .input-group { margin: 15px 0; font-size: 18px; font-weight: bold; }
-        input[type="number"] { font-size: 18px; padding: 5px; width: 80px; text-align: center; margin: 0 10px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="number"] { font-size: 18px; padding: 5px; width: 80px; text-align: center; margin: 0 10px; border: 1px solid #ccc; border-radius: 4px; outline-color: #E64097; }
         .feedback { font-size: 18px; margin-top: 15px; min-height: 27px; }
         
         /* Buttons */
         .controls { text-align: center; margin-top: 10px; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px; background-color: #0d6efd; color: white; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s;}
-        button:hover { background-color: #0b5ed7; }
-        .btn-check { background-color: #198754; }
-        .btn-check:hover { background-color: #157347; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px; color: white; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s, transform 0.1s;}
+        button:active { transform: scale(0.98); }
+        
+        /* Abingdon Pink for the main action */
+        .btn-check { background-color: #E64097; }
+        .btn-check:hover { background-color: #cc2b81; }
+        
+        /* Black for secondary actions */
+        .btn-black { background-color: #000000; }
+        .btn-black:hover { background-color: #333333; }
+        
         .btn-secondary { background-color: #6c757d; }
         .btn-secondary:hover { background-color: #5c636a; }
         
-        .solutions { margin-top: 20px; padding: 15px; background-color: #e9ecef; border-radius: 5px; display: none; text-align: left; }
+        .solutions { margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
-    <h1 style="text-align: center;">2Interactive Circuit Quiz</h1>
-    <p style="text-align: center;">Analyze the circuit diagram and calculate the missing values. Enter your answers below!</p>
+    <div class="header">
+        <h1><span>Abingdon</span> Physics</h1>
+        <p>Interactive Circuit Analysis</p>
+    </div>
 
     <div class="circuit-container">
         <canvas id="circuitCanvas" width="600" height="420"></canvas>
@@ -60,22 +75,25 @@
     </div>
 
     <div class="controls">
-        <button onclick="generateProblem()">Generate New Problem</button>
-        <button class="btn-secondary" onclick="toggleSolutions()">Need Help? (Show Solutions)</button>
+        <button class="btn-black" onclick="generateProblem()">Generate New Problem</button>
+        <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solutions)</button>
     </div>
 
     <div id="solutions" class="solutions">
-        <h3>Step-by-Step Logic</h3>
+        <h3 style="margin-top: 0; color: #E64097;">Step-by-Step Logic</h3>
         <p id="solText"></p>
     </div>
 
     <script>
-        // Global Variables for Logic and Scoring
         let currentAnswers = { vName: '', vValue: 0, iName: '', iValue: 0 };
         let problemsAttempted = 0;
         let problemsCorrect = 0;
         let hasCheckedCurrentProblem = false; 
         let isCurrentProblemSolved = false;
+
+        // Brand colors for the canvas
+        const brandPink = "#E64097";
+        const brandBlack = "#000000";
 
         function updateScoreboard() {
             document.getElementById('scoreDisplay').innerText = `Score: ${problemsCorrect} / ${problemsAttempted}`;
@@ -86,9 +104,10 @@
             if (!canvas) return; 
             const ctx = canvas.getContext('2d');
             
-            // Reset state for the new problem
             hasCheckedCurrentProblem = false;
             isCurrentProblemSolved = false;
+            document.getElementById('helpBtn').style.display = 'none';
+            document.getElementById('solutions').style.display = 'none';
 
             // 1. Generate Random Logic
             const v1 = Math.floor(Math.random() * 10) + 1; 
@@ -100,7 +119,6 @@
             const i2 = Math.floor(Math.random() * 10) + 1; 
             const i3 = i1 + i2; 
 
-            // Include Supply Voltage (+V) in the array of voltages
             const voltages = [
                 { name: 'V1', val: v1, logic: 'V1 = V2 (Parallel components share voltage)' },
                 { name: 'V2', val: v2, logic: 'V2 = V1 (Parallel components share voltage)' },
@@ -114,31 +132,26 @@
                 { name: 'I3', val: i3, logic: `I3 = I1 + I2 (${i1}mA + ${i2}mA)` }
             ];
 
-            // Randomly pick one voltage (out of 4 now) and one current
             const unknownVIndex = Math.floor(Math.random() * 4);
             const unknownIIndex = Math.floor(Math.random() * 3);
 
-            // Store correct answers
             currentAnswers.vName = voltages[unknownVIndex].name;
             currentAnswers.vValue = voltages[unknownVIndex].val;
             currentAnswers.iName = currents[unknownIIndex].name;
             currentAnswers.iValue = currents[unknownIIndex].val;
 
-            // Reset UI
-            document.getElementById('labelV').innerText = `Find ${currentAnswers.vName} = `;
-            document.getElementById('labelI').innerText = `Find ${currentAnswers.iName} = `;
+            document.getElementById('labelV').innerHTML = `Find <span style="color:${brandPink}">${currentAnswers.vName}</span> = `;
+            document.getElementById('labelI').innerHTML = `Find <span style="color:${brandPink}">${currentAnswers.iName}</span> = `;
             document.getElementById('inputV').value = '';
             document.getElementById('inputI').value = '';
             document.getElementById('feedback').innerHTML = '';
-            document.getElementById('solutions').style.display = 'none';
 
-            // Create Labels for diagram
             const vLabels = voltages.map((v, index) => index === unknownVIndex ? `${v.name} = ?` : `${v.name} = ${v.val}V`);
             const iLabels = currents.map((c, index) => index === unknownIIndex ? `${c.name} = ?` : `${c.name} = ${c.val}mA`);
 
             // Draw Circuit
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = brandBlack;
             ctx.lineWidth = 2;
             
             // Wires
@@ -157,37 +170,41 @@
             drawResistor(ctx, 400, 145); 
             drawResistor(ctx, 300, 295); 
 
-            // Top Rail (Supply Voltage) - Now handles being the unknown variable
+            // Top Rail (Supply Voltage)
             ctx.font = "bold 18px Arial";
-            ctx.fillStyle = unknownVIndex === 3 ? "#dc3545" : "#0d6efd"; // Red if unknown, Blue if known
+            ctx.fillStyle = unknownVIndex === 3 ? brandPink : brandBlack; 
             const topRailText = unknownVIndex === 3 ? "+V = ?" : `+V = ${vTotal}V`;
             ctx.fillText(topRailText, 260, 40);
 
             // Ground Rail
-            ctx.fillStyle = "black";
+            ctx.fillStyle = brandBlack;
             ctx.fillText("0V (GND)", 260, 390);
 
-            // Resistor Labels
             ctx.font = "16px Arial";
+            ctx.fillStyle = brandBlack;
+            
+            // R1
             ctx.fillText("R1", 160, 150);
-            ctx.fillText("R2", 425, 150);
-            ctx.fillText("R3", 260, 300);
-
-            // Draw V1, V2, V3 and Currents
-            ctx.fillStyle = unknownVIndex === 0 ? "#dc3545" : "#0d6efd";
-            ctx.fillText(vLabels[0], 110, 150);
-            ctx.fillStyle = unknownIIndex === 0 ? "#dc3545" : "#0d6efd";
+            ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack;
+            ctx.fillText(vLabels[0], 70, 150); 
+            ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack;
             ctx.fillText(iLabels[0], 215, 100);
 
-            ctx.fillStyle = unknownVIndex === 1 ? "#dc3545" : "#0d6efd";
-            ctx.fillText(vLabels[1], 455, 150);
-            ctx.fillStyle = unknownIIndex === 1 ? "#dc3545" : "#0d6efd";
+            // R2
+            ctx.fillStyle = brandBlack;
+            ctx.fillText("R2", 365, 150); 
+            ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack;
+            ctx.fillText(vLabels[1], 445, 150); 
+            ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack;
             ctx.fillText(iLabels[1], 415, 100);
 
-            ctx.fillStyle = unknownVIndex === 2 ? "#dc3545" : "#0d6efd";
-            ctx.fillText(vLabels[2], 330, 300);
-            ctx.fillStyle = unknownIIndex === 2 ? "#dc3545" : "#0d6efd";
-            ctx.fillText(iLabels[2], 315, 250);
+            // R3
+            ctx.fillStyle = brandBlack;
+            ctx.fillText("R3", 260, 300);
+            ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack;
+            ctx.fillText(vLabels[2], 340, 300); 
+            ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack;
+            ctx.fillText(iLabels[2], 315, 260);
 
             // Update Solutions text
             document.getElementById('solText').innerHTML = `
@@ -199,18 +216,18 @@
         }
 
         function checkAnswers() {
-            if (isCurrentProblemSolved) return; // Prevent clicking check again if already solved
+            if (isCurrentProblemSolved) return;
 
             const userV = parseFloat(document.getElementById('inputV').value);
             const userI = parseFloat(document.getElementById('inputI').value);
             const feedback = document.getElementById('feedback');
+            const helpBtn = document.getElementById('helpBtn');
             
             if (isNaN(userV) || isNaN(userI)) {
                 feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a number in both boxes!</span>";
                 return;
             }
 
-            // Tally Logic: Only count as an "attempt" the first time they hit check on a new problem
             if (!hasCheckedCurrentProblem) {
                 problemsAttempted++;
                 hasCheckedCurrentProblem = true;
@@ -219,19 +236,24 @@
             const isVCorrect = (userV === currentAnswers.vValue);
             const isICorrect = (userI === currentAnswers.iValue);
 
+            // Use green/orange/red purely for the correctness feedback so it remains intuitive
             if (isVCorrect && isICorrect) {
                 problemsCorrect++;
                 isCurrentProblemSolved = true;
                 feedback.innerHTML = "<span style='color: #198754; font-weight: bold;'>🎉 Correct! Great job! Click 'Generate New Problem' to continue.</span>";
-            } else if (isVCorrect && !isICorrect) {
-                feedback.innerHTML = "<span style='color: #fd7e14; font-weight: bold;'>Voltage is correct, but Current is wrong. Try again!</span>";
-            } else if (!isVCorrect && isICorrect) {
-                feedback.innerHTML = "<span style='color: #fd7e14; font-weight: bold;'>Current is correct, but Voltage is wrong. Try again!</span>";
             } else {
-                feedback.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Both are incorrect. Check your parallel and series rules!</span>";
+                helpBtn.style.display = 'inline-block';
+                
+                if (isVCorrect && !isICorrect) {
+                    feedback.innerHTML = "<span style='color: #fd7e14; font-weight: bold;'>Voltage is correct, but Current is wrong. Try again!</span>";
+                } else if (!isVCorrect && isICorrect) {
+                    feedback.innerHTML = "<span style='color: #fd7e14; font-weight: bold;'>Current is correct, but Voltage is wrong. Try again!</span>";
+                } else {
+                    feedback.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Both are incorrect. Check your parallel and series rules!</span>";
+                }
             }
 
-            updateScoreboard(); // Update the visual tally
+            updateScoreboard(); 
         }
 
         function drawResistor(ctx, x, y) {
