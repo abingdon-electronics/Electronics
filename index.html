@@ -148,7 +148,7 @@
             // Main Header
             ctx.fillStyle = brandBlack;
             ctx.font = "bold 36px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("ABINGDON PHYSICS", 300, 80);
+            ctx.fillText("ABINGDON ELECTRONICS", 300, 80);
 
             // Subtitle
             ctx.fillStyle = brandPink;
@@ -188,7 +188,7 @@
             
             // Clean the name so it creates a valid file name
             const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
-            downloadLink.download = `Physics_Score_${safeName}.png`;
+            downloadLink.download = `Electronics_Score_${safeName}.png`;
             
             downloadLink.href = imageURI;
             downloadLink.click();
