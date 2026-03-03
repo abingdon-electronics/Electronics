@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abingdon School - Circuit Quiz</title>
     <style>
-        /* Abingdon Brand Colors: Cerise Pink (#E64097) and Black (#000000) */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #000; background-color: #fafafa; }
         
         .header { text-align: center; margin-bottom: 20px; }
@@ -15,14 +14,11 @@
         .circuit-container { border: 2px solid #eaeaea; padding: 20px; text-align: center; margin-bottom: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
         
-        /* Interactive Quiz Section */
         .quiz-section { background-color: #fdf4f8; padding: 20px; border-radius: 8px; border: 1px solid #f2c7db; margin-bottom: 20px; }
         
-        /* Responsive Header Area for Score and Title */
         .quiz-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2c7db; padding-bottom: 15px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .quiz-header h3 { margin: 0; }
         
-        /* Scoreboard styling */
         .score-container { text-align: right; }
         .scoreboard { background-color: #fff; padding: 6px 15px; border: 2px solid #E64097; border-radius: 6px; font-weight: bold; font-size: 16px; color: #E64097; box-shadow: 0 2px 4px rgba(230, 64, 151, 0.1); display: inline-block; }
         
@@ -31,7 +27,6 @@
         input[type="number"] { font-size: 18px; padding: 5px; width: 80px; text-align: center; margin: 0 10px; border: 1px solid #ccc; border-radius: 4px; outline-color: #E64097; }
         .feedback { font-size: 18px; margin-top: 15px; min-height: 27px; text-align: center;}
         
-        /* Buttons */
         .controls { text-align: center; margin-top: 10px; }
         button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px; color: white; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s, transform 0.1s;}
         button:active { transform: scale(0.98); }
@@ -57,6 +52,8 @@
         <h1><span>Abingdon</span> Physics</h1>
         <p>Interactive Circuit Analysis</p>
     </div>
+
+    <div id="errorDisplay" style="color: red; font-weight: bold; text-align: center;"></div>
 
     <div class="circuit-container">
         <canvas id="circuitCanvas" width="600" height="420"></canvas>
@@ -99,7 +96,12 @@
     </div>
 
     <script>
-        let currentAnswers = { vNameHtml: '', vValue: 0, iName: '', iValue: 0 };
+        // Catch and display any sneaky errors
+        window.onerror = function(message, source, lineno, colno, error) {
+            document.getElementById('errorDisplay').innerText = "System Error: " + message + " at line " + lineno;
+        };
+
+        let currentAnswers = { vNameHtml: '', vValue: 0, iNameHtml: '', iValue: 0 };
         let problemsAttempted = 0;
         let problemsCorrect = 0;
         let hasCheckedCurrentProblem = false; 
@@ -110,7 +112,28 @@
         const brandBlack = "#000000";
 
         function updateScoreboard() {
-            document.getElementById('scoreDisplay').innerText = `Score: ${problemsCorrect} / ${problemsAttempted}`;
+            document.getElementById('scoreDisplay').innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
+        }
+
+        // Helper to draw text with a subscript on the canvas
+        function drawCanvasSubscript(ctx, mainText, subText, x, y, isUnknown, appendText = "") {
+            ctx.fillStyle = isUnknown ? brandPink : brandBlack;
+            
+            // Draw Main Letter (e.g., 'V')
+            ctx.font = "bold 16px Arial";
+            ctx.fillText(mainText, x, y);
+            let w1 = ctx.measureText(mainText).width;
+            
+            // Draw Subscript (e.g., '1' or 'Supply')
+            ctx.font = "bold 11px Arial";
+            ctx.fillText(subText, x + w1, y + 5); 
+            let w2 = ctx.measureText(subText).width;
+
+            // Draw any following text (e.g., ' = 5V')
+            if (appendText !== "") {
+                ctx.font = "bold 16px Arial";
+                ctx.fillText(appendText, x + w1 + w2 + 2, y);
+            }
         }
 
         function downloadScore() {
@@ -143,62 +166,4 @@
 
             ctx.fillStyle = brandPink;
             ctx.font = "italic 24px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Circuit Analysis Knowledge Check", 300, 120);
-
-            ctx.beginPath();
-            ctx.moveTo(150, 145);
-            ctx.lineTo(450, 145);
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.fillStyle = brandBlack;
-            ctx.font = "28px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText(`Student: ${studentName}`, 300, 210);
-
-            ctx.fillStyle = brandPink;
-            ctx.font = "bold 56px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText(`${problemsCorrect} / ${problemsAttempted}`, 300, 285);
-            
-            ctx.fillStyle = brandBlack;
-            ctx.font = "20px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Questions Answered Correctly", 300, 315);
-
-            const today = new Date().toLocaleDateString('en-GB'); 
-            ctx.fillStyle = "#666";
-            ctx.font = "16px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText(`Date Completed: ${today}`, 300, 360);
-
-            const imageURI = certCanvas.toDataURL("image/png");
-            const downloadLink = document.createElement('a');
-            const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
-            downloadLink.download = `Physics_Score_${safeName}.png`;
-            downloadLink.href = imageURI;
-            downloadLink.click();
-        }
-
-        function generateProblem() {
-            const canvas = document.getElementById('circuitCanvas');
-            if (!canvas) return; 
-            const ctx = canvas.getContext('2d');
-            
-            hasCheckedCurrentProblem = false;
-            isCurrentProblemSolved = false;
-            viewedSolution = false; 
-            
-            document.getElementById('helpBtn').style.display = 'none';
-            document.getElementById('solutions').style.display = 'none';
-
-            const v1 = Math.floor(Math.random() * 10) + 1; 
-            const v2 = v1; 
-            const v3 = Math.floor(Math.random() * 10) + 1; 
-            const vTotal = v1 + v3; 
-
-            const i1 = Math.floor(Math.random() * 10) + 1; 
-            const i2 = Math.floor(Math.random() * 10) + 1; 
-            const i3 = i1 + i2; 
-
-            // Safer array structure to separate HTML tags from logic text
-            const voltages = [
-                { nameHtml: 'V₁', val: v1, logic: 'V₁ = V₂ (Parallel components share voltage)' },
-                { nameHtml: 'V₂', val: v2, logic: 'V₂ = V₁ (Parallel components share voltage)' },
-                { nameHtml: 'V₃', val: v3, logic: `V₃ = +V<sub>Supply</sub>
+            ctx.fillText("Circuit
