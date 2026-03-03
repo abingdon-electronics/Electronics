@@ -127,7 +127,6 @@
             certCanvas.height = 400;
             const ctx = certCanvas.getContext('2d');
 
-            // Background & Borders
             ctx.fillStyle = "#fdf4f8"; 
             ctx.fillRect(0, 0, certCanvas.width, certCanvas.height);
             ctx.strokeStyle = brandPink;
@@ -137,7 +136,6 @@
             ctx.lineWidth = 2;
             ctx.strokeRect(18, 18, 564, 364);
 
-            // Typography
             ctx.textAlign = "center";
             ctx.fillStyle = brandBlack;
             ctx.font = "bold 36px 'Segoe UI', Arial, sans-serif";
@@ -170,7 +168,6 @@
             ctx.font = "16px 'Segoe UI', Arial, sans-serif";
             ctx.fillText(`Date Completed: ${today}`, 300, 360);
 
-            // Download Logic
             const imageURI = certCanvas.toDataURL("image/png");
             const downloadLink = document.createElement('a');
             const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
@@ -184,7 +181,6 @@
             if (!canvas) return; 
             const ctx = canvas.getContext('2d');
             
-            // Reset states for the new problem
             hasCheckedCurrentProblem = false;
             isCurrentProblemSolved = false;
             viewedSolution = false; 
@@ -201,7 +197,6 @@
             const i2 = Math.floor(Math.random() * 10) + 1; 
             const i3 = i1 + i2; 
 
-            // Updated arrays using Unicode subscript characters
             const voltages = [
                 { name: 'V₁', val: v1, logic: 'V₁ = V₂ (Parallel components share voltage)' },
                 { name: 'V₂', val: v2, logic: 'V₂ = V₁ (Parallel components share voltage)' },
@@ -231,6 +226,21 @@
 
             const vLabels = voltages.map((v, index) => index === unknownVIndex ? `${v.name} = ?` : `${v.name} = ${v.val}V`);
             const iLabels = currents.map((c, index) => index === unknownIIndex ? `${c.name} = ?` : `${c.name} = ${c.val}mA`);
+
+            // --- NEW LOGIC: Prevent V1 and V2 from both being given ---
+            if (unknownVIndex === 2 || unknownVIndex === 3) {
+                // If we are finding V3 or +V, it means V1 and V2 would both normally be shown.
+                // We randomly hide one of them.
+                if (Math.random() < 0.5) {
+                    vLabels[0] = ""; // Hide V1
+                    // Update logic text so it makes sense using V2 instead of V1
+                    voltages[2].logic = `V₃ = Supply Voltage - V₂ (since V₁ = V₂, ${vTotal}V - ${v2}V)`;
+                    voltages[3].logic = `Supply Voltage = V₂ + V₃ (since V₁ = V₂, ${v2}V + ${v3}V)`;
+                } else {
+                    vLabels[1] = ""; // Hide V2
+                    // Logic strings for V3 and +V already use V1 by default, so they are fine.
+                }
+            }
 
             // Draw Circuit
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -262,7 +272,6 @@
             ctx.font = "16px Arial";
             ctx.fillStyle = brandBlack;
             
-            // Subscript updates for Resistors
             ctx.fillText("R₁", 160, 150);
             ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack;
             ctx.fillText(vLabels[0], 70, 150); 
