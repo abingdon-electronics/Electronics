@@ -54,7 +54,7 @@
 <body>
 
     <div class="header">
-        <h1><span>Abingdon</span> Electronics</h1>
+        <h1><span>Abingdon</span> Physics</h1>
         <p>Interactive Circuit Analysis</p>
     </div>
 
@@ -104,7 +104,7 @@
         let problemsCorrect = 0;
         let hasCheckedCurrentProblem = false; 
         let isCurrentProblemSolved = false;
-        let viewedSolution = false; // NEW FLAG TO PREVENT CHEATING
+        let viewedSolution = false; 
 
         const brandPink = "#E64097";
         const brandBlack = "#000000";
@@ -141,7 +141,7 @@
             ctx.textAlign = "center";
             ctx.fillStyle = brandBlack;
             ctx.font = "bold 36px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("ABINGDON ELECTRONICS", 300, 80);
+            ctx.fillText("ABINGDON PHYSICS", 300, 80);
 
             ctx.fillStyle = brandPink;
             ctx.font = "italic 24px 'Segoe UI', Arial, sans-serif";
@@ -174,7 +174,7 @@
             const imageURI = certCanvas.toDataURL("image/png");
             const downloadLink = document.createElement('a');
             const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
-            downloadLink.download = `Electronics_Score_${safeName}.png`;
+            downloadLink.download = `Physics_Score_${safeName}.png`;
             downloadLink.href = imageURI;
             downloadLink.click();
         }
@@ -187,7 +187,7 @@
             // Reset states for the new problem
             hasCheckedCurrentProblem = false;
             isCurrentProblemSolved = false;
-            viewedSolution = false; // Reset the cheating flag
+            viewedSolution = false; 
             
             document.getElementById('helpBtn').style.display = 'none';
             document.getElementById('solutions').style.display = 'none';
@@ -201,17 +201,18 @@
             const i2 = Math.floor(Math.random() * 10) + 1; 
             const i3 = i1 + i2; 
 
+            // Updated arrays using Unicode subscript characters
             const voltages = [
-                { name: 'V1', val: v1, logic: 'V1 = V2 (Parallel components share voltage)' },
-                { name: 'V2', val: v2, logic: 'V2 = V1 (Parallel components share voltage)' },
-                { name: 'V3', val: v3, logic: `V3 = Supply Voltage - V1 (${vTotal}V - ${v1}V)` },
-                { name: 'Supply Voltage (+V)', val: vTotal, logic: `Supply Voltage = V1 + V3 (${v1}V + ${v3}V)` }
+                { name: 'V₁', val: v1, logic: 'V₁ = V₂ (Parallel components share voltage)' },
+                { name: 'V₂', val: v2, logic: 'V₂ = V₁ (Parallel components share voltage)' },
+                { name: 'V₃', val: v3, logic: `V₃ = Supply Voltage - V₁ (${vTotal}V - ${v1}V)` },
+                { name: 'Supply Voltage (+V)', val: vTotal, logic: `Supply Voltage = V₁ + V₃ (${v1}V + ${v3}V)` }
             ];
             
             const currents = [
-                { name: 'I1', val: i1, logic: `I1 = I3 - I2 (${i3}mA - ${i2}mA)` },
-                { name: 'I2', val: i2, logic: `I2 = I3 - I1 (${i3}mA - ${i1}mA)` },
-                { name: 'I3', val: i3, logic: `I3 = I1 + I2 (${i1}mA + ${i2}mA)` }
+                { name: 'I₁', val: i1, logic: `I₁ = I₃ - I₂ (${i3}mA - ${i2}mA)` },
+                { name: 'I₂', val: i2, logic: `I₂ = I₃ - I₁ (${i3}mA - ${i1}mA)` },
+                { name: 'I₃', val: i3, logic: `I₃ = I₁ + I₂ (${i1}mA + ${i2}mA)` }
             ];
 
             const unknownVIndex = Math.floor(Math.random() * 4);
@@ -261,21 +262,22 @@
             ctx.font = "16px Arial";
             ctx.fillStyle = brandBlack;
             
-            ctx.fillText("R1", 160, 150);
+            // Subscript updates for Resistors
+            ctx.fillText("R₁", 160, 150);
             ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack;
             ctx.fillText(vLabels[0], 70, 150); 
             ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack;
             ctx.fillText(iLabels[0], 215, 100);
 
             ctx.fillStyle = brandBlack;
-            ctx.fillText("R2", 365, 150); 
+            ctx.fillText("R₂", 365, 150); 
             ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack;
             ctx.fillText(vLabels[1], 445, 150); 
             ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack;
             ctx.fillText(iLabels[1], 415, 100);
 
             ctx.fillStyle = brandBlack;
-            ctx.fillText("R3", 260, 300);
+            ctx.fillText("R₃", 260, 300);
             ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack;
             ctx.fillText(vLabels[2], 340, 300); 
             ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack;
@@ -291,7 +293,7 @@
         }
 
         function checkAnswers() {
-            if (isCurrentProblemSolved) return; // Prevent multiple checks if already solved
+            if (isCurrentProblemSolved) return; 
 
             const userV = parseFloat(document.getElementById('inputV').value);
             const userI = parseFloat(document.getElementById('inputI').value);
@@ -303,7 +305,6 @@
                 return;
             }
 
-            // Only count it as an attempt the very first time they hit check on this problem
             if (!hasCheckedCurrentProblem) {
                 problemsAttempted++;
                 hasCheckedCurrentProblem = true;
@@ -315,7 +316,6 @@
             if (isVCorrect && isICorrect) {
                 isCurrentProblemSolved = true;
                 
-                // Only award points if they haven't looked at the solution
                 if (!viewedSolution) {
                     problemsCorrect++;
                     feedback.innerHTML = "<span style='color: #198754; font-weight: bold;'>🎉 Correct! Great job! Click 'Generate New Problem' to continue.</span>";
@@ -323,9 +323,8 @@
                     feedback.innerHTML = "<span style='color: #E64097; font-weight: bold;'>Correct! (No points awarded because the solution was viewed). Click 'Generate New Problem' to continue.</span>";
                 }
                 
-                helpBtn.style.display = 'none'; // Hide the help button once they get it right
+                helpBtn.style.display = 'none'; 
             } else {
-                // They got it wrong, reveal the Help button
                 helpBtn.style.display = 'inline-block';
                 
                 if (isVCorrect && !isICorrect) {
@@ -362,7 +361,7 @@
             if (solDiv) {
                 if (solDiv.style.display === 'none') {
                     solDiv.style.display = 'block';
-                    viewedSolution = true; // Trigger the flag to prevent gaining a point
+                    viewedSolution = true; 
                 } else {
                     solDiv.style.display = 'none';
                 }
