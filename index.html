@@ -150,7 +150,7 @@
             ctx.textAlign = "center";
             ctx.fillStyle = brandBlack;
             ctx.font = "bold 36px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("ABINGDON ELECTRONICS", 300, 80);
+            ctx.fillText("ABINGDON ELECTRONICS", 300, 80); // Updated to Electronics!
 
             ctx.fillStyle = brandPink;
             ctx.font = "italic 24px 'Segoe UI', Arial, sans-serif";
@@ -182,9 +182,23 @@
             const imageURI = certCanvas.toDataURL("image/png");
             const downloadLink = document.createElement('a');
             const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
-            downloadLink.download = "Electronics_Score_" + safeName + ".png";
+            
+            // Updated file name to say Electronics
+            downloadLink.download = "Electronics_Score_" + safeName + ".png"; 
             downloadLink.href = imageURI;
             downloadLink.click();
+
+            // --- NEW ANTI-CHEATING CODE ---
+            // Reset the score back to zero after a successful download
+            problemsAttempted = 0;
+            problemsCorrect = 0;
+            updateScoreboard();
+            
+            // Generate a fresh problem to clear the screen
+            generateProblem();
+            
+            // Let the student know the session has been reset
+            alert("Certificate downloaded successfully! The score has been reset for the next student.");
         }
 
         function drawResistor(ctx, x, y) {
