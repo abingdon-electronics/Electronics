@@ -6,38 +6,30 @@
     <title>Abingdon School - Circuit Quiz</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1100px; margin: 0 auto; padding: 10px 20px; line-height: 1.6; color: #000; background-color: #fafafa; }
-        
         .header { text-align: center; margin-bottom: 15px; }
         .header h1 { color: #000; margin-bottom: 0px; text-transform: uppercase; letter-spacing: 1px; font-size: 28px; }
         .header p { margin-top: 5px; font-size: 18px; color: #555; }
         .header span { color: #E64097; font-weight: bold; }
-        
         .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
         .tab { padding: 10px 25px; font-size: 16px; font-weight: bold; cursor: pointer; background-color: #eaeaea; border: 2px solid #ccc; border-radius: 8px; color: #555; transition: all 0.2s; }
         .tab.active { background-color: #E64097; color: white; border-color: #E64097; box-shadow: 0 4px 6px rgba(230, 64, 151, 0.2); }
         .tab:hover:not(.active) { background-color: #d4d4d4; }
-
         .main-layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
-        
         .left-panel { flex: 1 1 550px; max-width: 650px; }
         .circuit-container { border: 2px solid #eaeaea; padding: 15px; text-align: center; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
-        
         .right-panel { flex: 1 1 350px; display: flex; flex-direction: column; gap: 15px; }
         .quiz-section { background-color: #fdf4f8; padding: 15px 20px; border-radius: 8px; border: 1px solid #f2c7db; }
         .quiz-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2c7db; padding-bottom: 10px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
         .quiz-header h3 { margin: 0; font-size: 1.2rem; }
-        
         .score-container { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
         .scoreboard { background-color: #fff; padding: 6px 15px; border: 2px solid #E64097; border-radius: 6px; font-weight: bold; font-size: 16px; color: #E64097; box-shadow: 0 2px 4px rgba(230, 64, 151, 0.1); }
         .btn-download { background-color: #198754; font-size: 13px; padding: 8px 12px; margin: 0; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
         .btn-download:hover { background-color: #157347; }
-        
         .input-area { text-align: center; }
         .input-group { margin: 10px 0; font-size: 18px; font-weight: bold; display: inline-block; margin-right: 15px; }
         input[type="number"] { font-size: 18px; padding: 5px; width: 70px; text-align: center; margin: 0 5px; border: 1px solid #ccc; border-radius: 4px; outline-color: #E64097; }
         .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center;}
-        
         .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; }
         button { padding: 10px 20px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s, transform 0.1s;}
         button:active { transform: scale(0.98); }
@@ -47,7 +39,6 @@
         .btn-black:hover { background-color: #333333; }
         .btn-secondary { background-color: #6c757d; }
         .btn-secondary:hover { background-color: #5c636a; }
-        
         .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .solutions h3 { margin-top: 0; color: #E64097; font-size: 1.1rem; }
         .solutions p { margin-bottom: 0; font-size: 0.95rem; }
@@ -111,6 +102,13 @@
     </div>
 
     <script>
+        // VISUAL ERROR CATCHER - Prints JS errors directly to the screen
+        window.onerror = function(message, source, lineno) {
+            const fb = document.getElementById('feedback');
+            if (fb) fb.innerHTML = "<span style='color:red; font-weight:bold;'>System Error: " + message + " (Line " + lineno + ")</span>";
+            return false;
+        };
+
         const brandPink = "#E64097";
         const brandBlack = "#000000";
 
@@ -231,7 +229,10 @@
 
         function generateProblem() {
             const canvas = document.getElementById('circuitCanvas');
-            if (!canvas) return; 
+            if (!canvas) {
+                throw new Error("Canvas element not found on page.");
+                return; 
+            }
             const ctx = canvas.getContext('2d');
             
             hasCheckedCurrentProblem = false;
@@ -450,42 +451,4 @@
                     "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + "V</strong> <br><br>" +
                     "<em>Step 1:</em> Understand the Potential Divider Equation:<br>" +
                     "<strong>Vout = Vin × (R / Rtotal)</strong><br><br>" +
-                    "<em>Step 2:</em> Find Total Resistance (Rtotal):<br>" +
-                    "Rtotal = R1 + R2 = " + sc.R1 + " " + sc.units + " + " + sc.R2 + " " + sc.units + " = <strong>" + Rtot + " " + sc.units + "</strong><br><br>" +
-                    "<em>Step 3:</em> Calculate " + currentAnswers.vNameHTML + ":<br>" +
-                    currentAnswers.vNameHTML + " = " + sc.V + "V × (" + targetR + " / " + Rtot + ") = <strong>" + currentAnswers.vValue + "V</strong><br>";
-            }
-        }
-
-        function checkAnswers() {
-            if (isCurrentProblemSolved) return; 
-
-            const inputVEl = document.getElementById('inputV');
-            const inputIEl = document.getElementById('inputI');
-            const userV = inputVEl ? parseFloat(inputVEl.value) : NaN;
-            const userI = inputIEl ? parseFloat(inputIEl.value) : NaN;
-            
-            const feedback = document.getElementById('feedback');
-            const helpBtn = document.getElementById('helpBtn');
-            
-            if (!hasCheckedCurrentProblem) {
-                problemsAttempted++;
-                hasCheckedCurrentProblem = true;
-            }
-
-            if (currentMode === 'analysis') {
-                if (isNaN(userV) || isNaN(userI)) {
-                    if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a number in both boxes!</span>";
-                    hasCheckedCurrentProblem = false; 
-                    problemsAttempted--;
-                    return;
-                }
-
-                if (userV === currentAnswers.vValue && userI === currentAnswers.iValue) {
-                    isCurrentProblemSolved = true;
-                    if (!viewedSolution) problemsCorrect++;
-                    if (feedback) feedback.innerHTML = viewedSolution ? "<span style='color: #E64097; font-weight: bold;'>Correct! (Solution was viewed).</span>" : "<span style='color: #198754; font-weight: bold;'>🎉 Correct! Great job!</span>";
-                    if (helpBtn) helpBtn.style.display = 'none'; 
-                } else {
-                    if (helpBtn) helpBtn.style.display = 'block';
-                    if (userV === currentAnswers.vValue && userI !== currentAnswers.iValue) {
+                    "<em>Step 2:</em> Find Total Resistance (R
