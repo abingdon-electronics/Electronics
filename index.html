@@ -485,7 +485,7 @@
             }
         }
 
-        function generateResistanceProblem(ctx, canvas) {
+      function generateResistanceProblem(ctx, canvas) {
             const grpV = document.getElementById('inputGroupV');
             const grpI = document.getElementById('inputGroupI');
             const grpR = document.getElementById('inputGroupR');
@@ -498,32 +498,39 @@
             ctx.lineWidth = 2;
             ctx.font = "bold 18px Arial";
 
-            const isSeries = Math.random() < 0.5;
-            let r1, r2, rTotal, logicText;
+            // Draw Top and Bottom Rails to match other tabs
+            drawLine(ctx, 150, 60, 450, 60); 
+            drawLine(ctx, 150, 360, 450, 360); 
+            
+            ctx.fillStyle = brandBlack;
+            ctx.fillText("+Vsupply", 260, 45);
+            ctx.fillText("0V (GND)", 260, 390);
 
-            if (isSeries) {
-                r1 = (Math.floor(Math.random() * 10) + 1) * 10; 
-                r2 = (Math.floor(Math.random() * 10) + 1) * 10;
+            // 0 = Series, 1 = Parallel, 2 = Series-Parallel Combo
+            const scenario = Math.floor(Math.random() * 3);
+            
+            let rTotal, logicText;
+
+            if (scenario === 0) {
+                // SCENARIO 1: Series (2 vertical resistors)
+                const r1 = (Math.floor(Math.random() * 10) + 1) * 10; 
+                const r2 = (Math.floor(Math.random() * 10) + 1) * 10;
                 rTotal = r1 + r2;
+                
                 logicText = "R<sub>Total</sub> = R<sub>1</sub> + R<sub>2</sub> <br> R<sub>Total</sub> = " + r1 + "&Omega; + " + r2 + "&Omega; = <strong>" + rTotal + "&Omega;</strong>";
 
-                drawLine(ctx, 100, 210, 175, 210);
-                drawHorizontalResistor(ctx, 200, 210); 
-                drawLine(ctx, 225, 210, 375, 210);
-                drawHorizontalResistor(ctx, 400, 210); 
-                drawLine(ctx, 425, 210, 500, 210);
-
+                drawLine(ctx, 300, 60, 300, 120);
+                drawResistor(ctx, 300, 145);
+                drawLine(ctx, 300, 170, 300, 230);
+                drawResistor(ctx, 300, 255);
+                drawLine(ctx, 300, 280, 300, 360);
+                
                 ctx.font = "16px Arial";
-                ctx.fillStyle = brandBlack;
-                ctx.fillText("R\u2081 = " + r1 + " \u03A9", 165, 170);
-                ctx.fillText("R\u2082 = " + r2 + " \u03A9", 365, 170);
+                ctx.fillText("R\u2081 = " + r1 + " \u03A9", 330, 150);
+                ctx.fillText("R\u2082 = " + r2 + " \u03A9", 330, 260);
 
-                ctx.beginPath(); ctx.arc(100, 210, 5, 0, 2 * Math.PI); ctx.fill();
-                ctx.beginPath(); ctx.arc(500, 210, 5, 0, 2 * Math.PI); ctx.fill();
-                ctx.fillStyle = brandPink; ctx.font = "bold 20px Arial";
-                ctx.fillText("A", 85, 190); ctx.fillText("B", 500, 190);
-
-            } else {
+            } else if (scenario === 1) {
+                // SCENARIO 2: Parallel (2 vertical branches)
                 const parallelPairs = [
                     {r1: 10, r2: 10, req: 5}, {r1: 20, r2: 20, req: 10},
                     {r1: 30, r2: 60, req: 20}, {r1: 100, r2: 100, req: 50},
@@ -531,37 +538,77 @@
                     {r1: 60, r2: 60, req: 30}, {r1: 150, r2: 300, req: 100}
                 ];
                 const pair = parallelPairs[Math.floor(Math.random() * parallelPairs.length)];
-                r1 = pair.r1; r2 = pair.r2; rTotal = pair.req;
+                const r1 = pair.r1; const r2 = pair.r2; rTotal = pair.req;
+                
                 logicText = "1/R<sub>Total</sub> = 1/R<sub>1</sub> + 1/R<sub>2</sub> <br> 1/R<sub>Total</sub> = 1/" + r1 + " + 1/" + r2 + " <br> R<sub>Total</sub> = <strong>" + rTotal + "&Omega;</strong>";
 
-                drawLine(ctx, 100, 210, 200, 210);
-                drawLine(ctx, 400, 210, 500, 210);
+                drawLine(ctx, 300, 60, 300, 100);
+                drawLine(ctx, 220, 100, 380, 100); // Split
+                
+                // Left Branch
+                drawLine(ctx, 220, 100, 220, 150);
+                drawResistor(ctx, 220, 175);
+                drawLine(ctx, 220, 200, 220, 320);
 
-                drawLine(ctx, 200, 130, 200, 290);
-                drawLine(ctx, 400, 130, 400, 290);
+                // Right Branch
+                drawLine(ctx, 380, 100, 380, 150);
+                drawResistor(ctx, 380, 175);
+                drawLine(ctx, 380, 200, 380, 320);
 
-                drawLine(ctx, 200, 130, 275, 130);
-                drawHorizontalResistor(ctx, 300, 130);
-                drawLine(ctx, 325, 130, 400, 130);
-
-                drawLine(ctx, 200, 290, 275, 290);
-                drawHorizontalResistor(ctx, 300, 290);
-                drawLine(ctx, 325, 290, 400, 290);
+                drawLine(ctx, 220, 320, 380, 320); // Merge
+                drawLine(ctx, 300, 320, 300, 360);
 
                 ctx.font = "16px Arial";
-                ctx.fillStyle = brandBlack;
-                ctx.fillText("R\u2081 = " + r1 + " \u03A9", 265, 100);
-                ctx.fillText("R\u2082 = " + r2 + " \u03A9", 265, 335);
+                ctx.fillText("R\u2081 = " + r1 + " \u03A9", 140, 180);
+                ctx.fillText("R\u2082 = " + r2 + " \u03A9", 400, 180);
 
-                ctx.beginPath(); ctx.arc(100, 210, 5, 0, 2 * Math.PI); ctx.fill();
-                ctx.beginPath(); ctx.arc(500, 210, 5, 0, 2 * Math.PI); ctx.fill();
-                ctx.fillStyle = brandPink; ctx.font = "bold 20px Arial";
-                ctx.fillText("A", 85, 190); ctx.fillText("B", 500, 190);
+            } else {
+                // SCENARIO 3: Series-Parallel (R1 in series with R2 & R3)
+                const spScenarios = [
+                    {r1: 10, r2: 20, r3: 20, rp: 10, req: 20},
+                    {r1: 15, r2: 30, r3: 60, rp: 20, req: 35},
+                    {r1: 5,  r2: 12, r3: 24, rp: 8,  req: 13},
+                    {r1: 25, r2: 100, r3: 100, rp: 50, req: 75},
+                    {r1: 20, r2: 40, r3: 40, rp: 20, req: 40},
+                    {r1: 50, r2: 60, r3: 60, rp: 30, req: 80}
+                ];
+                const sp = spScenarios[Math.floor(Math.random() * spScenarios.length)];
+                rTotal = sp.req;
+
+                logicText = "<em>Step 1: Calculate parallel part (R<sub>2</sub> & R<sub>3</sub>)</em><br>" + 
+                            "1/R<sub>P</sub> = 1/" + sp.r2 + " + 1/" + sp.r3 + " &rarr; R<sub>P</sub> = " + sp.rp + "&Omega;<br><br>" +
+                            "<em>Step 2: Add series part (R<sub>1</sub>)</em><br>" +
+                            "R<sub>Total</sub> = R<sub>1</sub> + R<sub>P</sub> = " + sp.r1 + " + " + sp.rp + " = <strong>" + sp.req + "&Omega;</strong>";
+
+                // Top Series Resistor
+                drawLine(ctx, 300, 60, 300, 90);
+                drawResistor(ctx, 300, 115);
+                drawLine(ctx, 300, 140, 300, 180);
+
+                drawLine(ctx, 220, 180, 380, 180); // Split
+
+                // Left Parallel Branch
+                drawLine(ctx, 220, 180, 220, 220);
+                drawResistor(ctx, 220, 245);
+                drawLine(ctx, 220, 270, 220, 320);
+
+                // Right Parallel Branch
+                drawLine(ctx, 380, 180, 380, 220);
+                drawResistor(ctx, 380, 245);
+                drawLine(ctx, 380, 270, 380, 320);
+
+                drawLine(ctx, 220, 320, 380, 320); // Merge
+                drawLine(ctx, 300, 320, 300, 360);
+
+                ctx.font = "16px Arial";
+                ctx.fillText("R\u2081 = " + sp.r1 + " \u03A9", 330, 120);
+                ctx.fillText("R\u2082 = " + sp.r2 + " \u03A9", 140, 250);
+                ctx.fillText("R\u2083 = " + sp.r3 + " \u03A9", 400, 250);
             }
 
             currentAnswers.rValue = rTotal;
             const labelR = document.getElementById('labelR');
-            if (labelR) labelR.innerHTML = "Find <span style='color:" + brandPink + "'>R<sub>Total</sub></span> (A to B) = ";
+            if (labelR) labelR.innerHTML = "Find <span style='color:" + brandPink + "'>R<sub>Total</sub></span> = ";
 
             const solText = document.getElementById('solText');
             if (solText) {
