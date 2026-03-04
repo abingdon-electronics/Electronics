@@ -79,7 +79,7 @@
                     <h3>Enter Your Answer</h3>
                     <div class="score-container">
                         <div class="scoreboard" id="scoreDisplay">Score: 0 / 0</div>
-                        <button class="btn-download" onclick="downloadScore()">Download</button>
+                        <button class="btn-download" onclick="downloadScore()">⬇ Download</button>
                     </div>
                 </div>
                 
@@ -96,7 +96,7 @@
 
                     <div class="input-group" id="inputGroupR" style="display:none;">
                         <label id="labelR" for="inputR">R? = </label>
-                        <input type="number" id="inputR" placeholder="..."> Ohms
+                        <input type="number" id="inputR" placeholder="..."> Ω
                     </div>
                     
                     <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
@@ -152,74 +152,4 @@
         }
 
         function downloadScore() {
-            if (problemsAttempted === 0) {
-                alert("Please attempt at least one question before downloading your score!");
-                return;
-            }
-            const studentName = prompt("Enter your name for the score sheet:");
-            if (!studentName) return; 
-
-            const certCanvas = document.createElement('canvas');
-            certCanvas.width = 600;
-            certCanvas.height = 400;
-            const ctx = certCanvas.getContext('2d');
-
-            ctx.fillStyle = "#fdf4f8"; 
-            ctx.fillRect(0, 0, certCanvas.width, certCanvas.height);
-            ctx.strokeStyle = brandPink;
-            ctx.lineWidth = 12;
-            ctx.strokeRect(6, 6, 588, 388);
-            ctx.strokeStyle = brandBlack;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(18, 18, 564, 364);
-
-            ctx.textAlign = "center";
-            ctx.fillStyle = brandBlack;
-            ctx.font = "bold 36px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("ABINGDON ELECTRONICS", 300, 80);
-
-            ctx.fillStyle = brandPink;
-            ctx.font = "italic 24px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Basics Knowledge Check", 300, 120);
-
-            ctx.beginPath();
-            ctx.moveTo(150, 145);
-            ctx.lineTo(450, 145);
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.fillStyle = brandBlack;
-            ctx.font = "28px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Student: " + studentName, 300, 210);
-
-            ctx.fillStyle = brandPink;
-            ctx.font = "bold 56px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText(problemsCorrect + " / " + problemsAttempted, 300, 285);
-            
-            ctx.fillStyle = brandBlack;
-            ctx.font = "20px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Questions Answered Correctly", 300, 315);
-
-            const today = new Date().toLocaleDateString('en-GB'); 
-            ctx.fillStyle = "#666";
-            ctx.font = "16px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Date Completed: " + today, 300, 360);
-
-            const imageURI = certCanvas.toDataURL("image/png");
-            const downloadLink = document.createElement('a');
-            const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
-            
-            downloadLink.download = "Electronics_Score_" + safeName + ".png"; 
-            downloadLink.href = imageURI;
-            downloadLink.click();
-
-            problemsAttempted = 0;
-            problemsCorrect = 0;
-            updateScoreboard();
-            generateProblem();
-            alert("Certificate downloaded successfully! The score has been reset for the next student.");
-        }
-
-        function drawResistor(ctx, x, y) {
-            ctx.beginPath();
-            ctx.rect(x - 12, y - 25, 24, 50);
+            if (problemsAttempted === 0)
