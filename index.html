@@ -63,6 +63,7 @@
     <div class="tabs">
         <button class="tab active" id="tab-analysis" onclick="switchTab('analysis')">Circuit Analysis</button>
         <button class="tab" id="tab-divider" onclick="switchTab('divider')">Potential Divider</button>
+        <button class="tab" id="tab-resistance" onclick="switchTab('resistance')">Total Resistance</button>
     </div>
 
     <div class="main-layout">
@@ -92,6 +93,11 @@
                         <label id="labelI" for="inputI">I? = </label>
                         <input type="number" id="inputI" placeholder="..."> mA
                     </div>
+
+                    <div class="input-group" id="inputGroupR" style="display:none;">
+                        <label id="labelR" for="inputR">R? = </label>
+                        <input type="number" id="inputR" placeholder="..."> Ω
+                    </div>
                     
                     <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
                     <div id="feedback" class="feedback"></div>
@@ -115,7 +121,8 @@
         const brandBlack = "#000000";
 
         let currentMode = 'analysis'; 
-        let currentAnswers = { vNameHTML: '', vValue: 0, iNameHTML: '', iValue: 0 };
+        // Added rValue to the currentAnswers object tracking
+        let currentAnswers = { vNameHTML: '', vValue: 0, iNameHTML: '', iValue: 0, rValue: 0 };
         let problemsAttempted = 0;
         let problemsCorrect = 0;
         let hasCheckedCurrentProblem = false; 
@@ -128,8 +135,11 @@
             
             const tabA = document.getElementById('tab-analysis');
             const tabD = document.getElementById('tab-divider');
+            const tabR = document.getElementById('tab-resistance'); // Added
+            
             if (tabA) tabA.classList.remove('active');
             if (tabD) tabD.classList.remove('active');
+            if (tabR) tabR.classList.remove('active'); // Added
             
             const activeTab = document.getElementById('tab-' + mode);
             if (activeTab) activeTab.classList.add('active');
@@ -211,9 +221,20 @@
             alert("Certificate downloaded successfully! The score has been reset for the next student.");
         }
 
+        // Draws a vertical resistor (used in analysis and divider)
         function drawResistor(ctx, x, y) {
             ctx.beginPath();
             ctx.rect(x - 12, y - 25, 24, 50); 
+            ctx.fillStyle = "white";
+            ctx.fill();
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        // New: Draws a horizontal resistor (used in total resistance)
+        function drawHorizontalResistor(ctx, x, y) {
+            ctx.beginPath();
+            ctx.rect(x - 25, y - 12, 50, 24); 
             ctx.fillStyle = "white";
             ctx.fill();
             ctx.stroke();
@@ -241,24 +262,30 @@
             const solutions = document.getElementById('solutions');
             const inputV = document.getElementById('inputV');
             const inputI = document.getElementById('inputI');
+            const inputR = document.getElementById('inputR'); // Added
             const feedback = document.getElementById('feedback');
 
             if (helpBtn) helpBtn.style.display = 'none';
             if (solutions) solutions.style.display = 'none';
             if (inputV) inputV.value = '';
             if (inputI) inputI.value = '';
+            if (inputR) inputR.value = ''; // Added
             if (feedback) feedback.innerHTML = '';
 
             if (currentMode === 'analysis') {
                 generateAnalysisProblem(ctx, canvas);
-            } else {
+            } else if (currentMode === 'divider') {
                 generateDividerProblem(ctx, canvas);
+            } else {
+                generateResistanceProblem(ctx, canvas); // Added routing for new tab
             }
         }
 
         function generateAnalysisProblem(ctx, canvas) {
-            const inputGroupI = document.getElementById('inputGroupI');
-            if (inputGroupI) inputGroupI.style.display = 'inline-block';
+            // Manage UI visibility
+            document.getElementById('inputGroupV').style.display = 'inline-block';
+            document.getElementById('inputGroupI').style.display = 'inline-block';
+            document.getElementById('inputGroupR').style.display = 'none';
 
             const v1 = Math.floor(Math.random() * 10) + 1; 
             const v2 = v1; 
@@ -357,182 +384,4 @@
                 drawLine(ctx, 300, 60, 300, 100);
                 drawResistor(ctx, 300, 125);
                 drawLine(ctx, 300, 150, 300, 190);
-                drawLine(ctx, 200, 190, 400, 190); 
-                drawLine(ctx, 200, 190, 200, 250);
-                drawLine(ctx, 400, 190, 400, 250);
-                drawResistor(ctx, 200, 275);
-                drawResistor(ctx, 400, 275);
-                drawLine(ctx, 200, 300, 200, 360);
-                drawLine(ctx, 400, 300, 400, 360);
-
-                ctx.fillStyle = brandBlack; ctx.fillText("R₃", 260, 130);
-                ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 130); 
-                ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 90);
-                ctx.fillStyle = brandBlack; ctx.fillText("R₁", 160, 280);
-                ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 280); 
-                ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 230);
-                ctx.fillStyle = brandBlack; ctx.fillText("R₂", 365, 280); 
-                ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 280); 
-                ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 230);
-            }
-
-            const solText = document.getElementById('solText');
-            if (solText) {
-                solText.innerHTML = 
-                    "<strong>" + voltages[unknownVIndex].html + " = " + voltages[unknownVIndex].val + "V</strong> <br>" +
-                    "<em>Logic:</em> " + voltages[unknownVIndex].logic + " <br><br>" +
-                    "<strong>" + currents[unknownIIndex].html + " = " + currents[unknownIIndex].val + "mA</strong> <br>" +
-                    "<em>Logic:</em> " + currents[unknownIIndex].logic;
-            }
-        }
-
-        function generateDividerProblem(ctx, canvas) {
-            const inputGroupI = document.getElementById('inputGroupI');
-            if (inputGroupI) inputGroupI.style.display = 'none';
-
-            const cleanMathScenarios = [
-                { V: 10, R1: 1, R2: 1, units: 'k\u2126' }, // Unicode kΩ
-                { V: 12, R1: 1, R2: 2, units: 'k\u2126' }, 
-                { V: 12, R1: 2, R2: 1, units: 'k\u2126' }, 
-                { V: 20, R1: 3, R2: 1, units: 'k\u2126' }, 
-                { V: 9,  R1: 1, R2: 2, units: 'k\u2126' }, 
-                { V: 24, R1: 3, R2: 5, units: '\u2126' },  // Unicode Ω
-                { V: 5,  R1: 2, R2: 3, units: 'k\u2126' }, 
-                { V: 15, R1: 2, R2: 1, units: 'k\u2126' }  
-            ];
-            
-            const sc = cleanMathScenarios[Math.floor(Math.random() * cleanMathScenarios.length)];
-            const targetIsR1 = Math.random() < 0.5; 
-            
-            const Rtot = sc.R1 + sc.R2;
-            const V1 = (sc.V * sc.R1) / Rtot;
-            const V2 = (sc.V * sc.R2) / Rtot;
-            
-            currentAnswers.vNameHTML = targetIsR1 ? 'V<sub>1</sub>' : 'V<sub>2</sub>';
-            const vNameDisplay = targetIsR1 ? 'V₁' : 'V₂';
-            currentAnswers.vValue = targetIsR1 ? V1 : V2;
-            
-            const labelV = document.getElementById('labelV');
-            if (labelV) labelV.innerHTML = "Find <span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = brandBlack;
-            ctx.lineWidth = 2;
-            ctx.font = "bold 18px Arial";
-            
-            drawLine(ctx, 150, 60, 450, 60); 
-            drawLine(ctx, 150, 360, 450, 360); 
-            
-            ctx.fillStyle = brandBlack;
-            ctx.fillText("+Vsupply = " + sc.V + "V", 230, 45);
-            ctx.fillText("0V (GND)", 260, 390);
-            
-            drawLine(ctx, 300, 60, 300, 120);
-            drawResistor(ctx, 300, 145);
-            drawLine(ctx, 300, 170, 300, 230);
-            drawResistor(ctx, 300, 255);
-            drawLine(ctx, 300, 280, 300, 360);
-            
-            ctx.font = "16px Arial";
-            ctx.fillStyle = brandBlack; 
-            // Omega symbols appear here via sc.units
-            ctx.fillText("R₁ = " + sc.R1 + " " + sc.units, 330, 150);
-            ctx.fillText("R₂ = " + sc.R2 + " " + sc.units, 330, 260);
-            
-            ctx.fillStyle = brandPink;
-            ctx.font = "bold 16px Arial";
-            ctx.fillText(vNameDisplay + " = ?", 240, targetIsR1 ? 150 : 260);
-            
-            const targetR = targetIsR1 ? sc.R1 : sc.R2;
-            const solText = document.getElementById('solText');
-            if (solText) {
-                solText.innerHTML = 
-                    "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + "V</strong> <br><br>" +
-                    "<em>Step 1:</em> Understand the Potential Divider Equation:<br>" +
-                    "<strong>Vout = Vin × (R / Rtotal)</strong><br><br>" +
-                    "<em>Step 2:</em> Find Total Resistance (Rtotal):<br>" +
-                    "Rtotal = R₁ + R₂ = " + sc.R1 + " " + sc.units + " + " + sc.R2 + " " + sc.units + " = <strong>" + Rtot + " " + sc.units + "</strong><br><br>" +
-                    "<em>Step 3:</em> Calculate " + currentAnswers.vNameHTML + ":<br>" +
-                    currentAnswers.vNameHTML + " = " + sc.V + "V × (" + targetR + " / " + Rtot + ") = <strong>" + currentAnswers.vValue + "V</strong><br>";
-            }
-        }
-
-        function checkAnswers() {
-            if (isCurrentProblemSolved) return; 
-
-            const inputVEl = document.getElementById('inputV');
-            const inputIEl = document.getElementById('inputI');
-            const userV = inputVEl ? parseFloat(inputVEl.value) : NaN;
-            const userI = inputIEl ? parseFloat(inputIEl.value) : NaN;
-            
-            const feedback = document.getElementById('feedback');
-            const helpBtn = document.getElementById('helpBtn');
-            
-            if (!hasCheckedCurrentProblem) {
-                problemsAttempted++;
-                hasCheckedCurrentProblem = true;
-            }
-
-            if (currentMode === 'analysis') {
-                if (isNaN(userV) || isNaN(userI)) {
-                    if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a number in both boxes!</span>";
-                    hasCheckedCurrentProblem = false; 
-                    problemsAttempted--;
-                    return;
-                }
-
-                if (userV === currentAnswers.vValue && userI === currentAnswers.iValue) {
-                    isCurrentProblemSolved = true;
-                    if (!viewedSolution) problemsCorrect++;
-                    if (feedback) feedback.innerHTML = viewedSolution ? "<span style='color: #E64097; font-weight: bold;'>Correct! (Solution was viewed).</span>" : "<span style='color: #198754; font-weight: bold;'>🎉 Correct! Great job!</span>";
-                    if (helpBtn) helpBtn.style.display = 'none'; 
-                } else {
-                    if (helpBtn) helpBtn.style.display = 'block';
-                    if (userV === currentAnswers.vValue && userI !== currentAnswers.iValue) {
-                        if (feedback) feedback.innerHTML = "<span style='color: #fd7e14; font-weight: bold;'>Voltage correct. Current is wrong.</span>";
-                    } else if (userV !== currentAnswers.vValue && userI === currentAnswers.iValue) {
-                        if (feedback) feedback.innerHTML = "<span style='color: #fd7e14; font-weight: bold;'>Current correct. Voltage is wrong.</span>";
-                    } else {
-                        if (feedback) feedback.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Both are incorrect. Check rules!</span>";
-                    }
-                }
-            } else {
-                if (isNaN(userV)) {
-                    if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a voltage!</span>";
-                    hasCheckedCurrentProblem = false; 
-                    problemsAttempted--;
-                    return;
-                }
-
-                if (userV === currentAnswers.vValue) {
-                    isCurrentProblemSolved = true;
-                    if (!viewedSolution) problemsCorrect++;
-                    if (feedback) feedback.innerHTML = viewedSolution ? "<span style='color: #E64097; font-weight: bold;'>Correct! (Solution was viewed).</span>" : "<span style='color: #198754; font-weight: bold;'>🎉 Correct! Great job!</span>";
-                    if (helpBtn) helpBtn.style.display = 'none'; 
-                } else {
-                    if (helpBtn) helpBtn.style.display = 'block';
-                    if (feedback) feedback.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Incorrect. Try using the potential divider equation!</span>";
-                }
-            }
-            updateScoreboard(); 
-        }
-
-        function toggleSolutions() {
-            const solDiv = document.getElementById('solutions');
-            if (solDiv) {
-                solDiv.style.display = solDiv.style.display === 'none' ? 'block' : 'none';
-                if (solDiv.style.display === 'block') viewedSolution = true; 
-            }
-        }
-
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkAnswers();
-        });
-
-        window.addEventListener('load', function() {
-            generateProblem();
-        });
-
-    </script>
-</body>
-</html>
+                drawLine(ctx, 200, 190, 40
