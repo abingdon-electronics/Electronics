@@ -102,13 +102,6 @@
     </div>
 
     <script>
-        // VISUAL ERROR CATCHER - Prints JS errors directly to the screen
-        window.onerror = function(message, source, lineno) {
-            const fb = document.getElementById('feedback');
-            if (fb) fb.innerHTML = "<span style='color:red; font-weight:bold;'>System Error: " + message + " (Line " + lineno + ")</span>";
-            return false;
-        };
-
         const brandPink = "#E64097";
         const brandBlack = "#000000";
 
@@ -145,7 +138,6 @@
                 alert("Please attempt at least one question before downloading your score!");
                 return;
             }
-
             const studentName = prompt("Enter your name for the score sheet:");
             if (!studentName) return; 
 
@@ -229,10 +221,7 @@
 
         function generateProblem() {
             const canvas = document.getElementById('circuitCanvas');
-            if (!canvas) {
-                throw new Error("Canvas element not found on page.");
-                return; 
-            }
+            if (!canvas) return; 
             const ctx = canvas.getContext('2d');
             
             hasCheckedCurrentProblem = false;
@@ -271,17 +260,18 @@
             const i2 = Math.floor(Math.random() * 10) + 1; 
             const i3 = i1 + i2; 
 
+            // Replaced plain numbers with Unicode subscripts for canvas compatibility
             const voltages = [
-                { display: 'V1', html: 'V<sub>1</sub>', val: v1, logic: 'V1 = V2 (Parallel components share voltage)' },
-                { display: 'V2', html: 'V<sub>2</sub>', val: v2, logic: 'V2 = V1 (Parallel components share voltage)' },
-                { display: 'V3', html: 'V<sub>3</sub>', val: v3, logic: "V3 = +Vsupply - V1 (" + vTotal + "V - " + v1 + "V)" },
-                { display: '+Vsupply', html: '+Vsupply', val: vTotal, logic: "+Vsupply = V1 + V3 (" + v1 + "V + " + v3 + "V)" }
+                { display: 'V₁', html: 'V<sub>1</sub>', val: v1, logic: 'V₁ = V₂ (Parallel components share voltage)' },
+                { display: 'V₂', html: 'V<sub>2</sub>', val: v2, logic: 'V₂ = V₁ (Parallel components share voltage)' },
+                { display: 'V₃', html: 'V<sub>3</sub>', val: v3, logic: "V₃ = +Vsupply - V₁ (" + vTotal + "V - " + v1 + "V)" },
+                { display: '+Vsupply', html: '+Vsupply', val: vTotal, logic: "+Vsupply = V₁ + V₃ (" + v1 + "V + " + v3 + "V)" }
             ];
             
             const currents = [
-                { display: 'I1', html: 'I<sub>1</sub>', val: i1, logic: "I1 = I3 - I2 (" + i3 + "mA - " + i2 + "mA)" },
-                { display: 'I2', html: 'I<sub>2</sub>', val: i2, logic: "I2 = I3 - I1 (" + i3 + "mA - " + i1 + "mA)" },
-                { display: 'I3', html: 'I<sub>3</sub>', val: i3, logic: "I3 = I1 + I2 (" + i1 + "mA + " + i2 + "mA)" }
+                { display: 'I₁', html: 'I<sub>1</sub>', val: i1, logic: "I₁ = I₃ - I₂ (" + i3 + "mA - " + i2 + "mA)" },
+                { display: 'I₂', html: 'I<sub>2</sub>', val: i2, logic: "I₂ = I₃ - I₁ (" + i3 + "mA - " + i1 + "mA)" },
+                { display: 'I₃', html: 'I<sub>3</sub>', val: i3, logic: "I₃ = I₁ + I₂ (" + i1 + "mA + " + i2 + "mA)" }
             ];
 
             const unknownVIndex = Math.floor(Math.random() * 4);
@@ -308,16 +298,16 @@
             if (unknownVIndex === 2 || unknownVIndex === 3) {
                 if (Math.random() < 0.5) {
                     vLabels[0] = ""; 
-                    voltages[2].logic = "V3 = +Vsupply - V2 (since V1 = V2, " + vTotal + "V - " + v2 + "V)";
-                    voltages[3].logic = "+Vsupply = V2 + V3 (since V1 = V2, " + v2 + "V + " + v3 + "V)";
+                    voltages[2].logic = "V₃ = +Vsupply - V₂ (since V₁ = V₂, " + vTotal + "V - " + v2 + "V)";
+                    voltages[3].logic = "+Vsupply = V₂ + V₃ (since V₁ = V₂, " + v2 + "V + " + v3 + "V)";
                 } else {
                     vLabels[1] = ""; 
                 }
             } else if (unknownVIndex === 0) {
-                if (Math.random() < 0.5) { vLabels[1] = ""; voltages[0].logic = "V1 = +Vsupply - V3 (" + vTotal + "V - " + v3 + "V)"; } 
+                if (Math.random() < 0.5) { vLabels[1] = ""; voltages[0].logic = "V₁ = +Vsupply - V₃ (" + vTotal + "V - " + v3 + "V)"; } 
                 else { topRailText = ""; }
             } else if (unknownVIndex === 1) {
-                if (Math.random() < 0.5) { vLabels[0] = ""; voltages[1].logic = "V2 = +Vsupply - V3 (" + vTotal + "V - " + v3 + "V)"; } 
+                if (Math.random() < 0.5) { vLabels[0] = ""; voltages[1].logic = "V₂ = +Vsupply - V₃ (" + vTotal + "V - " + v3 + "V)"; } 
                 else { topRailText = ""; }
             }
 
@@ -337,6 +327,7 @@
             ctx.font = "16px Arial";
             const isTopHeavy = Math.random() < 0.5;
 
+            // Updated R1, R2, R3 to use Unicode R₁, R₂, R₃
             if (isTopHeavy) {
                 drawLine(ctx, 200, 60, 200, 120); drawLine(ctx, 400, 60, 400, 120); 
                 drawResistor(ctx, 200, 145); drawResistor(ctx, 400, 145); 
@@ -346,13 +337,13 @@
                 drawResistor(ctx, 300, 295); 
                 drawLine(ctx, 300, 320, 300, 360); 
 
-                ctx.fillStyle = brandBlack; ctx.fillText("R1", 160, 150);
+                ctx.fillStyle = brandBlack; ctx.fillText("R₁", 160, 150);
                 ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 150); 
                 ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 100);
-                ctx.fillStyle = brandBlack; ctx.fillText("R2", 365, 150); 
+                ctx.fillStyle = brandBlack; ctx.fillText("R₂", 365, 150); 
                 ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 150); 
                 ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 100);
-                ctx.fillStyle = brandBlack; ctx.fillText("R3", 260, 300);
+                ctx.fillStyle = brandBlack; ctx.fillText("R₃", 260, 300);
                 ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 300); 
                 ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 260);
             } else {
@@ -367,13 +358,13 @@
                 drawLine(ctx, 200, 300, 200, 360);
                 drawLine(ctx, 400, 300, 400, 360);
 
-                ctx.fillStyle = brandBlack; ctx.fillText("R3", 260, 130);
+                ctx.fillStyle = brandBlack; ctx.fillText("R₃", 260, 130);
                 ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 130); 
                 ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 90);
-                ctx.fillStyle = brandBlack; ctx.fillText("R1", 160, 280);
+                ctx.fillStyle = brandBlack; ctx.fillText("R₁", 160, 280);
                 ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 280); 
                 ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 230);
-                ctx.fillStyle = brandBlack; ctx.fillText("R2", 365, 280); 
+                ctx.fillStyle = brandBlack; ctx.fillText("R₂", 365, 280); 
                 ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 280); 
                 ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 230);
             }
@@ -411,7 +402,7 @@
             const V2 = (sc.V * sc.R2) / Rtot;
             
             currentAnswers.vNameHTML = targetIsR1 ? 'V<sub>1</sub>' : 'V<sub>2</sub>';
-            const vNameDisplay = targetIsR1 ? 'V1' : 'V2';
+            const vNameDisplay = targetIsR1 ? 'V₁' : 'V₂'; // Unicode subscripts
             currentAnswers.vValue = targetIsR1 ? V1 : V2;
             
             const labelV = document.getElementById('labelV');
@@ -437,8 +428,9 @@
             
             ctx.font = "16px Arial";
             ctx.fillStyle = brandBlack; 
-            ctx.fillText("R1 = " + sc.R1 + " " + sc.units, 330, 150);
-            ctx.fillText("R2 = " + sc.R2 + " " + sc.units, 330, 260);
+            // Unicode R1 and R2
+            ctx.fillText("R₁ = " + sc.R1 + " " + sc.units, 330, 150);
+            ctx.fillText("R₂ = " + sc.R2 + " " + sc.units, 330, 260);
             
             ctx.fillStyle = brandPink;
             ctx.font = "bold 16px Arial";
@@ -451,4 +443,89 @@
                     "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + "V</strong> <br><br>" +
                     "<em>Step 1:</em> Understand the Potential Divider Equation:<br>" +
                     "<strong>Vout = Vin × (R / Rtotal)</strong><br><br>" +
-                    "<em>Step 2:</em> Find Total Resistance (R
+                    "<em>Step 2:</em> Find Total Resistance (Rtotal):<br>" +
+                    "Rtotal = R₁ + R₂ = " + sc.R1 + " " + sc.units + " + " + sc.R2 + " " + sc.units + " = <strong>" + Rtot + " " + sc.units + "</strong><br><br>" +
+                    "<em>Step 3:</em> Calculate " + currentAnswers.vNameHTML + ":<br>" +
+                    currentAnswers.vNameHTML + " = " + sc.V + "V × (" + targetR + " / " + Rtot + ") = <strong>" + currentAnswers.vValue + "V</strong><br>";
+            }
+        }
+
+        function checkAnswers() {
+            if (isCurrentProblemSolved) return; 
+
+            const inputVEl = document.getElementById('inputV');
+            const inputIEl = document.getElementById('inputI');
+            const userV = inputVEl ? parseFloat(inputVEl.value) : NaN;
+            const userI = inputIEl ? parseFloat(inputIEl.value) : NaN;
+            
+            const feedback = document.getElementById('feedback');
+            const helpBtn = document.getElementById('helpBtn');
+            
+            if (!hasCheckedCurrentProblem) {
+                problemsAttempted++;
+                hasCheckedCurrentProblem = true;
+            }
+
+            if (currentMode === 'analysis') {
+                if (isNaN(userV) || isNaN(userI)) {
+                    if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a number in both boxes!</span>";
+                    hasCheckedCurrentProblem = false; 
+                    problemsAttempted--;
+                    return;
+                }
+
+                if (userV === currentAnswers.vValue && userI === currentAnswers.iValue) {
+                    isCurrentProblemSolved = true;
+                    if (!viewedSolution) problemsCorrect++;
+                    if (feedback) feedback.innerHTML = viewedSolution ? "<span style='color: #E64097; font-weight: bold;'>Correct! (Solution was viewed).</span>" : "<span style='color: #198754; font-weight: bold;'>🎉 Correct! Great job!</span>";
+                    if (helpBtn) helpBtn.style.display = 'none'; 
+                } else {
+                    if (helpBtn) helpBtn.style.display = 'block';
+                    if (userV === currentAnswers.vValue && userI !== currentAnswers.iValue) {
+                        if (feedback) feedback.innerHTML = "<span style='color: #fd7e14; font-weight: bold;'>Voltage correct. Current is wrong.</span>";
+                    } else if (userV !== currentAnswers.vValue && userI === currentAnswers.iValue) {
+                        if (feedback) feedback.innerHTML = "<span style='color: #fd7e14; font-weight: bold;'>Current correct. Voltage is wrong.</span>";
+                    } else {
+                        if (feedback) feedback.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Both are incorrect. Check rules!</span>";
+                    }
+                }
+            } else {
+                if (isNaN(userV)) {
+                    if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a voltage!</span>";
+                    hasCheckedCurrentProblem = false; 
+                    problemsAttempted--;
+                    return;
+                }
+
+                if (userV === currentAnswers.vValue) {
+                    isCurrentProblemSolved = true;
+                    if (!viewedSolution) problemsCorrect++;
+                    if (feedback) feedback.innerHTML = viewedSolution ? "<span style='color: #E64097; font-weight: bold;'>Correct! (Solution was viewed).</span>" : "<span style='color: #198754; font-weight: bold;'>🎉 Correct! Great job!</span>";
+                    if (helpBtn) helpBtn.style.display = 'none'; 
+                } else {
+                    if (helpBtn) helpBtn.style.display = 'block';
+                    if (feedback) feedback.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Incorrect. Try using the potential divider equation!</span>";
+                }
+            }
+            updateScoreboard(); 
+        }
+
+        function toggleSolutions() {
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) {
+                solDiv.style.display = solDiv.style.display === 'none' ? 'block' : 'none';
+                if (solDiv.style.display === 'block') viewedSolution = true; 
+            }
+        }
+
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkAnswers();
+        });
+
+        window.addEventListener('load', function() {
+            generateProblem();
+        });
+
+    </script>
+</body>
+</html>
