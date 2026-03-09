@@ -14,262 +14,184 @@
         .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
         .tab { padding: 10px 25px; font-size: 16px; font-weight: bold; cursor: pointer; background-color: #eaeaea; border: 2px solid #ccc; border-radius: 8px; color: #555; transition: all 0.2s; }
         .tab.active { background-color: #E64097; color: white; border-color: #E64097; box-shadow: 0 4px 6px rgba(230, 64, 151, 0.2); }
-        .tab:hover:not(.active) { background-color: #d4d4d4; }
 
         .main-layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
-        
         .left-panel { flex: 1 1 550px; max-width: 650px; }
-        .circuit-container { border: 2px solid #eaeaea; padding: 15px; text-align: center; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
+        .circuit-container { border: 2px solid #eaeaea; padding: 15px; text-align: center; background-color: #fff; border-radius: 8px; }
+        canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; border: 1px solid #ddd; }
         
         .right-panel { flex: 1 1 350px; display: flex; flex-direction: column; gap: 15px; }
         .quiz-section { background-color: #fdf4f8; padding: 15px 20px; border-radius: 8px; border: 1px solid #f2c7db; }
-        .quiz-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2c7db; padding-bottom: 10px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
-        .quiz-header h3 { margin: 0; font-size: 1.2rem; }
         
-        .score-container { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-        .scoreboard { background-color: #fff; padding: 6px 15px; border: 2px solid #E64097; border-radius: 6px; font-weight: bold; font-size: 16px; color: #E64097; box-shadow: 0 2px 4px rgba(230, 64, 151, 0.1); }
-        .btn-download { background-color: #198754; font-size: 13px; padding: 8px 12px; margin: 0; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
-        .btn-download:hover { background-color: #157347; }
+        .scoreboard { background-color: #fff; padding: 6px 15px; border: 2px solid #E64097; border-radius: 6px; font-weight: bold; color: #E64097; margin-bottom: 10px; text-align: center; }
         
-        .input-area { text-align: center; }
-        .input-group { margin: 10px 0; font-size: 17px; font-weight: bold; display: inline-block; margin-right: 15px; }
-        input[type="text"] { font-size: 16px; padding: 6px; width: 110px; text-align: center; margin: 0 5px; border: 1px solid #ccc; border-radius: 4px; outline-color: #E64097; }
-        .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
+        .input-group { margin: 10px 0; font-size: 16px; font-weight: bold; }
+        input[type="text"] { font-size: 16px; padding: 6px; width: 120px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold; }
         
-        .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s, transform 0.1s;}
-        .btn-check { background-color: #E64097; width: 100%; margin-top: 10px; }
-        .btn-black { background-color: #000000; }
-        .btn-secondary { background-color: #6c757d; }
-        
-        .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .solutions h3 { margin-top: 0; color: #E64097; font-size: 1.1rem; }
+        .btn-check { background-color: #E64097; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-black { background-color: #000; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; margin-top: 5px; }
+        .btn-secondary { background-color: #6c757d; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; margin-top: 5px; }
 
-        /* Modal Styles */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 420px; border-top: 6px solid #E64097; }
+        .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; display: none; margin-top: 10px; }
+        #formula-image { max-width: 100%; margin: 10px 0; border: 1px solid #eee; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1><span>Abingdon</span> Electronics</h1>
-        <p>Basics</p>
+        <p>Astable 555 Challenge</p>
     </div>
 
     <div class="tabs">
-        <button class="tab active" id="tab-analysis" onclick="switchTab('analysis')">Circuit Analysis</button>
-        <button class="tab" id="tab-divider" onclick="switchTab('divider')">Potential Divider</button>
-        <button class="tab" id="tab-resistance" onclick="switchTab('resistance')">Total Resistance</button>
-        <button class="tab" id="tab-oscilloscope" onclick="switchTab('oscilloscope')">Oscilloscope</button>
-        <button class="tab" id="tab-astable" onclick="switchTab('astable')">Astable 555</button>
+        <button class="tab" onclick="location.reload()">Reset</button>
+        <button class="tab active">Astable 555</button>
     </div>
 
     <div class="main-layout">
         <div class="left-panel">
             <div class="circuit-container">
-                <canvas id="circuitCanvas" width="600" height="420"></canvas>
+                <canvas id="circuitCanvas" width="600" height="400"></canvas>
             </div>
         </div>
 
         <div class="right-panel">
+            <div class="scoreboard" id="scoreDisplay">Score: 0 / 0</div>
+            
             <div class="quiz-section">
-                <div class="quiz-header">
-                    <h3>Enter Your Answer</h3>
-                    <div class="score-container">
-                        <div class="scoreboard" id="scoreDisplay">Score: 0 / 0</div>
-                        <button class="btn-download" id="downloadBtn" onclick="openSubmissionModal()">&#11015; Download</button>
-                    </div>
+                <div id="formula-box" style="text-align: center; font-size: 14px; margin-bottom: 10px;">
+                    <strong>Mark : Space = (R<sub>A</sub> + R<sub>B</sub>) : R<sub>B</sub></strong>
+                </div>
+
+                <div id="q1-area" class="input-group">
+                    <label id="label1" for="ans1">Value 1: </label><br>
+                    <input type="text" id="ans1" placeholder="e.g. 1.2kHz or 2/1">
                 </div>
                 
-                <div class="input-area">
-                    <div class="input-group" id="inputGroupV">
-                        <label id="labelV" for="inputV">V? = </label>
-                        <input type="text" id="inputV">
-                    </div>
-                    <div class="input-group" id="inputGroupI">
-                        <label id="labelI" for="inputI">I? = </label>
-                        <input type="text" id="inputI">
-                    </div>
-                    <div class="input-group" id="inputGroupR" style="display:none;">
-                        <label id="labelR" for="inputR">R? = </label>
-                        <input type="text" id="inputR">
-                    </div>
-
-                    <div class="input-group" id="inputGroupOsc1" style="display:none;"><label id="labelOsc1" for="inputOsc1">Amp = </label><input type="text" id="inputOsc1"></div>
-                    <div class="input-group" id="inputGroupOsc2" style="display:none;"><label id="labelOsc2" for="inputOsc2">Q2 = </label><input type="text" id="inputOsc2"></div>
-                    <div class="input-group" id="inputGroupOsc3" style="display:none;"><label id="labelOsc3" for="inputOsc3">Q3 = </label><input type="text" id="inputOsc3"></div>
-
-                    <div class="input-group" id="inputGroupAstable" style="display:none; text-align: center; width: 100%;">
-                        <div id="astableFormulaBox" style="font-size: 15px; margin-bottom: 10px; color: #E64097; background: #fff; padding: 5px; border-radius: 5px;">
-                            Formula: <strong>Mark:Space = (R<sub>A</sub> + R<sub>B</sub>) : R<sub>B</sub></strong>
-                        </div>
-                        <div style="margin-bottom: 10px;">
-                            <label id="labelAstable1" for="inputAstable1">Question 1: </label>
-                            <input type="text" id="inputAstable1">
-                        </div>
-                        <div>
-                            <label id="labelAstable2" for="inputAstable2">Question 2: </label>
-                            <input type="text" id="inputAstable2">
-                        </div>
-                    </div>
-                    
-                    <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
-                    <div id="feedback" class="feedback"></div>
+                <div id="q2-area" class="input-group">
+                    <label id="label2" for="ans2">Value 2: </label><br>
+                    <input type="text" id="ans2">
                 </div>
+                
+                <button class="btn-check" onclick="checkAnswers()">Check Answer</button>
+                <div id="feedback" class="feedback"></div>
             </div>
 
-            <div class="controls">
-                <button class="btn-black" onclick="generateProblem()">Generate New Problem</button>
-                <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solution)</button>
-            </div>
+            <button class="btn-black" onclick="generateProblem()">New Problem</button>
+            <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display:none;">Need Help?</button>
 
             <div id="solutions" class="solutions">
-                <h3>Step-by-Step Logic</h3>
                 <p id="solText"></p>
             </div>
         </div>
     </div>
 
-    <div id="submissionModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <h3>Submit Your Score</h3>
-            <div style="margin-bottom:15px;"><label>Name: </label><input type="text" id="studentNameInput" style="width:100%;"></div>
-            <div style="margin-bottom:15px;">
-                <label>Teacher: </label>
-                <select id="teacherSelect" style="width:100%; padding:5px;">
-                    <option value="Mr. Magee">Mr. Magee</option>
-                    <option value="Mr. Brooks">Mr. Brooks</option>
-                    <option value="Mr. Mason">Mr. Mason</option>
-                    <option value="Mr. Willoughby">Mr. Willoughby</option>
-                </select>
-            </div>
-            <button class="btn-check" onclick="processSubmission()">Submit & Download</button>
-            <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-        </div>
-    </div>
-
     <script>
-        const brandPink = "#E64097";
-        const brandBlack = "#000000";
-        let currentMode = 'analysis'; 
         let currentAnswers = {};
-        let problemsAttempted = 0; let problemsCorrect = 0;
-        let viewedSolution = false; let unitErrorMade = false;
+        let score = 0; let total = 0;
+        let currentStyle = "";
 
         function parseInput(str) {
             if (!str) return null;
-            let cleanStr = str.toLowerCase().replace(/\s+/g, '').replace(/\u03a9/g, 'ohms');
-            let strippedStr = cleanStr.replace(/[a-z]+$/, '');
-            if (/^\d+\/\d+$/.test(strippedStr)) {
-                let parts = strippedStr.split('/');
-                return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio', isRatioString: true };
-            }
-            const match = cleanStr.match(/^(-?[\d\.]+)([a-z]+)$/);
-            if (match) return { val: parseFloat(match[1]), unit: match[2] };
-            return { val: parseFloat(cleanStr), unit: '' };
-        }
-
-        function validateMatch(parsedInput, expectedVal, expectedUnit) {
-            if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
-            if (expectedUnit === 'ratio') {
-                if (parsedInput.isRatioString && Math.abs(parsedInput.val - expectedVal) < 0.01) return 'correct';
-                return 'wrongunit';
-            }
-            if (parsedInput.unit === '' && expectedUnit !== '') return 'nounit';
+            let s = str.toLowerCase().replace(/\s+/g, '');
             
-            let userVal = parsedInput.val;
-            if (parsedInput.unit === 'khz' && expectedUnit === 'hz') userVal *= 1000;
-            if (parsedInput.unit === 'ms' && expectedUnit === 's') userVal /= 1000;
-            if (parsedInput.unit === 's' && expectedUnit === 'ms') userVal *= 1000;
-            if (parsedInput.unit === 'kohms' && expectedUnit === 'ohms') userVal *= 1000;
+            // Check for fraction
+            if (s.includes('/')) {
+                let parts = s.split('/');
+                return { val: parseFloat(parts[0]) / parseFloat(parts[1]), type: 'ratio' };
+            }
 
-            return (Math.abs(userVal - expectedVal) / (expectedVal || 1) < 0.03) ? 'correct' : 'wrongval';
-        }
-
-        function switchTab(mode) {
-            currentMode = mode;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + mode).classList.add('active');
-            generateProblem();
+            // Check for units
+            let val = parseFloat(s);
+            let unit = s.replace(/[0-9\.]/g, '');
+            if (unit === 'khz') val *= 1000;
+            if (unit === 'ms') val /= 1000;
+            return { val: val, type: 'num' };
         }
 
         function generateProblem() {
             const canvas = document.getElementById('circuitCanvas');
             const ctx = canvas.getContext('2d');
-            viewedSolution = false; unitErrorMade = false;
-            document.getElementById('helpBtn').style.display = 'none';
-            document.getElementById('solutions').style.display = 'none';
-            document.getElementById('feedback').innerHTML = '';
-            
-            ['inputV', 'inputI', 'inputR', 'inputOsc1', 'inputOsc2', 'inputOsc3', 'inputAstable1', 'inputAstable2'].forEach(id => document.getElementById(id).value = '');
-            ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOsc1', 'inputGroupOsc2', 'inputGroupOsc3', 'inputGroupAstable'].forEach(id => document.getElementById(id).style.display = 'none');
-
-            if (currentMode === 'analysis') { document.getElementById('inputGroupV').style.display = 'inline-block'; document.getElementById('inputGroupI').style.display = 'inline-block'; generateAnalysisProblem(ctx, canvas); }
-            else if (currentMode === 'astable') { document.getElementById('inputGroupAstable').style.display = 'inline-block'; generateAstableProblem(ctx, canvas); }
-            // ... (other modes would go here)
-        }
-
-        function generateAstableProblem(ctx, canvas) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Simple 555 Drawing logic
-            ctx.strokeStyle = "#000"; ctx.strokeRect(350, 150, 100, 120);
-            ctx.fillText("555 IC", 375, 210);
+            document.getElementById('feedback').innerText = "";
+            document.getElementById('solutions').style.display = "none";
+            document.getElementById('helpBtn').style.display = "none";
+            document.getElementById('ans1').value = "";
+            document.getElementById('ans2').value = "";
             
-            const raVals = [1, 2, 4.7, 10]; const rbVals = [1, 2.2, 4.7, 10];
-            let RA = raVals[Math.floor(Math.random() * raVals.length)];
-            let RB = rbVals[Math.floor(Math.random() * rbVals.length)];
-            let C = 10; // 10uF
+            // Circuit drawing (Simplified 555)
+            ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
+            ctx.strokeRect(300, 150, 100, 120);
+            ctx.fillText("555", 340, 215);
 
-            // Randomly select Style
-            let style = Math.random();
-            if (style < 0.34) {
-                // Style A: Freq and Period
-                let f = 1.44 / ((RA*1000 + 2*RB*1000) * C * 1e-6);
-                currentAnswers = { q1V: f, q1U: 'hz', q2V: 1/f, q2U: 's' };
-                document.getElementById('labelAstable1').innerText = "Frequency (f):";
-                document.getElementById('labelAstable2').innerText = "Time Period (T):";
-                document.getElementById('solText').innerHTML = "f = 1.44 / ((RA + 2RB)C). Result: " + f.toFixed(1) + " Hz";
-            } else if (style < 0.67) {
-                // Style B: Find RB from Ratio
+            const R_vals = [1, 2.2, 4.7, 10, 15, 22];
+            let RA = R_vals[Math.floor(Math.random()*R_vals.length)];
+            let RB = R_vals[Math.floor(Math.random()*R_vals.length)];
+            let C = 10; // 10uF constant for complexity management
+
+            let rand = Math.random();
+            if (rand < 0.33) {
+                currentStyle = "standard";
+                let f = 1.44 / ((RA*1000 + 2*RB*1000) * (C * 1e-6));
+                currentAnswers = { a1: f, a2: 1/f };
+                document.getElementById('label1').innerText = "Frequency (Hz):";
+                document.getElementById('label2').innerText = "Time Period (s):";
+                document.getElementById('q2-area').style.display = "block";
+                ctx.fillText("RA = " + RA + "kΩ", 150, 100);
+                ctx.fillText("RB = " + RB + "kΩ", 150, 130);
+                ctx.fillText("C = " + C + "μF", 150, 160);
+                document.getElementById('solText').innerText = "f = 1.44 / ((RA + 2RB) * C). T = 1/f.";
+            } else if (rand < 0.66) {
+                currentStyle = "findRB";
                 let ratioVal = (RA + RB) / RB;
-                currentAnswers = { q1V: RB, q1U: 'kohms', q2V: 0, q2U: '' };
-                document.getElementById('labelAstable1').innerText = "Find RB (kΩ):";
-                document.getElementById('labelAstable2').style.display = "none";
-                document.getElementById('inputAstable2').style.display = "none";
-                document.getElementById('solText').innerHTML = "Ratio = (RA + RB)/RB. Rearranging gives RB = RA / (Ratio - 1). Result: " + RB + " kOhms";
-                ctx.fillText("RA = " + RA + "k", 200, 100);
-                ctx.fillText("M:S Ratio = " + (RA+RB).toFixed(0) + "/" + RB.toFixed(0), 200, 130);
+                currentAnswers = { a1: RB };
+                document.getElementById('label1').innerText = "Find RB (kΩ):";
+                document.getElementById('q2-area').style.display = "none";
+                ctx.fillText("RA = " + RA + "kΩ", 150, 100);
+                ctx.fillText("Mark-Space Ratio = " + (RA+RB).toFixed(1) + " / " + RB.toFixed(1), 150, 130);
+                document.getElementById('solText').innerText = "Ratio = (RA+RB)/RB. Solve for RB.";
             } else {
-                // Style C: Find Ratio from Resistors
-                let ratioVal = (RA + RB) / RB;
-                currentAnswers = { q1V: ratioVal, q1U: 'ratio', q2V: 0, q2U: '' };
-                document.getElementById('labelAstable1').innerText = "Mark:Space Ratio (fraction):";
-                document.getElementById('labelAstable2').style.display = "none";
-                document.getElementById('inputAstable2').style.display = "none";
-                document.getElementById('solText').innerHTML = "Ratio = (RA + RB) / RB. Result: " + (RA+RB) + "/" + RB;
-                ctx.fillText("RA = " + RA + "k", 200, 100);
-                ctx.fillText("RB = " + RB + "k", 200, 130);
+                currentStyle = "findRatio";
+                currentAnswers = { a1: (RA + RB) / RB };
+                document.getElementById('label1').innerText = "Mark:Space Ratio (fraction):";
+                document.getElementById('q2-area').style.display = "none";
+                ctx.fillText("RA = " + RA + "kΩ", 150, 100);
+                ctx.fillText("RB = " + RB + "kΩ", 150, 130);
+                document.getElementById('solText').innerText = "Ratio = (RA + RB) / RB. Write as RA+RB over RB.";
             }
         }
 
         function checkAnswers() {
-            problemsAttempted++;
-            let q1 = parseInput(document.getElementById('inputAstable1').value);
-            let res1 = validateMatch(q1, currentAnswers.q1V, currentAnswers.q1U);
-            
-            if (res1 === 'correct') {
-                problemsCorrect++;
+            let u1 = parseInput(document.getElementById('ans1').value);
+            let u2 = parseInput(document.getElementById('ans2').value);
+            let correct = false;
+
+            if (currentStyle === "standard") {
+                if (u1 && u2 && Math.abs(u1.val - currentAnswers.a1) < currentAnswers.a1*0.05 && Math.abs(u2.val - currentAnswers.a2) < currentAnswers.a2*0.05) {
+                    correct = true;
+                }
+            } else {
+                if (u1 && Math.abs(u1.val - currentAnswers.a1) < 0.02) {
+                    correct = true;
+                }
+            }
+
+            total++;
+            if (correct) {
+                score++;
                 document.getElementById('feedback').innerHTML = "<span style='color:green'>Correct!</span>";
             } else {
-                document.getElementById('feedback').innerHTML = "<span style='color:red'>Incorrect. Try again or view solution.</span>";
-                document.getElementById('helpBtn').style.display = 'block';
+                document.getElementById('feedback').innerHTML = "<span style='color:red'>Incorrect.</span>";
+                document.getElementById('helpBtn').style.display = "block";
             }
-            document.getElementById('scoreDisplay').innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
+            document.getElementById('scoreDisplay').innerText = "Score: " + score + " / " + total;
         }
 
-        function toggleSolutions() { document.getElementById('solutions').style.display = 'block'; viewedSolution = true; }
+        function toggleSolutions() {
+            document.getElementById('solutions').style.display = "block";
+        }
+
         window.onload = generateProblem;
     </script>
 </body>
