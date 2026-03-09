@@ -326,16 +326,15 @@
             downloadBtn.disabled = true;
 
             const certCanvas = document.createElement('canvas');
-            certCanvas.width = 600; certCanvas.height = 420;
-            const  = certCanvas.getContext('2d');
-
-            .fillStyle = "#fdf4f8"; .fillRect(0, 0, certCanvas.width, certCanvas.height);
-            .strokeStyle = brandPink; .lineWidth = 12; .strokeRect(6, 6, 588, 408);
-            .strokeStyle = brandBlack; .lineWidth = 2; .strokeRect(18, 18, 564, 384);
-
-            .textAlign = "center";
-            .fillStyle = brandBlack; .font = "bold 36px 'Segoe UI', Arial, sans-serif";
-            .fillText("ABINGDON ELECTRONICS", 300, 80);
+            cconst ctx = certCanvas.getContext('2d'); // Added 'ctx' here
+            ctx.fillStyle = "#fdf4f8";               // Added 'ctx' before all dots
+            ctx.fillRect(0, 0, certCanvas.width, certCanvas.height);
+            ctx.strokeStyle = brandPink; ctx.lineWidth = 12; ctx.strokeRect(6, 6, 588, 408);
+            ctx.strokeStyle = brandBlack; ctx.lineWidth = 2;
+            ctx.strokeRect(18, 18, 564, 384);
+            ctx.textAlign = "center";
+            ctx.fillStyle = brandBlack; ctx.font = "bold 36px 'Segoe UI', Arial, sans-serif";
+            ctx.fillText("ABINGDON ELECTRONICS", 300, 80);
 
             .fillStyle = brandPink; .font = "italic 24px 'Segoe UI', Arial, sans-serif";
             .fillText("Basics Knowledge Check", 300, 120);
