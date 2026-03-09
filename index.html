@@ -724,16 +724,40 @@
                 "<em>Logic:</em> " + q.sol;
         }
 
-        function checkAnswers() {
+       function checkAnswers() {
             if (isCurrentProblemSolved) return; 
 
             const feedback = document.getElementById('feedback');
             const helpBtn = document.getElementById('helpBtn');
+
+            // 1. Check if the relevant active boxes are genuinely blank first
+            let activeInputs = [];
+            if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
+            else if (currentMode === 'divider') activeInputs = ['inputV'];
+            else if (currentMode === 'resistance') activeInputs = ['inputR'];
+            else if (currentMode === 'oscilloscope') activeInputs = ['inputOsc1', 'inputOsc2'];
+
+            let hasEmptyBox = false;
+            activeInputs.forEach(id => {
+                if (document.getElementById(id).value.trim() === '') {
+                    hasEmptyBox = true;
+                }
+            });
+
+            // If a box is empty, warn them and stop without counting as an attempt
+            if (hasEmptyBox) {
+                feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a value!</span>";
+                return; 
+            }
             
-            if (!hasCheckedCurrentProblem) { problemsAttempted++; hasCheckedCurrentProblem = true; }
+            // 2. Mark the problem as attempted
+            if (!hasCheckedCurrentProblem) { 
+                problemsAttempted++; 
+                hasCheckedCurrentProblem = true; 
+            }
 
+            // 3. Parse inputs against expected answers
             let results = [];
-
             if (currentMode === 'analysis') {
                 let pV = parseInput(document.getElementById('inputV').value);
                 let pI = parseInput(document.getElementById('inputI').value);
@@ -752,11 +776,7 @@
                 results.push(validateMatch(pO2, currentAnswers.osc2Value, currentAnswers.osc2Unit));
             }
 
-            if (results.includes('wrongval') && results.some(r => r === 'wrongval' && document.getElementById(currentMode === 'analysis' ? 'inputV' : 'inputR').value === '')) {
-                 feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a value!</span>";
-                 hasCheckedCurrentProblem = false; problemsAttempted--; return;
-            }
-
+            // 4. Grade the results
             if (results.every(r => r === 'correct')) {
                 isCurrentProblemSolved = true;
                 
@@ -786,6 +806,7 @@
                 } else if (results.some(r => r === 'correct')) {
                     feedback.innerHTML = "<span style='color: #dc3545;'>One is right, one is wrong. Check logic!</span>";
                 } else {
+                    // This now handles math errors AND weird/incorrect units correctly
                     feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Check your math!</span>";
                 }
             }
