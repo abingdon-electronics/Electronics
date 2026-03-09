@@ -34,7 +34,7 @@
         .btn-download:disabled { background-color: #6c757d; cursor: wait; }
         
         .input-area { text-align: center; }
-        .input-group { margin: 10px 0; font-size: 18px; font-weight: bold; display: inline-block; margin-right: 15px; }
+        .input-group { margin: 10px 0; font-size: 17px; font-weight: bold; display: inline-block; margin-right: 15px; }
         input[type="text"] { font-size: 16px; padding: 6px; width: 110px; text-align: center; margin: 0 5px; border: 1px solid #ccc; border-radius: 4px; outline-color: #E64097; }
         .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
         
@@ -50,7 +50,7 @@
         
         .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .solutions h3 { margin-top: 0; color: #E64097; font-size: 1.1rem; }
-        .solutions p { margin-bottom: 0; font-size: 0.95rem; }
+        .solutions p { margin-bottom: 0; font-size: 0.95rem; line-height: 1.5; }
 
         /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
@@ -75,6 +75,7 @@
         <button class="tab" id="tab-divider" onclick="switchTab('divider')">Potential Divider</button>
         <button class="tab" id="tab-resistance" onclick="switchTab('resistance')">Total Resistance</button>
         <button class="tab" id="tab-oscilloscope" onclick="switchTab('oscilloscope')">Oscilloscope</button>
+        <button class="tab" id="tab-astable" onclick="switchTab('astable')">Astable 555</button>
     </div>
 
     <div class="main-layout">
@@ -116,8 +117,23 @@
                     </div>
 
                     <div class="input-group" id="inputGroupOsc2" style="display:none;">
-                        <label id="labelOsc2" for="inputOsc2">Question = </label>
-                        <input type="text" id="inputOsc2" placeholder="e.g. 20 ms">
+                        <label id="labelOsc2" for="inputOsc2">Question 2 = </label>
+                        <input type="text" id="inputOsc2" placeholder="">
+                    </div>
+                    
+                    <div class="input-group" id="inputGroupOsc3" style="display:none;">
+                        <label id="labelOsc3" for="inputOsc3">Question 3 = </label>
+                        <input type="text" id="inputOsc3" placeholder="">
+                    </div>
+
+                    <div class="input-group" id="inputGroupAstable" style="display:none; text-align: center; width: 100%;">
+                        <div style="font-size: 16px; margin-bottom: 15px; color: #E64097;">
+                            Formula: <strong>f = 1.44 / ((R<sub>A</sub> + 2R<sub>B</sub>) &times; C)</strong>
+                        </div>
+                        <div>
+                            <label id="labelAstable" for="inputAstable">Frequency = </label>
+                            <input type="text" id="inputAstable" placeholder="e.g. 50 Hz">
+                        </div>
                     </div>
                     
                     <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
@@ -174,7 +190,9 @@
             iNameHTML: '', iValue: 0, iUnit: '', 
             rValue: 0, rUnit: '', 
             osc1Value: 0, osc1Unit: '', 
-            osc2Value: 0, osc2Unit: '' 
+            osc2Value: 0, osc2Unit: '',
+            osc3Value: 0, osc3Unit: '',
+            astableValue: 0, astableUnit: ''
         };
         
         let problemsAttempted = 0;
@@ -213,7 +231,22 @@
             
             if (parsedInput.unit === '') return 'nounit';
             
-            const valMatch = Math.abs(parsedInput.val - expectedVal) < 0.001;
+            let valMatch = false;
+            
+            if (currentMode === 'astable') {
+                // If they typed kHz instead of Hz, automatically scale it so it's fair
+                let userVal = parsedInput.val;
+                let userUnit = parsedInput.unit.toLowerCase();
+                if (userUnit === 'khz' && expectedUnit === 'Hz') {
+                    userVal *= 1000;
+                    parsedInput.unit = 'hz'; 
+                }
+                // Allow a generous 2% tolerance on Astable to account for rounding differences
+                valMatch = (Math.abs(userVal - expectedVal) / expectedVal) <= 0.02;
+            } else {
+                valMatch = Math.abs(parsedInput.val - expectedVal) < 0.001;
+            }
+
             const unitMatch = parsedInput.unit === expectedUnit.toLowerCase();
             
             if (valMatch && unitMatch) return 'correct';
@@ -225,7 +258,7 @@
             if (currentMode === mode) return; 
             currentMode = mode;
             
-            const tabs = ['analysis', 'divider', 'resistance', 'oscilloscope'];
+            const tabs = ['analysis', 'divider', 'resistance', 'oscilloscope', 'astable'];
             tabs.forEach(t => {
                 const el = document.getElementById('tab-' + t);
                 if (el) el.classList.remove('active');
@@ -242,17 +275,13 @@
             if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
         }
 
-        // --- NEW MODAL FUNCTIONS ---
         function openSubmissionModal() {
             if (problemsAttempted === 0) {
                 alert("Please attempt at least one question before downloading your score!");
                 return;
             }
-            // Clear previous inputs
             document.getElementById('studentNameInput').value = '';
             document.getElementById('teacherSelect').value = '';
-            
-            // Show modal
             document.getElementById('submissionModal').style.display = 'flex';
         }
 
@@ -267,24 +296,22 @@
             if (!studentName) { alert("Please enter your name."); return; }
             if (!teacherName) { alert("Please select your teacher."); return; }
 
-            // Map the technical mode name to a readable topic string
             const topicMap = {
                 'analysis': 'Circuit Analysis',
                 'divider': 'Potential Divider',
                 'resistance': 'Total Resistance',
-                'oscilloscope': 'Oscilloscopes'
+                'oscilloscope': 'Oscilloscopes',
+                'astable': '555 Astable'
             };
             const currentTopic = topicMap[currentMode] || 'Unknown Topic';
 
             closeModal();
 
-            // 1. Loading State
             const downloadBtn = document.getElementById('downloadBtn');
             const originalText = downloadBtn.innerHTML;
             downloadBtn.innerHTML = "&#8987; Submitting..."; 
             downloadBtn.disabled = true;
 
-            // 2. Generate Certificate Image
             const certCanvas = document.createElement('canvas');
             certCanvas.width = 600; certCanvas.height = 420;
             const ctx = certCanvas.getContext('2d');
@@ -325,8 +352,7 @@
             downloadLink.href = imageURI;
             downloadLink.click();
 
-            // 3. Send Data to Google Sheets
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxrHYNKqWSa3BMJNSqS99KQkd7ME1zrTy_ba1RlmhShEzpTuPw6Tg7l9rIpLqC3Ki9f/exec'; // <--- PASTE YOUR URL HERE!
+            const scriptURL = 'YOUR_GOOGLE_SCRIPT_URL_HERE'; // <--- PASTE YOUR URL HERE!
             
             const formData = new URLSearchParams();
             formData.append('name', studentName);
@@ -343,32 +369,23 @@
                 console.error('Error submitting score!', error.message);
                 alert("Certificate downloaded! (Note: Could not connect to Google Sheets to send score to teacher.)");
             } finally {
-                // 4. Reset Everything
                 downloadBtn.innerHTML = originalText;
                 downloadBtn.disabled = false;
-
-                problemsAttempted = 0;
-                problemsCorrect = 0;
-                updateScoreboard();
-                generateProblem();
+                problemsAttempted = 0; problemsCorrect = 0;
+                updateScoreboard(); generateProblem();
             }
         }
 
         function drawResistor(ctx, x, y) {
-            ctx.beginPath();
-            ctx.rect(x - 12, y - 25, 24, 50); 
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.stroke();
-            ctx.closePath();
+            ctx.beginPath(); ctx.rect(x - 12, y - 25, 24, 50); ctx.fillStyle = "white"; ctx.fill(); ctx.stroke(); ctx.closePath();
         }
 
         function drawLine(ctx, x1, y1, x2, y2) {
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-            ctx.closePath();
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.closePath();
+        }
+
+        function drawDot(ctx, x, y) {
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.fillStyle = brandBlack; ctx.fill(); ctx.closePath();
         }
 
         function generateProblem() {
@@ -389,13 +406,13 @@
             if (solutions) solutions.style.display = 'none';
             if (feedback) feedback.innerHTML = '';
 
-            const inputs = ['inputV', 'inputI', 'inputR', 'inputOsc1', 'inputOsc2'];
+            const inputs = ['inputV', 'inputI', 'inputR', 'inputOsc1', 'inputOsc2', 'inputOsc3', 'inputAstable'];
             inputs.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = '';
             });
 
-            const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOsc1', 'inputGroupOsc2'];
+            const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOsc1', 'inputGroupOsc2', 'inputGroupOsc3', 'inputGroupAstable'];
             groups.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
@@ -414,22 +431,20 @@
             } else if (currentMode === 'oscilloscope') {
                 document.getElementById('inputGroupOsc1').style.display = 'inline-block';
                 document.getElementById('inputGroupOsc2').style.display = 'inline-block';
+                document.getElementById('inputGroupOsc3').style.display = 'inline-block';
                 generateOscilloscopeProblem(ctx, canvas);
+            } else if (currentMode === 'astable') {
+                document.getElementById('inputGroupAstable').style.display = 'inline-block';
+                generateAstableProblem(ctx, canvas);
             }
         }
 
         function generateAnalysisProblem(ctx, canvas) {
             const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
             const iUnit = Math.random() < 0.5 ? 'A' : 'mA';
-
-            const v1 = Math.floor(Math.random() * 10) + 1; 
-            const v2 = v1; 
-            const v3 = Math.floor(Math.random() * 10) + 1; 
-            const vTotal = v1 + v3; 
-
-            const i1 = Math.floor(Math.random() * 10) + 1; 
-            const i2 = Math.floor(Math.random() * 10) + 1; 
-            const i3 = i1 + i2; 
+            const v1 = Math.floor(Math.random() * 10) + 1; const v2 = v1; 
+            const v3 = Math.floor(Math.random() * 10) + 1; const vTotal = v1 + v3; 
+            const i1 = Math.floor(Math.random() * 10) + 1; const i2 = Math.floor(Math.random() * 10) + 1; const i3 = i1 + i2; 
 
             const voltages = [
                 { display: 'V\u2081', html: 'V<sub>1</sub>', val: v1, logic: 'V\u2081 = V\u2082 (Parallel components share voltage)' },
@@ -437,22 +452,16 @@
                 { display: 'V\u2083', html: 'V<sub>3</sub>', val: v3, logic: "V\u2083 = +Vsupply - V\u2081 (" + vTotal + vUnit + " - " + v1 + vUnit + ")" },
                 { display: '+Vsupply', html: '+Vsupply', val: vTotal, logic: "+Vsupply = V\u2081 + V\u2083 (" + v1 + vUnit + " + " + v3 + vUnit + ")" }
             ];
-            
             const currents = [
                 { display: 'I\u2081', html: 'I<sub>1</sub>', val: i1, logic: "I\u2081 = I\u2083 - I\u2082 (" + i3 + iUnit + " - " + i2 + iUnit + ")" },
                 { display: 'I\u2082', html: 'I<sub>2</sub>', val: i2, logic: "I\u2082 = I\u2083 - I\u2081 (" + i3 + iUnit + " - " + i1 + iUnit + ")" },
                 { display: 'I\u2083', html: 'I<sub>3</sub>', val: i3, logic: "I\u2083 = I\u2081 + I\u2082 (" + i1 + iUnit + " + " + i2 + iUnit + ")" }
             ];
 
-            const unknownVIndex = Math.floor(Math.random() * 4);
-            const unknownIIndex = Math.floor(Math.random() * 3);
+            const unknownVIndex = Math.floor(Math.random() * 4); const unknownIIndex = Math.floor(Math.random() * 3);
 
-            currentAnswers.vNameHTML = voltages[unknownVIndex].html;
-            currentAnswers.vValue = voltages[unknownVIndex].val;
-            currentAnswers.vUnit = vUnit;
-            currentAnswers.iNameHTML = currents[unknownIIndex].html;
-            currentAnswers.iValue = currents[unknownIIndex].val;
-            currentAnswers.iUnit = iUnit;
+            currentAnswers.vNameHTML = voltages[unknownVIndex].html; currentAnswers.vValue = voltages[unknownVIndex].val; currentAnswers.vUnit = vUnit;
+            currentAnswers.iNameHTML = currents[unknownIIndex].html; currentAnswers.iValue = currents[unknownIIndex].val; currentAnswers.iUnit = iUnit;
 
             document.getElementById('labelV').innerHTML = "Find <span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
             document.getElementById('labelI').innerHTML = "Find <span style='color:" + brandPink + "'>" + currentAnswers.iNameHTML + "</span> = ";
@@ -462,22 +471,14 @@
             let topRailText = unknownVIndex === 3 ? "+Vsupply = ?" : "+Vsupply = " + vTotal + " " + vUnit;
 
             if (unknownVIndex === 2 || unknownVIndex === 3) {
-                if (Math.random() < 0.5) {
-                    vLabels[0] = ""; 
-                    voltages[2].logic = "V\u2083 = +Vsupply - V\u2082 (since V\u2081 = V\u2082, " + vTotal + vUnit + " - " + v2 + vUnit + ")";
-                    voltages[3].logic = "+Vsupply = V\u2082 + V\u2083 (since V\u2081 = V\u2082, " + v2 + vUnit + " + " + v3 + vUnit + ")";
-                } else { vLabels[1] = ""; }
+                if (Math.random() < 0.5) { vLabels[0] = ""; voltages[2].logic = "V\u2083 = +Vsupply - V\u2082 (since V\u2081 = V\u2082, " + vTotal + vUnit + " - " + v2 + vUnit + ")"; voltages[3].logic = "+Vsupply = V\u2082 + V\u2083 (since V\u2081 = V\u2082, " + v2 + vUnit + " + " + v3 + vUnit + ")"; } else { vLabels[1] = ""; }
             } else if (unknownVIndex === 0) {
                 if (Math.random() < 0.5) { vLabels[1] = ""; voltages[0].logic = "V\u2081 = +Vsupply - V\u2083 (" + vTotal + vUnit + " - " + v3 + vUnit + ")"; } else { topRailText = ""; }
             } else if (unknownVIndex === 1) {
                 if (Math.random() < 0.5) { vLabels[0] = ""; voltages[1].logic = "V\u2082 = +Vsupply - V\u2083 (" + vTotal + vUnit + " - " + v3 + vUnit + ")"; } else { topRailText = ""; }
             }
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = brandBlack;
-            ctx.lineWidth = 2;
-            ctx.font = "bold 18px Arial";
-
+            ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.strokeStyle = brandBlack; ctx.lineWidth = 2; ctx.font = "bold 18px Arial";
             drawLine(ctx, 100, 60, 500, 60); drawLine(ctx, 100, 360, 500, 360); 
 
             ctx.fillStyle = unknownVIndex === 3 ? brandPink : brandBlack; ctx.fillText(topRailText, 250, 45);
@@ -485,165 +486,71 @@
 
             ctx.font = "16px Arial";
             if (Math.random() < 0.5) {
-                drawLine(ctx, 200, 60, 200, 120); drawLine(ctx, 400, 60, 400, 120); 
-                drawResistor(ctx, 200, 145); drawResistor(ctx, 400, 145); 
-                drawLine(ctx, 200, 170, 200, 230); drawLine(ctx, 400, 170, 400, 230); 
-                drawLine(ctx, 200, 230, 400, 230); drawLine(ctx, 300, 230, 300, 270); 
+                drawLine(ctx, 200, 60, 200, 120); drawLine(ctx, 400, 60, 400, 120); drawResistor(ctx, 200, 145); drawResistor(ctx, 400, 145); 
+                drawLine(ctx, 200, 170, 200, 230); drawLine(ctx, 400, 170, 400, 230); drawLine(ctx, 200, 230, 400, 230); drawLine(ctx, 300, 230, 300, 270); 
                 drawResistor(ctx, 300, 295); drawLine(ctx, 300, 320, 300, 360); 
-
-                ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 150);
-                ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 150); 
-                ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 100);
-                ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 150); 
-                ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 150); 
-                ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 100);
-                ctx.fillStyle = brandBlack; ctx.fillText("R\u2083", 260, 300);
-                ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 300); 
-                ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 260);
+                ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 150); ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 150); ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 100);
+                ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 150); ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 150); ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 100);
+                ctx.fillStyle = brandBlack; ctx.fillText("R\u2083", 260, 300); ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 300); ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 260);
             } else {
-                drawLine(ctx, 300, 60, 300, 100); drawResistor(ctx, 300, 125); drawLine(ctx, 300, 150, 300, 190);
-                drawLine(ctx, 200, 190, 400, 190); drawLine(ctx, 200, 190, 200, 250); drawLine(ctx, 400, 190, 400, 250);
+                drawLine(ctx, 300, 60, 300, 100); drawResistor(ctx, 300, 125); drawLine(ctx, 300, 150, 300, 190); drawLine(ctx, 200, 190, 400, 190); drawLine(ctx, 200, 190, 200, 250); drawLine(ctx, 400, 190, 400, 250);
                 drawResistor(ctx, 200, 275); drawResistor(ctx, 400, 275); drawLine(ctx, 200, 300, 200, 360); drawLine(ctx, 400, 300, 400, 360);
-
-                ctx.fillStyle = brandBlack; ctx.fillText("R\u2083", 260, 130);
-                ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 130); 
-                ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 90);
-                ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 280);
-                ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 280); 
-                ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 230);
-                ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 280); 
-                ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 280); 
-                ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 230);
+                ctx.fillStyle = brandBlack; ctx.fillText("R\u2083", 260, 130); ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 130); ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 90);
+                ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 280); ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 280); ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 230);
+                ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 280); ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 280); ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 230);
             }
 
             const solText = document.getElementById('solText');
-            if (solText) {
-                solText.innerHTML = 
-                    "<strong>" + voltages[unknownVIndex].html + " = " + voltages[unknownVIndex].val + " " + vUnit + "</strong> <br>" +
-                    "<em>Logic:</em> " + voltages[unknownVIndex].logic + " <br><br>" +
-                    "<strong>" + currents[unknownIIndex].html + " = " + currents[unknownIIndex].val + " " + iUnit + "</strong> <br>" +
-                    "<em>Logic:</em> " + currents[unknownIIndex].logic;
-            }
+            if (solText) solText.innerHTML = "<strong>" + voltages[unknownVIndex].html + " = " + voltages[unknownVIndex].val + " " + vUnit + "</strong> <br><em>Logic:</em> " + voltages[unknownVIndex].logic + " <br><br><strong>" + currents[unknownIIndex].html + " = " + currents[unknownIIndex].val + " " + iUnit + "</strong> <br><em>Logic:</em> " + currents[unknownIIndex].logic;
         }
 
         function generateDividerProblem(ctx, canvas) {
-            const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
-            const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
-
-            const cleanMathScenarios = [
-                { V: 10, R1: 1, R2: 1 }, { V: 12, R1: 1, R2: 2 }, { V: 12, R1: 2, R2: 1 }, 
-                { V: 20, R1: 3, R2: 1 }, { V: 9,  R1: 1, R2: 2 }, { V: 24, R1: 3, R2: 5 },  
-                { V: 5,  R1: 2, R2: 3 }, { V: 15, R1: 2, R2: 1 }  
-            ];
+            const vUnit = Math.random() < 0.5 ? 'V' : 'mV'; const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
+            const cleanMathScenarios = [ { V: 10, R1: 1, R2: 1 }, { V: 12, R1: 1, R2: 2 }, { V: 12, R1: 2, R2: 1 }, { V: 20, R1: 3, R2: 1 }, { V: 9, R1: 1, R2: 2 }, { V: 24, R1: 3, R2: 5 }, { V: 5, R1: 2, R2: 3 }, { V: 15, R1: 2, R2: 1 } ];
+            const sc = cleanMathScenarios[Math.floor(Math.random() * cleanMathScenarios.length)]; const targetIsR1 = Math.random() < 0.5; 
+            const Rtot = sc.R1 + sc.R2; const V1 = (sc.V * sc.R1) / Rtot; const V2 = (sc.V * sc.R2) / Rtot;
             
-            const sc = cleanMathScenarios[Math.floor(Math.random() * cleanMathScenarios.length)];
-            const targetIsR1 = Math.random() < 0.5; 
-            
-            const Rtot = sc.R1 + sc.R2;
-            const V1 = (sc.V * sc.R1) / Rtot;
-            const V2 = (sc.V * sc.R2) / Rtot;
-            
-            currentAnswers.vNameHTML = targetIsR1 ? 'V<sub>1</sub>' : 'V<sub>2</sub>';
-            currentAnswers.vValue = targetIsR1 ? V1 : V2;
-            currentAnswers.vUnit = vUnit;
-            
+            currentAnswers.vNameHTML = targetIsR1 ? 'V<sub>1</sub>' : 'V<sub>2</sub>'; currentAnswers.vValue = targetIsR1 ? V1 : V2; currentAnswers.vUnit = vUnit;
             document.getElementById('labelV').innerHTML = "Find <span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
             
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = brandBlack; ctx.lineWidth = 2; ctx.font = "bold 18px Arial";
+            ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.strokeStyle = brandBlack; ctx.lineWidth = 2; ctx.font = "bold 18px Arial";
+            drawLine(ctx, 150, 60, 450, 60); drawLine(ctx, 150, 360, 450, 360); ctx.fillStyle = brandBlack; ctx.fillText("+Vsupply = " + sc.V + " " + vUnit, 230, 45); ctx.fillText("0V (GND)", 260, 390);
+            drawLine(ctx, 300, 60, 300, 120); drawResistor(ctx, 300, 145); drawLine(ctx, 300, 170, 300, 230); drawResistor(ctx, 300, 255); drawLine(ctx, 300, 280, 300, 360);
+            ctx.font = "16px Arial"; ctx.fillStyle = brandBlack; ctx.fillText("R\u2081 = " + sc.R1 + " " + rUnitVisual, 330, 150); ctx.fillText("R\u2082 = " + sc.R2 + " " + rUnitVisual, 330, 260);
+            ctx.fillStyle = brandPink; ctx.font = "bold 16px Arial"; ctx.fillText((targetIsR1 ? 'V\u2081' : 'V\u2082') + " = ?", 240, targetIsR1 ? 150 : 260);
             
-            drawLine(ctx, 150, 60, 450, 60); drawLine(ctx, 150, 360, 450, 360); 
-            ctx.fillStyle = brandBlack; ctx.fillText("+Vsupply = " + sc.V + " " + vUnit, 230, 45); ctx.fillText("0V (GND)", 260, 390);
-            
-            drawLine(ctx, 300, 60, 300, 120); drawResistor(ctx, 300, 145); drawLine(ctx, 300, 170, 300, 230);
-            drawResistor(ctx, 300, 255); drawLine(ctx, 300, 280, 300, 360);
-            
-            ctx.font = "16px Arial"; ctx.fillStyle = brandBlack; 
-            ctx.fillText("R\u2081 = " + sc.R1 + " " + rUnitVisual, 330, 150);
-            ctx.fillText("R\u2082 = " + sc.R2 + " " + rUnitVisual, 330, 260);
-            
-            ctx.fillStyle = brandPink; ctx.font = "bold 16px Arial";
-            ctx.fillText((targetIsR1 ? 'V\u2081' : 'V\u2082') + " = ?", 240, targetIsR1 ? 150 : 260);
-            
-            const targetR = targetIsR1 ? sc.R1 : sc.R2;
-            const solText = document.getElementById('solText');
-            if (solText) {
-                solText.innerHTML = 
-                    "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + " " + vUnit + "</strong> <br><br>" +
-                    "<em>Step 1:</em> Understand the Equation: <strong>Vout = Vin &times; (R / Rtotal)</strong><br>" +
-                    "<em>Step 2:</em> Rtotal = " + sc.R1 + " + " + sc.R2 + " = <strong>" + Rtot + " " + rUnitVisual + "</strong><br>" +
-                    "<em>Step 3:</em> " + currentAnswers.vNameHTML + " = " + sc.V + " " + vUnit + " &times; (" + targetR + " / " + Rtot + ") = <strong>" + currentAnswers.vValue + " " + vUnit + "</strong>";
-            }
+            const targetR = targetIsR1 ? sc.R1 : sc.R2; const solText = document.getElementById('solText');
+            if (solText) solText.innerHTML = "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + " " + vUnit + "</strong> <br><br><em>Step 1:</em> Understand the Equation: <strong>Vout = Vin &times; (R / Rtotal)</strong><br><em>Step 2:</em> Rtotal = " + sc.R1 + " + " + sc.R2 + " = <strong>" + Rtot + " " + rUnitVisual + "</strong><br><em>Step 3:</em> " + currentAnswers.vNameHTML + " = " + sc.V + " " + vUnit + " &times; (" + targetR + " / " + Rtot + ") = <strong>" + currentAnswers.vValue + " " + vUnit + "</strong>";
         }
 
         function generateResistanceProblem(ctx, canvas) {
-            const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
-            const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
+            const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9'; const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
+            ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.strokeStyle = brandBlack; ctx.lineWidth = 2; ctx.font = "bold 18px Arial";
+            drawLine(ctx, 150, 60, 450, 60); drawLine(ctx, 150, 360, 450, 360); ctx.fillStyle = brandBlack; ctx.fillText("+Vsupply", 260, 45); ctx.fillText("0V (GND)", 260, 390);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = brandBlack; ctx.lineWidth = 2; ctx.font = "bold 18px Arial";
-
-            drawLine(ctx, 150, 60, 450, 60); drawLine(ctx, 150, 360, 450, 360); 
-            ctx.fillStyle = brandBlack; ctx.fillText("+Vsupply", 260, 45); ctx.fillText("0V (GND)", 260, 390);
-
-            const scenario = Math.floor(Math.random() * 3);
-            let rTotal, logicText;
-
+            const scenario = Math.floor(Math.random() * 3); let rTotal, logicText;
             if (scenario === 0) {
-                const r1 = (Math.floor(Math.random() * 10) + 1) * 10; 
-                const r2 = (Math.floor(Math.random() * 10) + 1) * 10;
-                rTotal = r1 + r2;
+                const r1 = (Math.floor(Math.random() * 10) + 1) * 10; const r2 = (Math.floor(Math.random() * 10) + 1) * 10; rTotal = r1 + r2;
                 logicText = "R<sub>Total</sub> = " + r1 + " + " + r2 + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
-
-                drawLine(ctx, 300, 60, 300, 120); drawResistor(ctx, 300, 145); drawLine(ctx, 300, 170, 300, 230);
-                drawResistor(ctx, 300, 255); drawLine(ctx, 300, 280, 300, 360);
-                
-                ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-                ctx.fillText("R\u2081 = " + r1 + " " + rUnitVisual, 330, 150); ctx.fillText("R\u2082 = " + r2 + " " + rUnitVisual, 330, 260);
-
+                drawLine(ctx, 300, 60, 300, 120); drawResistor(ctx, 300, 145); drawLine(ctx, 300, 170, 300, 230); drawResistor(ctx, 300, 255); drawLine(ctx, 300, 280, 300, 360);
+                ctx.fillStyle = brandBlack; ctx.font = "16px Arial"; ctx.fillText("R\u2081 = " + r1 + " " + rUnitVisual, 330, 150); ctx.fillText("R\u2082 = " + r2 + " " + rUnitVisual, 330, 260);
             } else if (scenario === 1) {
-                const pairs = [{r1: 10, r2: 10, req: 5}, {r1: 30, r2: 60, req: 20}, {r1: 12, r2: 24, req: 8}, {r1: 40, r2: 40, req: 20}];
-                const pair = pairs[Math.floor(Math.random() * pairs.length)];
-                rTotal = pair.req;
-                logicText = "R<sub>Total</sub> = (" + pair.r1 + " &times; " + pair.r2 + ") / (" + pair.r1 + " + " + pair.r2 + ") = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
-
-                drawLine(ctx, 300, 60, 300, 100); drawLine(ctx, 220, 100, 380, 100); 
-                drawLine(ctx, 220, 100, 220, 150); drawResistor(ctx, 220, 175); drawLine(ctx, 220, 200, 220, 320);
-                drawLine(ctx, 380, 100, 380, 150); drawResistor(ctx, 380, 175); drawLine(ctx, 380, 200, 380, 320);
-                drawLine(ctx, 220, 320, 380, 320); drawLine(ctx, 300, 320, 300, 360);
-
-                ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-                ctx.fillText("R\u2081 = " + pair.r1 + " " + rUnitVisual, 120, 180); ctx.fillText("R\u2082 = " + pair.r2 + " " + rUnitVisual, 401, 180);
+                const pairs = [{r1: 10, r2: 10, req: 5}, {r1: 30, r2: 60, req: 20}, {r1: 12, r2: 24, req: 8}, {r1: 40, r2: 40, req: 20}]; const pair = pairs[Math.floor(Math.random() * pairs.length)];
+                rTotal = pair.req; logicText = "R<sub>Total</sub> = (" + pair.r1 + " &times; " + pair.r2 + ") / (" + pair.r1 + " + " + pair.r2 + ") = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
+                drawLine(ctx, 300, 60, 300, 100); drawLine(ctx, 220, 100, 380, 100); drawLine(ctx, 220, 100, 220, 150); drawResistor(ctx, 220, 175); drawLine(ctx, 220, 200, 220, 320); drawLine(ctx, 380, 100, 380, 150); drawResistor(ctx, 380, 175); drawLine(ctx, 380, 200, 380, 320); drawLine(ctx, 220, 320, 380, 320); drawLine(ctx, 300, 320, 300, 360);
+                ctx.fillStyle = brandBlack; ctx.font = "16px Arial"; ctx.fillText("R\u2081 = " + pair.r1 + " " + rUnitVisual, 120, 180); ctx.fillText("R\u2082 = " + pair.r2 + " " + rUnitVisual, 401, 180);
             } else {
-                const sp = [{r1: 10, r2: 20, r3: 20, rp: 10, req: 20}, {r1: 15, r2: 30, r3: 60, rp: 20, req: 35}, {r1: 5, r2: 12, r3: 24, rp: 8, req: 13}];
-                const s = sp[Math.floor(Math.random() * sp.length)];
-                rTotal = s.req;
-                logicText = "R<sub>P</sub> = (" + s.r2 + " &times; " + s.r3 + ") / (" + s.r2 + " + " + s.r3 + ") = " + s.rp + "<br>" +
-                            "R<sub>Total</sub> = " + s.r1 + " + " + s.rp + " = <strong>" + s.req + " " + rUnitVisual + "</strong>";
-
-                drawLine(ctx, 300, 60, 300, 90); drawResistor(ctx, 300, 115); drawLine(ctx, 300, 140, 300, 180);
-                drawLine(ctx, 220, 180, 380, 180); drawLine(ctx, 220, 180, 220, 220); drawResistor(ctx, 220, 245); drawLine(ctx, 220, 270, 220, 320);
-                drawLine(ctx, 380, 180, 380, 220); drawResistor(ctx, 380, 245); drawLine(ctx, 380, 270, 380, 320);
-                drawLine(ctx, 220, 320, 380, 320); drawLine(ctx, 300, 320, 300, 360);
-
-                ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-                ctx.fillText("R\u2081 = " + s.r1 + " " + rUnitVisual, 330, 120);
-                ctx.fillText("R\u2082 = " + s.r2 + " " + rUnitVisual, 120, 250); ctx.fillText("R\u2083 = " + s.r3 + " " + rUnitVisual, 400, 250);
+                const sp = [{r1: 10, r2: 20, r3: 20, rp: 10, req: 20}, {r1: 15, r2: 30, r3: 60, rp: 20, req: 35}, {r1: 5, r2: 12, r3: 24, rp: 8, req: 13}]; const s = sp[Math.floor(Math.random() * sp.length)];
+                rTotal = s.req; logicText = "R<sub>P</sub> = (" + s.r2 + " &times; " + s.r3 + ") / (" + s.r2 + " + " + s.r3 + ") = " + s.rp + "<br>R<sub>Total</sub> = " + s.r1 + " + " + s.rp + " = <strong>" + s.req + " " + rUnitVisual + "</strong>";
+                drawLine(ctx, 300, 60, 300, 90); drawResistor(ctx, 300, 115); drawLine(ctx, 300, 140, 300, 180); drawLine(ctx, 220, 180, 380, 180); drawLine(ctx, 220, 180, 220, 220); drawResistor(ctx, 220, 245); drawLine(ctx, 220, 270, 220, 320); drawLine(ctx, 380, 180, 380, 220); drawResistor(ctx, 380, 245); drawLine(ctx, 380, 270, 380, 320); drawLine(ctx, 220, 320, 380, 320); drawLine(ctx, 300, 320, 300, 360);
+                ctx.fillStyle = brandBlack; ctx.font = "16px Arial"; ctx.fillText("R\u2081 = " + s.r1 + " " + rUnitVisual, 330, 120); ctx.fillText("R\u2082 = " + s.r2 + " " + rUnitVisual, 120, 250); ctx.fillText("R\u2083 = " + s.r3 + " " + rUnitVisual, 400, 250);
             }
-
-            currentAnswers.rValue = rTotal;
-            currentAnswers.rUnit = expectedUnitStr; 
-
-            const solText = document.getElementById('solText');
-            if (solText) solText.innerHTML = "<strong>R<sub>Total</sub> = " + currentAnswers.rValue + " " + rUnitVisual + "</strong><br><br>" + logicText;
+            currentAnswers.rValue = rTotal; currentAnswers.rUnit = expectedUnitStr; 
+            const solText = document.getElementById('solText'); if (solText) solText.innerHTML = "<strong>R<sub>Total</sub> = " + currentAnswers.rValue + " " + rUnitVisual + "</strong><br><br>" + logicText;
         }
 
         function drawRoundRect(ctx, x, y, width, height, radius) {
-            ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y); ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius); ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height); ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius); ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); ctx.fill(); ctx.stroke();
         }
 
         function generateOscilloscopeProblem(ctx, canvas) {
@@ -670,10 +577,14 @@
             let markDivs = Math.floor(Math.random() * 4) + 1; 
             let spaceDivs = Math.floor(Math.random() * 4) + 1; 
             let tBase = [1, 2, 5, 10, 20, 50][Math.floor(Math.random() * 6)];
+            
+            let markTime = markDivs * tBase;
+            let spaceTime = spaceDivs * tBase;
             let periodTime = (markDivs + spaceDivs) * tBase;
             
             let frequency = (tBaseUnit === 'ms') ? (1000 / periodTime) : (1 / periodTime);
             frequency = Math.round(frequency * 1000) / 1000;
+            let markSpaceRatio = markDivs / spaceDivs;
 
             ctx.fillStyle = brandBlack; 
             ctx.font = "bold 15px Arial";
@@ -701,47 +612,161 @@
             }
             ctx.stroke();
 
-            const qTypes = [
-                { text: "Mark Time = ", ans: markDivs * tBase, unit: tBaseUnit, sol: markDivs + " divs &times; " + tBase + " " + tBaseUnit + "/div" },
-                { text: "Space Time = ", ans: spaceDivs * tBase, unit: tBaseUnit, sol: spaceDivs + " divs &times; " + tBase + " " + tBaseUnit + "/div" },
-                { text: "Time Period = ", ans: periodTime, unit: tBaseUnit, sol: "(" + markDivs + " + " + spaceDivs + ") divs &times; " + tBase + " " + tBaseUnit + "/div" },
-                { text: "Frequency = ", ans: frequency, unit: "Hz", sol: (tBaseUnit === 'ms' ? "1 / (" + periodTime + " / 1000) s" : "1 / " + periodTime + " s") },
-                { text: "Mark/Space Ratio = ", ans: markDivs / spaceDivs, unit: "ratio", sol: "Mark takes " + markDivs + " divs, Space takes " + spaceDivs + " divs. Fraction is " + markDivs + "/" + spaceDivs + "." }
+            const styles = [
+                [
+                    { label: "Amplitude =", val: amplitude, unit: vGainUnit, placeholder: "e.g. 5 " + vGainUnit, sol: "Height is " + ampDivs + " divs. " + ampDivs + " &times; " + vGain + " " + vGainUnit + "/div = " + amplitude + " " + vGainUnit + "." },
+                    { label: "Mark Time =", val: markTime, unit: tBaseUnit, placeholder: "e.g. 10 " + tBaseUnit, sol: "Mark takes " + markDivs + " divs. " + markDivs + " &times; " + tBase + " " + tBaseUnit + "/div = " + markTime + " " + tBaseUnit + "." },
+                    { label: "Space Time =", val: spaceTime, unit: tBaseUnit, placeholder: "e.g. 10 " + tBaseUnit, sol: "Space takes " + spaceDivs + " divs. " + spaceDivs + " &times; " + tBase + " " + tBaseUnit + "/div = " + spaceTime + " " + tBaseUnit + "." }
+                ],
+                [
+                    { label: "Amplitude =", val: amplitude, unit: vGainUnit, placeholder: "e.g. 5 " + vGainUnit, sol: "Height is " + ampDivs + " divs. " + ampDivs + " &times; " + vGain + " " + vGainUnit + "/div = " + amplitude + " " + vGainUnit + "." },
+                    { label: "Time Period =", val: periodTime, unit: tBaseUnit, placeholder: "e.g. 20 " + tBaseUnit, sol: "(" + markDivs + " + " + spaceDivs + ") divs &times; " + tBase + " " + tBaseUnit + "/div = " + periodTime + " " + tBaseUnit + "." },
+                    { label: "Frequency =", val: frequency, unit: "Hz", placeholder: "e.g. 50 Hz", sol: (tBaseUnit === 'ms' ? "1 / (" + periodTime + " / 1000) s = " + frequency + " Hz" : "1 / " + periodTime + " s = " + frequency + " Hz") + "." }
+                ],
+                [
+                    { label: "Amplitude =", val: amplitude, unit: vGainUnit, placeholder: "e.g. 5 " + vGainUnit, sol: "Height is " + ampDivs + " divs. " + ampDivs + " &times; " + vGain + " " + vGainUnit + "/div = " + amplitude + " " + vGainUnit + "." },
+                    { label: "Mark Space Ratio =", val: markSpaceRatio, unit: "ratio", placeholder: "e.g. 1/2", sol: "Mark = " + markDivs + " divs, Space = " + spaceDivs + " divs. Fraction is " + markDivs + "/" + spaceDivs + "." },
+                    { label: "Frequency =", val: frequency, unit: "Hz", placeholder: "e.g. 50 Hz", sol: (tBaseUnit === 'ms' ? "1 / (" + periodTime + " / 1000) s = " + frequency + " Hz" : "1 / " + periodTime + " s = " + frequency + " Hz") + "." }
+                ]
             ];
 
-            const q = qTypes[Math.floor(Math.random() * qTypes.length)];
-            currentAnswers.osc1Value = amplitude; currentAnswers.osc1Unit = vGainUnit;
-            currentAnswers.osc2Value = q.ans; currentAnswers.osc2Unit = q.unit;
+            const selectedStyle = styles[Math.floor(Math.random() * styles.length)];
 
-            document.getElementById('labelOsc2').innerHTML = q.text;
-            if (q.unit === 'ratio') {
-                document.getElementById('inputOsc2').placeholder = "e.g. 1/2";
-            } else if (q.unit === 'Hz') {
-                document.getElementById('inputOsc2').placeholder = "e.g. 50 Hz";
-            } else {
-                document.getElementById('inputOsc2').placeholder = "e.g. 20 " + q.unit; 
-            }
+            currentAnswers.osc1Value = selectedStyle[0].val; currentAnswers.osc1Unit = selectedStyle[0].unit;
+            currentAnswers.osc2Value = selectedStyle[1].val; currentAnswers.osc2Unit = selectedStyle[1].unit;
+            currentAnswers.osc3Value = selectedStyle[2].val; currentAnswers.osc3Unit = selectedStyle[2].unit;
+
+            document.getElementById('labelOsc1').innerHTML = selectedStyle[0].label + " ";
+            document.getElementById('inputOsc1').placeholder = selectedStyle[0].placeholder;
+            document.getElementById('labelOsc2').innerHTML = selectedStyle[1].label + " ";
+            document.getElementById('inputOsc2').placeholder = selectedStyle[1].placeholder;
+            document.getElementById('labelOsc3').innerHTML = selectedStyle[2].label + " ";
+            document.getElementById('inputOsc3').placeholder = selectedStyle[2].placeholder;
 
             const solText = document.getElementById('solText');
-            if (solText) solText.innerHTML = 
-                "<strong>Amplitude = " + amplitude + " " + vGainUnit + "</strong><br>" +
-                "<em>Logic:</em> Wave height is " + ampDivs + " divs. " + ampDivs + " &times; " + vGain + " " + vGainUnit + "/div = " + amplitude + " " + vGainUnit + ".<br><br>" +
-                "<strong>" + q.text.replace(" = ", "") + " = " + (q.unit === 'ratio' ? markDivs + "/" + spaceDivs : q.ans + " " + q.unit) + "</strong><br>" + 
-                "<em>Logic:</em> " + q.sol;
+            if (solText) {
+                solText.innerHTML = 
+                    "<strong>" + selectedStyle[0].label.replace(" =", "") + " = " + selectedStyle[0].val + " " + selectedStyle[0].unit + "</strong><br>" +
+                    "<em>Logic:</em> " + selectedStyle[0].sol + "<br><br>" +
+                    "<strong>" + selectedStyle[1].label.replace(" =", "") + " = " + (selectedStyle[1].unit === 'ratio' ? markDivs + "/" + spaceDivs : selectedStyle[1].val + " " + selectedStyle[1].unit) + "</strong><br>" + 
+                    "<em>Logic:</em> " + selectedStyle[1].sol + "<br><br>" +
+                    "<strong>" + selectedStyle[2].label.replace(" =", "") + " = " + selectedStyle[2].val + " " + selectedStyle[2].unit + "</strong><br>" + 
+                    "<em>Logic:</em> " + selectedStyle[2].sol;
+            }
         }
 
-       function checkAnswers() {
+        function generateAstableProblem(ctx, canvas) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = brandBlack; ctx.lineWidth = 2; ctx.font = "bold 16px Arial";
+
+            // Power rails
+            drawLine(ctx, 100, 60, 500, 60);
+            drawLine(ctx, 100, 360, 500, 360);
+            ctx.fillStyle = brandBlack;
+            ctx.fillText("9V", 65, 65);
+            ctx.fillText("0V", 65, 365);
+            drawDot(ctx, 100, 60); drawDot(ctx, 100, 360);
+            
+            // 555 IC Box
+            ctx.strokeRect(350, 150, 90, 120);
+            ctx.font = "bold 20px Arial";
+            ctx.fillText("555", 375, 215);
+            
+            // Pin numbers
+            ctx.font = "14px Arial";
+            ctx.fillText("4", 365, 168); ctx.fillText("8", 415, 168);
+            ctx.fillText("3", 425, 215); ctx.fillText("1", 395, 265);
+            ctx.fillText("7", 355, 185); ctx.fillText("6", 355, 215); ctx.fillText("2", 355, 245);
+            
+            // IC Connections
+            drawLine(ctx, 370, 150, 370, 60); drawDot(ctx, 370, 60); // Pin 4
+            drawLine(ctx, 420, 150, 420, 60); drawDot(ctx, 420, 60); // Pin 8
+            drawLine(ctx, 400, 270, 400, 360); drawDot(ctx, 400, 360); // Pin 1
+            drawLine(ctx, 440, 210, 520, 210); ctx.fillText("Output", 525, 215); // Pin 3
+            drawDot(ctx, 520, 210);
+            
+            // Left Side RC Network
+            drawLine(ctx, 220, 60, 220, 100); drawDot(ctx, 220, 60);
+            drawResistor(ctx, 220, 125); // y: 100-150
+            drawLine(ctx, 220, 150, 220, 200); drawDot(ctx, 220, 180);
+            drawResistor(ctx, 220, 225); // y: 200-250
+            drawLine(ctx, 220, 250, 220, 280); drawDot(ctx, 220, 240);
+            
+            // Capacitor
+            drawLine(ctx, 200, 280, 240, 280);
+            drawLine(ctx, 200, 290, 240, 290);
+            drawLine(ctx, 220, 290, 220, 360); drawDot(ctx, 220, 360);
+            
+            // Connect pins to RC network
+            // Pin 7 to between RA and RB
+            drawLine(ctx, 220, 180, 350, 180);
+            
+            // Pin 6 and 2 to between RB and C
+            drawLine(ctx, 220, 240, 320, 240);
+            drawLine(ctx, 320, 240, 320, 210);
+            drawLine(ctx, 320, 210, 350, 210); // to Pin 6
+            drawLine(ctx, 320, 240, 350, 240); // to Pin 2
+            drawDot(ctx, 320, 240); // junction for Pin 2
+
+            // Random Values
+            const raVals = [1, 2.2, 3.3, 4.7, 5.1, 10];
+            const rbVals = [10, 22, 33, 47, 68, 100];
+            const cVals = [
+                {val: 10, unit: 'nF', mult: 1e-9},
+                {val: 47, unit: 'nF', mult: 1e-9},
+                {val: 100, unit: 'nF', mult: 1e-9},
+                {val: 1, unit: '\u03BCF', mult: 1e-6},
+                {val: 10, unit: '\u03BCF', mult: 1e-6}
+            ];
+            
+            let RA = raVals[Math.floor(Math.random() * raVals.length)];
+            let RB = rbVals[Math.floor(Math.random() * rbVals.length)];
+            let C_obj = cVals[Math.floor(Math.random() * cVals.length)];
+            
+            // Calculate Freq
+            let exactF = 1.44 / ((RA * 1000 + 2 * RB * 1000) * C_obj.val * C_obj.mult);
+            let displayF = Math.round(exactF * 10) / 10; 
+            
+            currentAnswers.astableValue = displayF;
+            currentAnswers.astableUnit = 'Hz';
+            
+            // Draw Labels
+            ctx.font = "16px Arial";
+            ctx.fillStyle = brandBlack;
+            ctx.fillText("R", 150, 120); ctx.font = "12px Arial"; ctx.fillText("A", 162, 125);
+            ctx.font = "16px Arial"; ctx.fillText("= " + RA + " k\u03A9", 240, 130);
+            
+            ctx.fillText("R", 150, 220); ctx.font = "12px Arial"; ctx.fillText("B", 162, 225);
+            ctx.font = "16px Arial"; ctx.fillText("= " + RB + " k\u03A9", 240, 230);
+            
+            ctx.fillText("C", 160, 290);
+            ctx.fillText("= " + C_obj.val + " " + C_obj.unit, 245, 290);
+
+            // Solution Text
+            const solText = document.getElementById('solText');
+            if (solText) {
+                solText.innerHTML = "<strong>Frequency = " + displayF + " Hz</strong><br><br>" +
+                "<em>Step 1:</em> Formula is f = 1.44 / ((R<sub>A</sub> + 2R<sub>B</sub>) &times; C)<br>" +
+                "<em>Step 2:</em> R<sub>A</sub> = " + RA + " k\u03A9 = " + (RA*1000) + " \u03A9<br>" +
+                "<em>Step 3:</em> R<sub>B</sub> = " + RB + " k\u03A9 = " + (RB*1000) + " \u03A9<br>" +
+                "<em>Step 4:</em> C = " + C_obj.val + " " + C_obj.unit + " = " + C_obj.val + " &times; 10<sup>" + (C_obj.unit === 'nF' ? '-9' : '-6') + "</sup> F<br>" +
+                "<em>Step 5:</em> f = 1.44 / ((" + (RA*1000) + " + 2 &times; " + (RB*1000) + ") &times; " + (C_obj.val * C_obj.mult) + ")<br>" +
+                "<em>Step 6:</em> f &approx; " + displayF + " Hz";
+            }
+        }
+
+        function checkAnswers() {
             if (isCurrentProblemSolved) return; 
 
             const feedback = document.getElementById('feedback');
             const helpBtn = document.getElementById('helpBtn');
 
-            // 1. Check if the relevant active boxes are genuinely blank first
             let activeInputs = [];
             if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
             else if (currentMode === 'divider') activeInputs = ['inputV'];
             else if (currentMode === 'resistance') activeInputs = ['inputR'];
-            else if (currentMode === 'oscilloscope') activeInputs = ['inputOsc1', 'inputOsc2'];
+            else if (currentMode === 'oscilloscope') activeInputs = ['inputOsc1', 'inputOsc2', 'inputOsc3'];
+            else if (currentMode === 'astable') activeInputs = ['inputAstable'];
 
             let hasEmptyBox = false;
             activeInputs.forEach(id => {
@@ -750,19 +775,16 @@
                 }
             });
 
-            // If a box is empty, warn them and stop without counting as an attempt
             if (hasEmptyBox) {
-                feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a value!</span>";
+                feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a value for all visible boxes!</span>";
                 return; 
             }
             
-            // 2. Mark the problem as attempted
             if (!hasCheckedCurrentProblem) { 
                 problemsAttempted++; 
                 hasCheckedCurrentProblem = true; 
             }
 
-            // 3. Parse inputs against expected answers
             let results = [];
             if (currentMode === 'analysis') {
                 let pV = parseInput(document.getElementById('inputV').value);
@@ -778,11 +800,15 @@
             } else if (currentMode === 'oscilloscope') {
                 let pO1 = parseInput(document.getElementById('inputOsc1').value);
                 let pO2 = parseInput(document.getElementById('inputOsc2').value);
+                let pO3 = parseInput(document.getElementById('inputOsc3').value); 
                 results.push(validateMatch(pO1, currentAnswers.osc1Value, currentAnswers.osc1Unit));
                 results.push(validateMatch(pO2, currentAnswers.osc2Value, currentAnswers.osc2Unit));
+                results.push(validateMatch(pO3, currentAnswers.osc3Value, currentAnswers.osc3Unit));
+            } else if (currentMode === 'astable') {
+                let pAst = parseInput(document.getElementById('inputAstable').value);
+                results.push(validateMatch(pAst, currentAnswers.astableValue, currentAnswers.astableUnit));
             }
 
-            // 4. Grade the results
             if (results.every(r => r === 'correct')) {
                 isCurrentProblemSolved = true;
                 
@@ -804,15 +830,14 @@
                     feedback.innerHTML = "<span style='color: #fd7e14;'>Don't forget your units! (Mark lost for this question)</span>";
                 } else if (results.includes('wrongunit')) {
                     unitErrorMade = true;
-                    if (currentMode === 'oscilloscope' && currentAnswers.osc2Unit === 'ratio') {
-                        feedback.innerHTML = "<span style='color: #fd7e14;'>Almost! The Mark/Space ratio must be written as a fraction (e.g. 1/2).</span>";
+                    if (currentMode === 'oscilloscope' && (currentAnswers.osc2Unit === 'ratio' || currentAnswers.osc3Unit === 'ratio')) {
+                        feedback.innerHTML = "<span style='color: #fd7e14;'>Almost! The Ratio must be written as a fraction (e.g. 1/2).</span>";
                     } else {
                         feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost for this question)</span>";
                     }
                 } else if (results.some(r => r === 'correct')) {
-                    feedback.innerHTML = "<span style='color: #dc3545;'>One is right, one is wrong. Check logic!</span>";
+                    feedback.innerHTML = "<span style='color: #dc3545;'>At least one is incorrect. Check your logic!</span>";
                 } else {
-                    // This now handles math errors AND weird/incorrect units correctly
                     feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Check your math!</span>";
                 }
             }
