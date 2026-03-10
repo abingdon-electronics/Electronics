@@ -477,16 +477,16 @@
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (currentMode === 'analysis') {
-                generateAnalysisProblem(ctx);
+           if (currentMode === 'analysis') {
+                generateAnalysisProblem(ctx); // This one is fine with just ctx
             } else if (currentMode === 'divider') {
-                generateDividerProblem(ctx);
+                generateDividerProblem(ctx, canvas); // Add canvas here
             } else if (currentMode === 'resistance') {
-                generateResistanceProblem(ctx);
+                generateResistanceProblem(ctx, canvas); // Add canvas here
             } else if (currentMode === 'oscilloscope') {
-                generateOscilloscopeProblem(ctx);
+                generateOscilloscopeProblem(ctx, canvas); // Add canvas here
             } else if (currentMode === 'astable') {
-                generateAstableProblem(ctx);
+                generateAstableProblem(ctx, canvas); // Add canvas here
             }
         }
 
