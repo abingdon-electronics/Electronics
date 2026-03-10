@@ -724,6 +724,18 @@ function generateDividerProblem(ctx, canvas) {
     // Update Input Box Label
     document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
 
+    // Update the Unit Dropdown dynamically based on what we are asking for!
+    const unitDropdown = document.getElementById('unitV'); 
+    if (unitDropdown) {
+        if (targetVar === 0 || targetVar === 1) {
+            // Voltage questions need V and mV
+            unitDropdown.innerHTML = '<option value="V">V</option><option value="mV">mV</option>';
+        } else {
+            // Resistance questions need Ohms and kOhms
+            unitDropdown.innerHTML = '<option value="ohms">\u03A9</option><option value="kohms">k\u03A9</option>';
+        }
+    }
+    
     // Prepare the labels based on what is hidden (the "?")
     let labelR1   = (targetVar === 2) ? "?" : R1_val + " " + rUnitVisual;
     let labelR2   = (targetVar === 3) ? "?" : R2_val + " " + rUnitVisual;
