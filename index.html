@@ -431,6 +431,9 @@
                 document.getElementById('inputGroupOsc2').style.display = 'inline-block';
                 generateOscilloscopeProblem(ctx, canvas);
             }
+            else if (currentMode === 'astable') {
+            generateAstableProblem(ctx, canvas);
+            }
         }
 
         function generateAnalysisProblem(ctx, canvas) {
@@ -796,6 +799,12 @@
                 results.push(validateMatch(pO1, currentAnswers.osc1Value, currentAnswers.osc1Unit));
                 results.push(validateMatch(pO2, currentAnswers.osc2Value, currentAnswers.osc2Unit));
             }
+           else if (currentMode === 'astable') {
+        const aF = parseInput(document.getElementById('inputAstable').value);
+        const aT = parseInput(document.getElementById('inputAstableT').value);
+        results.push(validateMatch(aF, currentAnswers.astableValue, currentAnswers.astableUnit));
+        results.push(validateMatch(aT, currentAnswers.astableTValue, currentAnswers.astableTUnit));
+        }
 
             // 4. Grade the results
             if (results.every(r => r === 'correct')) {
@@ -842,7 +851,35 @@
                 sol.style.display = 'block'; viewedSolution = true;
             } else { sol.style.display = 'none'; }
         }
+        function generateAstableProblem(ctx, canvas) {
+    document.getElementById('inputGroupAstable').style.display = "inline-block";
+    const R1 = (Math.floor(Math.random() * 9) + 1) * 1000;
+    const R2 = (Math.floor(Math.random() * 9) + 1) * 1000;
+    const C_uF = [0.1, 1, 10, 47][Math.floor(Math.random() * 4)];
+    const C_farads = C_uF / 1000000;
 
+    const freq = 1.44 / ((R1 + 2 * R2) * C_farads);
+    const period_ms = (1 / freq) * 1000;
+
+    currentAnswers.astableValue = freq; currentAnswers.astableUnit = "hz";
+    currentAnswers.astableTValue = period_ms; currentAnswers.astableTUnit = "ms";
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = brandBlack; ctx.lineWidth = 2;
+    // Draw the 555 chip
+    ctx.strokeRect(225, 120, 150, 180); 
+    ctx.font = "bold 20px Arial"; ctx.textAlign = "center";
+    ctx.fillText("555", 300, 215);
+
+    ctx.font = "14px Arial"; ctx.textAlign = "left";
+    ctx.fillText("R1 = " + (R1/1000) + " k\u03a9", 140, 100);
+    ctx.fillText("R2 = " + (R2/1000) + " k\u03a9", 140, 180);
+    ctx.fillText("C = " + C_uF + " \u03bcF", 390, 280);
+
+    document.getElementById('solText').innerHTML = 
+        "f = 1.44 / ((" + R1 + " + 2*" + R2 + ") * " + C_farads.toExponential(2) + ") = " + freq.toFixed(1) + " Hz<br>" +
+        "T = 1 / f = " + period_ms.toFixed(1) + " ms";
+}
         window.onload = function() { generateProblem(); };
     </script>
 </body>
