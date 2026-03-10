@@ -461,8 +461,13 @@ function generateProblem() {
     } else if (currentMode === 'divider') {
         document.getElementById('inputGroupV').style.display = 'inline-block';
         generateDividerProblem(ctx, canvas);
-    } else if (currentMode === 'resistance') {
-        document.getElementById('inputGroupR').style.display = 'inline-block';
+   } else if (currentMode === 'resistance') {
+    document.getElementById('inputGroupR').style.display = 'inline-block';
+    // Force a small delay to ensure the UI is ready before drawing
+    setTimeout(() => {
+        generateGrade9Resistance();
+    }, 10);
+}
         
 // This ensures that when you click the tab, a standard problem shows up
 // (You should have a standard version, or you can point it to the Grade 9 one)
@@ -585,6 +590,12 @@ function generateAnalysisProblem(ctx, canvas) {
 function generateGrade9Resistance() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
+    
+    // Ensure the canvas is cleared so old drawings don't stack
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // ... rest of your math and drawing code ...
+    
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
 
