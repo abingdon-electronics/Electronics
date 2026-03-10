@@ -852,113 +852,112 @@
             } else { sol.style.display = 'none'; }
         }
         function generateAstableProblem(ctx, canvas) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = brandBlack; ctx.lineWidth = 2; ctx.font = "bold 16px Arial";
+    document.getElementById('inputGroupAstable').style.display = "inline-block";
+    const R1 = (Math.floor(Math.random() * 9) + 1) * 1000;
+    const R2 = (Math.floor(Math.random() * 9) + 1) * 1000;
+    const C_uF = [0.1, 1, 10, 47][Math.floor(Math.random() * 4)];
+    const C_farads = C_uF / 1000000;
 
-            // Power rails
-            drawLine(ctx, 100, 60, 500, 60);
-            drawLine(ctx, 100, 360, 500, 360);
-            ctx.fillStyle = brandBlack;
-            ctx.fillText("9V", 65, 65);
-            ctx.fillText("0V", 65, 365);
-            drawDot(ctx, 100, 60); drawDot(ctx, 100, 360);
-            
-            // 555 IC Box
-            ctx.strokeRect(350, 150, 90, 120);
-            ctx.font = "bold 20px Arial";
-            ctx.fillText("555", 375, 215);
-            
-            // Pin numbers
-            ctx.font = "14px Arial";
-            ctx.fillText("4", 365, 168); ctx.fillText("8", 415, 168);
-            ctx.fillText("3", 425, 215); ctx.fillText("1", 395, 265);
-            ctx.fillText("7", 355, 185); ctx.fillText("6", 355, 215); ctx.fillText("2", 355, 245);
-            
-            // IC Connections
-            drawLine(ctx, 370, 150, 370, 60); drawDot(ctx, 370, 60); // Pin 4
-            drawLine(ctx, 420, 150, 420, 60); drawDot(ctx, 420, 60); // Pin 8
-            drawLine(ctx, 400, 270, 400, 360); drawDot(ctx, 400, 360); // Pin 1
-            drawLine(ctx, 440, 210, 520, 210); ctx.fillText("Output", 525, 215); // Pin 3
-            drawDot(ctx, 520, 210);
-            
-            // Left Side RC Network
-            drawLine(ctx, 220, 60, 220, 100); drawDot(ctx, 220, 60);
-            drawResistor(ctx, 220, 125); // y: 100-150
-            drawLine(ctx, 220, 150, 220, 200); drawDot(ctx, 220, 180);
-            drawResistor(ctx, 220, 225); // y: 200-250
-            drawLine(ctx, 220, 250, 220, 280); 
-            
-            // Capacitor
-            drawLine(ctx, 200, 280, 240, 280);
-            drawLine(ctx, 200, 290, 240, 290);
-            drawLine(ctx, 220, 290, 220, 360); drawDot(ctx, 220, 360);
-            
-            // Connect pins to RC network
-            // Pin 7 to between RA and RB
-            drawLine(ctx, 220, 180, 350, 180);
-            
-            // Pin 6 and 2 to between RB and C
-            drawDot(ctx, 220, 265); // Properly moved to strictly between RB and C
-            drawLine(ctx, 220, 265, 320, 265);
-            drawLine(ctx, 320, 265, 320, 210);
-            drawLine(ctx, 320, 210, 350, 210); // to Pin 6
-            drawLine(ctx, 320, 240, 350, 240); // to Pin 2
-            drawDot(ctx, 320, 240); // junction for Pin 2
+    const freq = 1.44 / ((R1 + 2 * R2) * C_farads);
+    const period_ms = (1 / freq) * 1000;
 
-            // Random Values
-            const raVals = [1, 2.2, 3.3, 4.7, 5.1, 10];
-            const rbVals = [10, 22, 33, 47, 68, 100];
-            const cVals = [
-                {val: 10, unit: 'nF', mult: 1e-9},
-                {val: 47, unit: 'nF', mult: 1e-9},
-                {val: 100, unit: 'nF', mult: 1e-9},
-                {val: 1, unit: '\u03BCF', mult: 1e-6},
-                {val: 10, unit: '\u03BCF', mult: 1e-6}
-            ];
-            
-            let RA = raVals[Math.floor(Math.random() * raVals.length)];
-            let RB = rbVals[Math.floor(Math.random() * rbVals.length)];
-            let C_obj = cVals[Math.floor(Math.random() * cVals.length)];
-            
-            // Calculate Freq & Time Period
-            let exactF = 1.44 / ((RA * 1000 + 2 * RB * 1000) * C_obj.val * C_obj.mult);
-            let displayF = Math.round(exactF * 10) / 10; 
-            
-            let exactT = 1 / exactF;
-            let T_unit = exactT < 1 ? 'ms' : 's';
-            let displayT = exactT < 1 ? Math.round(exactT * 1000 * 10) / 10 : Math.round(exactT * 10) / 10;
-            
-            currentAnswers.astableValue = displayF;
-            currentAnswers.astableUnit = 'Hz';
-            currentAnswers.astableTValue = displayT;
-            currentAnswers.astableTUnit = T_unit;
-            
-            // Draw Labels
-            ctx.font = "16px Arial";
-            ctx.fillStyle = brandBlack;
-            ctx.fillText("R", 150, 120); ctx.font = "12px Arial"; ctx.fillText("A", 162, 125);
-            ctx.font = "16px Arial"; ctx.fillText("= " + RA + " k\u03A9", 240, 130);
-            
-            ctx.fillText("R", 150, 220); ctx.font = "12px Arial"; ctx.fillText("B", 162, 225);
-            ctx.font = "16px Arial"; ctx.fillText("= " + RB + " k\u03A9", 240, 230);
-            
-            ctx.fillText("C", 160, 290);
-            ctx.fillText("= " + C_obj.val + " " + C_obj.unit, 245, 290);
+    currentAnswers.astableValue = freq; currentAnswers.astableUnit = "hz";
+    currentAnswers.astableTValue = period_ms; currentAnswers.astableTUnit = "ms";
 
-            // Solution Text
-            const solText = document.getElementById('solText');
-            if (solText) {
-                solText.innerHTML = "<strong>Question 1: Frequency = " + displayF + " Hz</strong><br>" +
-                "<strong>Question 2: Time Period = " + displayT + " " + T_unit + "</strong><br><br>" +
-                "<em>Step 1:</em> Formula is f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) &times; C)<br>" +
-                "<em>Step 2:</em> R<sub>1</sub> (R<sub>A</sub>) = " + RA + " k\u03A9 = " + (RA*1000) + " \u03A9<br>" +
-                "<em>Step 3:</em> R<sub>2</sub> (R<sub>B</sub>) = " + RB + " k\u03A9 = " + (RB*1000) + " \u03A9<br>" +
-                "<em>Step 4:</em> C = " + C_obj.val + " " + C_obj.unit + " = " + C_obj.val + " &times; 10<sup>" + (C_obj.unit === 'nF' ? '-9' : '-6') + "</sup> F<br>" +
-                "<em>Step 5:</em> f = 1.44 / ((" + (RA*1000) + " + 2 &times; " + (RB*1000) + ") &times; " + (C_obj.val * C_obj.mult) + ")<br>" +
-                "<em>Step 6:</em> f &approx; " + displayF + " Hz<br>" +
-                "<em>Step 7:</em> T = 1 / f = 1 / " + displayF + " &approx; " + displayT + " " + T_unit;
-            }
-        window.onload = function() { generateProblem(); };
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.strokeStyle = "#000000"; 
+    ctx.lineWidth = 2;
+    ctx.fillStyle = "#000000";
+    
+    // Internal helper functions to guarantee perfect drawing
+    const line = (x1, y1, x2, y2) => {
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    };
+    
+    // This draws the professional junction dots you wanted!
+    const drawNode = (x, y) => {
+        ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+    };
+
+    const drawResistorBox = (x, y, label, val) => {
+        ctx.fillStyle = "white";
+        ctx.fillRect(x - 12, y - 25, 24, 50);
+        ctx.strokeRect(x - 12, y - 25, 24, 50);
+        ctx.fillStyle = "#000000";
+        ctx.font = "14px Arial"; ctx.textAlign = "right";
+        if(label) ctx.fillText(label, x - 20, y - 5);
+        if(val) ctx.fillText(val, x - 20, y + 15);
+    };
+
+    // 1. Draw Power Rails
+    ctx.font = "bold 16px Arial"; ctx.textAlign = "left";
+    line(100, 40, 500, 40); // +Vcc line
+    ctx.fillText("+Vcc (Supply)", 510, 45);
+    
+    line(100, 380, 500, 380); // 0V line
+    ctx.fillText("0V (GND)", 510, 385);
+
+    // 2. Draw 555 Chip Box
+    ctx.strokeRect(260, 140, 100, 140); 
+    ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
+    ctx.fillText("555", 310, 215);
+
+    // 3. Draw Left Branch (R1, R2, C) with Junctions
+    const branchX = 160;
+    
+    line(branchX, 40, branchX, 70);
+    drawNode(branchX, 40); // Junction at Vcc rail
+    
+    drawResistorBox(branchX, 95, "R\u2081", (R1/1000) + " k\u03a9");
+    
+    line(branchX, 120, branchX, 160);
+    drawNode(branchX, 160); // Junction for Pin 7
+    
+    drawResistorBox(branchX, 185, "R\u2082", (R2/1000) + " k\u03a9");
+    
+    line(branchX, 210, branchX, 260);
+    drawNode(branchX, 260); // Junction for Pins 2,6
+    
+    // Capacitor Symbol
+    line(branchX, 260, branchX, 300);
+    line(branchX - 15, 300, branchX + 15, 300); // Top plate
+    line(branchX - 15, 310, branchX + 15, 310); // Bottom plate
+    ctx.textAlign = "right";
+    ctx.fillText("C", branchX - 25, 305);
+    ctx.fillText(C_uF + " \u03bcF", branchX - 25, 325);
+
+    line(branchX, 310, branchX, 380);
+    drawNode(branchX, 380); // Junction at 0V rail
+
+    // 4. Draw Connections to the 555 Chip
+    line(branchX, 160, 260, 160); // To Pin 7
+    ctx.textAlign = "left"; ctx.fillText("7", 270, 155);
+
+    line(branchX, 260, 260, 260); // To Pins 2, 6
+    ctx.fillText("2, 6", 270, 255);
+
+    // Output Pin 3
+    line(360, 210, 460, 210);
+    ctx.fillText("3", 345, 205);
+    ctx.fillText("Output", 470, 215);
+
+    // Power Pins (8, 4 and 1)
+    line(310, 140, 310, 40); 
+    drawNode(310, 40); // Junction at Vcc
+    ctx.fillText("8, 4", 320, 130);
+    
+    line(310, 280, 310, 380);
+    drawNode(310, 380); // Junction at 0V
+    ctx.fillText("1", 320, 370);
+
+    // 5. Update Solutions Text
+    document.getElementById('solText').innerHTML = 
+        "f = 1.44 / ((" + R1 + " + 2*" + R2 + ") * " + C_farads.toExponential(2) + ") = " + freq.toFixed(1) + " Hz<br>" +
+        "T = 1 / f = " + period_ms.toFixed(1) + " ms";
+}
+    
+    window.onload = function() { generateProblem(); };
     </script>
 </body>
 </html>
