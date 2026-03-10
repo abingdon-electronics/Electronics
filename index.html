@@ -1145,12 +1145,12 @@ function generateGrade9Resistance() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    // 1. CLEAR CANVAS
+    // 1. Reset for new problem
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 2. MATH LOGIC
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
+
+    // 2. Math logic (Decimal values)
     let r1 = Math.floor(Math.random() * 40) + 10;
     let r2 = (Math.random() * 50 + 5).toFixed(1);
     let r3 = (Math.random() * 50 + 5).toFixed(1);
@@ -1160,53 +1160,58 @@ function generateGrade9Resistance() {
     let rp_rounded = parseFloat(rp_exact.toFixed(2));
     let rTotal = parseFloat((r1 + rp_exact).toFixed(2));
 
-    // 3. DRAWING LOGIC (Using your defined brand colors)
+    // 3. Drawing Logic (Fixed spacing with power rails)
     ctx.strokeStyle = brandBlack; 
     ctx.lineWidth = 2;
     
-    // Draw Rails (Fixes floating look)
+    // Top Rail
     drawLine(ctx, 150, 40, 450, 40); 
+    // Bottom Rail
     drawLine(ctx, 150, 360, 450, 360);
-    ctx.fillStyle = brandBlack; 
-    ctx.font = "bold 16px Arial";
-    ctx.fillText("+V", 290, 30); 
-    ctx.fillText("GND", 285, 385);
+    ctx.fillStyle = brandBlack; ctx.font = "bold 16px Arial";
+    ctx.fillText("+V", 290, 30); ctx.fillText("GND", 285, 385);
 
-    // Main path & R1
+    // Main series connection
     drawLine(ctx, 300, 40, 300, 75); 
-    drawResistor(ctx, 300, 100); 
+    drawResistor(ctx, 300, 100); // R1
     drawLine(ctx, 300, 125, 300, 165);
     
-    // Parallel Branch (R2 and R3)
+    // Parallel structure
     drawLine(ctx, 220, 165, 380, 165); 
-    drawLine(ctx, 220, 165, 220, 205); drawResistor(ctx, 220, 230); 
-    drawLine(ctx, 380, 165, 380, 205); drawResistor(ctx, 380, 230); 
+    drawLine(ctx, 220, 165, 220, 205); drawResistor(ctx, 220, 230); // R2
+    drawLine(ctx, 380, 165, 380, 205); drawResistor(ctx, 380, 230); // R3
     drawLine(ctx, 220, 255, 220, 315); 
     drawLine(ctx, 380, 255, 380, 315);
     drawLine(ctx, 220, 315, 380, 315); 
     drawLine(ctx, 300, 315, 300, 360); 
 
-    // Labels
-    ctx.fillStyle = brandBlack; 
-    ctx.font = "16px Arial";
+    // Labels shifted for clarity
+    ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
     ctx.fillText("R\u2081 = " + r1 + " " + rUnitVisual, 335, 105);
     ctx.fillText("R\u2082 = " + r2 + " " + rUnitVisual, 115, 235); 
     ctx.fillText("R\u2083 = " + r3 + " " + rUnitVisual, 405, 235);
 
-    // 4. SOLUTION TEXT (Pink Header)
+    // 4. Update UI & Solution text
     const solText = document.getElementById('solText');
     if (solText) {
         let logicHTML = "<h3 style='color: #E64097; margin-top:0;'>🏆 Grade 9 Step-by-Step Logic</h3>";
         logicHTML += "<strong>Solution: R<sub>Total</sub> = " + rTotal + " " + rUnitVisual + "</strong><br><br>";
-        logicHTML += "<em>Step 1:</em> Find R<sub>p</sub> = (" + r2 + " &times; " + r3 + ") / (" + r2 + " + " + r3 + ") = <strong>" + rp_rounded + " " + rUnitVisual + "</strong><br>";
-        logicHTML += "<em>Step 2:</em> Total = " + r1 + " + " + rp_rounded + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
+        logicHTML += "<em>Step 1:</em> Find R<sub>p</sub> using <strong>Product &divide; Sum</strong>.<br>";
+        logicHTML += "R<sub>p</sub> = (" + r2 + " &times; " + r3 + ") / (" + r2 + " + " + r3 + ") = <strong>" + rp_rounded + " " + rUnitVisual + "</strong><br><br>";
+        logicHTML += "<em>Step 2:</em> Add series R\u2081.<br>";
+        logicHTML += "R<sub>Total</sub> = " + r1 + " + " + rp_rounded + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
         solText.innerHTML = logicHTML;
     }
 
     currentAnswers.rValue = rTotal;
     currentAnswers.rUnit = expectedUnitStr;
+    
+    // UI Resets
+    document.getElementById('inputR').value = '';
+    document.getElementById('feedback').innerHTML = '';
+    document.getElementById('solutions').style.display = 'none';
+    document.getElementById('helpBtn').style.display = 'inline-block';
 }
-
         
 function drawRoundRect(ctx, x, y, width, height, radius) {
             ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y);
