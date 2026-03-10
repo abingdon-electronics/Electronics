@@ -723,18 +723,6 @@ function generateDividerProblem(ctx, canvas) {
 
     // Update Input Box Label
     document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
-
-    // Update the Unit Dropdown dynamically based on what we are asking for!
-    const unitDropdown = document.getElementById('unitV'); 
-    if (unitDropdown) {
-        if (targetVar === 0 || targetVar === 1) {
-            // Voltage questions need V and mV
-            unitDropdown.innerHTML = '<option value="V">V</option><option value="mV">mV</option>';
-        } else {
-            // Resistance questions need Ohms and kOhms
-            unitDropdown.innerHTML = '<option value="ohms">\u03A9</option><option value="kohms">k\u03A9</option>';
-        }
-    }
     
     // Prepare the labels based on what is hidden (the "?")
     let labelR1   = (targetVar === 2) ? "?" : R1_val + " " + rUnitVisual;
@@ -831,6 +819,18 @@ function generateDividerProblem(ctx, canvas) {
     ctx.font = "bold 16px Arial";
     ctx.fillText("= " + labelVout, 445, 216);
 
+    // Dynamically update the placeholder text in the input box!
+    const inputBox = document.getElementById('inputV');
+    if (inputBox) {
+        if (targetVar === 0 || targetVar === 1) {
+            // Asking for Voltage
+            inputBox.placeholder = "e.g. 10 " + vUnit; 
+        } else {
+            // Asking for Resistance
+            inputBox.placeholder = "e.g. 10 " + expectedRUnit; 
+        }
+    }
+    
     // 4. Update the Step-by-Step Logic Panel
     const solText = document.getElementById('solText');
     if (solText) {
