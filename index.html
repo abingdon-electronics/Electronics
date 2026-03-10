@@ -155,13 +155,15 @@
                 </div>
             </div>
 
-            <div class="controls">
-                <button class="btn-black" onclick="generateProblem()">Generate New Problem</button>
-                
-                <button id="grade9Btn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge</button>
-                
-                <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solution)</button>
-            </div>
+    <div class="controls">
+    <button class="btn-black" onclick="generateProblem()">Generate New Problem</button>
+    
+    <button id="grade9Btn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge (Divider)</button>
+    
+    <button id="grade9ResistanceBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge (Resistance)</button>
+    
+    <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solution)</button>
+    </div>
 
             <div id="solutions" class="solutions">
                 <h3>Step-by-Step Logic</h3>
@@ -405,62 +407,70 @@
         }
 
         function generateProblem() {
-            const canvas = document.getElementById('circuitCanvas');
-            if (!canvas) return; 
-            const ctx = canvas.getContext('2d');
-            
-            hasCheckedCurrentProblem = false;
-            isCurrentProblemSolved = false;
-            viewedSolution = false; 
-            unitErrorMade = false; 
-            
-            const helpBtn = document.getElementById('helpBtn');
-            const solutions = document.getElementById('solutions');
-            const feedback = document.getElementById('feedback');
-            const grade9Btn = document.getElementById('grade9Btn'); // NEW
+    const canvas = document.getElementById('circuitCanvas');
+    if (!canvas) return; 
+    const ctx = canvas.getContext('2d');
+    
+    hasCheckedCurrentProblem = false;
+    isCurrentProblemSolved = false;
+    viewedSolution = false; 
+    unitErrorMade = false; 
+    
+    const helpBtn = document.getElementById('helpBtn');
+    const solutions = document.getElementById('solutions');
+    const feedback = document.getElementById('feedback');
+    
+    // --- 1. DEFINE BOTH GRADE 9 BUTTONS ---
+    const grade9Btn = document.getElementById('grade9Btn'); 
+    const grade9ResBtn = document.getElementById('grade9ResistanceBtn'); // NEW
 
-            if (helpBtn) helpBtn.style.display = 'none';
-            if (solutions) solutions.style.display = 'none';
-            if (feedback) feedback.innerHTML = '';
-            
-            // Show the Grade 9 button ONLY if we are on the Potential Divider tab
-            if (grade9Btn) {
-                if (currentMode === 'divider') {
-                    grade9Btn.style.display = 'inline-block';
-                } else {
-                    grade9Btn.style.display = 'none';
-                }
-            }
+    if (helpBtn) helpBtn.style.display = 'none';
+    if (solutions) solutions.style.display = 'none';
+    if (feedback) feedback.innerHTML = '';
+    
+    // --- 2. UPDATE VISIBILITY LOGIC ---
+    // This part ensures only the correct button shows for the current tab
+    if (currentMode === 'divider') {
+        if (grade9Btn) grade9Btn.style.display = 'inline-block';
+        if (grade9ResBtn) grade9ResBtn.style.display = 'none';
+    } else if (currentMode === 'resistance') {
+        if (grade9Btn) grade9Btn.style.display = 'none';
+        if (grade9ResBtn) grade9ResBtn.style.display = 'inline-block';
+    } else {
+        // Hide both for oscilloscope, astable, etc.
+        if (grade9Btn) grade9Btn.style.display = 'none';
+        if (grade9ResBtn) grade9ResBtn.style.display = 'none';
+    }
 
-            const inputs = ['inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
-            inputs.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
+    const inputs = ['inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
 
-            const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 'inputGroupAstable'];
-            groups.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.style.display = 'none';
-            });
+    const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 'inputGroupAstable'];
+    groups.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
 
-            if (currentMode === 'analysis') {
-                document.getElementById('inputGroupV').style.display = 'inline-block';
-                document.getElementById('inputGroupI').style.display = 'inline-block';
-                generateAnalysisProblem(ctx, canvas);
-            } else if (currentMode === 'divider') {
-                document.getElementById('inputGroupV').style.display = 'inline-block';
-                generateDividerProblem(ctx, canvas);
-            } else if (currentMode === 'resistance') {
-                document.getElementById('inputGroupR').style.display = 'inline-block';
-                generateResistanceProblem(ctx, canvas); 
-            } else if (currentMode === 'oscilloscope') {
-                generateOscilloscopeProblem(ctx, canvas);
-            }
-            else if (currentMode === 'astable') {
-            generateAstableProblem(ctx, canvas);
-            }
-        }
+    if (currentMode === 'analysis') {
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        document.getElementById('inputGroupI').style.display = 'inline-block';
+        generateAnalysisProblem(ctx, canvas);
+    } else if (currentMode === 'divider') {
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        generateDividerProblem(ctx, canvas);
+    } else if (currentMode === 'resistance') {
+        document.getElementById('inputGroupR').style.display = 'inline-block';
+        
+generateResistanceProblem(ctx, canvas); 
+    } else if (currentMode === 'oscilloscope') {
+        generateOscilloscopeProblem(ctx, canvas);
+    } else if (currentMode === 'astable') {
+        generateAstableProblem(ctx, canvas);
+    }
+}
 
         function generateAnalysisProblem(ctx, canvas) {
             const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
@@ -570,6 +580,72 @@
             }
         }
 
+function generateGrade9Resistance() {
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+    const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
+    const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // GENERATE CALCULATOR-LEVEL MATH (Random decimals)
+    // R1 is in series. R2 and R3 are in parallel.
+    let r1 = Math.floor(Math.random() * 40) + 10;
+    let r2 = (Math.random() * 50 + 5).toFixed(1);
+    let r3 = (Math.random() * 50 + 5).toFixed(1);
+    
+    // Convert to numbers for math
+    let R2_num = parseFloat(r2);
+    let R3_num = parseFloat(r3);
+    
+    // Calculate R Parallel (Product over Sum)
+    let rp_exact = (R2_num * R3_num) / (R2_num + R3_num);
+    let rp_rounded = parseFloat(rp_exact.toFixed(2));
+    
+    // Total Resistance
+    let total_exact = r1 + rp_exact;
+    let rTotal = parseFloat(total_exact.toFixed(2));
+
+    // DRAWING THE CIRCUIT
+    ctx.strokeStyle = brandBlack; ctx.lineWidth = 2;
+    // R1 (Series)
+    drawLine(ctx, 300, 60, 300, 90); drawResistor(ctx, 300, 115); drawLine(ctx, 300, 140, 300, 180);
+    // Parallel Branches
+    drawLine(ctx, 220, 180, 380, 180); 
+    drawLine(ctx, 220, 180, 220, 220); drawResistor(ctx, 220, 245); // R2
+    drawLine(ctx, 380, 180, 380, 220); drawResistor(ctx, 380, 245); // R3
+    drawLine(ctx, 220, 270, 220, 320); drawLine(ctx, 380, 270, 380, 320);
+    drawLine(ctx, 220, 320, 380, 320); drawLine(ctx, 300, 320, 300, 360);
+
+    // Labels
+    ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
+    ctx.fillText("R\u2081 = " + r1 + " " + rUnitVisual, 335, 120);
+    ctx.fillText("R\u2082 = " + r2 + " " + rUnitVisual, 120, 250); 
+    ctx.fillText("R\u2083 = " + r3 + " " + rUnitVisual, 405, 250);
+
+    // SOLUTION TEXT (Grade 9 Style)
+    const solText = document.getElementById('solText');
+    if (solText) {
+        let logicHTML = "<strong>Solution: R<sub>Total</sub> = " + rTotal + " " + rUnitVisual + "</strong><br><br>";
+        logicHTML += "<em>Step 1:</em> Find the parallel section (R<sub>p</sub>) using <strong>Product &divide; Sum</strong>.<br>";
+        logicHTML += "R<sub>p</sub> = (R\u2082 &times; R\u2083) / (R\u2082 + R\u2083)<br>";
+        logicHTML += "R<sub>p</sub> = (" + r2 + " &times; " + r3 + ") / (" + r2 + " + " + r3 + ") = <strong>" + rp_rounded + " " + rUnitVisual + "</strong><br><br>";
+        logicHTML += "<em>Step 2:</em> Add the series resistor (R\u2081) to the result.<br>";
+        logicHTML += "R<sub>Total</sub> = R\u2081 + R<sub>p</sub> = " + r1 + " + " + rp_rounded + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
+        solText.innerHTML = logicHTML;
+    }
+
+    // Set internal answers
+    currentAnswers.rValue = rTotal;
+    currentAnswers.rUnit = expectedUnitStr;
+    
+    // UI Setup
+    document.getElementById('inputR').placeholder = "e.g. " + rTotal;
+    document.getElementById('helpBtn').style.display = 'inline-block';
+    document.getElementById('solutions').style.display = 'none';
+    document.getElementById('feedback').innerHTML = '';
+}
+        
 // Function to draw specific components over the standard resistor
 function drawComponent(ctx, type, x, y) {
     drawResistor(ctx, x, y); // Always draw the base resistor rectangle first
@@ -627,6 +703,8 @@ function drawComponent(ctx, type, x, y) {
         ctx.stroke();
     }
 }
+
+
         
         // ============================================================================
 // NEW FUNCTION: Draws dynamic components over the standard resistor box
@@ -988,6 +1066,73 @@ function generateDividerProblem(ctx, canvas) {
         solText.innerHTML = logicHTML;
     }
 }
+
+function generateProblem() {
+    const canvas = document.getElementById('circuitCanvas');
+    if (!canvas) return; 
+    const ctx = canvas.getContext('2d');
+    
+    hasCheckedCurrentProblem = false;
+    isCurrentProblemSolved = false;
+    viewedSolution = false; 
+    unitErrorMade = false; 
+    
+    const helpBtn = document.getElementById('helpBtn');
+    const solutions = document.getElementById('solutions');
+    const feedback = document.getElementById('feedback');
+    
+    // --- 1. DEFINE BOTH GRADE 9 BUTTONS ---
+    const grade9Btn = document.getElementById('grade9Btn'); 
+    const grade9ResBtn = document.getElementById('grade9ResistanceBtn'); // NEW
+
+    if (helpBtn) helpBtn.style.display = 'none';
+    if (solutions) solutions.style.display = 'none';
+    if (feedback) feedback.innerHTML = '';
+    
+    // --- 2. UPDATE VISIBILITY LOGIC ---
+    // This part ensures only the correct button shows for the current tab
+    if (currentMode === 'divider') {
+        if (grade9Btn) grade9Btn.style.display = 'inline-block';
+        if (grade9ResBtn) grade9ResBtn.style.display = 'none';
+    } else if (currentMode === 'resistance') {
+        if (grade9Btn) grade9Btn.style.display = 'none';
+        if (grade9ResBtn) grade9ResBtn.style.display = 'inline-block';
+    } else {
+        // Hide both for oscilloscope, astable, etc.
+        if (grade9Btn) grade9Btn.style.display = 'none';
+        if (grade9ResBtn) grade9ResBtn.style.display = 'none';
+    }
+
+    const inputs = ['inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 'inputGroupAstable'];
+    groups.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    if (currentMode === 'analysis') {
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        document.getElementById('inputGroupI').style.display = 'inline-block';
+        generateAnalysisProblem(ctx, canvas);
+    } else if (currentMode === 'divider') {
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        generateDividerProblem(ctx, canvas);
+    } else if (currentMode === 'resistance') {
+        document.getElementById('inputGroupR').style.display = 'inline-block';
+        generateResistanceProblem(ctx, canvas); 
+    } else if (currentMode === 'oscilloscope') {
+        generateOscilloscopeProblem(ctx, canvas);
+    } else if (currentMode === 'astable') {
+        generateAstableProblem(ctx, canvas);
+    }
+}
+        
+        
         function drawRoundRect(ctx, x, y, width, height, radius) {
             ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y);
             ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius);
