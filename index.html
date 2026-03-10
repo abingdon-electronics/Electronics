@@ -681,7 +681,6 @@
             const C = [1, 10, 47, 100][Math.floor(Math.random() * 4)];
 
             // Formula: f = 1.44 / ((RA + 2RB) * C)
-            // Units: RA, RB in kOhms (10^3), C in uF (10^-6)
             const frequency = 1.44 / (((RA * 1000) + (2 * RB * 1000)) * (C * 0.000001));
 
             currentAnswers = {
@@ -689,13 +688,13 @@
                 astableUnit: 'Hz'
             };
 
-            // 1. Draw the Main Circuit Rails & 555 Box
+            // 1. Draw Rails & IC
             ctx.strokeStyle = brandBlack;
             ctx.lineWidth = 2;
-            
-            // Supply and Ground Rails
-            drawLine(ctx, 100, 60, 500, 60);  // Top rail (Vcc)
-            drawLine(ctx, 100, 360, 500, 360); // Bottom rail (GND)
+            drawLine(ctx, 100, 60, 500, 60);  // Top rail
+            drawLine(ctx, 100, 360, 500, 360); // Bottom rail
+            ctx.fillStyle = brandBlack;
+            ctx.font = "bold 16px Arial";
             ctx.fillText("+Vcc", 110, 50);
             drawDot(ctx, 300, 60);
             drawDot(ctx, 300, 360);
@@ -706,7 +705,7 @@
             ctx.textAlign = "center";
             ctx.fillText("555", 180, 220);
 
-            // 2. Draw Components (One set only)
+            // 2. Draw Components (One set, correctly spaced)
             // RA Resistor
             drawLine(ctx, 300, 60, 300, 90);
             drawResistor(ctx, 300, 115); 
@@ -715,41 +714,33 @@
             drawLine(ctx, 300, 140, 300, 190);
             drawResistor(ctx, 300, 215);
             
-            // Wiring between resistors to IC
-            drawLine(ctx, 300, 165, 240, 165); // Connection to Pin 7
-            
-            // Capacitor (Restored original shape and moved down)
-            drawLine(ctx, 300, 240, 300, 325);
-            // Top Plate
-            ctx.beginPath();
-            ctx.moveTo(280, 325); ctx.lineTo(320, 325);
-            // Bottom Plate (5px gap)
-            ctx.moveTo(280, 330); ctx.lineTo(320, 330);
-            ctx.stroke();
-            // Connection to Ground
-            drawLine(ctx, 300, 330, 300, 360);
-
-            // Connection to Pins 2 & 6
-            drawLine(ctx, 300, 280, 240, 280);
+            // Wiring
+            drawLine(ctx, 300, 165, 240, 165); // Pin 7
+            drawLine(ctx, 300, 280, 240, 280); // Pins 2 & 6
             drawDot(ctx, 300, 280);
 
-            // 3. Draw Values (No prefixes, correctly spaced)
+            // Capacitor (Fixed shape and spacing)
+            drawLine(ctx, 300, 240, 300, 320); // Wire to cap
+            ctx.beginPath();
+            ctx.moveTo(275, 320); ctx.lineTo(325, 320); // Top plate
+            ctx.moveTo(275, 328); ctx.lineTo(325, 328); // Bottom plate (8px gap)
+            ctx.stroke();
+            drawLine(ctx, 300, 328, 300, 360); // Wire to ground
+
+            // 3. Draw Labels (Values only, no RA/RB/C)
             ctx.fillStyle = brandBlack;
             ctx.font = "16px 'Segoe UI', Arial, sans-serif";
             ctx.textAlign = "left";
-            
-            // Labels positioned to the right of components
             ctx.fillText(RA + " kΩ", 335, 120);
             ctx.fillText(RB + " kΩ", 335, 220);
-            ctx.fillText(C + " μF", 335, 333);
+            ctx.fillText(C + " μF", 335, 330);
 
-            // Solution Text
+            // Solution Setup
             const solText = document.getElementById('solText');
             solText.innerHTML = `
-                <strong>Step 1:</strong> Identify values: R<sub>A</sub> = ${RA}kΩ, R<sub>B</sub> = ${RB}kΩ, C = ${C}μF.<br>
-                <strong>Step 2:</strong> Use the formula f = 1.44 / ((R<sub>A</sub> + 2R<sub>B</sub>) × C).<br>
-                <strong>Step 3:</strong> Convert units: R in Ω and C in Farads.<br>
-                <strong>Calculation:</strong> 1.44 / ((${RA * 1000} + ${2 * RB * 1000}) × ${C * 0.000001}) = ${frequency.toFixed(2)} Hz.
+                <strong>Step 1:</strong> Identify values: R<sub>1</sub> = ${RA}kΩ, R<sub>2</sub> = ${RB}kΩ, C = ${C}μF.<br>
+                <strong>Step 2:</strong> f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) × C).<br>
+                <strong>Result:</strong> ${frequency.toFixed(2)} Hz.
             `;
         }
 
