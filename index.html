@@ -865,16 +865,59 @@
     currentAnswers.astableTValue = period_ms; currentAnswers.astableTUnit = "ms";
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw Power Rails
     ctx.strokeStyle = brandBlack; ctx.lineWidth = 2;
-    // Draw the 555 chip
-    ctx.strokeRect(225, 120, 150, 180); 
-    ctx.font = "bold 20px Arial"; ctx.textAlign = "center";
+    ctx.font = "bold 16px Arial"; ctx.textAlign = "left";
+    ctx.fillStyle = brandBlack;
+    drawLine(ctx, 100, 40, 500, 40); // +Vcc line
+    ctx.fillText("+Vcc (Supply)", 510, 45);
+    drawLine(ctx, 100, 380, 500, 380); // 0V line
+    ctx.fillText("0V (GND)", 510, 385);
+
+    // Draw 555 Chip Box
+    ctx.strokeRect(250, 140, 100, 140); 
+    ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
     ctx.fillText("555", 300, 215);
 
+    // Draw R1 Branch (Vcc to Pin 7)
+    drawLine(ctx, 150, 40, 150, 70);
+    drawResistor(ctx, 150, 95, false, "R1", (R1/1000) + " k\u03a9");
+    drawLine(ctx, 150, 120, 150, 160);
+    
+    // Connect to Pin 7 (Discharge)
+    drawLine(ctx, 150, 160, 250, 160);
+    ctx.font = "14px Arial"; ctx.fillText("7", 265, 155);
+
+    // Draw R2 Branch (Pin 7 to Pins 2 & 6)
+    drawLine(ctx, 150, 160, 150, 195);
+    drawResistor(ctx, 150, 220, false, "R2", (R2/1000) + " k\u03a9");
+    drawLine(ctx, 150, 245, 150, 270);
+
+    // Connect to Pins 2 & 6 (Trigger & Threshold)
+    drawLine(ctx, 150, 270, 250, 270);
+    ctx.fillText("2, 6", 270, 265);
+
+    // Draw Capacitor Branch (Pins 2 & 6 to GND)
+    drawLine(ctx, 150, 270, 150, 310);
+    // Capacitor symbol
+    drawLine(ctx, 120, 310, 180, 310);
+    drawLine(ctx, 120, 320, 180, 320);
+    drawLine(ctx, 150, 320, 150, 380);
     ctx.font = "14px Arial"; ctx.textAlign = "left";
-    ctx.fillText("R1 = " + (R1/1000) + " k\u03a9", 140, 100);
-    ctx.fillText("R2 = " + (R2/1000) + " k\u03a9", 140, 180);
-    ctx.fillText("C = " + C_uF + " \u03bcF", 390, 280);
+    ctx.fillText("C", 100, 320);
+    ctx.fillText(C_uF + " \u03bcF", 195, 320);
+
+    // Output Pin 3
+    drawLine(ctx, 350, 210, 450, 210);
+    ctx.fillText("3", 340, 205);
+    ctx.fillText("Output", 460, 215);
+
+    // Power Pins (8, 4 to Vcc and 1 to GND)
+    drawLine(ctx, 300, 140, 300, 40);
+    ctx.fillText("8, 4", 315, 155);
+    drawLine(ctx, 300, 280, 300, 380);
+    ctx.fillText("1", 315, 275);
 
     document.getElementById('solText').innerHTML = 
         "f = 1.44 / ((" + R1 + " + 2*" + R2 + ") * " + C_farads.toExponential(2) + ") = " + freq.toFixed(1) + " Hz<br>" +
