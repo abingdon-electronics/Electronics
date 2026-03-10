@@ -615,106 +615,220 @@ function drawComponent(ctx, type, x, y) {
     }
 }
         
-        function generateDividerProblem(ctx, canvas) {
-            const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
-            const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
+        // ============================================================================
+// NEW FUNCTION: Draws dynamic components over the standard resistor box
+// (Make sure this is pasted ABOVE generateDividerProblem)
+// ============================================================================
+function drawComponent(ctx, type, x, y) {
+    drawResistor(ctx, x, y); // Always draw the base resistor rectangle first
+    
+    ctx.strokeStyle = "#000";
+    ctx.fillStyle = "#000";
+    ctx.lineWidth = 2;
+    
+    // Exact center of the resistor
+    let cx = x; 
+    let cy = y;
 
-            const cleanMathScenarios = [
-                { V: 10, R1: 1, R2: 1 }, { V: 12, R1: 1, R2: 2 }, { V: 12, R1: 2, R2: 1 }, 
-                { V: 20, R1: 3, R2: 1 }, { V: 9,  R1: 1, R2: 2 }, { V: 24, R1: 3, R2: 5 },  
-                { V: 5,  R1: 2, R2: 3 }, { V: 15, R1: 2, R2: 1 }  
-            ];
-            
-            const sc = cleanMathScenarios[Math.floor(Math.random() * cleanMathScenarios.length)];
-            const Rtot = sc.R1 + sc.R2;
-        const V1 = (sc.V * sc.R1) / Rtot;
-        const V2 = (sc.V * sc.R2) / Rtot;
+    if (type === 'variable') {
+        // Extended diagonal line for Variable Resistor
+        ctx.beginPath();
+        ctx.moveTo(cx - 25, cy + 25);
+        ctx.lineTo(cx + 25, cy - 25);
+        ctx.stroke();
         
-        // Always ask for Vout (which is across R2)
+        // Clean, un-filled arrowhead at the top right
+        ctx.beginPath();
+        ctx.moveTo(cx + 25, cy - 25);
+        ctx.lineTo(cx + 15, cy - 25);
+        ctx.moveTo(cx + 25, cy - 25);
+        ctx.lineTo(cx + 25, cy - 15);
+        ctx.stroke();
+        
+    } else if (type === 'thermistor') {
+        // WJEC thermistor line 
+        ctx.beginPath();
+        // Start further out at the bottom right corner to give more space
+        ctx.moveTo(cx + 22, cy + 30);
+        // Go straight up parallel to the side of the resistor
+        ctx.lineTo(cx + 22, cy + 10);
+        // Cut diagonally across to the top left corner
+        ctx.lineTo(cx - 22, cy - 30); 
+        ctx.stroke();
+        
+    } else if (type === 'ldr') {
+        // WJEC LDR: 2 inward arrows
+        ctx.beginPath();
+        ctx.moveTo(cx - 40, cy - 15);
+        ctx.lineTo(cx - 24, cy - 5);
+        ctx.lineTo(cx - 30, cy - 5);
+        ctx.moveTo(cx - 24, cy - 5);
+        ctx.lineTo(cx - 24, cy - 11);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(cx - 40, cy + 5);
+        ctx.lineTo(cx - 24, cy + 15);
+        ctx.lineTo(cx - 30, cy + 15);
+        ctx.moveTo(cx - 24, cy + 15);
+        ctx.lineTo(cx - 24, cy + 9);
+        ctx.stroke();
+    }
+}
+
+// ============================================================================
+// UPDATED FUNCTION: Generates the Potential Divider Problem (4-Variables)
+// ============================================================================
+function generateDividerProblem(ctx, canvas) {
+    // Determine units visually
+    const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
+    const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
+    const expectedRUnit = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
+
+    // 1. GENERATE THE 4-VARIABLE MATH LOGIC
+    // Generate friendly values to ensure clean math
+    let R1_val = Math.floor(Math.random() * 10) + 1; 
+    let R2_val = Math.floor(Math.random() * 10) + 1;
+
+    // Guarantee Vin is a clean multiple of the total resistance
+    let current = Math.floor(Math.random() * 5) + 1; 
+    let Vin_val = (R1_val + R2_val) * current;
+    let Vout_val = Vin_val * (R2_val / (R1_val + R2_val));
+
+    // Randomly pick which of the 4 variables the student must find
+    // 0: Find Vout, 1: Find Vin, 2: Find R1, 3: Find R2
+    let targetVar = Math.floor(Math.random() * 4); 
+
+    // Clear Canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Set the correct answer for your validation/checking logic
+    if (targetVar === 0) {
         currentAnswers.vNameHTML = 'V<sub>OUT</sub>';
-        currentAnswers.vValue = V2;
-            currentAnswers.vUnit = vUnit;
-            
-            document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        currentAnswers.vValue = Vout_val;
+        currentAnswers.vUnit = vUnit;
+    } else if (targetVar === 1) {
+        currentAnswers.vNameHTML = 'V<sub>supply</sub>';
+        currentAnswers.vValue = Vin_val;
+        currentAnswers.vUnit = vUnit;
+    } else if (targetVar === 2) {
+        currentAnswers.vNameHTML = 'R<sub>1</sub>';
+        currentAnswers.vValue = R1_val;
+        currentAnswers.vUnit = expectedRUnit; 
+    } else if (targetVar === 3) {
+        currentAnswers.vNameHTML = 'R<sub>2</sub>';
+        currentAnswers.vValue = R2_val;
+        currentAnswers.vUnit = expectedRUnit; 
+    }
 
-            // Randomly pick component combinations
-        let compTop, compBottom;
-        const combo = Math.floor(Math.random() * 3); // Picks 0, 1, or 2
+    // Update Input Box Label
+    document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
+
+    // Prepare the labels based on what is hidden (the "?")
+    let labelR1   = (targetVar === 2) ? "?" : R1_val + " " + rUnitVisual;
+    let labelR2   = (targetVar === 3) ? "?" : R2_val + " " + rUnitVisual;
+    let labelVin  = (targetVar === 1) ? "?" : Vin_val + " " + vUnit;
+    let labelVout = (targetVar === 0) ? "?" : Vout_val + " " + vUnit;
+
+    // Random Component Selector Logic
+    let compTop, compBottom;
+    const combo = Math.floor(Math.random() * 3); 
+    if (combo === 0) {
+        const type1 = Math.random() < 0.5 ? 'ldr' : 'thermistor';
+        const type2 = Math.random() < 0.5 ? 'fixed' : 'variable';
+        if (Math.random() < 0.5) { compTop = type1; compBottom = type2; }
+        else { compTop = type2; compBottom = type1; }
+    } else if (combo === 1) {
+        compTop = 'fixed'; compBottom = 'fixed';
+    } else {
+        if (Math.random() < 0.5) { compTop = 'fixed'; compBottom = 'variable'; }
+        else { compTop = 'variable'; compBottom = 'fixed'; }
+    }
+
+    // 2. DRAW THE SYMMETRICAL CIRCUIT
+    ctx.strokeStyle = brandBlack;
+    ctx.lineWidth = 2;
+    ctx.font = "bold 18px Arial";
+    
+    // Top and Bottom Rails
+    drawLine(ctx, 150, 60, 450, 60);
+    drawLine(ctx, 150, 360, 450, 360);
+    ctx.fillStyle = brandBlack;
+    ctx.fillText("0V (GND)", 260, 390);
+
+    // Wires mathematically calculated to stop exactly at resistor edges (±25px)
+    drawLine(ctx, 300, 60, 300, 100);         // Stops at top edge of R1
+    drawComponent(ctx, compTop, 300, 125);    // Top resistor (R1)
+    drawLine(ctx, 300, 150, 300, 270);        // Spans bottom of R1 to top of R2
+    drawComponent(ctx, compBottom, 300, 295); // Bottom resistor (R2)
+    drawLine(ctx, 300, 320, 300, 360);        // Starts at bottom edge of R2
+
+    // Draw the junction dot exactly in the middle (Y=210)
+    ctx.beginPath();
+    ctx.arc(300, 210, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "#000"; 
+    ctx.fill();
+
+    // Draw horizontal branch to the right at Y=210
+    ctx.beginPath();
+    ctx.moveTo(300, 210);
+    ctx.lineTo(380, 210);
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw the unfilled small circle (output port)
+    ctx.beginPath();
+    ctx.arc(384, 210, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.strokeStyle = "#000";
+    ctx.stroke();
+
+    // 3. DRAW THE TEXT LABELS
+    ctx.font = "16px Arial"; 
+    ctx.fillStyle = brandBlack; 
+    ctx.fillText("R\u2081 = " + labelR1, 350, 130);
+    ctx.fillText("R\u2082 = " + labelR2, 350, 300);
+
+    // Draw Supply Voltage (Vin) near the top wire
+    ctx.fillText("+Vsupply = " + labelVin, 230, 45); 
+
+    // Draw the Vout Label next to the output port
+    ctx.fillStyle = brandPink; 
+    ctx.font = "bold 18px Arial";
+    ctx.fillText("V", 400, 216);
+    ctx.font = "bold 11px Arial";
+    ctx.fillText("OUT", 413, 222);
+
+    // Add the Vout numerical value or "?" right next to V_OUT
+    ctx.font = "bold 16px Arial";
+    ctx.fillText("= " + labelVout, 445, 216);
+
+    // 4. Update the Step-by-Step Logic Panel
+    const solText = document.getElementById('solText');
+    if (solText) {
+        let logicHTML = "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + " " + currentAnswers.vUnit.replace('ohms', rUnitVisual).replace('kohms', rUnitVisual) + "</strong><br><br>";
+        logicHTML += "<em>Core Equation:</em> <strong>V<sub>OUT</sub> = V<sub>supply</sub> &times; (R\u2082 / (R\u2081 + R\u2082))</strong><br><br>";
         
-        if (combo === 0) {
-            // 1. LDR/Thermistor + Fixed/Variable
-            const type1 = Math.random() < 0.5 ? 'ldr' : 'thermistor';
-            const type2 = Math.random() < 0.5 ? 'fixed' : 'variable';
-            if (Math.random() < 0.5) { compTop = type1; compBottom = type2; }
-            else { compTop = type2; compBottom = type1; }
-        } else if (combo === 1) {
-            // 2. Fixed + Fixed
-            compTop = 'fixed'; compBottom = 'fixed';
-        } else {
-            // 3. Fixed + Variable
-            if (Math.random() < 0.5) { compTop = 'fixed'; compBottom = 'variable'; }
-            else { compTop = 'variable'; compBottom = 'fixed'; }
+        if (targetVar === 0) {
+            logicHTML += "<em>Step 1:</em> Find R<sub>TOTAL</sub> = " + R1_val + " + " + R2_val + " = " + (R1_val+R2_val) + "<br>";
+            logicHTML += "<em>Step 2:</em> V<sub>OUT</sub> = " + Vin_val + " &times; (" + R2_val + " / " + (R1_val+R2_val) + ") = <strong>" + Vout_val + " " + vUnit + "</strong>";
+        } else if (targetVar === 1) {
+            logicHTML += "<em>Step 1:</em> Rearrange for V<sub>supply</sub> = V<sub>OUT</sub> / (R\u2082 / R<sub>TOTAL</sub>)<br>";
+            logicHTML += "<em>Step 2:</em> V<sub>supply</sub> = " + Vout_val + " / (" + R2_val + " / " + (R1_val+R2_val) + ") = <strong>" + Vin_val + " " + vUnit + "</strong>";
+        } else if (targetVar === 2) {
+            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> is " + Vout_val + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val + ") = " + (Vin_val-Vout_val) + "V.<br>";
+            logicHTML += "<em>Step 2:</em> Since voltage shares in ratio to resistance: R\u2081 = R\u2082 &times; (V\u2081 / V\u2082)<br>";
+            logicHTML += "<em>Step 3:</em> R\u2081 = " + R2_val + " &times; (" + (Vin_val-Vout_val) + " / " + Vout_val + ") = <strong>" + R1_val + " " + rUnitVisual + "</strong>";
+        } else if (targetVar === 3) {
+            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> (across R\u2082) is " + Vout_val + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val + ") = " + (Vin_val-Vout_val) + "V.<br>";
+            logicHTML += "<em>Step 2:</em> Since voltage shares in ratio to resistance: R\u2082 = R\u2081 &times; (V\u2082 / V\u2081)<br>";
+            logicHTML += "<em>Step 3:</em> R\u2082 = " + R1_val + " &times; (" + Vout_val + " / " + (Vin_val-Vout_val) + ") = <strong>" + R2_val + " " + rUnitVisual + "</strong>";
         }
-            
-            ctx.strokeStyle = brandBlack; ctx.lineWidth = 2; ctx.font = "bold 18px Arial";
-            
-            drawLine(ctx, 150, 60, 450, 60); 
-            drawLine(ctx, 150, 360, 450, 360); 
-            ctx.fillStyle = brandBlack; ctx.fillText("+Vsupply = " + sc.V + " " + vUnit, 230, 45); ctx.fillText("0V (GND)", 260, 390);
-
-            // Symmetrical Layout Coordinates ("Goldilocks" spacing)
-            drawLine(ctx, 300, 60, 300, 100);         // Stops at top edge of R1 (125 - 25)
-            drawComponent(ctx, compTop, 300, 125);    // Top resistor (R1)
-            drawLine(ctx, 300, 150, 300, 270);        // Spans bottom of R1 (150) to top of R2 (270)
-            drawComponent(ctx, compBottom, 300, 295); // Bottom resistor (R2)
-            drawLine(ctx, 300, 320, 300, 360);        // Starts at bottom edge of R2 (295 + 25)
-            
-            ctx.font = "16px Arial"; ctx.fillStyle = brandBlack; 
-            // Labels shifted to perfectly align with the new resistor heights
-            ctx.fillText("R\u2081 = " + sc.R1 + " " + rUnitVisual, 350, 130);
-            ctx.fillText("R\u2082 = " + sc.R2 + " " + rUnitVisual, 350, 300);
-            
-            // 1. Draw the junction dot exactly in the middle (Y=210)
-            ctx.beginPath();
-            ctx.arc(300, 210, 4, 0, Math.PI * 2);
-            ctx.fillStyle = "#000"; 
-            ctx.fill();
-
-            // 2. Draw horizontal branch to the right at Y=210
-            ctx.beginPath();
-            ctx.moveTo(300, 210);
-            ctx.lineTo(380, 210);
-            ctx.strokeStyle = "#000";
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            // 3. Draw the unfilled small circle (output port)
-            ctx.beginPath();
-            ctx.arc(384, 210, 4, 0, Math.PI * 2);
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.strokeStyle = "#000";
-            ctx.stroke();
-
-            // 4. Draw VOUT with the canvas subscript trick, perfectly aligned
-            ctx.fillStyle = brandPink;
-            ctx.font = "bold 18px Arial";
-            ctx.fillText("V", 400, 216);
-            ctx.font = "bold 11px Arial";
-            ctx.fillText("OUT", 413, 222);
-            
-            // 5. Update the solutions text to always use R2 for VOUT
-            const solText = document.getElementById('solText');
-            if (solText) {
-                solText.innerHTML = 
-                    "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + " " + vUnit + "</strong> <br><br>" +
-                    "<em>Step 1:</em> Understand the Equation: <strong>Vout = Vin &times; (R / Rtotal)</strong><br>" +
-                    "<em>Step 2:</em> Rtotal = " + sc.R1 + " + " + sc.R2 + " = <strong>" + Rtot + " " + rUnitVisual + "</strong><br>" +
-                    "<em>Step 3:</em> " + currentAnswers.vNameHTML + " = " + sc.V + " " + vUnit + " &times; (" + sc.R2 + " / " + Rtot + ") = <strong>" + currentAnswers.vValue + " " + vUnit + "</strong>";
-            }
-        }
+        solText.innerHTML = logicHTML;
+    }
+}
 
         function generateResistanceProblem(ctx, canvas) {
             const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
