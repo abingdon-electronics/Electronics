@@ -464,7 +464,9 @@ function generateProblem() {
     } else if (currentMode === 'resistance') {
         document.getElementById('inputGroupR').style.display = 'inline-block';
         
-generateResistanceProblem(ctx, canvas); 
+// This ensures that when you click the tab, a standard problem shows up
+// (You should have a standard version, or you can point it to the Grade 9 one)
+generateGrade9Resistance();
     } else if (currentMode === 'oscilloscope') {
         generateOscilloscopeProblem(ctx, canvas);
     } else if (currentMode === 'astable') {
@@ -580,7 +582,7 @@ function generateAnalysisProblem(ctx, canvas) {
             }
         }
 
-ffunction generateGrade9Resistance() {
+function generateGrade9Resistance() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
