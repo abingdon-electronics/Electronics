@@ -851,7 +851,8 @@
                 sol.style.display = 'block'; viewedSolution = true;
             } else { sol.style.display = 'none'; }
         }
-        function generateAstableProblem(ctx, canvas) {
+        
+       function generateAstableProblem(ctx, canvas) {
     document.getElementById('inputGroupAstable').style.display = "inline-block";
     const R1 = (Math.floor(Math.random() * 9) + 1) * 1000;
     const R2 = (Math.floor(Math.random() * 9) + 1) * 1000;
@@ -889,10 +890,8 @@
     };
 
     const drawCapacitor = (x, y, val, align="right") => {
-        line(x, y - 20, x, y - 5); // top wire
         line(x - 15, y - 5, x + 15, y - 5); // top plate
         line(x - 15, y + 5, x + 15, y + 5); // bottom plate
-        line(x, y + 5, x, y + 25); // bottom wire
         ctx.font = "14px Arial"; 
         ctx.textAlign = align;
         if (align === "right") {
@@ -910,70 +909,76 @@
     line(100, 360, 500, 360); // 0V line
     ctx.fillText("0V", 510, 365);
 
-    // 2. Draw 555 Chip Box
-    ctx.strokeRect(280, 100, 100, 200); 
+    // 2. Draw 555 Square Chip Box
+    ctx.strokeRect(260, 120, 140, 140); 
     ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
-    ctx.fillText("555", 330, 200);
+    ctx.fillText("555", 330, 195);
 
-    // 3. Main Left Branch (R1, R2, C)
-    const bX = 180;
-    line(bX, 40, bX, 70);
+    // 3. Main Left Branch
+    const bX = 160;
+    line(bX, 40, bX, 60);
     drawNode(bX, 40); // Junction at Vcc
     
-    drawResistorBox(bX, 95, (R1/1000) + " k\u03a9");
+    drawResistorBox(bX, 85, (R1/1000) + " k\u03a9");
     
-    line(bX, 120, bX, 150);
-    drawNode(bX, 150); // Junction for Pin 7
+    line(bX, 110, bX, 155);
+    drawNode(bX, 140); // Junction for Pin 7
     
-    drawResistorBox(bX, 175, (R2/1000) + " k\u03a9");
+    drawResistorBox(bX, 180, (R2/1000) + " k\u03a9");
     
-    line(bX, 200, bX, 220);
-    drawNode(bX, 220); // Junction for Pins 6, 2
+    line(bX, 205, bX, 285);
+    drawNode(bX, 225); // Junction for Pins 6 & 2
     
-    line(bX, 220, bX, 260);
-    drawCapacitor(bX, 280, C_uF + " \u03bcF", "right");
+    drawCapacitor(bX, 290, C_uF + " \u03bcF", "right");
     
-    line(bX, 305, bX, 360);
+    line(bX, 295, bX, 360);
     drawNode(bX, 360); // Junction at 0V
 
-    // 4. Pin 5 Branch (10 nF Capacitor)
-    const p5X = 240;
-    line(280, 260, p5X, 260); // Wire out of Pin 5
-    line(p5X, 260, p5X, 280); // Down to cap
-    drawCapacitor(p5X, 300, "10 nF", "left");
-    line(p5X, 325, p5X, 360);
-    drawNode(p5X, 360); // Junction at 0V
+    // 4. Pin 7 Connection
+    line(bX, 140, 260, 140);
+    ctx.font = "14px Arial"; ctx.textAlign = "left"; 
+    ctx.fillText("7", 265, 145);
 
-    // 5. Connect Pins to Chip
-    ctx.font = "14px Arial";
+    // 5. Pins 6 & 2 Connections (Split)
+    line(bX, 225, 220, 225); // Wire to split node
+    drawNode(220, 225);      // Split node
+    line(220, 180, 220, 240); // Vertical split line
     
-    // Pin 7
-    line(bX, 150, 280, 150);
-    ctx.textAlign = "left"; ctx.fillText("7", 285, 145);
-
-    // Pins 6, 2
-    line(bX, 220, 280, 220);
-    ctx.fillText("6, 2", 285, 215);
-
-    // Pin 5 label
-    ctx.fillText("5", 285, 255);
-
-    // Output Pin 3
-    line(380, 200, 460, 200);
-    ctx.textAlign = "right"; ctx.fillText("3", 375, 195);
-    ctx.textAlign = "left"; ctx.fillText("Output", 465, 205);
-
-    // Power Pins 4, 8 (Top)
-    line(330, 100, 330, 40); 
-    drawNode(330, 40);
-    ctx.textAlign = "center"; ctx.fillText("4, 8", 330, 115);
+    line(220, 180, 260, 180); // To Pin 6
+    ctx.fillText("6", 265, 185);
     
-    // Pin 1 (Bottom)
-    line(330, 300, 330, 360);
-    drawNode(330, 360);
-    ctx.fillText("1", 330, 295);
+    line(220, 240, 260, 240); // To Pin 2
+    ctx.fillText("2", 265, 245);
 
-    // 6. Update Solutions Text
+    // 6. Pins 4 & 8 Connections (Split at top)
+    line(330, 40, 330, 80); // Wire from Vcc down to split node
+    drawNode(330, 80);      // Split node
+    line(300, 80, 360, 80); // Horizontal split line
+    
+    line(300, 80, 300, 120); // To Pin 4
+    ctx.textAlign = "center"; ctx.fillText("4", 300, 135);
+    
+    line(360, 80, 360, 120); // To Pin 8
+    ctx.fillText("8", 360, 135);
+
+    // 7. Pin 1 (Bottom Left)
+    line(300, 260, 300, 360);
+    drawNode(300, 360);
+    ctx.fillText("1", 300, 255);
+
+    // 8. Pin 5 (Bottom Right with 10 nF Cap)
+    line(360, 260, 360, 305);
+    ctx.fillText("5", 360, 255);
+    drawCapacitor(360, 310, "10 nF", "left");
+    line(360, 315, 360, 360);
+    drawNode(360, 360);
+
+    // 9. Output Pin 3
+    line(400, 190, 460, 190);
+    ctx.textAlign = "right"; ctx.fillText("3", 395, 195);
+    ctx.textAlign = "left"; ctx.fillText("Output", 465, 195);
+
+    // 10. Update Solutions Text
     document.getElementById('solText').innerHTML = 
         "f = 1.44 / ((" + R1 + " + 2*" + R2 + ") * " + C_farads.toExponential(2) + ") = " + freq.toFixed(1) + " Hz<br>" +
         "T = 1 / f = " + period_ms.toFixed(1) + " ms";
