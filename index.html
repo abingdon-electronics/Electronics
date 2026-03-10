@@ -259,7 +259,9 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
 function switchTab(mode) {
             if (currentMode === mode) return; 
             currentMode = mode;
-            
+    // ... your tab styling code ...
+    generateProblem(); // Ensure this is here!
+}
             const tabs = ['analysis', 'divider', 'resistance', 'oscilloscope', 'astable'];
             tabs.forEach(t => {
                 const el = document.getElementById('tab-' + t);
