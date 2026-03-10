@@ -665,11 +665,11 @@ function drawComponent(ctx, type, x, y) {
             ctx.fillStyle = brandBlack; ctx.fillText("+Vsupply = " + sc.V + " " + vUnit, 230, 45); ctx.fillText("0V (GND)", 260, 390);
 
             // Symmetrical Layout Coordinates ("Goldilocks" spacing)
-            drawLine(ctx, 300, 60, 300, 110); 
-            drawComponent(ctx, compTop, 300, 125);    // Top resistor adjusted
-            drawLine(ctx, 300, 140, 300, 280);        // Middle wire
-            drawComponent(ctx, compBottom, 300, 295); // Bottom resistor adjusted
-            drawLine(ctx, 300, 310, 300, 360);
+            drawLine(ctx, 300, 60, 300, 100);         // Stops at top edge of R1 (125 - 25)
+            drawComponent(ctx, compTop, 300, 125);    // Top resistor (R1)
+            drawLine(ctx, 300, 150, 300, 270);        // Spans bottom of R1 (150) to top of R2 (270)
+            drawComponent(ctx, compBottom, 300, 295); // Bottom resistor (R2)
+            drawLine(ctx, 300, 320, 300, 360);        // Starts at bottom edge of R2 (295 + 25)
             
             ctx.font = "16px Arial"; ctx.fillStyle = brandBlack; 
             // Labels shifted to perfectly align with the new resistor heights
