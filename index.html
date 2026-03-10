@@ -240,7 +240,7 @@
             if (currentMode === mode) return; 
             currentMode = mode;
             
-            const tabs = ['analysis', 'divider', 'resistance', 'oscilloscope'];
+            const tabs = ['analysis', 'divider', 'resistance', 'oscilloscope', 'astable'];
             tabs.forEach(t => {
                 const el = document.getElementById('tab-' + t);
                 if (el) el.classList.remove('active');
@@ -410,7 +410,7 @@
                 if (el) el.value = '';
             });
 
-            const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOsc1', 'inputGroupOsc2'];
+            const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOsc1', 'inputGroupOsc2', 'inputGroupAstable'];
             groups.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
