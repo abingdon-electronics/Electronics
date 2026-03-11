@@ -593,13 +593,7 @@ function generateProblem() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // 1. If we are in Colour Code mode, jump straight to that logic and stop
-    if (currentMode === 'colorcode') {
-        generateColorCodeProblem(ctx, canvas);
-        return; 
-    }
-
-    // 2. Reset Quiz State for other modules
+    // 1. Reset Quiz State for all modules
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
     viewedSolution = false; 
@@ -615,19 +609,11 @@ function generateProblem() {
     if (solutions) solutions.style.display = 'none';
     if (feedback) feedback.innerHTML = '';
     
-    // 3. Grade 9 Button Visibility Logic
-    if (currentMode === 'divider') {
-        if (grade9Btn) grade9Btn.style.display = 'inline-block';
-        if (grade9ResBtn) grade9ResBtn.style.display = 'none';
-    } else if (currentMode === 'resistance') {
-        if (grade9Btn) grade9Btn.style.display = 'none';
-        if (grade9ResBtn) grade9ResBtn.style.display = 'inline-block';
-    } else {
-        if (grade9Btn) grade9Btn.style.display = 'none';
-        if (grade9ResBtn) grade9ResBtn.style.display = 'none';
-    }
+    // 2. Hide Grade 9 Buttons by default
+    if (grade9Btn) grade9Btn.style.display = 'none';
+    if (grade9ResBtn) grade9ResBtn.style.display = 'none';
 
-    // 4. Reset all text inputs
+    // 3. Reset all text inputs (Clears the old answers)
     const inputs = [
         'inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 
         'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 
@@ -639,7 +625,7 @@ function generateProblem() {
         if (el) el.value = '';
     });
 
-    // 5. Hide all input groups
+    // 4. Hide ALL input groups first
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
@@ -652,21 +638,26 @@ function generateProblem() {
         if (el) el.style.display = 'none';
     });
 
-    // 6. Mode Logic - Call the specific "Artist" functions
+    // 5. NOW call the specific module logic
     if (currentMode === 'analysis') {
         document.getElementById('inputGroupV').style.display = 'inline-block';
         document.getElementById('inputGroupI').style.display = 'inline-block';
         generateAnalysisProblem(ctx, canvas);
     } else if (currentMode === 'divider') {
         document.getElementById('inputGroupV').style.display = 'inline-block';
+        if (grade9Btn) grade9Btn.style.display = 'inline-block';
         generateDividerProblem(ctx, canvas);
     } else if (currentMode === 'resistance') {
         document.getElementById('inputGroupR').style.display = 'inline-block';
+        if (grade9ResBtn) grade9ResBtn.style.display = 'inline-block';
         setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
     } else if (currentMode === 'oscilloscope') {
         generateOscilloscopeProblem(ctx, canvas);
     } else if (currentMode === 'astable') {
         generateAstableProblem(ctx, canvas);
+    } else if (currentMode === 'colorcode') {
+        // This is now at the end, so the cleanup above actually works!
+        generateColorCodeProblem(ctx, canvas);
     }
 }
            
