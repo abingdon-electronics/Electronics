@@ -75,7 +75,6 @@
     </style>
 </head>
 <body>
-
     <div class="header">
         <h1><span>Abingdon</span> Electronics</h1>
         <p>Basics</p>
@@ -113,57 +112,63 @@
                     </div>
                     
                     <div class="input-group" id="inputGroupI">
-                        <label id="labelI" for="inputI">I = </label>
-                        <input type="text" id="inputI" placeholder="e.g. 5 mA">
-                    </div>
+    <label id="labelI" for="inputI">I = </label>
+    <input type="text" id="inputI" placeholder="e.g. 5 mA">
+</div>
 
-                    <div class="input-group" id="inputGroupR" style="display:none;">
-                    <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
-                    <input type="text" id="inputR" placeholder="e.g. 15.52 kohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
-                    </div>
-                    
-                    <div class="input-group" id="inputGroupOscAmp" style="display:none;">
-                        <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label>
-                        <input type="text" id="inputOscAmp" placeholder="e.g. 5 V">
-                    </div>
-                    <div class="input-group" id="inputGroupOscMark" style="display:none;">
-                        <label id="labelOscMark" for="inputOscMark">Mark Time = </label>
-                        <input type="text" id="inputOscMark" placeholder="e.g. 10 ms">
-                    </div>
-                    <div class="input-group" id="inputGroupOscSpace" style="display:none;">
-                        <label id="labelOscSpace" for="inputOscSpace">Space Time = </label>
-                        <input type="text" id="inputOscSpace" placeholder="e.g. 5 ms">
-                    </div>
-                    <div class="input-group" id="inputGroupOscPeriod" style="display:none;">
-                        <label id="labelOscPeriod" for="inputOscPeriod">Time Period = </label>
-                        <input type="text" id="inputOscPeriod" placeholder="e.g. 15 ms">
-                    </div>
-                    <div class="input-group" id="inputGroupOscFreq" style="display:none;">
-                        <label id="labelOscFreq" for="inputOscFreq">Frequency = </label>
-                        <input type="text" id="inputOscFreq" placeholder="e.g. 66.7 Hz">
-                    </div>
-                    <div class="input-group" id="inputGroupOscRatio" style="display:none;">
-                        <label id="labelOscRatio" for="inputOscRatio">Mark-Space ratio = </label>
-                        <input type="text" id="inputOscRatio" placeholder="e.g. 2">
-                    </div>
-                    
-                   <div class="input-group" id="inputGroupAstable" style="display:none; text-align: center; width: 100%;">
-                    <div style="font-size: 16px; margin-bottom: 15px; color: #E64097;">
-                    Formula: <strong>f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) &times; C)</strong><br>
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <label id="labelAstable" for="inputAstable">Frequency = </label>
-                        <input type="text" id="inputAstable" placeholder="e.g. 50 Hz">
-                    </div>
+<div class="input-group" id="inputGroupR" style="display:none;">
+    <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
+    <input type="text" id="inputR" placeholder="e.g. 15.52 kohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
+</div>
 
-                       <div class="input-group" id="inputGroupMarkSpace" style="display:none;">
-                    <label for="inputMarkSpace">Mark:Space Ratio = </label>
-                    <input type="text" id="inputMarkSpace" placeholder="e.g. 2/1" style="height: 45px; width: 120px;">
-                    </div>
-                    <div>
+<div class="input-group" id="inputGroupOscAmp" style="display:none;">
+    <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label>
+    <input type="text" id="inputOscAmp" placeholder="e.g. 5 V">
+</div>
+<div class="input-group" id="inputGroupOscMark" style="display:none;">
+    <label id="labelOscMark" for="inputOscMark">Mark Time = </label>
+    <input type="text" id="inputOscMark" placeholder="e.g. 10 ms">
+</div>
+<div class="input-group" id="inputGroupOscSpace" style="display:none;">
+    <label id="labelOscSpace" for="inputOscSpace">Space Time = </label>
+    <input type="text" id="inputOscSpace" placeholder="e.g. 5 ms">
+</div>
+<div class="input-group" id="inputGroupOscPeriod" style="display:none;">
+    <label id="labelOscPeriod" for="inputOscPeriod">Time Period = </label>
+    <input type="text" id="inputOscPeriod" placeholder="e.g. 15 ms">
+</div>
+<div class="input-group" id="inputGroupOscFreq" style="display:none;">
+    <label id="labelOscFreq" for="inputOscFreq">Frequency = </label>
+    <input type="text" id="inputOscFreq" placeholder="e.g. 66.7 Hz">
+</div>
+<div class="input-group" id="inputGroupOscRatio" style="display:none;">
+    <label id="labelOscRatio" for="inputOscRatio">Mark-Space ratio = </label>
+    <input type="text" id="inputOscRatio" placeholder="e.g. 2">
+</div>
+
+<div class="input-group" id="inputGroupAstable" style="display:none; text-align: center; width: 100%;">
+    <div style="font-size: 16px; margin-bottom: 15px; color: #E64097;">
+        Formula: <strong>f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) &times; C)</strong>
+    </div>
+    <div style="margin-bottom: 10px;">
+        <label id="labelAstable" for="inputAstable">Frequency = </label>
+        <input type="text" id="inputAstable" placeholder="e.g. 50 Hz">
+    </div>
+    <div>
         <label id="labelAstableT" for="inputAstableT">Time Period = </label>
         <input type="text" id="inputAstableT" placeholder="e.g. 20 ms">
     </div>
+</div>
+
+<div class="input-group" id="inputGroupMarkSpace" style="display:none; text-align: center; width: 100%;">
+    <div style="font-size: 16px; margin-bottom: 15px; color: #E64097;">
+        Formula: <strong>T<sub>ON</sub> / T<sub>OFF</sub> = (R<sub>1</sub> + R<sub>2</sub>) / R<sub>2</sub></strong>
+    </div>
+    <div style="margin-bottom: 10px;">
+        <label for="inputMarkSpace" style="font-weight: bold;">Mark-Space Ratio = </label>
+        <input type="text" id="inputMarkSpace" placeholder="e.g. 2/1" style="height: 45px; width: 120px; font-size: 18px; text-align: center;">
+    </div>
+    <div style="font-size: 14px; color: #666;">(Give answer as a simplified fraction)</div>
 </div>
                     
                     
