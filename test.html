@@ -237,13 +237,15 @@
     <script>
 
         function openModule(module) {
-    // Hide everything first
+    // Hide the 8 main buttons so they don't block the screen
     document.getElementById('mainMenu').style.display = 'none';
+    
+    // Hide all sub-menus
     document.getElementById('menuBasics').style.display = 'none';
     document.getElementById('menuTiming').style.display = 'none';
     document.getElementById('contentArea').style.display = 'none';
 
-    // Show selected sub-menu and update subtitle
+    // Show the correct sub-menu
     if (module === 'basics') {
         document.getElementById('menuBasics').style.display = 'flex';
         document.getElementById('moduleSubtitle').innerText = 'Circuit Basics';
@@ -261,7 +263,6 @@ function goHome() {
     document.getElementById('moduleSubtitle').innerText = 'Mastering the GCSE Course';
 }
 
-// Update your switchTab function slightly to ensure it shows the contentArea
 function switchTab(mode) {
     currentMode = mode;
     
@@ -285,7 +286,15 @@ function switchTab(mode) {
         if (el) el.style.display = 'none';
     });
 
-    // 4. Reset the quiz state for the new problem
+    // 4. Update the subtitle based on the module
+    const subtitle = document.getElementById('moduleSubtitle');
+    if (['analysis', 'divider', 'resistance'].includes(mode)) {
+        subtitle.innerText = "Circuit Basics";
+    } else if (['oscilloscope', 'astable'].includes(mode)) {
+        subtitle.innerText = "Timing Circuits";
+    }
+
+    // 5. Reset the quiz state for the new problem
     isCurrentProblemSolved = false;
     hasCheckedCurrentProblem = false;
     viewedSolution = false;
@@ -296,46 +305,48 @@ function switchTab(mode) {
     const helpBtn = document.getElementById('helpBtn');
     if (helpBtn) helpBtn.style.display = 'none';
 
-    // 5. Generate the specific problem
-
-    generateNewProblem();
+    // 6. DRAW THE CIRCUIT - Note: changed from generateNewProblem to generateProblem
+    generateProblem();
 }
-        const brandPink = "#E64097";
-        const brandBlack = "#000000";
 
-        let currentMode = 'analysis'; 
-        let currentAnswers = { 
-            vNameHTML: '', vValue: 0, vUnit: '', 
-            iNameHTML: '', iValue: 0, iUnit: '', 
-            rValue: 0, rUnit: '', 
-            osc1Value: 0, osc1Unit: '', 
-            osc2Value: 0, osc2Unit: '' 
-        };
-        
-        let problemsAttempted = 0;
-        let problemsCorrect = 0;
-        let hasCheckedCurrentProblem = false; 
-        let isCurrentProblemSolved = false;
-        let viewedSolution = false; 
-        let unitErrorMade = false; 
+// --- GLOBAL VARIABLES ---
+const brandPink = "#E64097";
+const brandBlack = "#000000";
 
-        function parseInput(str) {
-            if (!str) return null;
-            let cleanStr = str.toLowerCase().replace(/\s+/g, '');
-            cleanStr = cleanStr.replace(/\u03a9/g, 'ohms'); 
-            
-            let strippedStr = cleanStr.replace(/[a-z]+$/, '');
-            if (/^\d+\/\d+$/.test(strippedStr)) {
-                let parts = strippedStr.split('/');
-                return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio', isRatioString: true };
-            }
-            
-            const match = cleanStr.match(/^(-?[\d\.]+)([a-z]+)$/);
-            if (match) {
-                return { val: parseFloat(match[1]), unit: match[2] };
-            }
-            return { val: parseFloat(cleanStr), unit: '' }; 
-        }
+let currentMode = 'analysis'; 
+let currentAnswers = { 
+    vNameHTML: '', vValue: 0, vUnit: '', 
+    iNameHTML: '', iValue: 0, iUnit: '', 
+    rValue: 0, rUnit: '', 
+    osc1Value: 0, osc1Unit: '', 
+    osc2Value: 0, osc2Unit: '',
+    astableRatio: '' // Added for 555 logic
+};
+
+let problemsAttempted = 0;
+let problemsCorrect = 0;
+let hasCheckedCurrentProblem = false; 
+let isCurrentProblemSolved = false;
+let viewedSolution = false; 
+let unitErrorMade = false; 
+
+function parseInput(str) {
+    if (!str) return null;
+    let cleanStr = str.toLowerCase().replace(/\s+/g, '');
+    cleanStr = cleanStr.replace(/\u03a9/g, 'ohms'); 
+    
+    let strippedStr = cleanStr.replace(/[a-z]+$/, '');
+    if (/^\d+\/\d+$/.test(strippedStr)) {
+        let parts = strippedStr.split('/');
+        return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio', isRatioString: true };
+    }
+    
+    const match = cleanStr.match(/^(-?[\d\.]+)([a-z]+)$/);
+    if (match) {
+        return { val: parseFloat(match[1]), unit: match[2] };
+    }
+    return { val: parseFloat(cleanStr), unit: '' }; 
+}
 
 function validateMatch(parsedInput, expectedVal, expectedUnit) {
             if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
