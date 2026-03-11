@@ -117,20 +117,10 @@
                         <input type="text" id="inputI" placeholder="e.g. 5 mA">
                     </div>
 
-<div class="input-group" id="inputGroupR" style="display:none;">
-    <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
-    <input type="text" id="inputR" placeholder="e.g. 15.52 kohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
-</div>
-
-
-
-
-
-
-
-
-
-
+                    <div class="input-group" id="inputGroupR" style="display:none;">
+                    <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
+                    <input type="text" id="inputR" placeholder="e.g. 15.52 kohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
+                    </div>
                     
                     <div class="input-group" id="inputGroupOscAmp" style="display:none;">
                         <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label>
@@ -165,11 +155,17 @@
                         <label id="labelAstable" for="inputAstable">Frequency = </label>
                         <input type="text" id="inputAstable" placeholder="e.g. 50 Hz">
                     </div>
-    <div>
+
+                       <div class="input-group" id="inputGroupMarkSpace" style="display:none;">
+                    <label for="inputMarkSpace">Mark:Space Ratio = </label>
+                    <input type="text" id="inputMarkSpace" placeholder="e.g. 2/1" style="height: 45px; width: 120px;">
+                    </div>
+                    <div>
         <label id="labelAstableT" for="inputAstableT">Time Period = </label>
         <input type="text" id="inputAstableT" placeholder="e.g. 20 ms">
     </div>
 </div>
+                    
                     
                     <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
                     <div id="feedback" class="feedback"></div>
@@ -500,25 +496,7 @@ function generateProblem() {
         generateAstableProblem(ctx, canvas);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-
-        
+           
 function generateAnalysisProblem(ctx, canvas) {
             const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
             const iUnit = Math.random() < 0.5 ? 'A' : 'mA';
@@ -1353,12 +1331,24 @@ function generateProblem() {
                 results.push(validateMatch(pRatio, currentAnswers.oscRatioValue, currentAnswers.oscRatioUnit));
             }
             }
-           else if (currentMode === 'astable') {
+           } else if (currentMode === 'astable') {
+    if (currentAnswers.astableQType === 0) {
+        // This handles the Frequency and Period check
         const aF = parseInput(document.getElementById('inputAstable').value);
         const aT = parseInput(document.getElementById('inputAstableT').value);
         results.push(validateMatch(aF, currentAnswers.astableValue, currentAnswers.astableUnit));
         results.push(validateMatch(aT, currentAnswers.astableTValue, currentAnswers.astableTUnit));
+    } else {
+        // This handles the new Ton / Toff Ratio check
+        const userRatio = document.getElementById('inputMarkSpace').value.trim();
+        // We compare the string directly (e.g., "2/1" matches "2/1")
+        if (userRatio === currentAnswers.astableRatio) {
+            results.push('correct');
+        } else {
+            results.push('wrong');
         }
+    }
+}
 
             // 4. Grade the results
             if (results.every(r => r === 'correct')) {
@@ -1406,26 +1396,53 @@ function generateProblem() {
             } else { sol.style.display = 'none'; }
         }
         
-       function generateAstableProblem(ctx, canvas) {
-    document.getElementById('inputGroupAstable').style.display = "inline-block";
+function generateAstableProblem(ctx, canvas) {
+    // 1. Helper for simplifying the Ratio fraction
+    const gcd = (a, b) => b ? gcd(b, a % b) : a;
+
+    // 2. Setup Variables
     const R1 = (Math.floor(Math.random() * 9) + 1) * 1000;
     const R2 = (Math.floor(Math.random() * 9) + 1) * 1000;
     const C_uF = [0.1, 1, 10, 47][Math.floor(Math.random() * 4)];
     const C_farads = C_uF / 1000000;
 
+    // 3. Calculate all possible answers
     const freq = 1.44 / ((R1 + 2 * R2) * C_farads);
     const period_ms = (1 / freq) * 1000;
-
-    currentAnswers.astableValue = freq; currentAnswers.astableUnit = "hz";
-    currentAnswers.astableTValue = period_ms; currentAnswers.astableTUnit = "ms";
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // Calculate Ratio: (R1 + R2) / R2 simplified
+    const num = R1 + R2;
+    const den = R2;
+    const common = gcd(num, den);
+    const ratioString = (num / common) + "/" + (den / common);
+
+    // 4. Choose Question Type (Randomly)
+    // 0 = Freq/Period, 1 = Ratio
+    const qType = Math.floor(Math.random() * 2);
+    currentAnswers.astableQType = qType;
+
+    // Toggle Input Boxes
+    if (qType === 0) {
+        document.getElementById('inputGroupAstable').style.display = "inline-block";
+        if (document.getElementById('inputGroupMarkSpace')) {
+            document.getElementById('inputGroupMarkSpace').style.display = "none";
+        }
+        currentAnswers.astableValue = freq; currentAnswers.astableUnit = "hz";
+        currentAnswers.astableTValue = period_ms; currentAnswers.astableTUnit = "ms";
+    } else {
+        document.getElementById('inputGroupAstable').style.display = "none";
+        if (document.getElementById('inputGroupMarkSpace')) {
+            document.getElementById('inputGroupMarkSpace').style.display = "inline-block";
+        }
+        currentAnswers.astableRatio = ratioString;
+    }
+
+    // 5. Drawing Logic
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "#000000"; 
     ctx.lineWidth = 2;
     ctx.fillStyle = "#000000";
     
-    // Helper functions
     const line = (x1, y1, x2, y2) => {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     };
@@ -1444,8 +1461,8 @@ function generateProblem() {
     };
 
     const drawCapacitor = (x, y, val, align="right") => {
-        line(x - 15, y - 5, x + 15, y - 5); // top plate
-        line(x - 15, y + 5, x + 15, y + 5); // bottom plate
+        line(x - 15, y - 5, x + 15, y - 5);
+        line(x - 15, y + 5, x + 15, y + 5);
         ctx.font = "14px Arial"; 
         ctx.textAlign = align;
         if (align === "right") {
@@ -1455,87 +1472,52 @@ function generateProblem() {
         }
     };
 
-    // 1. Draw Power Rails
+    // Drawing the circuit
     ctx.font = "bold 16px Arial"; ctx.textAlign = "left";
-    line(100, 40, 500, 40); // +Vcc line
+    line(100, 40, 500, 40); // +Vcc
     ctx.fillText("+Vcc", 510, 45);
-    
-    line(100, 360, 500, 360); // 0V line
+    line(100, 360, 500, 360); // 0V
     ctx.fillText("0V", 510, 365);
-
-    // 2. Draw 555 Square Chip Box
-    ctx.strokeRect(260, 120, 140, 140); 
+    ctx.strokeRect(260, 120, 140, 140); // 555 Chip
     ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
     ctx.fillText("555", 330, 195);
 
-    // 3. Main Left Branch
     const bX = 160;
-    line(bX, 40, bX, 60);
-    drawNode(bX, 40); // Junction at Vcc
-    
+    line(bX, 40, bX, 60); drawNode(bX, 40);
     drawResistorBox(bX, 85, (R1/1000) + " k\u03a9");
-    
-    line(bX, 110, bX, 155);
-    drawNode(bX, 140); // Junction for Pin 7
-    
+    line(bX, 110, bX, 155); drawNode(bX, 140);
     drawResistorBox(bX, 180, (R2/1000) + " k\u03a9");
-    
-    line(bX, 205, bX, 285);
-    drawNode(bX, 225); // Junction for Pins 6 & 2
-    
+    line(bX, 205, bX, 285); drawNode(bX, 225);
     drawCapacitor(bX, 290, C_uF + " \u03bcF", "right");
-    
-    line(bX, 295, bX, 360);
-    drawNode(bX, 360); // Junction at 0V
+    line(bX, 295, bX, 360); drawNode(bX, 360);
 
-    // 4. Pin 7 Connection
-    line(bX, 140, 260, 140);
-    ctx.font = "14px Arial"; ctx.textAlign = "left"; 
-    ctx.fillText("7", 265, 145);
+    line(bX, 140, 260, 140); // Pin 7
+    ctx.font = "14px Arial"; ctx.textAlign = "left"; ctx.fillText("7", 265, 145);
+    line(bX, 225, 220, 225); drawNode(220, 225); line(220, 180, 220, 240);
+    line(220, 180, 260, 180); ctx.fillText("6", 265, 185); // Pin 6
+    line(220, 240, 260, 240); ctx.fillText("2", 265, 245); // Pin 2
 
-    // 5. Pins 6 & 2 Connections (Split)
-    line(bX, 225, 220, 225); // Wire to split node
-    drawNode(220, 225);      // Split node
-    line(220, 180, 220, 240); // Vertical split line
-    
-    line(220, 180, 260, 180); // To Pin 6
-    ctx.fillText("6", 265, 185);
-    
-    line(220, 240, 260, 240); // To Pin 2
-    ctx.fillText("2", 265, 245);
-
-    // 6. Pins 4 & 8 Connections (Split at top)
-    line(330, 40, 330, 80); // Wire from Vcc down to split node
-    drawNode(330, 80);      // Split node
-    line(300, 80, 360, 80); // Horizontal split line
-    
-    line(300, 80, 300, 120); // To Pin 4
-    ctx.textAlign = "center"; ctx.fillText("4", 300, 135);
-    
-    line(360, 80, 360, 120); // To Pin 8
-    ctx.fillText("8", 360, 135);
-
-    // 7. Pin 1 (Bottom Left)
-    line(300, 260, 300, 360);
-    drawNode(300, 360);
-    ctx.fillText("1", 300, 255);
-
-    // 8. Pin 5 (Bottom Right with 10 nF Cap)
-    line(360, 260, 360, 305);
-    ctx.fillText("5", 360, 255);
+    line(330, 40, 330, 80); drawNode(330, 80); line(300, 80, 360, 80);
+    line(300, 80, 300, 120); ctx.textAlign = "center"; ctx.fillText("4", 300, 135);
+    line(360, 80, 360, 120); ctx.fillText("8", 360, 135);
+    line(300, 260, 300, 360); drawNode(300, 360); ctx.fillText("1", 300, 255);
+    line(360, 260, 360, 305); ctx.fillText("5", 360, 255);
     drawCapacitor(360, 310, "10 nF", "left");
-    line(360, 315, 360, 360);
-    drawNode(360, 360);
-
-    // 9. Output Pin 3
-    line(400, 190, 460, 190);
-    ctx.textAlign = "right"; ctx.fillText("3", 395, 195);
+    line(360, 315, 360, 360); drawNode(360, 360);
+    line(400, 190, 460, 190); ctx.textAlign = "right"; ctx.fillText("3", 395, 195);
     ctx.textAlign = "left"; ctx.fillText("Output", 465, 195);
 
-    // 10. Update Solutions Text
-    document.getElementById('solText').innerHTML = 
-        "f = 1.44 / ((" + R1 + " + 2*" + R2 + ") * " + C_farads.toExponential(2) + ") = " + freq.toFixed(1) + " Hz<br>" +
-        "T = 1 / f = " + period_ms.toFixed(1) + " ms";
+    // 6. Update Solutions Text
+    let solHTML = "";
+    if (qType === 0) {
+        solHTML = "f = 1.44 / ((" + R1 + " + 2*" + R2 + ") * " + C_farads.toExponential(2) + ") = <strong>" + freq.toFixed(1) + " Hz</strong><br>" +
+                  "T = 1 / f = <strong>" + period_ms.toFixed(1) + " ms</strong>";
+    } else {
+        solHTML = "T<sub>ON</sub> / T<sub>OFF</sub> = (R1 + R2) / R2<br>" +
+                  "T<sub>ON</sub> / T<sub>OFF</sub> = (" + R1 + " + " + R2 + ") / " + R2 + "<br>" +
+                  "T<sub>ON</sub> / T<sub>OFF</sub> = " + num + " / " + den + " = <strong>" + ratioString + "</strong>";
+    }
+    document.getElementById('solText').innerHTML = solHTML;
 }
 
 // ============================================================================
@@ -1714,10 +1696,13 @@ function closeDataSheet() {
                 <p>V<sub>OUT</sub> = V<sub>IN</sub> &times; (R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>))</p>
             </div>
             <div>
-                <h4 style="margin-bottom: 5px; color: #000;">555 Astable</h4>
-                <p>f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) &times; C)</p>
-                <p>T = 0.693 &times; (R<sub>1</sub> + 2R<sub>2</sub>) &times; C</p>
-            </div>
+    <h4 style="margin-bottom: 5px; color: #000;">555 Astable</h4>
+    <p>f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) &times; C)</p>
+    <p>T = 0.693 &times; (R<sub>1</sub> + 2R<sub>2</sub>) &times; C</p>
+    <p style="margin-top: 10px; font-weight: bold;">
+        <span>T<sub>ON</sub></span> / <span>T<sub>OFF</sub></span> = (R<sub>1</sub> + R<sub>2</sub>) / R<sub>2</sub>
+    </p>
+</div>
         </div>
         
         <div style="text-align: center; margin-top: 20px;">
