@@ -14,14 +14,15 @@
         .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
         /* Specific layout for the 8-button Home Page */
 
-/* Home Page Grid - Spread out more vertically and horizontally */
+/* Home Page Grid */
 #mainMenu {
     display: grid;
     grid-template-columns: 1fr 1fr; 
-    column-gap: 50px; /* Spreads buttons further apart horizontally */
-    row-gap: 30px;    /* Spreads buttons further apart vertically */
-    max-width: 900px; /* Widens the overall menu */
-    margin: 40px auto; /* Increased top margin to move it down from the header */
+    justify-items: center; /* This centers the shorter buttons in their columns */
+    column-gap: 40px; 
+    row-gap: 30px;    
+    max-width: 900px; 
+    margin: 60px auto; 
 }
 
 
@@ -35,27 +36,30 @@
     margin-bottom: 25px;
 }
         /* General Tab Styling - Updated for Pink branding and more height */
+/* 1. Updated Tab Styling: Fixed width to make them shorter */
 .tab { 
-    padding: 20px 30px; /* Increased padding for more internal space */
-    font-size: 18px; 
+    width: 320px;      /* Reduced width from previous version */
+    padding: 20px; 
+    font-size: 19px; 
     font-weight: bold; 
     cursor: pointer; 
-    background-color: #E64097; /* Abingdon Pink */
+    background-color: #E64097; 
     border: 2px solid #c5307d; 
     border-radius: 12px; 
-    color: white; /* White text looks best on pink */
+    color: white; 
     transition: all 0.2s;
-    min-height: 80px; /* Forces buttons to be taller */
+    min-height: 80px;  /* Slightly reduced height for better proportions */
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 .tab:hover {
     background-color: #cf3584;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
 .tab.active {
