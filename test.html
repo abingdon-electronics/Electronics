@@ -18,15 +18,12 @@
 #mainMenu {
     display: grid;
     grid-template-columns: 1fr 1fr; 
-    justify-items: center; /* This centers the shorter buttons in their columns */
+    justify-items: center; 
     column-gap: 40px; 
     row-gap: 30px;    
     max-width: 900px; 
     margin: 60px auto; 
 }
-
-
-
         
 /* Ensure the sub-menus stay as a single row */
 #menuBasics, #menuTiming, #menuPlaceholder {
@@ -38,22 +35,28 @@
         /* General Tab Styling - Updated for Pink branding and more height */
 /* 1. Updated Tab Styling: Fixed width to make them shorter */
 .tab { 
-    width: 320px;      /* Reduced width from previous version */
-    padding: 20px; 
-    font-size: 19px; 
+    padding: 10px 25px; 
+    font-size: 16px; 
     font-weight: bold; 
     cursor: pointer; 
-    background-color: #E64097; 
+    background-color: #E64097; /* Keeping them pink */
     border: 2px solid #c5307d; 
-    border-radius: 12px; 
+    border-radius: 8px; 
     color: white; 
     transition: all 0.2s;
-    min-height: 80px;  /* Slightly reduced height for better proportions */
+    min-width: 120px;
+    height: auto;
+}
+
+        #mainMenu .tab {
+    width: 320px;      /* Big width for Home Page only */
+    min-height: 90px;  /* Big height for Home Page only */
+    font-size: 19px;   /* Larger text for Home Page only */
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 .tab:hover {
