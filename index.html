@@ -320,10 +320,11 @@ async function processSubmission() {
 
             // Map the technical mode name to a readable topic string
             const topicMap = {
-                'analysis': 'Circuit Analysis',
-                'divider': 'Potential Divider',
-                'resistance': 'Total Resistance',
-                'oscilloscope': 'Oscilloscopes'
+            'analysis': 'Circuit Analysis',
+            'divider': 'Potential Divider',
+            'resistance': 'Total Resistance',
+            'oscilloscope': 'Oscilloscopes',
+            'astable': 'Astable 555 Timer' // <--- ADD THIS LINE
             };
             const currentTopic = topicMap[currentMode] || 'Unknown Topic';
 
