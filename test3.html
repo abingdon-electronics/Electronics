@@ -1079,25 +1079,18 @@ function generateResistanceProblem(ctx, canvas) {
 
 function generateProblem() {
     const canvas = document.getElementById('circuitCanvas');
-    if (!canvas) return; 
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
     viewedSolution = false; 
     unitErrorMade = false; 
-    
-    const helpBtn = document.getElementById('helpBtn');
-    const solutions = document.getElementById('solutions');
-    const feedback = document.getElementById('feedback');
-    const grade9Btn = document.getElementById('grade9Btn'); 
+
+    const grade9Btn = document.getElementById('grade9Btn');
     const grade9ResBtn = document.getElementById('grade9ResistanceBtn');
 
-    if (helpBtn) helpBtn.style.display = 'none';
-    if (solutions) solutions.style.display = 'none';
-    if (feedback) feedback.innerHTML = '';
-    
-    // --- 1. GRADE 9 BUTTON VISIBILITY ---
+    // Visibility Logic
     if (currentMode === 'divider') {
         if (grade9Btn) grade9Btn.style.display = 'inline-block';
         if (grade9ResBtn) grade9ResBtn.style.display = 'none';
@@ -1109,7 +1102,7 @@ function generateProblem() {
         if (grade9ResBtn) grade9ResBtn.style.display = 'none';
     }
 
-    // --- 2. RESET ALL INPUTS ---
+    // Reset UI
     const inputs = ['inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
     inputs.forEach(id => {
         const el = document.getElementById(id);
@@ -1122,7 +1115,7 @@ function generateProblem() {
         if (el) el.style.display = 'none';
     });
 
-    // --- 3. EXECUTION LOGIC (Fixed Timing) ---
+    // Execute drawing based on mode
     if (currentMode === 'analysis') {
         document.getElementById('inputGroupV').style.display = 'inline-block';
         document.getElementById('inputGroupI').style.display = 'inline-block';
@@ -1132,14 +1125,20 @@ function generateProblem() {
         generateDividerProblem(ctx, canvas);
     } else if (currentMode === 'resistance') {
         document.getElementById('inputGroupR').style.display = 'inline-block';
-        // We use a 10ms delay to ensure the canvas is ready to be drawn on
         setTimeout(() => { generateGrade9Resistance(); }, 10);
     } else if (currentMode === 'oscilloscope') {
         generateOscilloscopeProblem(ctx, canvas);
     } else if (currentMode === 'astable') {
         generateAstableProblem(ctx, canvas);
     }
-}     
+}
+
+
+
+
+
+
+        
 function generateGrade9Resistance() {
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
