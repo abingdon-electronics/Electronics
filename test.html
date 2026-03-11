@@ -528,15 +528,15 @@ function generateProblem() {
         if (grade9ResBtn) grade9ResBtn.style.display = 'none';
     }
 
-    // Reset all possible inputs
-    const inputs = ['inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 'inputAstable', 'inputAstableT'];
+    // Reset all possible inputs (Added inputMarkSpace here)
+    const inputs = ['inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 'inputAstable', 'inputAstableT', 'inputMarkSpace'];
     inputs.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
 
-    // Hide all input groups
-    const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 'inputGroupAstable'];
+    // Hide all input groups (Added inputGroupMarkSpace here)
+    const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 'inputGroupAstable', 'inputGroupMarkSpace'];
     groups.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
@@ -552,15 +552,12 @@ function generateProblem() {
         generateDividerProblem(ctx, canvas);
     } else if (currentMode === 'resistance') {
         document.getElementById('inputGroupR').style.display = 'inline-block';
-        // Use a tiny delay to ensure everything is ready
         setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
     } else if (currentMode === 'oscilloscope') {
         generateOscilloscopeProblem(ctx, canvas);
     } else if (currentMode === 'astable') {
-        // Fix: Make sure the 555 input group shows up!
-        if (document.getElementById('inputGroupAstable')) {
-            document.getElementById('inputGroupAstable').style.display = 'block';
-        }
+        // We don't turn on the groups here because generateAstableProblem 
+        // will decide whether to show the Freq group or the Ratio group.
         generateAstableProblem(ctx, canvas);
     }
 }
@@ -1726,7 +1723,9 @@ function closeDataSheet() {
 }
 
         
-    window.onload = function() { generateProblem(); };    
+    window.onload = function() {
+    goHome(); // This ensures the 8 module buttons are shown first
+};   
 
 </script>
 
