@@ -105,6 +105,12 @@
         <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
     </div>
 
+    <div id="menuPlaceholder" class="tabs" style="display:none;">
+        <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Module Under Construction - Click to return Home</button>
+    </div>
+
+
+        
     <div id="contentArea" style="display:none;">
         <div class="main-layout">
         <div class="left-panel">
@@ -112,9 +118,7 @@
         <canvas id="circuitCanvas" width="600" height="420"></canvas>
     </div>
 
-   <div id="menuPlaceholder" class="tabs" style="display:none;">
-    <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Module Under Construction - Click to Go Home</button>
-</div> 
+   
 </div>
 
             <div class="right-panel">
@@ -248,7 +252,7 @@
     document.getElementById('menuPlaceholder').style.display = 'none';
     document.getElementById('contentArea').style.display = 'none';
 
-    // Show the specific menu or the placeholder
+    // Show the correct sub-menu based on selection
     if (module === 'basics') {
         document.getElementById('menuBasics').style.display = 'flex';
         document.getElementById('moduleSubtitle').innerText = 'Circuit Basics';
@@ -256,7 +260,7 @@
         document.getElementById('menuTiming').style.display = 'flex';
         document.getElementById('moduleSubtitle').innerText = 'Timing Circuits';
     } else {
-        // For any other button (Logic, Transistors, etc.)
+        // This handles Logic, Flip Flops, Transistors, etc.
         document.getElementById('menuPlaceholder').style.display = 'flex';
         document.getElementById('moduleSubtitle').innerText = 'Coming Soon';
     }
@@ -266,11 +270,11 @@ function goHome() {
     document.getElementById('mainMenu').style.display = 'flex';
     document.getElementById('menuBasics').style.display = 'none';
     document.getElementById('menuTiming').style.display = 'none';
-    document.getElementById('menuPlaceholder').style.display = 'none'; // Clear placeholder
+    document.getElementById('menuPlaceholder').style.display = 'none';
     document.getElementById('contentArea').style.display = 'none';
     document.getElementById('moduleSubtitle').innerText = 'Mastering the GCSE Course';
     
-    // Reset active button highlights
+    // Clear highlights from sub-tabs
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
 }
 
