@@ -35,7 +35,18 @@
         
         .input-area { text-align: center; }
         .input-group { margin: 10px 0; font-size: 18px; font-weight: bold; display: inline-block; margin-right: 15px; }
-        input[type="text"] { font-size: 16px; padding: 6px; width: 110px; text-align: center; margin: 0 5px; border: 1px solid #ccc; border-radius: 4px; outline-color: #E64097; }
+        input[type="text"] { 
+    font-size: 18px; /* Slightly larger text */
+    padding: 10px;  /* More 'breathing room' inside the box */
+    height: 45px;   /* Consistent height */
+    width: 140px;   /* Slightly wider for unit strings */
+    text-align: center;
+    margin: 0 5px; 
+    border: 2px solid #ccc; /* Thicker border to match brand style */
+    border-radius: 6px; 
+    outline-color: #E64097;
+    box-sizing: border-box; /* Ensures padding doesn't break the width */
+}
         .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
         
         .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; }
@@ -106,16 +117,10 @@
                         <input type="text" id="inputI" placeholder="e.g. 5 mA">
                     </div>
 
-                    <div class="input-group" id="inputGroupR" style="display:none;">
+<div class="input-group" id="inputGroupR" style="display:none;">
     <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
-    <input type="number" id="inputR" step="0.01" placeholder="e.g. 15.52">
-    <select id="unitR">
-        <option value="ohms">&Omega;</option>
-        <option value="kohms">k&Omega;</option>
-    </select>
+    <input type="text" id="inputR" placeholder="e.g. 15.52 kohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
 </div>
-
-
 
 
 
@@ -175,10 +180,10 @@
     <button class="btn-black" onclick="generateProblem()">Generate New Problem</button>
     
     <button id="grade9Btn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge (Divider)</button>
-    
     <button id="grade9ResistanceBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge (Resistance)</button>
-    
     <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solution)</button>
+    <button id="dataSheetBtn" class="btn-check" style="background-color: #6c757d; color: white;" onclick="openDataSheet()">📖 Data Sheet</button>
+    
     </div>
 
             <div id="solutions" class="solutions">
@@ -320,10 +325,11 @@ async function processSubmission() {
 
             // Map the technical mode name to a readable topic string
             const topicMap = {
-                'analysis': 'Circuit Analysis',
-                'divider': 'Potential Divider',
-                'resistance': 'Total Resistance',
-                'oscilloscope': 'Oscilloscopes'
+            'analysis': 'Circuit Analysis',
+            'divider': 'Potential Divider',
+            'resistance': 'Total Resistance',
+            'oscilloscope': 'Oscilloscopes',
+            'astable': 'Astable 555 Timer' // <--- ADD THIS LINE
             };
             const currentTopic = topicMap[currentMode] || 'Unknown Topic';
 
@@ -423,6 +429,10 @@ function drawLine(ctx, x1, y1, x2, y2) {
         }
 
 function generateProblem() {
+    // This ensures the data sheet closes when you switch modes/tabs
+    const modal = document.getElementById('dataSheetModal');
+    if (modal) modal.style.display = 'none';
+    
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return; 
     const ctx = canvas.getContext('2d');
@@ -1319,14 +1329,12 @@ function generateProblem() {
                 let pV = parseInput(document.getElementById('inputV').value);
                 results.push(validateMatch(pV, currentAnswers.vValue, currentAnswers.vUnit));
             } else if (currentMode === 'resistance') {
-                // NEW: Gather number and dropdown unit separately
-                let rVal = parseFloat(document.getElementById('inputR').value);
-                let rUnit = document.getElementById('unitR').value;
-                
-                // Package them for the existing validateMatch function
-                let pR = { val: rVal, unit: rUnit };
-                results.push(validateMatch(pR, currentAnswers.rValue, currentAnswers.rUnit));
-            } else if (currentMode === 'oscilloscope') {
+    // This now looks at the text box and figures out both the number and the unit
+    let pR = parseInput(document.getElementById('inputR').value);
+    results.push(validateMatch(pR, currentAnswers.rValue, currentAnswers.rUnit));
+}
+            
+            else if (currentMode === 'oscilloscope') {
             let pAmp = parseInput(document.getElementById('inputOscAmp').value);
             results.push(validateMatch(pAmp, currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
 
@@ -1669,10 +1677,54 @@ function generateGrade9DividerProblem() {
         solText.innerHTML = logicHTML;
     }
 }
-        
-    window.onload = function() { generateProblem(); };
+     function openDataSheet() {
+    const modal = document.getElementById('dataSheetModal');
+    if (modal) modal.style.display = 'block';
+}
+
+function closeDataSheet() {
+    const modal = document.getElementById('dataSheetModal');
+    if (modal) modal.style.display = 'none';
+}
 
         
-    </script>
+    window.onload = function() { generateProblem(); };    
+
+</script>
+
+   <div id="dataSheetModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center;">
+    <div style="background-color: white; padding: 20px; border-radius: 15px; max-width: 600px; width: 90%; position: relative; margin: 10% auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+        <span onclick="closeDataSheet()" style="position: absolute; right: 15px; top: 10px; font-size: 28px; cursor: pointer; color: #E64097; font-weight: bold;">&times;</span>
+        
+        <h2 style="color: #E64097; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">Electronics Data Sheet</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 10px; color: #333; font-family: sans-serif;">
+            <div>
+                <h4 style="margin-bottom: 5px; color: #000;">Basic Laws</h4>
+                <p>V = I &times; R</p>
+                <p>P = I &times; V</p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 5px; color: #000;">Resistance</h4>
+                <p>Series: R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub></p>
+                <p>Parallel: R<sub>p</sub> = (R<sub>1</sub> &times; R<sub>2</sub>) / (R<sub>1</sub> + R<sub>2</sub>)</p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 5px; color: #000;">Potential Dividers</h4>
+                <p>V<sub>OUT</sub> = V<sub>IN</sub> &times; (R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>))</p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 5px; color: #000;">555 Astable</h4>
+                <p>f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) &times; C)</p>
+                <p>T = 0.693 &times; (R<sub>1</sub> + 2R<sub>2</sub>) &times; C</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn-check" onclick="closeDataSheet()">Close Sheet</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
