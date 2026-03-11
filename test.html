@@ -593,7 +593,7 @@ function generateProblem() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // 1. Reset Quiz State for all modules
+    // 1. Reset Quiz State for ALL modules
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
     viewedSolution = false; 
@@ -609,11 +609,11 @@ function generateProblem() {
     if (solutions) solutions.style.display = 'none';
     if (feedback) feedback.innerHTML = '';
     
-    // 2. Hide Grade 9 Buttons by default
+    // 2. Hide Grade 9 Buttons
     if (grade9Btn) grade9Btn.style.display = 'none';
     if (grade9ResBtn) grade9ResBtn.style.display = 'none';
 
-    // 3. Reset all text inputs (Clears the old answers)
+    // 3. Reset all text inputs (This clears old answers)
     const inputs = [
         'inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 
         'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 
@@ -625,7 +625,7 @@ function generateProblem() {
         if (el) el.value = '';
     });
 
-    // 4. Hide ALL input groups first
+    // 4. Hide ALL input groups first (This wipes the "previous page" buttons)
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
@@ -656,7 +656,6 @@ function generateProblem() {
     } else if (currentMode === 'astable') {
         generateAstableProblem(ctx, canvas);
     } else if (currentMode === 'colorcode') {
-        // This is now at the end, so the cleanup above actually works!
         generateColorCodeProblem(ctx, canvas);
     }
 }
