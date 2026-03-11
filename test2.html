@@ -115,6 +115,18 @@
     </select>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+                    
                     <div class="input-group" id="inputGroupOscAmp" style="display:none;">
                         <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label>
                         <input type="text" id="inputOscAmp" placeholder="e.g. 5 V">
@@ -423,17 +435,14 @@ function generateProblem() {
     const helpBtn = document.getElementById('helpBtn');
     const solutions = document.getElementById('solutions');
     const feedback = document.getElementById('feedback');
-    
-    // --- 1. DEFINE BOTH GRADE 9 BUTTONS ---
     const grade9Btn = document.getElementById('grade9Btn'); 
-    const grade9ResBtn = document.getElementById('grade9ResistanceBtn'); // NEW
+    const grade9ResBtn = document.getElementById('grade9ResistanceBtn');
 
     if (helpBtn) helpBtn.style.display = 'none';
     if (solutions) solutions.style.display = 'none';
     if (feedback) feedback.innerHTML = '';
     
-    // --- 2. UPDATE VISIBILITY LOGIC ---
-    // This part ensures only the correct button shows for the current tab
+    // Grade 9 Button Visibility Logic
     if (currentMode === 'divider') {
         if (grade9Btn) grade9Btn.style.display = 'inline-block';
         if (grade9ResBtn) grade9ResBtn.style.display = 'none';
@@ -441,23 +450,25 @@ function generateProblem() {
         if (grade9Btn) grade9Btn.style.display = 'none';
         if (grade9ResBtn) grade9ResBtn.style.display = 'inline-block';
     } else {
-        // Hide both for oscilloscope, astable, etc.
         if (grade9Btn) grade9Btn.style.display = 'none';
         if (grade9ResBtn) grade9ResBtn.style.display = 'none';
     }
 
-    const inputs = ['inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
+    // Reset all possible inputs
+    const inputs = ['inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 'inputAstable', 'inputAstableT'];
     inputs.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
 
+    // Hide all input groups
     const groups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 'inputGroupAstable'];
     groups.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
 
+    // Mode Logic - This connects the tabs to the drawing functions
     if (currentMode === 'analysis') {
         document.getElementById('inputGroupV').style.display = 'inline-block';
         document.getElementById('inputGroupI').style.display = 'inline-block';
@@ -467,15 +478,37 @@ function generateProblem() {
         generateDividerProblem(ctx, canvas);
     } else if (currentMode === 'resistance') {
         document.getElementById('inputGroupR').style.display = 'inline-block';
-        
-generateResistanceProblem(ctx, canvas); 
+        // Use a tiny delay to ensure everything is ready
+        setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
     } else if (currentMode === 'oscilloscope') {
         generateOscilloscopeProblem(ctx, canvas);
     } else if (currentMode === 'astable') {
+        // Fix: Make sure the 555 input group shows up!
+        if (document.getElementById('inputGroupAstable')) {
+            document.getElementById('inputGroupAstable').style.display = 'block';
+        }
         generateAstableProblem(ctx, canvas);
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+        
 function generateAnalysisProblem(ctx, canvas) {
             const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
             const iUnit = Math.random() < 0.5 ? 'A' : 'mA';
