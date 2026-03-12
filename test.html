@@ -1943,7 +1943,17 @@ function formatResValue(val) {
     if (val >= 1000) return (val / 1000) + " kΩ";
     return val + " Ω";
 }
-        
+
+
+function toggleSolutions() {
+    const solutions = document.getElementById('solutions');
+    if (solutions.style.display === 'none' || solutions.style.display === '') {
+        solutions.style.display = 'block';
+        viewedSolution = true; // This ensures they don't get a point after seeing the answer
+    } else {
+        solutions.style.display = 'none';
+    }
+}
 </script>
 
    <div id="dataSheetModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center;">
