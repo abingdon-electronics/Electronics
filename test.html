@@ -258,11 +258,11 @@
 <div id="inputGroupColorVal" class="input-group" style="display:none;">
     <div style="margin-bottom: 10px;">
         <label>Resistance (Ω): </label>
-        <input type="text" id="inputResValue" placeholder="e.g. 16 kΩ">
+        <input type="text" id="inputResValue" placeholder="e.g. 1.2 kΩ" style="width: 140px;">
     </div>
     <div>
-        <label>Tolerance (%): </label>
-        <input type="text" id="inputResTol" placeholder="e.g. silver" style="width: 120px;">
+        <label>Band 4 Tolerance (%): </label>
+        <input type="text" id="inputResTol" placeholder="e.g. 5" style="width: 140px;">
     </div>
 </div>
 
@@ -442,9 +442,16 @@ function parseInput(str) {
         return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio', isRatioString: true };
     }
     
-    const match = cleanStr.match(/^(-?[\d\.]+)([a-z]+)$/);
+    const match = cleanStr.match(/^(-?[\d\.]+)([a-z\u03a9]+)$/);
     if (match) {
-        return { val: parseFloat(match[1]), unit: match[2] };
+        let val = parseFloat(match[1]);
+        let unit = match[2];
+        
+        // Resistor specific conversion logic
+        if (unit.startsWith('k')) val *= 1000;
+        if (unit.startsWith('m') && !unit.startsWith('ma')) val *= 1000000; // M but not mA
+        
+        return { val: val, unit: unit };
     }
     return { val: parseFloat(cleanStr), unit: '' }; 
 }
@@ -1380,18 +1387,23 @@ function generateProblem() {
         if (solText) solText.innerHTML = solTextStr;
         }
 
-       function checkAnswers() {
+function checkAnswers() {
     if (isCurrentProblemSolved) return; 
 
     const feedback = document.getElementById('feedback');
     const helpBtn = document.getElementById('helpBtn');
 
-    // 1. Check if the relevant active boxes are genuinely blank first
+    // 1. Identify which inputs are currently active to check for blanks
     let activeInputs = [];
     if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
     else if (currentMode === 'divider') activeInputs = ['inputV'];
     else if (currentMode === 'resistance') activeInputs = ['inputR'];
-    else if (currentMode === 'oscilloscope') activeInputs = ['inputOscAmp'];
+    else if (currentMode === 'oscilloscope') {
+        activeInputs = ['inputOscAmp'];
+        if (currentAnswers.oscQType === 1) activeInputs.push('inputOscMark', 'inputOscSpace');
+        else if (currentAnswers.oscQType === 2) activeInputs.push('inputOscPeriod', 'inputOscFreq');
+        else activeInputs.push('inputOscRatio');
+    }
     else if (currentMode === 'colorcode') {
         if (document.getElementById('inputGroupColorVal').style.display !== 'none') {
             activeInputs = ['inputResValue', 'inputResTol'];
@@ -1404,12 +1416,11 @@ function generateProblem() {
         else activeInputs = ['inputMarkSpace'];
     }
 
+    // Check for empty boxes
     let hasEmptyBox = false;
     activeInputs.forEach(id => {
         const el = document.getElementById(id);
-        if (el && el.value.trim() === '') {
-            hasEmptyBox = true;
-        }
+        if (el && el.value.trim() === '') hasEmptyBox = true;
     });
 
     if (hasEmptyBox) {
@@ -1423,73 +1434,73 @@ function generateProblem() {
         hasCheckedCurrentProblem = true; 
     }
 
-    // 3. Parse inputs against expected answers
+    // 3. Grade the inputs
     let results = [];
     
-    // NEW COLOR CODE LOGIC
     if (currentMode === 'colorcode') {
-        if (document.getElementById('inputGroupColorVal').style.display !== 'none') {
+        const valGroup = document.getElementById('inputGroupColorVal');
+        if (valGroup.style.display !== 'none') {
+            // CHALLENGE A: Student provides Numbers
             const userRes = parseInput(document.getElementById('inputResValue').value);
             const userTol = parseFloat(document.getElementById('inputResTol').value);
-            // Grade Resistance (Check value and unit)
-            results.push(validateMatch(userRes, currentAnswers.resVal, "")); 
-            // Grade Tolerance
-            if (userTol === currentAnswers.resTol) results.push('correct');
-            else results.push('wrong');
+            
+            // Check resistance value (within 1% tolerance for decimal handling)
+            if (userRes && Math.abs(userRes.val - currentAnswers.resVal) < (currentAnswers.resVal * 0.01)) {
+                results.push('correct');
+            } else {
+                results.push('wrong');
+            }
+            
+            // Check tolerance number (e.g., 5 or 10)
+            if (userTol === currentAnswers.resTol) {
+                results.push('correct');
+            } else {
+                results.push('wrong');
+            }
         } else {
+            // CHALLENGE B: Student provides Colour Names
             const b1 = document.getElementById('inputBand1').value.toLowerCase().trim();
             const b2 = document.getElementById('inputBand2').value.toLowerCase().trim();
             const b3 = document.getElementById('inputBand3').value.toLowerCase().trim();
-            const tol = document.getElementById('inputBandTol').value.toLowerCase().trim();
-            if (b1 === currentAnswers.b1 && b2 === currentAnswers.b2 && b3 === currentAnswers.b3 && tol === currentAnswers.tol) {
+            const b4 = document.getElementById('inputBandTol').value.toLowerCase().trim();
+
+            if (b1 === currentAnswers.b1 && b2 === currentAnswers.b2 && 
+                b3 === currentAnswers.b3 && b4 === currentAnswers.tol) {
                 results.push('correct');
             } else {
                 results.push('wrong');
             }
         }
     } 
-    // YOUR ORIGINAL LOGIC CONTINUES...
     else if (currentMode === 'analysis') {
-        let pV = parseInput(document.getElementById('inputV').value);
-        let pI = parseInput(document.getElementById('inputI').value);
-        results.push(validateMatch(pV, currentAnswers.vValue, currentAnswers.vUnit));
-        results.push(validateMatch(pI, currentAnswers.iValue, currentAnswers.iUnit));
+        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, currentAnswers.vUnit));
+        results.push(validateMatch(parseInput(document.getElementById('inputI').value), currentAnswers.iValue, currentAnswers.iUnit));
     } else if (currentMode === 'divider') {
-        let pV = parseInput(document.getElementById('inputV').value);
-        results.push(validateMatch(pV, currentAnswers.vValue, currentAnswers.vUnit));
+        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, currentAnswers.vUnit));
     } else if (currentMode === 'resistance') {
-        let pR = parseInput(document.getElementById('inputR').value);
-        results.push(validateMatch(pR, currentAnswers.rValue, currentAnswers.rUnit));
+        results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, currentAnswers.rUnit));
     } else if (currentMode === 'oscilloscope') {
-        let pAmp = parseInput(document.getElementById('inputOscAmp').value);
-        results.push(validateMatch(pAmp, currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
+        results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
         if (currentAnswers.oscQType === 1) {
-            let pMark = parseInput(document.getElementById('inputOscMark').value);
-            let pSpace = parseInput(document.getElementById('inputOscSpace').value);
-            results.push(validateMatch(pMark, currentAnswers.oscMarkValue, currentAnswers.oscMarkUnit));
-            results.push(validateMatch(pSpace, currentAnswers.oscSpaceValue, currentAnswers.oscSpaceUnit));
+            results.push(validateMatch(parseInput(document.getElementById('inputOscMark').value), currentAnswers.oscMarkValue, currentAnswers.oscMarkUnit));
+            results.push(validateMatch(parseInput(document.getElementById('inputOscSpace').value), currentAnswers.oscSpaceValue, currentAnswers.oscSpaceUnit));
         } else if (currentAnswers.oscQType === 2) {
-            let pPeriod = parseInput(document.getElementById('inputOscPeriod').value);
-            let pFreq = parseInput(document.getElementById('inputOscFreq').value);
-            results.push(validateMatch(pPeriod, currentAnswers.oscPeriodValue, currentAnswers.oscPeriodUnit));
-            results.push(validateMatch(pFreq, currentAnswers.oscFreqValue, currentAnswers.oscFreqUnit));
+            results.push(validateMatch(parseInput(document.getElementById('inputOscPeriod').value), currentAnswers.oscPeriodValue, currentAnswers.oscPeriodUnit));
+            results.push(validateMatch(parseInput(document.getElementById('inputOscFreq').value), currentAnswers.oscFreqValue, currentAnswers.oscFreqUnit));
         } else {
-            let pRatio = parseInput(document.getElementById('inputOscRatio').value);
-            results.push(validateMatch(pRatio, currentAnswers.oscRatioValue, currentAnswers.oscRatioUnit));
+            results.push(validateMatch(parseInput(document.getElementById('inputOscRatio').value), currentAnswers.oscRatioValue, currentAnswers.oscRatioUnit));
         }
     } else if (currentMode === 'astable') {
         if (currentAnswers.astableQType === 0) {
-            const aF = parseInput(document.getElementById('inputAstable').value);
-            const aT = parseInput(document.getElementById('inputAstableT').value);
-            results.push(validateMatch(aF, currentAnswers.astableValue, currentAnswers.astableUnit));
-            results.push(validateMatch(aT, currentAnswers.astableTValue, currentAnswers.astableTUnit));
+            results.push(validateMatch(parseInput(document.getElementById('inputAstable').value), currentAnswers.astableValue, currentAnswers.astableUnit));
+            results.push(validateMatch(parseInput(document.getElementById('inputAstableT').value), currentAnswers.astableTValue, currentAnswers.astableTUnit));
         } else {
             const userRatio = document.getElementById('inputMarkSpace').value.trim();
             results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrong');
         }
     }
 
-    // 4. Grade the results using your scoring rules
+    // 4. Final Scoring and Feedback Display
     if (results.every(r => r === 'correct')) {
         isCurrentProblemSolved = true;
         if (!viewedSolution && !unitErrorMade) {
@@ -1519,7 +1530,7 @@ function generateProblem() {
     updateScoreboard();
 }
 
-        function toggleSolutions() {
+function toggleSolutions() {
             const sol = document.getElementById('solutions');
             if (!sol) return;
             if (sol.style.display === 'none' || sol.style.display === '') {
