@@ -586,27 +586,6 @@ function drawResistor(ctx, x, y) {
             ctx.closePath();
         }
 
-function drawLine(ctx, x1, y1, x2, y2) {
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-            ctx.closePath();
-        }
-
-        function drawDot(ctx, x, y) {
-    ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#000';
-    ctx.fill();
-}
-
-function drawNode(x, y) {
-    ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = "#000";
-    ctx.fill();
-}
            
 function generateAnalysisProblem(ctx, canvas) {
             const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
@@ -1879,6 +1858,8 @@ function generateMonostableProblem(ctx, canvas) {
     ctx.strokeStyle = '#000';
     ctx.fillStyle = '#000';
     ctx.lineWidth = 2;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
 
     // 2. MATH LOGIC & RANDOMIZATION (T = 1.1 * R * C)
     const rVal = (Math.floor(Math.random() * 90) + 10) * 1000; 
@@ -1939,55 +1920,15 @@ function generateMonostableProblem(ctx, canvas) {
     drawLine(ctx, 100, topRailY, 500, topRailY); 
     drawLine(ctx, 100, botRailY, 500, botRailY);
     ctx.font = "bold 14px Arial";
-    ctx.fillText("VCC", 510, topRailY + 5);
-    ctx.fillText("0V", 510, botRailY + 5);
+    ctx.fillText("VCC", 510, topRailY);
+    ctx.fillText("0V", 510, botRailY);
 
     // Timing Network (R and C)
     drawLine(ctx, netX, topRailY, netX, 110); 
-    drawDot(ctx, netX, topRailY); // Cleaned from drawNode to drawDot
+    drawDot(ctx, netX, topRailY); 
     
     if (typeof drawResistor === 'function') drawResistor(ctx, netX, 135);
-    ctx.fillText(currentAnswers.monoQType === 2 ? "R = ?" : formatResValue(rVal), netX - 85, 140);
-    
-    drawLine(ctx, netX, 160, netX, 200); 
-    drawDot(ctx, netX, 200); // Cleaned from drawNode to drawDot
-    
-    // Connect to Pin 7 and Pin 6 
-    drawLine(ctx, netX, 200, cx - 45, cy - 20); 
-    drawLine(ctx, netX, 200, netX, 220);          
-    drawLine(ctx, netX, 220, cx - 45, cy + 20); 
-    drawDot(ctx, netX, 220); // Cleaned from drawNode to drawDot
-
-    drawLine(ctx, netX, 220, netX, 245);
-    if (typeof drawCapacitor === 'function') drawCapacitor(ctx, netX, 270);
-    ctx.fillText(currentAnswers.monoQType === 1 ? "C = ?" : formatCapValue(cVal), netX - 85, 275);
-    
-    drawLine(ctx, netX, 295, netX, botRailY); 
-    drawDot(ctx, netX, botRailY); // Cleaned from drawNode to drawDot
-
-    // Supply Pins
-    drawLine(ctx, cx - 30, cy - 60, cx - 30, topRailY); // Pin 8 (VCC)
-    drawLine(ctx, cx + 30, cy - 60, cx + 30, topRailY); // Pin 4 (Reset)
-    drawLine(ctx, cx - 30, cy + 60, cx - 30, botRailY); // Pin 1 (GND)
-    drawDot(ctx, cx - 30, topRailY); 
-    drawDot(ctx, cx + 30, topRailY); 
-    drawDot(ctx, cx - 30, botRailY);
-
-    // Trigger & Output 
-    drawLine(ctx, cx - 45, cy, cx - 100, cy); 
-    ctx.font = "bold 14px Arial";
-    ctx.fillText("Trigger", cx - 155, cy + 5);
-    
-    drawLine(ctx, cx + 45, cy, cx + 120, cy);
-    ctx.beginPath(); 
-    ctx.arc(cx + 125, cy, 5, 0, Math.PI * 2); 
-    ctx.stroke();
-    
-    ctx.font = "bold 16px Arial"; 
-    ctx.fillText("V", cx + 135, cy + 5);
-    ctx.font = "bold 10px Arial"; 
-    ctx.fillText("OUT", cx + 148, cy + 10);
-}
+    ctx.fillText(currentAnswers.monoQType === 2 ? "R = ?" : formatResValue(rVal
         
      function openDataSheet() {
     const modal = document.getElementById('dataSheetModal');
@@ -2091,15 +2032,6 @@ function generateColorCodeProblem(ctx, canvas) {
     if (solText) solText.innerHTML = solTextStr;
 }
 
-        
-//  helper function:
-function formatResValue(val) {
-    if (val >= 1000000) return (val / 1000000) + " MΩ";
-    if (val >= 1000) return (val / 1000) + " kΩ";
-    return val + " Ω";
-}
-
-
 function toggleSolutions() {
     const solutions = document.getElementById('solutions');
     if (solutions.style.display === 'none' || solutions.style.display === '') {
@@ -2110,14 +2042,14 @@ function toggleSolutions() {
     }
 }
 
-// Add these missing helper functions
 
-// 1. Fixes the "formatResValue is not defined" error
+//  helper functions:
 function formatResValue(val) {
-    if (val >= 1000000) return (val / 1000000).toFixed(1) + "MΩ";
-    if (val >= 1000) return (val / 1000).toFixed(1) + "kΩ";
-    return val + "Ω";
+    if (val >= 1000000) return (val / 1000000) + " MΩ";
+    if (val >= 1000) return (val / 1000) + " kΩ";
+    return val + " Ω";
 }
+
 
 // 2. Fixes the "formatCapValue is not defined" error
 function formatCapValue(val) {
@@ -2133,6 +2065,14 @@ function drawDot(ctx, x, y) {
     ctx.fillStyle = '#000';
     ctx.fill();
 }
+
+    function drawLine(ctx, x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.closePath();
+        }
 </script>
 
    <div id="dataSheetModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center;">
