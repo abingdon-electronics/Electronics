@@ -264,12 +264,10 @@
 
 <div class="input-group" id="inputGroupColorNames" style="display:none; text-align: center;">
     <div style="margin-bottom: 10px;">
-        Band 1: <input type="text" id="inputBand1" placeholder="Color" style="width: 100px;">
-        Band 2: <input type="text" id="inputBand2" placeholder="Color" style="width: 100px;">
-    </div>
-    <div>
-        Band 3: <input type="text" id="inputBand3" placeholder="Color" style="width: 100px;">
-        Tol: <input type="text" id="inputBandTol" placeholder="Gold/Silver" style="width: 100px;">
+        Band 1: <input type="text" id="inputBand1" placeholder="Colour" style="width: 100px;">
+        Band 2: <input type="text" id="inputBand2" placeholder="Colour" style="width: 100px;">
+        Band 3: <input type="text" id="inputBand3" placeholder="Colour" style="width: 100px;">
+        Band 4: <input type="text" id="inputBandTol" placeholder="Colour" style="width: 100px;">
     </div>
 </div>
                         <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
@@ -1796,7 +1794,6 @@ function generateColorCodeProblem(ctx, canvas) {
     const resColors = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'grey', 'white'];
     const tolColors = { 'gold': 5, 'silver': 10 };
 
-    // 1. Generate random values
     const b1 = Math.floor(Math.random() * 9) + 1; 
     const b2 = Math.floor(Math.random() * 10);    
     const b3 = Math.floor(Math.random() * 7);     
@@ -1804,7 +1801,6 @@ function generateColorCodeProblem(ctx, canvas) {
     const resistanceValue = (b1 * 10 + b2) * Math.pow(10, b3);
     const toleranceValue = tolColors[tolKey];
 
-    // 2. Update global answers
     currentAnswers.resVal = resistanceValue;
     currentAnswers.resTol = toleranceValue;
     currentAnswers.b1 = resColors[b1];
@@ -1812,15 +1808,15 @@ function generateColorCodeProblem(ctx, canvas) {
     currentAnswers.b3 = resColors[b3];
     currentAnswers.tol = tolKey;
 
-    // 3. Draw Resistor Body
+    // Draw Resistor Body
     ctx.lineWidth = 4; ctx.strokeStyle = '#000';
-    ctx.beginPath(); ctx.moveTo(100, 210); ctx.lineTo(500, 210); ctx.stroke(); // Leads
-    ctx.fillStyle = '#f4d3a6'; ctx.fillRect(200, 170, 200, 80); ctx.strokeRect(200, 170, 200, 80); // Body
+    ctx.beginPath(); ctx.moveTo(100, 210); ctx.lineTo(500, 210); ctx.stroke(); 
+    ctx.fillStyle = '#f4d3a6'; ctx.fillRect(200, 170, 200, 80); ctx.strokeRect(200, 170, 200, 80); 
 
     const qType = Math.floor(Math.random() * 2);
 
     if (qType === 0) {
-        // TYPE 0: Show Colors -> Ask for Value
+        // TYPE 0: Visual Resistor -> Student identifies Value
         const drawBand = (x, color) => {
             ctx.fillStyle = (color === 'gold') ? '#FFD700' : (color === 'silver') ? '#C0C0C0' : color;
             ctx.fillRect(x, 170, 20, 80); ctx.strokeRect(x, 170, 20, 80);
@@ -1833,11 +1829,10 @@ function generateColorCodeProblem(ctx, canvas) {
         document.getElementById('inputGroupColorVal').style.display = 'block';
         document.getElementById('feedback').innerHTML = "Identify the Resistance (Ω) and Tolerance (%).";
     } else {
-        // TYPE 1: B&W Resistor with Numbers. Show prompt ON CANVAS.
+        // TYPE 1: B&W Numbered Resistor -> Student identifies Colours
         const drawHiddenBand = (x, num) => {
             ctx.fillStyle = '#ccc'; 
             ctx.fillRect(x, 170, 20, 80); ctx.strokeRect(x, 170, 20, 80);
-            
             ctx.fillStyle = '#000';
             ctx.font = 'bold 22px Arial';
             ctx.textAlign = 'center';
@@ -1848,19 +1843,15 @@ function generateColorCodeProblem(ctx, canvas) {
         drawHiddenBand(280, "3");
         drawHiddenBand(360, "4");
 
-        // DRAW PROMPT ON CANVAS
+        // Canvas Prompt with specific spacing: ± 5% or ± 10%
         const formatted = formatResValue(resistanceValue);
         ctx.fillStyle = '#000';
         ctx.font = 'bold 24px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(`Identify colours 1-4 for: ${formatted} ±${toleranceValue}%`, 300, 310);
+        ctx.fillText(`Identify colours for: ${formatted} ± ${toleranceValue}%`, 300, 310);
 
         document.getElementById('inputGroupColorNames').style.display = 'block';
         document.getElementById('feedback').innerHTML = "Enter the colour name for each band.";
-        
-        // Update the label for Band 4 to be generic and use UK spelling
-        const band4Label = document.querySelector('#inputGroupColorNames label:last-of-type');
-        if (band4Label) band4Label.innerHTML = 'Band 4 Colour: ';
     }
 }
 
