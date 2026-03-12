@@ -1674,13 +1674,13 @@ function generateAstableProblem(ctx, canvas) {
     line(220, 180, 260, 180); ctx.fillText("6", 265, 185); // Pin 6
     line(220, 240, 260, 240); ctx.fillText("2", 265, 245); // Pin 2
 
-    line(330, 40, 330, 80); drawNode(330, 80); line(300, 80, 360, 80);
+    line(330, 40, 330, 80); drawDot(330, 80); line(300, 80, 360, 80);
     line(300, 80, 300, 120); ctx.textAlign = "center"; ctx.fillText("4", 300, 135);
     line(360, 80, 360, 120); ctx.fillText("8", 360, 135);
-    line(300, 260, 300, 360); drawNode(300, 360); ctx.fillText("1", 300, 255);
+    line(300, 260, 300, 360); drawDot(300, 360); ctx.fillText("1", 300, 255);
     line(360, 260, 360, 305); ctx.fillText("5", 360, 255);
     drawCapacitor(360, 310, "10 nF", "left");
-    line(360, 315, 360, 360); drawNode(360, 360);
+    line(360, 315, 360, 360); drawDot(360, 360);
     line(400, 190, 460, 190); ctx.textAlign = "right"; ctx.fillText("3", 395, 195);
     ctx.textAlign = "left"; ctx.fillText("Output", 465, 195);
 
