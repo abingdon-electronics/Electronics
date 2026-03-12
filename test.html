@@ -382,13 +382,14 @@ function switchTab(mode) {
     const activeTab = document.getElementById('tab-' + mode);
     if (activeTab) activeTab.classList.add('active');
 
-    // 3. Hide ALL input groups so we can turn on only the ones we need
+    // 3. Hide ALL input groups (including the new Monostable one)
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
         'inputGroupAstable', 'inputGroupMarkSpace',
-        'inputGroupColorVal', 'inputGroupColorNames' // These two are the new additions
+        'inputGroupColorVal', 'inputGroupColorNames',
+        'inputGroupMonostable' // Added Monostable group here
     ];
     groups.forEach(id => {
         const el = document.getElementById(id);
@@ -399,8 +400,10 @@ function switchTab(mode) {
     const subtitle = document.getElementById('moduleSubtitle');
     if (['analysis', 'divider', 'resistance'].includes(mode)) {
         subtitle.innerText = "Circuit Basics";
-    } else if (['oscilloscope', 'astable'].includes(mode)) {
-        subtitle.innerText = "Timing Circuits";
+    } else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) {
+        subtitle.innerText = "Timing Circuits"; // Monostable added to Timing
+    } else if (mode === 'colorcode') {
+        subtitle.innerText = "Components";
     }
 
     // 5. Reset the quiz state for the new problem
@@ -414,7 +417,7 @@ function switchTab(mode) {
     const helpBtn = document.getElementById('helpBtn');
     if (helpBtn) helpBtn.style.display = 'none';
 
-    // 6. DRAW THE CIRCUIT - Note: changed from generateNewProblem to generateProblem
+    // 6. DRAW THE CIRCUIT
     generateProblem();
 }
 
@@ -1229,7 +1232,6 @@ function generateProblem() {
     const ctx = canvas.getContext('2d');
 
     // --- FIX FOR CANVAS SCALING ---
-    // This forces the canvas internal resolution to match your CSS box size
     canvas.width = 600;
     canvas.height = 400;
     // ------------------------------
@@ -1254,25 +1256,27 @@ function generateProblem() {
     if (grade9Btn) grade9Btn.style.display = 'none';
     if (grade9ResBtn) grade9ResBtn.style.display = 'none';
 
-    // 3. Reset all text inputs (This clears old answers)
+    // 3. Reset all text inputs (Added inputMono here)
     const inputs = [
         'inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 
         'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 
         'inputAstable', 'inputAstableT', 'inputMarkSpace', 
-        'inputResValue', 'inputResTol', 'inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'
+        'inputResValue', 'inputResTol', 'inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol',
+        'inputMono' // Reset the new monostable input
     ];
     inputs.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.value = '';
+        if (el) { el.value = ''; el.style.backgroundColor = 'white'; }
     });
 
-    // 4. Hide ALL input groups first (This wipes the "previous page" buttons)
+    // 4. Hide ALL input groups first (Added inputGroupMonostable here)
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 
         'inputGroupAstable', 'inputGroupMarkSpace', 
-        'inputGroupColorVal', 'inputGroupColorNames'
+        'inputGroupColorVal', 'inputGroupColorNames',
+        'inputGroupMonostable' // Hide the monostable group
     ];
     groups.forEach(id => {
         const el = document.getElementById(id);
@@ -1291,12 +1295,14 @@ function generateProblem() {
     } else if (currentMode === 'resistance') {
         document.getElementById('inputGroupR').style.display = 'inline-block';
         if (grade9ResBtn) grade9ResBtn.style.display = 'inline-block';
-        // Small delay ensures canvas resizing is processed before complex resistance drawing
         setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
     } else if (currentMode === 'oscilloscope') {
         generateOscilloscopeProblem(ctx, canvas);
     } else if (currentMode === 'astable') {
         generateAstableProblem(ctx, canvas);
+    } else if (currentMode === 'monostable') {
+        // Trigger the logic for the new Monostable module
+        generateMonostableProblem(ctx, canvas);
     } else if (currentMode === 'colorcode') {
         generateColorCodeProblem(ctx, canvas);
     }
@@ -1430,7 +1436,15 @@ function checkAnswers() {
         if (currentAnswers.astableQType === 0) activeInputs = ['inputAstable', 'inputAstableT'];
         else activeInputs = ['inputMarkSpace'];
     }
-
+else if (currentMode === 'monostable') {
+    if (currentAnswers.monoQType === 0) {
+        results.push(validateMatch(parseInput(document.getElementById('inputMono1').value), currentAnswers.monoT, 's'));
+    } else if (currentAnswers.monoQType === 1) {
+        results.push(validateMatch(parseInput(document.getElementById('inputMono1').value), currentAnswers.monoC, 'F'));
+    } else {
+        results.push(validateMatch(parseInput(document.getElementById('inputMono1').value), currentAnswers.monoR, 'Ω'));
+    }
+}
     // Check for empty boxes
     let hasEmptyBox = false;
     activeInputs.forEach(id => {
@@ -1867,6 +1881,85 @@ function generateGrade9DividerProblem() {
         solText.innerHTML = logicHTML;
     }
 }
+
+function generateMonostableProblem(ctx, canvas) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 1. Randomize Components
+    const rVal = (Math.floor(Math.random() * 90) + 10) * 1000; // 10k to 100k
+    const cVal = [10, 22, 47, 100][Math.floor(Math.random() * 4)] * 1e-6; // 10uF to 100uF
+    const delay = 1.1 * rVal * cVal;
+
+    currentAnswers.monoR = rVal;
+    currentAnswers.monoC = cVal;
+    currentAnswers.monoT = delay;
+    currentAnswers.monoQType = Math.floor(Math.random() * 3); // 0: Calc T, 1: Calc C, 2: Calc R
+
+    // 2. Setup Inputs and Labels based on Question Type
+    const g1 = document.getElementById('inputGroupMonostable');
+    const l1 = document.getElementById('labelMono1');
+    const l2 = document.getElementById('labelMono2');
+    const i1 = document.getElementById('inputMono1');
+    const i2 = document.getElementById('inputMono2');
+
+    g1.style.display = 'inline-block';
+
+    let solTextStr = "<strong>Monostable Solution:</strong><br><br>";
+
+    if (currentAnswers.monoQType === 0) {
+        l1.innerText = "Time Delay (s):"; l2.style.display = "none"; i2.style.display = "none";
+        document.getElementById('feedback').innerHTML = "Calculate the Time Delay (T) for this circuit:";
+        solTextStr += `T = 1.1 &times; R &times; C<br>T = 1.1 &times; ${formatResValue(rVal)} &times; ${formatCapValue(cVal)}<br><strong>T = ${delay.toFixed(2)}s</strong>`;
+    } else if (currentAnswers.monoQType === 1) {
+        l1.innerText = "Capacitance (F):"; l2.style.display = "none"; i2.style.display = "none";
+        document.getElementById('feedback').innerHTML = `Calculate the Capacitor (C) required for a ${delay.toFixed(2)}s delay:`;
+        solTextStr += `C = T / (1.1 &times; R)<br>C = ${delay.toFixed(2)} / (1.1 &times; ${formatResValue(rVal)})<br><strong>C = ${formatCapValue(cVal)}</strong>`;
+    } else {
+        l1.innerText = "Resistance (Ω):"; l2.style.display = "none"; i2.style.display = "none";
+        document.getElementById('feedback').innerHTML = `Calculate the Resistor (R) required for a ${delay.toFixed(2)}s delay:`;
+        solTextStr += `R = T / (1.1 &times; C)<br>R = ${delay.toFixed(2)} / (1.1 &times; ${formatCapValue(cVal)})<br><strong>R = ${formatResValue(rVal)}</strong>`;
+    }
+    document.getElementById('solText').innerHTML = solTextStr;
+
+    // 3. Drawing the 555 Monostable Circuit
+    const cx = 300, cy = 200; // Center of IC
+    draw555IC(ctx, cx, cy); // Assuming your existing draw555IC function
+
+    // Connections
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+
+    // VCC and R
+    drawLine(ctx, cx-30, cy-60, cx-30, cy-120); // Pin 8 to VCC rail
+    drawLine(ctx, cx+30, cy-60, cx+30, cy-120); // Pin 4 to VCC rail
+    drawLine(ctx, cx-30, cy-120, 200, 120); 
+    drawResistor(ctx, 200, 150, true); // R1
+    ctx.fillText("R = " + formatResValue(rVal), 130, 155);
+    drawLine(ctx, 200, 180, 200, 240); // Connection to Pin 7/6
+    drawDot(ctx, 200, 210);
+    drawLine(ctx, 200, 210, cx-45, cy-20); // Pin 7
+    drawLine(ctx, 200, 240, cx-45, cy+20); // Pin 6
+
+    // Capacitor C1
+    drawCapacitor(ctx, 200, 270); 
+    ctx.fillText("C = " + formatCapValue(cVal), 130, 275);
+    drawLine(ctx, 200, 300, 200, 340); // Ground rail
+
+    // Output Pin 3
+    drawLine(ctx, cx+45, cy, cx+100, cy);
+    ctx.beginPath(); ctx.arc(cx+105, cy, 5, 0, Math.PI*2); ctx.stroke();
+    ctx.fillText("VOUT", cx+115, cy+5);
+    ctx.font = "10px Arial"; ctx.fillText("OUT", cx+145, cy+10); // Subscript
+
+    // Trigger Pin 2
+    drawLine(ctx, cx-45, cy, cx-80, cy);
+    ctx.fillText("Trigger", cx-125, cy+5);
+}
+
+
+
+
+
+        
      function openDataSheet() {
     const modal = document.getElementById('dataSheetModal');
     if (modal) modal.style.display = 'block';
