@@ -1220,6 +1220,12 @@ function generateProblem() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
+    // --- FIX FOR CANVAS SCALING ---
+    // This forces the canvas internal resolution to match your CSS box size
+    canvas.width = 600;
+    canvas.height = 400;
+    // ------------------------------
+
     // 1. Reset Quiz State for ALL modules
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
@@ -1277,6 +1283,7 @@ function generateProblem() {
     } else if (currentMode === 'resistance') {
         document.getElementById('inputGroupR').style.display = 'inline-block';
         if (grade9ResBtn) grade9ResBtn.style.display = 'inline-block';
+        // Small delay ensures canvas resizing is processed before complex resistance drawing
         setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
     } else if (currentMode === 'oscilloscope') {
         generateOscilloscopeProblem(ctx, canvas);
