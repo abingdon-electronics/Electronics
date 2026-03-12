@@ -656,6 +656,7 @@ function generateProblem() {
     } else if (currentMode === 'astable') {
         generateAstableProblem(ctx, canvas);
     } else if (currentMode === 'colorcode') {
+        // ADDED THIS: Now the resistor draws AFTER the cleanup above
         generateColorCodeProblem(ctx, canvas);
     }
 }
