@@ -1669,17 +1669,7 @@ function generateAstableProblem(ctx, canvas) {
     ctx.strokeRect(260, 120, 140, 140); // 555 Chip
     ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
     ctx.fillText("555", 330, 195);
-
-    const bX = 160;
-    line(bX, 40, bX, 60); drawNode(bX, 40);
-    drawResistorBox(bX, 85, (R1/1000) + " k\u03a9");
-    line(bX, 110, bX, 155); drawNode(bX, 140);
-    drawResistorBox(bX, 180, (R2/1000) + " k\u03a9");
-    line(bX, 205, bX, 285); drawNode(bX, 225);
-    drawCapacitor(bX, 290, C_uF + " \u03bcF", "right");
-    line(bX, 295, bX, 360); drawNode(bX, 360);
-
-    line(bX, 140, 260, 140); // Pin 7
+    
     ctx.font = "14px Arial"; ctx.textAlign = "left"; ctx.fillText("7", 265, 145);
     line(220, 180, 260, 180); ctx.fillText("6", 265, 185); // Pin 6
     line(220, 240, 260, 240); ctx.fillText("2", 265, 245); // Pin 2
@@ -1856,113 +1846,75 @@ function generateMonostableProblem(ctx, canvas) {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
 
-    // 2. MATH LOGIC & RANDOMIZATION (T = 1.1 * R * C)
+    // 2. MATH LOGIC (T = 1.1 * R * C)
     const rVal = (Math.floor(Math.random() * 90) + 10) * 1000; 
     const cVal = [1, 2.2, 4.7, 10, 22, 47, 100][Math.floor(Math.random() * 7)] * 1e-6; 
     const delay = 1.1 * rVal * cVal;
 
-    // Save for checkAnswer()
     currentAnswers.monoR = rVal;
     currentAnswers.monoC = cVal;
     currentAnswers.monoT = delay;
-    currentAnswers.monoQType = Math.floor(Math.random() * 3); // 0: Find T, 1: Find C, 2: Find R
+    currentAnswers.monoQType = Math.floor(Math.random() * 3);
 
     // 3. UI SETUP 
     const feedback = document.getElementById('feedback');
     const label = document.getElementById('labelMono');
-    
-    if (currentAnswers.monoQType === 0) {
-        label.innerText = "Time Delay (T) = ";
-        feedback.innerHTML = "Calculate the <b>Time Delay (T)</b> for this circuit:";
-    } else if (currentAnswers.monoQType === 1) {
-        label.innerText = "Capacitance (C) = ";
-        feedback.innerHTML = `Calculate <b>C</b> for a delay of <b>${delay.toFixed(2)}s</b>:`;
-    } else {
-        label.innerText = "Resistance (R) = ";
-        feedback.innerHTML = `Calculate <b>R</b> for a delay of <b>${delay.toFixed(2)}s</b>:`;
-    }
+    const qTypes = [
+        { lab: "Time Delay (T) = ", feed: "Calculate the <b>Time Delay (T)</b>:" },
+        { lab: "Capacitance (C) = ", feed: `Calculate <b>C</b> for a delay of <b>${delay.toFixed(2)}s</b>:` },
+        { lab: "Resistance (R) = ", feed: `Calculate <b>R</b> for a delay of <b>${delay.toFixed(2)}s</b>:` }
+    ];
+    label.innerText = qTypes[currentAnswers.monoQType].lab;
+    feedback.innerHTML = qTypes[currentAnswers.monoQType].feed;
 
     // 4. SOLUTION BUILDER
     let solHTML = `<div style="text-align:left; padding:15px; background:#f4f4f4; border-left:5px solid #E64097; border-radius:4px;">
         <h4 style="margin:0 0 10px 0; color:#E64097;">Monostable Solution</h4>
         <p>Formula: <b>T = 1.1 &times; R &times; C</b></p><hr style="border:0; border-top:1px solid #ccc;">`;
     
-    if (currentAnswers.monoQType === 0) {
-        solHTML += `<p>T = 1.1 &times; ${rVal} &times; ${cVal.toExponential()}<br><b>T = ${delay.toFixed(3)}s</b></p>`;
-    } else if (currentAnswers.monoQType === 1) {
-        solHTML += `<p>C = T / (1.1 &times; R) = ${delay.toFixed(2)} / (1.1 &times; ${rVal})<br><b>C = ${formatCapValue(cVal)}</b></p>`;
-    } else {
-        solHTML += `<p>R = T / (1.1 &times; C) = ${delay.toFixed(2)} / (1.1 &times; ${cVal.toExponential()})<br><b>R = ${formatResValue(rVal)}</b></p>`;
-    }
+    if (currentAnswers.monoQType === 0) solHTML += `<p>T = 1.1 &times; ${rVal} &times; ${cVal.toExponential()}<br><b>T = ${delay.toFixed(3)}s</b></p>`;
+    else if (currentAnswers.monoQType === 1) solHTML += `<p>C = T / (1.1 &times; R) = ${delay.toFixed(2)} / (1.1 &times; ${rVal})<br><b>C = ${formatCapValue(cVal)}</b></p>`;
+    else solHTML += `<p>R = T / (1.1 &times; C) = ${delay.toFixed(2)} / (1.1 &times; ${cVal.toExponential()})<br><b>R = ${formatResValue(rVal)}</b></p>`;
+    
     solHTML += `</div>`;
     document.getElementById('solText').innerHTML = solHTML;
 
-    // 5. DRAWING CONSTANTS
-    const cx = 300, cy = 200;
-    const netX = 180; 
-    const topRailY = 60;
-    const botRailY = 340;
+    // 5. INTERNAL DRAWING HELPERS (Saves space and prevents naming errors)
+    const mLine = (x1, y1, x2, y2) => { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+    const mDot = (x, y) => { ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fillStyle = '#000'; ctx.fill(); };
 
-    // Draw the 555 IC chip 
-    if (typeof draw555IC === 'function') {
-        draw555IC(ctx, cx, cy);
-    } else {
-        ctx.strokeRect(cx - 45, cy - 60, 90, 120);
-        ctx.font = "bold 16px Arial"; ctx.fillText("555", cx - 15, cy + 5);
-    }
-
-    // Power Rails 
-    drawLine(ctx, 100, topRailY, 500, topRailY); 
-    drawLine(ctx, 100, botRailY, 500, botRailY);
-    ctx.font = "bold 14px Arial";
-    ctx.fillText("VCC", 510, topRailY);
-    ctx.fillText("0V", 510, botRailY);
-
-    // Timing Network (R and C)
-    drawLine(ctx, netX, topRailY, netX, 110); 
-    drawDot(ctx, netX, topRailY); 
+    // 6. DRAWING THE CIRCUIT
+    const cx = 300, cy = 200, netX = 180, topY = 60, botY = 340;
     
+    if (typeof draw555IC === 'function') draw555IC(ctx, cx, cy);
+    else { ctx.strokeRect(cx - 45, cy - 60, 90, 120); ctx.fillText("555", cx - 15, cy + 5); }
+
+    mLine(100, topY, 500, topY); mLine(100, botY, 500, botY);
+    ctx.fillText("VCC", 510, topY); ctx.fillText("0V", 510, botY);
+
+    // Network
+    mLine(netX, topY, netX, 110); mDot(netX, topY);
     if (typeof drawResistor === 'function') drawResistor(ctx, netX, 135);
     ctx.fillText(currentAnswers.monoQType === 2 ? "R = ?" : formatResValue(rVal), netX - 85, 140);
     
-    drawLine(ctx, netX, 160, netX, 200); 
-    drawDot(ctx, netX, 200); 
-    
-    // Connect to Pin 7 and Pin 6 
-    drawLine(ctx, netX, 200, cx - 45, cy - 20); 
-    drawLine(ctx, netX, 200, netX, 220);          
-    drawLine(ctx, netX, 220, cx - 45, cy + 20); 
-    drawDot(ctx, netX, 220);
+    mLine(netX, 160, netX, 200); mDot(netX, 200);
+    mLine(netX, 200, cx - 45, cy - 20); mLine(netX, 200, netX, 220); 
+    mLine(netX, 220, cx - 45, cy + 20); mDot(netX, 220);
 
-    drawLine(ctx, netX, 220, netX, 245);
+    mLine(netX, 220, netX, 245);
     if (typeof drawCapacitor === 'function') drawCapacitor(ctx, netX, 270);
     ctx.fillText(currentAnswers.monoQType === 1 ? "C = ?" : formatCapValue(cVal), netX - 85, 275);
-    
-    drawLine(ctx, netX, 295, netX, botRailY); 
-    drawDot(ctx, netX, botRailY);
+    mLine(netX, 295, netX, botY); mDot(netX, botY);
 
-    // Supply Pins
-    drawLine(ctx, cx - 30, cy - 60, cx - 30, topRailY); // Pin 8 (VCC)
-    drawLine(ctx, cx + 30, cy - 60, cx + 30, topRailY); // Pin 4 (Reset)
-    drawLine(ctx, cx - 30, cy + 60, cx - 30, botRailY); // Pin 1 (GND)
-    drawDot(ctx, cx - 30, topRailY); 
-    drawDot(ctx, cx + 30, topRailY); 
-    drawDot(ctx, cx - 30, botRailY);
+    // Pins
+    mLine(cx - 30, cy - 60, cx - 30, topY); mLine(cx + 30, cy - 60, cx + 30, topY);
+    mLine(cx - 30, cy + 60, cx - 30, botY); mDot(cx - 30, topY); mDot(cx + 30, topY); mDot(cx - 30, botY);
 
-    // Trigger & Output 
-    drawLine(ctx, cx - 45, cy, cx - 100, cy); 
-    ctx.font = "bold 14px Arial";
-    ctx.fillText("Trigger", cx - 155, cy);
-    
-    drawLine(ctx, cx + 45, cy, cx + 120, cy);
-    ctx.beginPath(); 
-    ctx.arc(cx + 125, cy, 5, 0, Math.PI * 2); 
-    ctx.stroke();
-    
-    ctx.font = "bold 16px Arial"; 
-    ctx.fillText("V", cx + 135, cy);
-    ctx.font = "bold 10px Arial"; 
-    ctx.fillText("OUT", cx + 148, cy + 5);
+    // I/O
+    mLine(cx - 45, cy, cx - 100, cy); ctx.fillText("Trigger", cx - 155, cy);
+    mLine(cx + 45, cy, cx + 120, cy);
+    ctx.beginPath(); ctx.arc(cx + 125, cy, 5, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillText("V OUT", cx + 135, cy);
 }
         
      function openDataSheet() {
