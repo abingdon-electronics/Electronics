@@ -1438,12 +1438,18 @@ function checkAnswers() {
         else activeInputs = ['inputMarkSpace'];
     }
 else if (currentMode === 'monostable') {
+    // Get the value from the single input box used in the Monostable UI
+    const userVal = parseInput(document.getElementById('inputMono').value);
+    
     if (currentAnswers.monoQType === 0) {
-        results.push(validateMatch(parseInput(document.getElementById('inputMono1').value), currentAnswers.monoT, 's'));
+        // Question: Calculate Time Delay (T)
+        results.push(validateMatch(userVal, currentAnswers.monoT, 's', 0.05));
     } else if (currentAnswers.monoQType === 1) {
-        results.push(validateMatch(parseInput(document.getElementById('inputMono1').value), currentAnswers.monoC, 'F'));
+        // Question: Calculate Capacitance (C)
+        results.push(validateMatch(userVal, currentAnswers.monoC, 'F', 0.05));
     } else {
-        results.push(validateMatch(parseInput(document.getElementById('inputMono1').value), currentAnswers.monoR, 'Ω'));
+        // Question: Calculate Resistance (R)
+        results.push(validateMatch(userVal, currentAnswers.monoR, 'Ω', 0.05));
     }
 }
     // Check for empty boxes
@@ -1886,62 +1892,72 @@ function generateGrade9DividerProblem() {
 function generateMonostableProblem(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // 1. Randomize Math (T = 1.1 * R * C)
+    // 1. Logic & Math (T = 1.1 * R * C)
     const rVal = (Math.floor(Math.random() * 90) + 10) * 1000; 
     const cVal = [1, 2.2, 4.7, 10, 22, 47, 100][Math.floor(Math.random() * 7)] * 1e-6; 
     const delay = 1.1 * rVal * cVal;
 
+    // Save answers for the checker
     currentAnswers.monoR = rVal;
     currentAnswers.monoC = cVal;
     currentAnswers.monoT = delay;
     currentAnswers.monoQType = Math.floor(Math.random() * 3); // 0: Find T, 1: Find C, 2: Find R
 
-    // 2. Set Labels
+    // 2. Update the UI Text
     const label = document.getElementById('labelMono');
+    const feedback = document.getElementById('feedback');
+    
     if (currentAnswers.monoQType === 0) {
         label.innerText = "Time Delay (T) = ";
-        document.getElementById('feedback').innerHTML = "Calculate the Time Delay (T) for this circuit:";
+        feedback.innerHTML = "Calculate the <b>Time Delay (T)</b> for this circuit:";
     } else if (currentAnswers.monoQType === 1) {
         label.innerText = "Capacitance (C) = ";
-        document.getElementById('feedback').innerHTML = `Calculate C for a ${delay.toFixed(2)}s delay:`;
+        feedback.innerHTML = `Calculate <b>C</b> for a delay of <b>${delay.toFixed(2)}s</b>:`;
     } else {
         label.innerText = "Resistance (R) = ";
-        document.getElementById('feedback').innerHTML = `Calculate R for a ${delay.toFixed(2)}s delay:`;
+        feedback.innerHTML = `Calculate <b>R</b> for a delay of <b>${delay.toFixed(2)}s</b>:`;
     }
 
-    // 3. Solution Text
-    document.getElementById('solText').innerHTML = `
-        <strong>Solution Logic:</strong><br>
-        T = 1.1 × R × C<br>
-        T = 1.1 × ${formatResValue(rVal)} × ${formatCapValue(cVal)}<br>
-        <strong>Result: ${delay.toFixed(3)} seconds</strong>`;
-
-    // 4. Drawing the Monostable Circuit
+    // 3. Drawing the Circuit
     const cx = 300, cy = 200;
-    draw555IC(ctx, cx, cy); 
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.font = "bold 14px Arial";
-
-    // Power Rails
-    drawLine(ctx, 150, 80, 450, 80); ctx.fillText("VCC", 460, 85);
-    drawLine(ctx, 150, 350, 450, 350); // GND
-
-    // R and C placement
-    drawLine(ctx, 200, 80, 200, 110);
-    drawResistor(ctx, 200, 135); 
-    ctx.fillText(currentAnswers.monoQType === 2 ? "R = ?" : formatResValue(rVal), 110, 140);
     
-    drawLine(ctx, 200, 160, 200, 240);
-    drawLine(ctx, 200, 210, cx - 45, cy - 20); // to Pin 7
-    drawLine(ctx, 200, 240, cx - 45, cy + 20); // to Pin 6
+    // Draw the 555 chip (reuse your existing IC drawing function if you have one, or use this)
+    ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
+    ctx.strokeRect(cx - 50, cy - 60, 100, 120);
+    ctx.font = "bold 16px Arial"; ctx.fillText("555", cx - 15, cy + 5);
+    
+    // Pins
+    ctx.font = "12px Arial";
+    ctx.fillText("8", cx + 35, cy - 45); // VCC
+    ctx.fillText("1", cx - 45, cy + 50); // GND
+    ctx.fillText("3", cx + 35, cy + 5);  // OUT
+    ctx.fillText("7", cx - 45, cy - 45); // DIS
+    ctx.fillText("6", cx - 45, cy - 15); // THR
+    ctx.fillText("2", cx - 45, cy + 20); // TRIG
 
-    drawCapacitor(ctx, 200, 270);
-    ctx.fillText(currentAnswers.monoQType === 1 ? "C = ?" : formatCapValue(cVal), 110, 275);
-    drawLine(ctx, 200, 300, 200, 350);
+    // Rails
+    drawLine(ctx, 150, 50, 450, 50); ctx.fillText("VCC", 460, 55);
+    drawLine(ctx, 150, 350, 450, 350); ctx.fillText("0V", 460, 355);
 
-    // Pin 3 Output
-    drawLine(ctx, cx + 45, cy, cx + 120, cy);
-    ctx.font = "bold 16px Arial"; ctx.fillText("V", cx + 130, cy + 5);
-    ctx.font = "bold 10px Arial"; ctx.fillText("OUT", cx + 142, cy + 10);
+    // Monostable Wiring: R and C
+    // Resistor from VCC to Pin 7/6
+    drawLine(ctx, 200, 50, 200, 80);
+    drawResistor(ctx, 200, 105); 
+    ctx.fillText(currentAnswers.monoQType === 2 ? "R = ?" : formatResValue(rVal), 115, 110);
+    drawLine(ctx, 200, 130, 200, 170);
+    
+    // Join 6 and 7
+    drawLine(ctx, 200, 155, cx - 50, cy - 45); // To Pin 7
+    drawLine(ctx, 200, 185, cx - 50, cy - 15); // To Pin 6
+
+    // Capacitor from Pin 6 to GND
+    drawCapacitor(ctx, 200, 220);
+    ctx.fillText(currentAnswers.monoQType === 1 ? "C = ?" : formatCapValue(cVal), 115, 225);
+    drawLine(ctx, 200, 250, 200, 350);
+    
+    // Output
+    drawLine(ctx, cx + 50, cy, cx + 120, cy);
+    ctx.fillText("Vout", cx + 125, cy + 5);
 }
         
      function openDataSheet() {
