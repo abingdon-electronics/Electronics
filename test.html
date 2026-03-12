@@ -1804,7 +1804,7 @@ function generateColorCodeProblem(ctx, canvas) {
     const resistanceValue = (b1 * 10 + b2) * Math.pow(10, b3);
     const toleranceValue = tolColors[tolKey];
 
-    // 2. Update global answers for the 'Check' button
+    // 2. Update global answers
     currentAnswers.resVal = resistanceValue;
     currentAnswers.resTol = toleranceValue;
     currentAnswers.b1 = resColors[b1];
@@ -1817,7 +1817,6 @@ function generateColorCodeProblem(ctx, canvas) {
     ctx.beginPath(); ctx.moveTo(100, 210); ctx.lineTo(500, 210); ctx.stroke(); // Leads
     ctx.fillStyle = '#f4d3a6'; ctx.fillRect(200, 170, 200, 80); ctx.strokeRect(200, 170, 200, 80); // Body
 
-    // 4. Determine Question Type
     const qType = Math.floor(Math.random() * 2);
 
     if (qType === 0) {
@@ -1834,12 +1833,11 @@ function generateColorCodeProblem(ctx, canvas) {
         document.getElementById('inputGroupColorVal').style.display = 'block';
         document.getElementById('feedback').innerHTML = "Identify the Resistance (Ω) and Tolerance (%).";
     } else {
-        // TYPE 1: Show B&W Resistor with Numbers -> Ask for Colors
+        // TYPE 1: B&W Resistor with Numbers. Show prompt ON CANVAS.
         const drawHiddenBand = (x, num) => {
-            ctx.fillStyle = '#ccc'; // B&W / Grey look
+            ctx.fillStyle = '#ccc'; 
             ctx.fillRect(x, 170, 20, 80); ctx.strokeRect(x, 170, 20, 80);
             
-            // Label numbers 1-4 above the bands
             ctx.fillStyle = '#000';
             ctx.font = 'bold 22px Arial';
             ctx.textAlign = 'center';
@@ -1850,13 +1848,23 @@ function generateColorCodeProblem(ctx, canvas) {
         drawHiddenBand(280, "3");
         drawHiddenBand(360, "4");
 
-        document.getElementById('inputGroupColorNames').style.display = 'block';
+        // DRAW PROMPT ON CANVAS
         const formatted = formatResValue(resistanceValue);
-        document.getElementById('feedback').innerHTML = `Identify colors 1-4 for: <b style="font-size:1.2em;">${formatted} ±${toleranceValue}%</b>`;
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Identify colours 1-4 for: ${formatted} ±${toleranceValue}%`, 300, 310);
+
+        document.getElementById('inputGroupColorNames').style.display = 'block';
+        document.getElementById('feedback').innerHTML = "Enter the colour name for each band.";
+        
+        // Update the label for Band 4 to be generic and use UK spelling
+        const band4Label = document.querySelector('#inputGroupColorNames label:last-of-type');
+        if (band4Label) band4Label.innerHTML = 'Band 4 Colour: ';
     }
 }
 
-// Ensure you only have ONE version of this helper function:
+//  helper function:
 function formatResValue(val) {
     if (val >= 1000000) return (val / 1000000) + " MΩ";
     if (val >= 1000) return (val / 1000) + " kΩ";
