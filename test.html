@@ -1882,6 +1882,7 @@ function generateColorCodeProblem(ctx, canvas) {
     const resistanceValue = (b1 * 10 + b2) * Math.pow(10, b3);
     const toleranceValue = tolColors[tolKey];
 
+    // Store answers for grading
     currentAnswers.resVal = resistanceValue;
     currentAnswers.resTol = toleranceValue;
     currentAnswers.b1 = resColors[b1];
@@ -1895,6 +1896,7 @@ function generateColorCodeProblem(ctx, canvas) {
     ctx.fillStyle = '#f4d3a6'; ctx.fillRect(200, 170, 200, 80); ctx.strokeRect(200, 170, 200, 80); 
 
     const qType = Math.floor(Math.random() * 2);
+    let solTextStr = "";
 
     if (qType === 0) {
         // TYPE 0: Visual Resistor -> Student enters Resistance and Tolerance NUMBER
@@ -1909,6 +1911,14 @@ function generateColorCodeProblem(ctx, canvas) {
 
         document.getElementById('inputGroupColorVal').style.display = 'block';
         document.getElementById('feedback').innerHTML = "Identify the Resistance (Ω) and Tolerance (%):";
+
+        // Generate Solution Logic for Help Button
+        solTextStr = "<strong>Solution: " + formatResValue(resistanceValue) + " &plusmn; " + toleranceValue + "%</strong><br><br>";
+        solTextStr += "<em>Logic:</em><br>";
+        solTextStr += "Band 1 (" + resColors[b1].toUpperCase() + ") = " + b1 + "<br>";
+        solTextStr += "Band 2 (" + resColors[b2].toUpperCase() + ") = " + b2 + "<br>";
+        solTextStr += "Band 3 (" + resColors[b3].toUpperCase() + ") = Multiplier 10<sup>" + b3 + "</sup><br>";
+        solTextStr += "Band 4 (" + tolKey.toUpperCase() + ") = &plusmn;" + toleranceValue + "%";
     } else {
         // TYPE 1: B&W Resistor -> Student enters Colour NAMES
         const drawHiddenBand = (x, num) => {
@@ -1932,9 +1942,19 @@ function generateColorCodeProblem(ctx, canvas) {
 
         document.getElementById('inputGroupColorNames').style.display = 'block';
         document.getElementById('feedback').innerHTML = "Enter the colour name for each band:";
-    }
-}
 
+        // Generate Solution Logic for Help Button
+        solTextStr = "<strong>Required Colours:</strong><br><br>";
+        solTextStr += "1. " + resColors[b1].toUpperCase() + " (for digit " + b1 + ")<br>";
+        solTextStr += "2. " + resColors[b2].toUpperCase() + " (for digit " + b2 + ")<br>";
+        solTextStr += "3. " + resColors[b3].toUpperCase() + " (for multiplier 10<sup>" + b3 + "</sup>)<br>";
+        solTextStr += "4. " + tolKey.toUpperCase() + " (for &plusmn;" + toleranceValue + "%)";
+    }
+
+    // Push the solution text to the hidden div
+    const solText = document.getElementById('solText');
+    if (solText) solText.innerHTML = solTextStr;
+}
 
         
 //  helper function:
