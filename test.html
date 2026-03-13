@@ -1214,7 +1214,6 @@ function generateProblem() {
     unitErrorMade = false; 
     
     const helpBtn = document.getElementById('helpBtn');
-    const solutions = document.getElementById('solutions');
     const feedback = document.getElementById('feedback');
     const grade9DividerBtn = document.getElementById('grade9DividerBtn'); 
     const grade9ResistorBtn = document.getElementById('grade9ResistorBtn');
@@ -1576,25 +1575,6 @@ function toggleSolutions() {
                 sol.style.display = 'block'; viewedSolution = true;
             } else { sol.style.display = 'none'; }
         }
-
-
-function toggleSolutions() {
-    const solutions = document.getElementById('solutions');
-    if (solutions.style.display === 'none' || solutions.style.display === '') {
-        solutions.style.display = 'block';
-        viewedSolution = true; // This ensures they don't get a point after seeing the answer
-    } else {
-        solutions.style.display = 'none';
-    }
-}
-
-
-
-
-
-
-
-
 
 
     
