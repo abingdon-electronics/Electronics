@@ -1242,6 +1242,14 @@ function generateAstableProblem(ctx, canvas) {
     // Toggle Input Boxes
     if (qType === 0) {
         document.getElementById('inputGroupAstable').style.display = "inline-block";
+        // --- ADD THE NEW CODE HERE ---
+        document.getElementById('inputAstable').placeholder = "Freq to 1 d.p. (e.g. 10.5 Hz)";
+        document.getElementById('inputAstableT').placeholder = "Period to 1 d.p. (e.g. 20.2 ms)";
+        // ------------------------------
+        
+        
+        
+        
         if (document.getElementById('inputGroupMarkSpace')) {
             document.getElementById('inputGroupMarkSpace').style.display = "none";
         }
@@ -1415,25 +1423,31 @@ function drawMonostable(ctx, R, C, rUnit, cUnit) {
     ctx.stroke();
     ctx.fillText("Vout", chipX + w + 45, chipY + 85);
 }
+   
 function generateMonostableProblem(ctx, canvas) {
     // 1. Setup Variables (Using same style as Astable)
     const R1 = (Math.floor(Math.random() * 9) + 1) * 1000;
     const C_uF = [1, 10, 47, 100][Math.floor(Math.random() * 4)];
     const C_farads = C_uF / 1000000;
 
-    // 2. Calculate Answer: T = 1.1 * R * C
-    const timeDelay_s = 1.1 * R1 * C_farads;
-    
+  // 2. Calculate Answer and ROUND to 1 decimal place
+    const actualTime = 1.1 * R1 * C_farads;
+    const roundedTime = parseFloat(actualTime.toFixed(1)); 
+ 
     // Store for checking
-    currentAnswers.expectedT = timeDelay_s;
+    currentAnswers.expectedT = roundedTime;
+    currentMode = 'monostable';
 
     // 3. UI Setup
     document.getElementById('inputGroupAstable').style.display = "inline-block";
     document.getElementById('labelAstable').innerHTML = "Time Delay (T) = ";
+    // NEW PROMPT: Specifically asking for 1 d.p.
+    document.getElementById('inputAstable').placeholder = "Enter to 1 d.p. (e.g. 1.2s)";
+    
     // Hide the frequency box used in Astable
     document.getElementById('inputAstableT').style.display = "none";
     document.getElementById('labelAstableT').style.display = "none";
-
+ 
     // 4. Drawing Helpers (Local to maintain Astable "Gold Standard" style)
     const line = (x1, y1, x2, y2) => {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
@@ -1456,7 +1470,7 @@ function generateMonostableProblem(ctx, canvas) {
         if (align === "right") ctx.fillText(val, x - 25, y + 5);
         else ctx.fillText(val, x + 25, y + 5);
     };
-
+    
     // 5. Drawing the Circuit
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "#000000"; ctx.lineWidth = 2; ctx.fillStyle = "#000000";
@@ -1509,11 +1523,11 @@ function generateMonostableProblem(ctx, canvas) {
     line(400, 190, 460, 190); ctx.textAlign = "right"; ctx.fillText("3", 395, 195);
     ctx.textAlign = "left"; ctx.fillText("Output", 465, 195);
 
-    // 6. Solution Text
+      // 6. Update Solution Text to match the 1 d.p. requirement
     document.getElementById('solText').innerHTML = 
-        "T = 1.1 &times; R &times; C<br>" +
-        "T = 1.1 &times; " + R1 + " &times; " + C_farads.toExponential(2) + "<br>" +
-        "T = <strong>" + timeDelay_s.toFixed(3) + " s</strong>";
+        "<em>Formula:</em> T = 1.1 &times; R &times; C<br>" +
+        "T = 1.1 &times; " + R1 + " &Omega; &times; " + C_farads.toExponential(2) + " F<br>" +
+        "T = <strong>" + roundedTime + " s</strong> (to 1 d.p.)";
 }
     
 function generateColorCodeProblem(ctx, canvas) {
@@ -1911,11 +1925,16 @@ function checkAnswers() {
             results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrong');
         }
     } 
-    // NEW MONOSTABLE CODE ADDED HERE
+
+
     else if (currentMode === 'monostable') {
-        const userT = parseInput(document.getElementById('inputAstable').value);
-        results.push(validateMatch(userT, currentAnswers.expectedT, 's'));
+    const userT = parseInput(document.getElementById('inputAstable').value);
+    // validateMatch will now compare the user input against our 1 d.p. rounded value
+    results.push(validateMatch(userT, currentAnswers.expectedT, 's'));
     }
+
+
+    
 
     // 4. Final Scoring and Feedback Display
     if (results.every(r => r === 'correct')) {
