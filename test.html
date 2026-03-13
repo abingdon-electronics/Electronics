@@ -1976,9 +1976,18 @@ function drawDot(arg1, arg2, arg3) {
             ctx.closePath();
         }
 
-   window.onload = function() {
-    goHome(); // This ensures the 8 module buttons are shown first
-}; 
+  window.onload = function() {
+    // 1. Show the menu
+    goHome(); 
+    
+    // 2. Pre-verify the canvas exists
+    const canvas = document.getElementById('circuitCanvas');
+    if (canvas) {
+        console.log("System Ready: Canvas detected.");
+    } else {
+        console.error("System Error: Canvas 'circuitCanvas' not found in HTML.");
+    }
+};
 </script>
 
   
