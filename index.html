@@ -335,7 +335,7 @@
 
     <script>
 
- function openModule(module) {
+function openModule(module) {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('menuBasics').style.display = 'none';
     document.getElementById('menuTiming').style.display = 'none';
@@ -344,16 +344,17 @@
 
     if (module === 'basics') {
         document.getElementById('menuBasics').style.display = 'flex';
-        document.getElementById('moduleSubtitle').innerText = '1. Circuit Basics';
+        switchTab('analysis'); 
     } else if (module === 'timing') {
         document.getElementById('menuTiming').style.display = 'flex';
-        document.getElementById('moduleSubtitle').innerText = '3. Timing Circuits';
+        switchTab('oscilloscope');
     } else {
         document.getElementById('menuPlaceholder').style.display = 'flex';
         document.getElementById('moduleSubtitle').innerText = 'Coming Soon';
     }
 }
 
+        
 function goHome() {
     document.getElementById('mainMenu').style.display = 'grid'; // Returns to the 2-column grid
     document.getElementById('menuBasics').style.display = 'none';
@@ -365,51 +366,47 @@ function goHome() {
 
 function switchTab(mode) {
     currentMode = mode;
-    
-    // 1. Show the main layout (canvas, questions, etc.)
+    // Show the main layout (canvas, questions, etc.)
     document.getElementById('contentArea').style.display = 'block';
     
-    // 2. Clear previous highlights and highlight the clicked button
+    // Highlight active tab
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     const activeTab = document.getElementById('tab-' + mode);
     if (activeTab) activeTab.classList.add('active');
 
-    // 3. Hide ALL input groups so we can turn on only the ones we need
+    // Hide ALL input groups (including the new monostable one)
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
-        'inputGroupAstable', 'inputGroupMarkSpace',
-        'inputGroupColorVal', 'inputGroupColorNames' // These two are the new additions
+        'inputGroupAstable', 'inputGroupMonostable', 'inputGroupMarkSpace',
+        'inputGroupColorVal', 'inputGroupColorNames'
     ];
     groups.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
 
-    // 4. Update the subtitle based on the module
+    // Update subtitles properly
     const subtitle = document.getElementById('moduleSubtitle');
-    if (['analysis', 'divider', 'resistance'].includes(mode)) {
-        subtitle.innerText = "Circuit Basics";
-    } else if (['oscilloscope', 'astable'].includes(mode)) {
-        subtitle.innerText = "Timing Circuits";
+    if (['analysis', 'divider', 'resistance', 'colorcode'].includes(mode)) {
+        subtitle.innerText = "1. Circuit Basics";
+    } else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) {
+        subtitle.innerText = "3. Timing Circuits";
     }
 
-    // 5. Reset the quiz state for the new problem
+    // Reset quiz state
     isCurrentProblemSolved = false;
     hasCheckedCurrentProblem = false;
     viewedSolution = false;
     unitErrorMade = false;
     document.getElementById('feedback').innerHTML = '';
     document.getElementById('solutions').style.display = 'none';
-    
-    const helpBtn = document.getElementById('helpBtn');
-    if (helpBtn) helpBtn.style.display = 'none';
+    if (document.getElementById('helpBtn')) document.getElementById('helpBtn').style.display = 'none';
 
-    // 6. DRAW THE CIRCUIT - Note: changed from generateNewProblem to generateProblem
     generateProblem();
 }
-
+       
 // --- GLOBAL VARIABLES ---
 const brandPink = "#E64097";
 const brandBlack = "#000000";
