@@ -393,9 +393,96 @@ let currentAnswers = {
     astableRatio: '' // Added for 555 logic
 };
 
-// ===================================================================================================      
-// FUNCTION 1. NAVIGATION and UI (Traffic Control) 
+// =======================================================================================================
+// FUNCTION 1: DRAWING UTILITIES 
+// =======================================================================================================
 
+    function drawResistor(ctx, x, y) {
+            ctx.beginPath();
+            ctx.rect(x - 12, y - 25, 24, 50); 
+            ctx.fillStyle = "white";
+            ctx.fill();
+            ctx.stroke();
+            ctx.closePath();
+        }
+    //Draws specific components over the standard resistor box
+// (Make sure this is pasted ABOVE generateDividerProblem)
+    function drawComponent(ctx, type, x, y) {
+    drawResistor(ctx, x, y); // Always draw the base resistor rectangle first
+    
+    ctx.strokeStyle = "#000";
+    ctx.fillStyle = "#000";
+    ctx.lineWidth = 2;
+    
+    // Exact center of the resistor
+    let cx = x; 
+    let cy = y;
+
+    if (type === 'variable') {
+        // Extended diagonal line for Variable Resistor
+        ctx.beginPath();
+        ctx.moveTo(cx - 25, cy + 25);
+        ctx.lineTo(cx + 25, cy - 25);
+        ctx.stroke();
+        
+        // Clean, un-filled arrowhead at the top right
+        ctx.beginPath();
+        ctx.moveTo(cx + 25, cy - 25);
+        ctx.lineTo(cx + 15, cy - 25);
+        ctx.moveTo(cx + 25, cy - 25);
+        ctx.lineTo(cx + 25, cy - 15);
+        ctx.stroke();
+        
+    } else if (type === 'thermistor') {
+        // WJEC thermistor line 
+        ctx.beginPath();
+        // Start further out at the bottom right corner to give more space
+        ctx.moveTo(cx + 22, cy + 30);
+        // Go straight up parallel to the side of the resistor
+        ctx.lineTo(cx + 22, cy + 10);
+        // Cut diagonally across to the top left corner
+        ctx.lineTo(cx - 22, cy - 30); 
+        ctx.stroke();
+        
+    } else if (type === 'ldr') {
+        // WJEC LDR: 2 inward arrows
+        ctx.beginPath();
+        ctx.moveTo(cx - 40, cy - 15);
+        ctx.lineTo(cx - 24, cy - 5);
+        ctx.lineTo(cx - 30, cy - 5);
+        ctx.moveTo(cx - 24, cy - 5);
+        ctx.lineTo(cx - 24, cy - 11);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(cx - 40, cy + 5);
+        ctx.lineTo(cx - 24, cy + 15);
+        ctx.lineTo(cx - 30, cy + 15);
+        ctx.moveTo(cx - 24, cy + 15);
+        ctx.lineTo(cx - 24, cy + 9);
+        ctx.stroke();
+    }
+}
+
+function drawLine(ctx, x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+function drawRoundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); ctx.fill(); ctx.stroke();
+        }
+    
+// ===========================================================================================================================      
+// FUNCTION 1. NAVIGATION and UI (Traffic Control) 
+// ===========================================================================================================================      
 function goHome() {
     document.getElementById('mainMenu').style.display = 'grid'; // Returns to the 2-column grid
     document.getElementById('menuBasics').style.display = 'none';
@@ -493,90 +580,10 @@ function closeModal() {
             document.getElementById('submissionModal').style.display = 'none';
         }
 
-// ========================================================================================      
-// FUNCTION 2. MAIN ROUTER
-// ========================================================================================      
-    
-function generateProblem() {
-    const canvas = document.getElementById('circuitCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
 
-    // --- FIX FOR CANVAS SCALING ---
-    // This forces the canvas internal resolution to match your CSS box size
-    canvas.width = 600;
-    canvas.height = 400;
-    // ------------------------------
-
-    // 1. Reset Quiz State for ALL modules
-    hasCheckedCurrentProblem = false;
-    isCurrentProblemSolved = false;
-    viewedSolution = false; 
-    unitErrorMade = false; 
-    
-    const helpBtn = document.getElementById('helpBtn');
-    const feedback = document.getElementById('feedback');
-    const grade9DividerBtn = document.getElementById('grade9DividerBtn'); 
-    const grade9ResistorBtn = document.getElementById('grade9ResistorBtn');
-
-    if (helpBtn) helpBtn.style.display = 'none';
-    if (solutions) solutions.style.display = 'none';
-    if (feedback) feedback.innerHTML = '';
-    
-    // 2. Hide Grade 9 Buttons
-    if (grade9DividerBtn) grade9DividerBtn.style.display = 'none';
-    if (grade9ResistorBtn) grade9ResistorBtn.style.display = 'none';
-
-    // 3. Reset all text inputs (This clears old answers)
-    const inputs = [
-        'inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 
-        'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 
-        'inputAstable', 'inputAstableT', 'inputMarkSpace', 
-        'inputResValue', 'inputResTol', 'inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'
-    ];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-
-    // 4. Hide ALL input groups first (This wipes the "previous page" buttons)
-    const groups = [
-        'inputGroupV', 'inputGroupI', 'inputGroupR', 
-        'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
-        'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 
-        'inputGroupAstable', 'inputGroupMarkSpace', 
-        'inputGroupColorVal', 'inputGroupColorNames'
-    ];
-    groups.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
-
-    // 5. NOW call the specific module logic
-    if (currentMode === 'analysis') {
-        document.getElementById('inputGroupV').style.display = 'inline-block';
-        document.getElementById('inputGroupI').style.display = 'inline-block';
-        generateAnalysisProblem(ctx, canvas);
-    } else if (currentMode === 'divider') {
-        document.getElementById('inputGroupV').style.display = 'inline-block';
-        if (grade9DividerBtn) grade9DividerBtn.style.display = 'inline-block';
-        generateDividerProblem(ctx, canvas);
-    } else if (currentMode === 'resistance') {
-        document.getElementById('inputGroupR').style.display = 'inline-block';
-        if (grade9ResistorBtn) grade9ResistorBtn.style.display = 'inline-block';
-        // Small delay ensures canvas resizing is processed before complex resistance drawing
-        setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
-    } else if (currentMode === 'oscilloscope') {
-        generateOscilloscopeProblem(ctx, canvas);
-    } else if (currentMode === 'astable') {
-        generateAstableProblem(ctx, canvas);
-    } else if (currentMode === 'colorcode') {
-        generateColorCodeProblem(ctx, canvas);
-    }
-}
             
 // =========================================================================================================      
-// FUNCTION 3. PROBLEM GENERATORS (THE CONTENT CREATORS) 
+// FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
 // =========================================================================================================     
 
     function generateResistanceProblem(ctx, canvas) {
@@ -1198,7 +1205,7 @@ function generateAnalysisProblem(ctx, canvas) {
                     "<strong>" + currents[unknownIIndex].html + " = " + currents[unknownIIndex].val + " " + iUnit + "</strong> <br>" +
                     "<em>Logic:</em> " + currents[unknownIIndex].logic;
             }
-        }
+        }   
 
 function generateOscilloscopeProblem(ctx, canvas) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1502,6 +1509,87 @@ function generateColorCodeProblem(ctx, canvas) {
     if (solText) solText.innerHTML = solTextStr;
 }
 
+// ========================================================================================      
+// FUNCTION 3. MAIN ROUTER
+// ========================================================================================      
+    
+function generateProblem() {
+    const canvas = document.getElementById('circuitCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    // --- FIX FOR CANVAS SCALING ---
+    // This forces the canvas internal resolution to match your CSS box size
+    canvas.width = 600;
+    canvas.height = 400;
+    // ------------------------------
+
+    // 1. Reset Quiz State for ALL modules
+    hasCheckedCurrentProblem = false;
+    isCurrentProblemSolved = false;
+    viewedSolution = false; 
+    unitErrorMade = false; 
+    
+    const helpBtn = document.getElementById('helpBtn');
+    const feedback = document.getElementById('feedback');
+    const grade9DividerBtn = document.getElementById('grade9DividerBtn'); 
+    const grade9ResistorBtn = document.getElementById('grade9ResistorBtn');
+
+    if (helpBtn) helpBtn.style.display = 'none';
+    if (solutions) solutions.style.display = 'none';
+    if (feedback) feedback.innerHTML = '';
+    
+    // 2. Hide Grade 9 Buttons
+    if (grade9DividerBtn) grade9DividerBtn.style.display = 'none';
+    if (grade9ResistorBtn) grade9ResistorBtn.style.display = 'none';
+
+    // 3. Reset all text inputs (This clears old answers)
+    const inputs = [
+        'inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 
+        'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 
+        'inputAstable', 'inputAstableT', 'inputMarkSpace', 
+        'inputResValue', 'inputResTol', 'inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'
+    ];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    // 4. Hide ALL input groups first (This wipes the "previous page" buttons)
+    const groups = [
+        'inputGroupV', 'inputGroupI', 'inputGroupR', 
+        'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
+        'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 
+        'inputGroupAstable', 'inputGroupMarkSpace', 
+        'inputGroupColorVal', 'inputGroupColorNames'
+    ];
+    groups.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    // 5. NOW call the specific module logic
+    if (currentMode === 'analysis') {
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        document.getElementById('inputGroupI').style.display = 'inline-block';
+        generateAnalysisProblem(ctx, canvas);
+    } else if (currentMode === 'divider') {
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        if (grade9DividerBtn) grade9DividerBtn.style.display = 'inline-block';
+        generateDividerProblem(ctx, canvas);
+    } else if (currentMode === 'resistance') {
+        document.getElementById('inputGroupR').style.display = 'inline-block';
+        if (grade9ResistorBtn) grade9ResistorBtn.style.display = 'inline-block';
+        // Small delay ensures canvas resizing is processed before complex resistance drawing
+        setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
+    } else if (currentMode === 'oscilloscope') {
+        generateOscilloscopeProblem(ctx, canvas);
+    } else if (currentMode === 'astable') {
+        generateAstableProblem(ctx, canvas);
+    } else if (currentMode === 'colorcode') {
+        generateColorCodeProblem(ctx, canvas);
+    }
+}
 // =======================================================================================================      
 // FUNCTION 4. INPUT PROCESS AND SCORING (THE GRADERS) 
 // =======================================================================================================   
@@ -1793,93 +1881,7 @@ function updateScoreboard() {
             if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
         }
   
-// =======================================================================================================
-// FUNCTION 5: DRAWING UTILITIES 
-//    Draws specific components over the standard resistor box
-// (Make sure this is pasted ABOVE generateDividerProblem)
-// =======================================================================================================
 
-    function drawResistor(ctx, x, y) {
-            ctx.beginPath();
-            ctx.rect(x - 12, y - 25, 24, 50); 
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.stroke();
-            ctx.closePath();
-        }
-    
-    function drawComponent(ctx, type, x, y) {
-    drawResistor(ctx, x, y); // Always draw the base resistor rectangle first
-    
-    ctx.strokeStyle = "#000";
-    ctx.fillStyle = "#000";
-    ctx.lineWidth = 2;
-    
-    // Exact center of the resistor
-    let cx = x; 
-    let cy = y;
-
-    if (type === 'variable') {
-        // Extended diagonal line for Variable Resistor
-        ctx.beginPath();
-        ctx.moveTo(cx - 25, cy + 25);
-        ctx.lineTo(cx + 25, cy - 25);
-        ctx.stroke();
-        
-        // Clean, un-filled arrowhead at the top right
-        ctx.beginPath();
-        ctx.moveTo(cx + 25, cy - 25);
-        ctx.lineTo(cx + 15, cy - 25);
-        ctx.moveTo(cx + 25, cy - 25);
-        ctx.lineTo(cx + 25, cy - 15);
-        ctx.stroke();
-        
-    } else if (type === 'thermistor') {
-        // WJEC thermistor line 
-        ctx.beginPath();
-        // Start further out at the bottom right corner to give more space
-        ctx.moveTo(cx + 22, cy + 30);
-        // Go straight up parallel to the side of the resistor
-        ctx.lineTo(cx + 22, cy + 10);
-        // Cut diagonally across to the top left corner
-        ctx.lineTo(cx - 22, cy - 30); 
-        ctx.stroke();
-        
-    } else if (type === 'ldr') {
-        // WJEC LDR: 2 inward arrows
-        ctx.beginPath();
-        ctx.moveTo(cx - 40, cy - 15);
-        ctx.lineTo(cx - 24, cy - 5);
-        ctx.lineTo(cx - 30, cy - 5);
-        ctx.moveTo(cx - 24, cy - 5);
-        ctx.lineTo(cx - 24, cy - 11);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.moveTo(cx - 40, cy + 5);
-        ctx.lineTo(cx - 24, cy + 15);
-        ctx.lineTo(cx - 30, cy + 15);
-        ctx.moveTo(cx - 24, cy + 15);
-        ctx.lineTo(cx - 24, cy + 9);
-        ctx.stroke();
-    }
-}
-
-function drawLine(ctx, x1, y1, x2, y2) {
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-            ctx.closePath();
-        }
-
-function drawRoundRect(ctx, x, y, width, height, radius) {
-            ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); ctx.fill(); ctx.stroke();
-        }
 
 // ==================================================================================================================
 // FUNCTION 6: SMALL UTILITIES (HELPERS)   
