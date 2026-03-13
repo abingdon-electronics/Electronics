@@ -575,8 +575,9 @@ function generateProblem() {
     }
 }
             
-// ===============================================================================================      
+// =========================================================================================================      
 // FUNCTION 3. PROBLEM GENERATORS (THE CONTENT CREATORS) 
+// =========================================================================================================     
 
     function generateResistanceProblem(ctx, canvas) {
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
@@ -772,9 +773,9 @@ function generateGrade9Resistance() {
     document.getElementById('helpBtn').style.display = 'inline-block';
 }
 
-// ============================================================================
+// =======================================================
 //  Generates the Potential Divider Problem (4-Variables)
-// ============================================================================
+// =======================================================
 function generateDividerProblem(ctx, canvas) {
     // Determine units visually
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
@@ -881,9 +882,9 @@ function generateDividerProblem(ctx, canvas) {
     ctx.strokeStyle = "#000";
     ctx.stroke();
 
-   // =========================================================
+   // ==========================
     // 3. DRAW THE TEXT LABELS
-    // =========================================================
+    // ==========================
     // Determine which label gets the pink highlight
     const colorVout = (targetVar === 0) ? brandPink : brandBlack;
     const colorVin  = (targetVar === 1) ? brandPink : brandBlack;
@@ -952,9 +953,9 @@ function generateDividerProblem(ctx, canvas) {
     }
 }
 
-// ============================================================================
+// ======================================================
 // Grade 9 Parallel Divider Problem (Calculator Required)
-// ============================================================================
+// ======================================================
 function generateGrade9DividerProblem() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
@@ -1501,9 +1502,10 @@ function generateColorCodeProblem(ctx, canvas) {
     if (solText) solText.innerHTML = solTextStr;
 }
 
-// ===============================================================================================      
+// =======================================================================================================      
 // FUNCTION 4. INPUT PROCESS AND SCORING (THE GRADERS) 
-
+// =======================================================================================================   
+    
 function checkAnswers() {
     if (isCurrentProblemSolved) return; 
 
@@ -1645,6 +1647,8 @@ function checkAnswers() {
     }
 
     updateScoreboard();
+
+    
 async function processSubmission() {
             const studentName = document.getElementById('studentNameInput').value.trim();
             const teacherName = document.getElementById('teacherSelect').value;
@@ -1788,7 +1792,6 @@ function updateScoreboard() {
             const scoreDisplay = document.getElementById('scoreDisplay');
             if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
         }
- FUNCTION 4. INPUT PROCESS AND SCORING (THE GRADERS) 
   
 // =======================================================================================================
 // FUNCTION 5: DRAWING UTILITIES 
