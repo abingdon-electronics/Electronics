@@ -368,7 +368,7 @@
 </div>
 
 
-        
+// ============================================================================      
 // SCRIPT STARTS NOW
 <script>
 
@@ -393,6 +393,8 @@ let currentAnswers = {
     astableRatio: '' // Added for 555 logic
 };
 
+// ============================================================================      
+// FUNCTIONS START NOW
 function openModule(module) {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('menuBasics').style.display = 'none';
@@ -412,7 +414,6 @@ function openModule(module) {
     }
 }
 
-        
 function goHome() {
     document.getElementById('mainMenu').style.display = 'grid'; // Returns to the 2-column grid
     document.getElementById('menuBasics').style.display = 'none';
@@ -830,68 +831,12 @@ function generateGrade9Resistance() {
     document.getElementById('helpBtn').style.display = 'inline-block';
 }
         
-// Function to draw specific components over the standard resistor
-function drawComponent(ctx, type, x, y) {
-    drawResistor(ctx, x, y); // Always draw the base resistor rectangle first
-    
-    ctx.strokeStyle = "#000";
-    ctx.fillStyle = "#000";
-    ctx.lineWidth = 2;
-    
-    // Exact center of the resistor
-    let cx = x; 
-    let cy = y;
 
-    if (type === 'variable') {
-        // Extended diagonal line for Variable Resistor
-        ctx.beginPath();
-        ctx.moveTo(cx - 25, cy + 25);
-        ctx.lineTo(cx + 25, cy - 25);
-        ctx.stroke();
-        
-        // Clean, un-filled arrowhead at the top right
-        ctx.beginPath();
-        ctx.moveTo(cx + 25, cy - 25);
-        ctx.lineTo(cx + 15, cy - 25);
-        ctx.moveTo(cx + 25, cy - 25);
-        ctx.lineTo(cx + 25, cy - 15);
-        ctx.stroke();
-        
-    } else if (type === 'thermistor') {
-        // WJEC thermistor line 
-        ctx.beginPath();
-        // Start further out at the bottom right corner to give more space
-        ctx.moveTo(cx + 22, cy + 30);
-        // Go straight up parallel to the side of the resistor
-        ctx.lineTo(cx + 22, cy + 10);
-        // Cut diagonally across to the top left corner
-        ctx.lineTo(cx - 22, cy - 30); 
-        ctx.stroke();
-        
-    } else if (type === 'ldr') {
-        // WJEC LDR: 2 inward arrows
-        ctx.beginPath();
-        ctx.moveTo(cx - 40, cy - 15);
-        ctx.lineTo(cx - 24, cy - 5);
-        ctx.lineTo(cx - 30, cy - 5);
-        ctx.moveTo(cx - 24, cy - 5);
-        ctx.lineTo(cx - 24, cy - 11);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.moveTo(cx - 40, cy + 5);
-        ctx.lineTo(cx - 24, cy + 15);
-        ctx.lineTo(cx - 30, cy + 15);
-        ctx.moveTo(cx - 24, cy + 15);
-        ctx.lineTo(cx - 24, cy + 9);
-        ctx.stroke();
-    }
-}
 
 
         
-        // ============================================================================
-// NEW FUNCTION: Draws dynamic components over the standard resistor box
+// ============================================================================
+// FUNCTION: Draws specific components over the standard resistor box
 // (Make sure this is pasted ABOVE generateDividerProblem)
 // ============================================================================
 function drawComponent(ctx, type, x, y) {
@@ -952,7 +897,7 @@ function drawComponent(ctx, type, x, y) {
 }
 
 // ============================================================================
-// UPDATED FUNCTION: Generates the Potential Divider Problem (4-Variables)
+//  Generates the Potential Divider Problem (4-Variables)
 // ============================================================================
 function generateDividerProblem(ctx, canvas) {
     // Determine units visually
@@ -1631,7 +1576,28 @@ function toggleSolutions() {
                 sol.style.display = 'block'; viewedSolution = true;
             } else { sol.style.display = 'none'; }
         }
-        
+
+
+function toggleSolutions() {
+    const solutions = document.getElementById('solutions');
+    if (solutions.style.display === 'none' || solutions.style.display === '') {
+        solutions.style.display = 'block';
+        viewedSolution = true; // This ensures they don't get a point after seeing the answer
+    } else {
+        solutions.style.display = 'none';
+    }
+}
+
+
+
+
+
+
+
+
+
+
+    
 function generateAstableProblem(ctx, canvas) {
     // 1. Helper for simplifying the Ratio fraction
     const gcd = (a, b) => b ? gcd(b, a % b) : a;
@@ -1757,7 +1723,7 @@ function generateAstableProblem(ctx, canvas) {
 }
 
 // ============================================================================
-// NEW FUNCTION: Grade 9 Parallel Divider Problem (Calculator Required)
+// Grade 9 Parallel Divider Problem (Calculator Required)
 // ============================================================================
 function generateGrade9DividerProblem() {
     const canvas = document.getElementById('circuitCanvas');
@@ -2008,18 +1974,7 @@ function formatResValue(val) {
 }
 
 
-function toggleSolutions() {
-    const solutions = document.getElementById('solutions');
-    if (solutions.style.display === 'none' || solutions.style.display === '') {
-        solutions.style.display = 'block';
-        viewedSolution = true; // This ensures they don't get a point after seeing the answer
-    } else {
-        solutions.style.display = 'none';
-    }
-}
+
 </script>
-
-
-
 </body>
 </html>
