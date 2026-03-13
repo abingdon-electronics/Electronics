@@ -1885,7 +1885,13 @@ function drawRoundRect(ctx, x, y, width, height, radius) {
 // FUNCTION 6: SMALL UTILITIES (HELPERS)   
 // ==================================================================================================================
     
-function provideHint() {
+function formatResValue(val) {
+    if (val >= 1000000) return (val / 1000000) + " MΩ";
+    if (val >= 1000) return (val / 1000) + " kΩ";
+    return val + " Ω";
+}
+    
+    function provideHint() {
     if (isCurrentProblemSolved) return;
     viewedSolution = true;
     const feedback = document.getElementById('feedback');
@@ -1928,8 +1934,6 @@ function provideHint() {
     // Hide the help button after it's clicked
     const helpBtn = document.getElementById('helpBtn');
     if (helpBtn) helpBtn.style.display = 'none';
-}
-    
 }
 
 function toggleSolutions() {
