@@ -283,10 +283,6 @@
         Band 4: <input type="text" id="inputBandTol" placeholder="Colour" style="width: 100px;">
     </div>
 </div>
-
-
-
-
                 
                         <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
                         <div id="feedback" class="feedback"></div>
@@ -381,6 +377,13 @@ const brandPink = "#E64097";
 const brandBlack = "#000000";
 
 let currentMode = 'analysis'; 
+let problemsAttempted = 0;
+let problemsCorrect = 0;
+let hasCheckedCurrentProblem = false; 
+let isCurrentProblemSolved = false;
+let viewedSolution = false; 
+let unitErrorMade = false; 
+
 let currentAnswers = { 
     vNameHTML: '', vValue: 0, vUnit: '', 
     iNameHTML: '', iValue: 0, iUnit: '', 
@@ -389,13 +392,6 @@ let currentAnswers = {
     osc2Value: 0, osc2Unit: '',
     astableRatio: '' // Added for 555 logic
 };
-
-let problemsAttempted = 0;
-let problemsCorrect = 0;
-let hasCheckedCurrentProblem = false; 
-let isCurrentProblemSolved = false;
-let viewedSolution = false; 
-let unitErrorMade = false; 
 
 function openModule(module) {
     document.getElementById('mainMenu').style.display = 'none';
