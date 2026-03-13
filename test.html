@@ -239,8 +239,30 @@
                     <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solution)</button>
                     <button id="dataSheetBtn" class="btn-check" style="background-color: #6c757d; color: white;" onclick="openDataSheet()">📖 Data Sheet</
 
-    <script>
+<script>
+// 1. --- GLOBAL VARIABLES --- 
+    const brandPink = "#E64097";
+    const brandBlack = "#000000";
 
+    let currentMode = 'analysis'; 
+    let currentAnswers = { 
+        vNameHTML: '', vValue: 0, vUnit: '', 
+        iNameHTML: '', iValue: 0, iUnit: '', 
+        rValue: 0, rUnit: '', 
+        osc1Value: 0, osc1Unit: '', 
+        osc2Value: 0, osc2Unit: '',
+        astableRatio: '' 
+    };
+
+    let problemsAttempted = 0;
+    let problemsCorrect = 0;
+    let hasCheckedCurrentProblem = false; 
+    let isCurrentProblemSolved = false;
+    let viewedSolution = false; 
+    let unitErrorMade = false; 
+
+    
+    // 2. --- NAVIGATION FUNCTIONS --- (The ones that make the buttons work)
 function openModule(module) {
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('menuBasics').style.display = 'none';
@@ -259,11 +281,7 @@ function openModule(module) {
         document.getElementById('moduleSubtitle').innerText = 'Coming Soon';
     }
 }
-
-
-
-
-        
+      
 function goHome() {
     document.getElementById('mainMenu').style.display = 'grid'; // Returns to the 2-column grid
     document.getElementById('menuBasics').style.display = 'none';
@@ -318,34 +336,6 @@ function switchTab(mode) {
 }
 
 
-
-
-
-        
-
-
-        
-
-// --- GLOBAL VARIABLES ---
-const brandPink = "#E64097";
-const brandBlack = "#000000";
-
-let currentMode = 'analysis'; 
-let currentAnswers = { 
-    vNameHTML: '', vValue: 0, vUnit: '', 
-    iNameHTML: '', iValue: 0, iUnit: '', 
-    rValue: 0, rUnit: '', 
-    osc1Value: 0, osc1Unit: '', 
-    osc2Value: 0, osc2Unit: '',
-    astableRatio: '' // Added for 555 logic
-};
-
-let problemsAttempted = 0;
-let problemsCorrect = 0;
-let hasCheckedCurrentProblem = false; 
-let isCurrentProblemSolved = false;
-let viewedSolution = false; 
-let unitErrorMade = false; 
 
 function parseInput(str) {
     if (!str) return null;
