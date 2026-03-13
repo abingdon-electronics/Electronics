@@ -456,30 +456,7 @@ function toggleSolutions() {
                 sol.style.display = 'block'; viewedSolution = true;
             } else { sol.style.display = 'none'; }
 
-function parseInput(str) {
-    if (!str) return null;
-    let cleanStr = str.toLowerCase().replace(/\s+/g, '');
-    cleanStr = cleanStr.replace(/\u03a9/g, 'ohms'); 
-    
-    let strippedStr = cleanStr.replace(/[a-z]+$/, '');
-    if (/^\d+\/\d+$/.test(strippedStr)) {
-        let parts = strippedStr.split('/');
-        return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio', isRatioString: true };
-    }
-    
-    const match = cleanStr.match(/^(-?[\d\.]+)([a-z\u03a9]+)$/);
-    if (match) {
-        let val = parseFloat(match[1]);
-        let unit = match[2];
-        
-        // Resistor specific conversion logic
-        if (unit.startsWith('k')) val *= 1000;
-        if (unit.startsWith('m') && !unit.startsWith('ma')) val *= 1000000; // M but not mA
-        
-        return { val: val, unit: unit };
-    }
-    return { val: parseFloat(cleanStr), unit: '' }; 
-}
+
 // =======================================================================================================
 // FUNCTION 1: DRAWING UTILITIES 
 // =======================================================================================================
@@ -1919,7 +1896,30 @@ async function processSubmission() {
                 generateProblem();
             }
         }
-  
+ function parseInput(str) {
+    if (!str) return null;
+    let cleanStr = str.toLowerCase().replace(/\s+/g, '');
+    cleanStr = cleanStr.replace(/\u03a9/g, 'ohms'); 
+    
+    let strippedStr = cleanStr.replace(/[a-z]+$/, '');
+    if (/^\d+\/\d+$/.test(strippedStr)) {
+        let parts = strippedStr.split('/');
+        return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio', isRatioString: true };
+    }
+    
+    const match = cleanStr.match(/^(-?[\d\.]+)([a-z\u03a9]+)$/);
+    if (match) {
+        let val = parseFloat(match[1]);
+        let unit = match[2];
+        
+        // Resistor specific conversion logic
+        if (unit.startsWith('k')) val *= 1000;
+        if (unit.startsWith('m') && !unit.startsWith('ma')) val *= 1000000; // M but not mA
+        
+        return { val: val, unit: unit };
+    }
+    return { val: parseFloat(cleanStr), unit: '' }; 
+} 
 
 
 function validateMatch(parsedInput, expectedVal, expectedUnit) {
