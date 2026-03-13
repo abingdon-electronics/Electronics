@@ -449,13 +449,6 @@ let currentAnswers = {
     if (helpBtn) helpBtn.style.display = 'none';
 }
 
-function toggleSolutions() {
-            const sol = document.getElementById('solutions');
-            if (!sol) return;
-            if (sol.style.display === 'none' || sol.style.display === '') {
-                sol.style.display = 'block'; viewedSolution = true;
-            } else { sol.style.display = 'none'; }
-
 
 // =======================================================================================================
 // FUNCTION 1: DRAWING UTILITIES 
@@ -1946,6 +1939,13 @@ function updateScoreboard() {
             if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
         }
   
+
+function toggleSolutions() {
+            const sol = document.getElementById('solutions');
+            if (!sol) return;
+            if (sol.style.display === 'none' || sol.style.display === '') {
+                sol.style.display = 'block'; viewedSolution = true;
+            } else { sol.style.display = 'none'; }
 
 
 
