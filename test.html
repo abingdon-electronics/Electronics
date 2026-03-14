@@ -1797,11 +1797,11 @@ function checkAnswers() {
     const feedback = document.getElementById('feedback');
     const helpBtn = document.getElementById('helpBtn');
 
-    // 1. Identify which inputs are currently active to check for blanks
+    // 1. Identify which inputs are currently active
     let activeInputs = [];
     if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
     else if (currentMode === 'divider') activeInputs = ['inputV'];
-    else if (currentMode === 'resistance') activeInputs = ['inputR'];
+    else if (currentMode === 'resistance') activeInputs = ['inputR']; // MATCHES YOUR NEW HTML
     else if (currentMode === 'oscilloscope') {
         activeInputs = ['inputOscAmp'];
         if (currentAnswers.oscQType === 1) activeInputs.push('inputOscMark', 'inputOscSpace');
@@ -1819,8 +1819,8 @@ function checkAnswers() {
         if (currentAnswers.astableQType === 0) activeInputs = ['inputAstable', 'inputAstableT'];
         else activeInputs = ['inputMarkSpace'];
     }
-    // ADDED FOR MONOSTABLE
     else if (currentMode === 'monostable') {
+        // Checking inputAstable as per your monostable setup
         activeInputs = ['inputAstable'];
     }
 
@@ -1847,7 +1847,7 @@ function checkAnswers() {
     
     if (currentMode === 'colorcode') {
         const valGroup = document.getElementById('inputGroupColorVal');
-        if (valGroup.style.display !== 'none') {
+        if (valGroup && valGroup.style.display !== 'none') {
             const userRes = parseInput(document.getElementById('inputResValue').value);
             const userTol = parseFloat(document.getElementById('inputResTol').value);
             if (userRes && Math.abs(userRes.val - currentAnswers.resVal) < (currentAnswers.resVal * 0.01)) {
@@ -1855,11 +1855,7 @@ function checkAnswers() {
             } else {
                 results.push('wrong');
             }
-            if (userTol === currentAnswers.resTol) {
-                results.push('correct');
-            } else {
-                results.push('wrong');
-            }
+            results.push(userTol === currentAnswers.resTol ? 'correct' : 'wrong');
         } else {
             const b1 = document.getElementById('inputBand1').value.toLowerCase().trim();
             const b2 = document.getElementById('inputBand2').value.toLowerCase().trim();
@@ -1880,6 +1876,7 @@ function checkAnswers() {
     } else if (currentMode === 'divider') {
         results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, currentAnswers.vUnit));
     } else if (currentMode === 'resistance') {
+        // VALIDATING AGAINST inputR
         results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, currentAnswers.rUnit));
     } else if (currentMode === 'oscilloscope') {
         results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
@@ -1901,16 +1898,10 @@ function checkAnswers() {
             results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrong');
         }
     } 
-
-
     else if (currentMode === 'monostable') {
-    const userT = parseInput(document.getElementById('inputAstable').value);
-    // validateMatch will now compare the user input against our 1 d.p. rounded value
-    results.push(validateMatch(userT, currentAnswers.expectedT, 's'));
+        const userT = parseInput(document.getElementById('inputAstable').value);
+        results.push(validateMatch(userT, currentAnswers.expectedT, 's'));
     }
-
-
-    
 
     // 4. Final Scoring and Feedback Display
     if (results.every(r => r === 'correct')) {
@@ -1928,10 +1919,10 @@ function checkAnswers() {
         if (helpBtn) helpBtn.style.display = 'block';
         if (results.includes('nounit')) {
             unitErrorMade = true;
-            feedback.innerHTML = "<span style='color: #fd7e14;'>Don't forget your units! (Mark lost for this question)</span>";
+            feedback.innerHTML = "<span style='color: #fd7e14;'>Don't forget your units! (Mark lost)</span>";
         } else if (results.includes('wrongunit')) {
             unitErrorMade = true;
-            feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost for this question)</span>";
+            feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost)</span>";
         } else if (results.some(r => r === 'correct')) {
             feedback.innerHTML = "<span style='color: #dc3545;'>One is right, one is wrong. Check logic!</span>";
         } else {
@@ -1940,8 +1931,7 @@ function checkAnswers() {
     }
 
     updateScoreboard();
-} 
-
+}
 
     
 async function processSubmission() {
