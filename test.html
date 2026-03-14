@@ -723,26 +723,28 @@ function generateDividerProblem(ctx, canvas) {
 
     // Set the correct answer for your validation/checking logic
     // UPDATED: Now rounding all possible answers to 1 d.p.
+
     if (targetVar === 0) {
         currentAnswers.vNameHTML = 'V<sub>OUT</sub>';
-        currentAnswers.vValue = parseFloat(Vout_val.toFixed(1));
+        currentAnswers.vValue = parseFloat(Vout_val.toFixed(1)); // Rounded to 1 d.p.
         currentAnswers.vUnit = vUnit;
     } else if (targetVar === 1) {
         currentAnswers.vNameHTML = 'V<sub>supply</sub>';
-        currentAnswers.vValue = parseFloat(Vin_val.toFixed(1));
+        currentAnswers.vValue = parseFloat(Vin_val.toFixed(1)); // Rounded to 1 d.p.
         currentAnswers.vUnit = vUnit;
     } else if (targetVar === 2) {
         currentAnswers.vNameHTML = 'R<sub>1</sub>';
-        currentAnswers.vValue = parseFloat(R1_val.toFixed(1));
+        currentAnswers.vValue = parseFloat(R1_val.toFixed(1)); // Rounded to 1 d.p.
         currentAnswers.vUnit = expectedRUnit; 
     } else if (targetVar === 3) {
         currentAnswers.vNameHTML = 'R<sub>2</sub>';
-        currentAnswers.vValue = parseFloat(R2_val.toFixed(1));
+        currentAnswers.vValue = parseFloat(R2_val.toFixed(1)); // Rounded to 1 d.p.
         currentAnswers.vUnit = expectedRUnit; 
     }
 
     // Update Input Box Label
     document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
+
     
     // Prepare the labels based on what is hidden (the "?")
     let labelR1   = (targetVar === 2) ? "?" : R1_val + " " + rUnitVisual;
@@ -759,7 +761,7 @@ function generateDividerProblem(ctx, canvas) {
             inputBox.placeholder = "Resistance (1 d.p.)"; 
         }
     }
-
+    
     // Random Component Selector Logic
     let compTop, compBottom;
     const combo = Math.floor(Math.random() * 3); 
@@ -798,17 +800,22 @@ function generateDividerProblem(ctx, canvas) {
     ctx.beginPath(); ctx.moveTo(300, 210); ctx.lineTo(380, 210); ctx.stroke();
     ctx.beginPath(); ctx.arc(384, 210, 4, 0, Math.PI * 2); ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
 
+    
     // 3. DRAW THE TEXT LABELS
+    // Determine which label gets the pink highlight
     const colorVout = (targetVar === 0) ? brandPink : brandBlack;
     const colorVin  = (targetVar === 1) ? brandPink : brandBlack;
     const colorR1   = (targetVar === 2) ? brandPink : brandBlack;
     const colorR2   = (targetVar === 3) ? brandPink : brandBlack;
-
+    
     ctx.font = "16px Arial"; 
+    // R1 Label - Pink if it's the target
     ctx.fillStyle = colorR1; ctx.fillText("R\u2081 = " + labelR1, 350, 130);
+    // R2 Label - Pink if it's the target
     ctx.fillStyle = colorR2; ctx.fillText("R\u2082 = " + labelR2, 350, 300);
+    // Supply Label - Pink if it's the target
     ctx.fillStyle = colorVin; ctx.fillText("+Vsupply = " + labelVin, 230, 45); 
-
+    // Vout Label - Pink if it's the target
     ctx.fillStyle = colorVout; ctx.font = "bold 18px Arial"; ctx.fillText("V", 400, 216);
     ctx.font = "bold 11px Arial"; ctx.fillText("OUT", 413, 222);
     ctx.font = "bold 16px Arial"; ctx.fillText("= " + labelVout, 445, 216);
@@ -827,17 +834,17 @@ function generateDividerProblem(ctx, canvas) {
             logicHTML += "<em>Step 2:</em> V<sub>supply</sub> = " + Vout_val.toFixed(1) + " / (" + R2_val + " / " + (R1_val+R2_val) + ") = <strong>" + Vin_val.toFixed(1) + " " + vUnit + "</strong>";
         } else if (targetVar === 2) {
             logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> is " + Vout_val.toFixed(1) + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val.toFixed(1) + ") = " + (Vin_val-Vout_val).toFixed(1) + "V.<br>";
-            logicHTML += "<em>Step 2:</em> Since voltage shares in ratio to resistance: R\u2081 = R\u2082 &times; (V\u2081 / V\u2082)<br>";
+            logicHTML += "<em>Step 2:</em> Since voltage shares in ratio: R\u2081 = R\u2082 &times; (V<sub>R1</sub> / V<sub>R2</sub>)<br>";
             logicHTML += "<em>Step 3:</em> R\u2081 = " + R2_val + " &times; (" + (Vin_val-Vout_val).toFixed(1) + " / " + Vout_val.toFixed(1) + ") = <strong>" + R1_val.toFixed(1) + " " + rUnitVisual + "</strong>";
         } else if (targetVar === 3) {
-            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> (across R\u2082) is " + Vout_val.toFixed(1) + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val.toFixed(1) + ") = " + (Vin_val-Vout_val).toFixed(1) + "V.<br>";
-            logicHTML += "<em>Step 2:</em> Since voltage shares in ratio to resistance: R\u2082 = R\u2081 &times; (V\u2082 / V\u2081)<br>";
+            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> is " + Vout_val.toFixed(1) + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val.toFixed(1) + ") = " + (Vin_val-Vout_val).toFixed(1) + "V.<br>";
+            logicHTML += "<em>Step 2:</em> Since voltage shares in ratio: R\u2082 = R\u2081 &times; (V<sub>R2</sub> / V<sub>R1</sub>)<br>";
             logicHTML += "<em>Step 3:</em> R\u2082 = " + R1_val + " &times; (" + Vout_val.toFixed(1) + " / " + (Vin_val-Vout_val).toFixed(1) + ") = <strong>" + R2_val.toFixed(1) + " " + rUnitVisual + "</strong>";
         }
         solText.innerHTML = logicHTML;
     }
 }
-
+ 
 // ======================================================
 // Grade 9 Parallel Divider Problem (Calculator Required)
 // ======================================================
@@ -1154,6 +1161,7 @@ function generateOscilloscopeProblem(ctx, canvas) {
         const qType = Math.floor(Math.random() * 3) + 1;
         currentAnswers.oscQType = qType; // Save it to check later!
 
+    
         // Always show Amplitude
         document.getElementById('inputGroupOscAmp').style.display = "inline-block";
         let solTextStr = "<strong>Amplitude = " + amplitude + " " + vGainUnit + "</strong><br><em>Logic:</em> Wave height is " + ampDivs + " divs. " + ampDivs + " &times; " + vGain + " = " + amplitude + ".<br><br>";
