@@ -1512,10 +1512,6 @@ function generateMonostableProblem() {
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'monostable';
     
-    // Clear and prepare the specific Monostable input box
-    const inputMono = document.getElementById('inputMonostable');
-    if (inputMono) inputMono.value = "";
-
     // 1. Setup Variables (Math adjusted to ensure T > 1.0s)
     // R between 47k and 220k
     const R1_k = Math.floor(Math.random() * 173) + 47; 
@@ -1529,23 +1525,27 @@ function generateMonostableProblem() {
     const actualTime = 1.1 * R1_ohms * C_farads;
     const roundedTime = parseFloat(actualTime.toFixed(2)); 
  
-    // Store standardized answer for checking logic
+    // Store standardized answer for the 'Check Answer' button logic
     if (typeof currentAnswers === "undefined") currentAnswers = {};
     currentAnswers.expectedT = roundedTime;
     currentAnswers.expectedUnit = 's';
 
-    // 3. UI Setup - Updated to use standard 'questionText' for visibility
+    // 3. UI SETUP
+    // Show the Monostable Input Group
     const monoGroup = document.getElementById('inputGroupMonostable');
     if (monoGroup) monoGroup.style.display = "block";
     
+    // Clear and set placeholder for the specific Monostable input
+    const inputMono = document.getElementById('inputMonostable');
+    if (inputMono) {
+        inputMono.value = "";
+        inputMono.placeholder = "e.g. " + roundedTime;
+    }
+
+    // UPDATE THE QUESTION TEXT (Using the universal ID 'questionText')
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.style.display = "block"; // Force visibility
-        qText.innerHTML = `<strong>Monostable Timer:</strong> Calculate the Time Period (T) for this one-shot circuit.`;
-    }
-    
-    if (inputMono) {
-        inputMono.placeholder = "e.g. " + roundedTime;
+        qText.innerHTML = `<strong>Monostable Timer:</strong> Calculate the Time Period (T) for this one-shot circuit. <br>Give your answer in <strong>seconds (s)</strong>.`;
     }
  
     // 4. Drawing Helpers
