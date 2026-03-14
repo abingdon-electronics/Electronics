@@ -630,7 +630,10 @@ function drawRoundRect(ctx, x, y, width, height, radius) {
     if (solText) {
         solText.innerHTML = logicHTML;
     }
-} // This final brace closes the function
+    if (inputBox) {
+        inputBox.value = ""; // This clears the "Value to 2 d.p." text
+        inputBox.placeholder = "e.g. 10 " + rUnitVisual;      
+} 
 
 
 function generateGrade9Resistance() {
