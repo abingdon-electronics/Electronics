@@ -501,6 +501,7 @@ function drawRoundRect(ctx, x, y, width, height, radius) {
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
 // =========================================================================================================     
 
+    //this function deals with adding resistances in series and parallel
     function generateResistanceProblem(ctx, canvas) {
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
@@ -623,6 +624,15 @@ function drawRoundRect(ctx, x, y, width, height, radius) {
     const solText = document.getElementById('solText');
     if (solText) {
         solText.innerHTML = logicHTML;
+    }
+
+        // Update the label next to the input box
+    document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>Total Resistance</span> = ";
+
+    // Reset the placeholder to integer style
+    const inputBox = document.getElementById('inputV');
+    if (inputBox) {
+        inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
     }
 }
 
