@@ -1987,7 +1987,7 @@ function checkAnswers() {
     let activeInputs = [];
     if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
     else if (currentMode === 'divider') activeInputs = ['inputV'];
-    else if (currentMode === 'resistance') activeInputs = ['inputR']; // MATCHES YOUR NEW HTML
+    else if (currentMode === 'resistance') activeInputs = ['inputR']; 
     else if (currentMode === 'oscilloscope') {
         activeInputs = ['inputOscAmp'];
         if (currentAnswers.oscQType === 1) activeInputs.push('inputOscMark', 'inputOscSpace');
@@ -2006,8 +2006,8 @@ function checkAnswers() {
         else activeInputs = ['inputMarkSpace'];
     }
     else if (currentMode === 'monostable') {
-        // Checking inputAstable as per your monostable setup
-        activeInputs = ['inputAstable'];
+        // Correctly points to the new Monostable input ID
+        activeInputs = ['inputMonostable'];
     }
 
     // Check for empty boxes
@@ -2062,7 +2062,6 @@ function checkAnswers() {
     } else if (currentMode === 'divider') {
         results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, currentAnswers.vUnit));
     } else if (currentMode === 'resistance') {
-        // VALIDATING AGAINST inputR
         results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, currentAnswers.rUnit));
     } else if (currentMode === 'oscilloscope') {
         results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
@@ -2085,8 +2084,9 @@ function checkAnswers() {
         }
     } 
     else if (currentMode === 'monostable') {
-        const userT = parseInput(document.getElementById('inputAstable').value);
-        results.push(validateMatch(userT, currentAnswers.expectedT, 's'));
+        // Uses parseInput to handle potential unit typing (e.g. "1.5s")
+        const userT = parseInput(document.getElementById('inputMonostable').value);
+        results.push(validateMatch(userT, currentAnswers.expectedT, currentAnswers.expectedUnit));
     }
 
     // 4. Final Scoring and Feedback Display
@@ -2118,7 +2118,6 @@ function checkAnswers() {
 
     updateScoreboard();
 }
-
     
 async function processSubmission() {
             const studentName = document.getElementById('studentNameInput').value.trim();
