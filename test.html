@@ -638,6 +638,7 @@ function generateResistanceProblem(ctx, canvas) {
 
     const inputBox = document.getElementById('inputV');
     if (inputBox) {
+        inputBox.value = ""; //FORCE CLEAR AGAIN
         inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
     }
 
