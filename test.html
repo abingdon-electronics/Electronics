@@ -659,8 +659,15 @@ function generateResistanceProblem(ctx, canvas) {
 function generateGrade9Resistance() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
+    
+    // 0. RESET UI & STATE
+    resetAnswerBox(); // Standardizes UI cleanup
+    const inputR = document.getElementById('inputR');
+    if (inputR) inputR.value = '';
+
     // Randomize the unit for the problem
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
+    // Standardize for the checker (lowercase)
     const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -673,16 +680,18 @@ function generateGrade9Resistance() {
     let R2_num = parseFloat(r2);
     let R3_num = parseFloat(r3);
     
+    // Calculate Parallel part (Rp)
     let rp_exact = (R2_num * R3_num) / (R2_num + R3_num);
     let rp_rounded = parseFloat(rp_exact.toFixed(2));
     
+    // Calculate Total (Series R1 + Parallel Rp)
     let total_exact = r1 + rp_exact;
     let rTotal = parseFloat(total_exact.toFixed(2));
 
-    // --- COMPLETE DRAWING (Fixed Coordinates) ---
+    // --- COMPLETE DRAWING ---
     ctx.strokeStyle = brandBlack; ctx.lineWidth = 2;
     
-    // Draw Top and Bottom Supply Rails (To make it look complete)
+    // Top and Bottom Supply Rails
     drawLine(ctx, 150, 40, 450, 40); 
     drawLine(ctx, 150, 360, 450, 360);
     ctx.fillStyle = brandBlack; ctx.font = "bold 16px Arial";
@@ -694,13 +703,13 @@ function generateGrade9Resistance() {
     drawLine(ctx, 300, 130, 300, 170);
     
     // Parallel Section
-    drawLine(ctx, 220, 170, 380, 170); // Top branch wire
+    drawLine(ctx, 220, 170, 380, 170); 
     drawLine(ctx, 220, 170, 220, 210); drawResistor(ctx, 220, 235); // R2
     drawLine(ctx, 380, 170, 380, 210); drawResistor(ctx, 380, 235); // R3
     drawLine(ctx, 220, 260, 220, 320); 
     drawLine(ctx, 380, 260, 380, 320);
-    drawLine(ctx, 220, 320, 380, 320); // Bottom branch wire
-    drawLine(ctx, 300, 320, 300, 360); // Final ground wire
+    drawLine(ctx, 220, 320, 380, 320); 
+    drawLine(ctx, 300, 320, 300, 360); 
 
     // Labels
     ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
@@ -712,23 +721,20 @@ function generateGrade9Resistance() {
     const solText = document.getElementById('solText');
     if (solText) {
         let logicHTML = "<strong>Solution: R<sub>Total</sub> = " + rTotal + " " + rUnitVisual + "</strong><br><br>";
-        logicHTML += "<em>Step 1:</em> Find R<sub>p</sub> using <strong>Product &divide; Sum</strong>.<br>";
+        logicHTML += "<em>Step 1:</em> Find parallel resistance R<sub>p</sub> using <strong>(R\u2082 &times; R\u2083) &divide; (R\u2082 + R\u2083)</strong>.<br>";
         logicHTML += "R<sub>p</sub> = (" + r2 + " &times; " + r3 + ") / (" + r2 + " + " + r3 + ") = <strong>" + rp_rounded + " " + rUnitVisual + "</strong><br><br>";
-        logicHTML += "<em>Step 2:</em> Add series R\u2081.<br>";
+        logicHTML += "<em>Step 2:</em> Add the series resistor R\u2081.<br>";
         logicHTML += "R<sub>Total</sub> = " + r1 + " + " + rp_rounded + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
         solText.innerHTML = logicHTML;
     }
 
-    // --- UI CONSISTENCY ---
+    // --- SAVE ANSWERS FOR VALIDATION ---
     currentAnswers.rValue = rTotal;
-    currentAnswers.rUnit = expectedUnitStr;
+    currentAnswers.rUnit = expectedUnitStr; // Matches 'ohms' or 'kohms' from parseInput
     
-    document.getElementById('inputR').value = '';
-    document.getElementById('feedback').innerHTML = '';
-    document.getElementById('solutions').style.display = 'none';
-    document.getElementById('helpBtn').style.display = 'inline-block';
+    // Placeholder hint
+    if (inputR) inputR.placeholder = "e.g. " + rTotal + " " + rUnitVisual;
 }
-
 // =======================================================
 //  Generates the Potential Divider Problem (4-Variables)
 // =======================================================
@@ -859,68 +865,81 @@ function generateDividerProblem(ctx, canvas) {
 function generateGrade9DividerProblem() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Update Question Text to 1 d.p.
+    // 0. RESET UI & STATE
+    resetAnswerBox(); // Clears feedback/solutions
+    currentMode = 'divider'; 
+    const inputBox = document.getElementById('inputV');
+    if (inputBox) {
+        inputBox.value = ""; // Clear old text
+    }
+
+    // Update Question Text
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.innerHTML = "<strong>🏆 Grade 9 Challenge:</strong> Calculate the output voltage (V<sub>OUT</sub>) for this parallel-series network. <em>(Give your answer to 1 decimal place)</em>";
     }
 
-    // Hide feedback and solutions initially
-    const feedback = document.getElementById('feedback');
-    const solutions = document.getElementById('solutions');
-    if (feedback) feedback.innerHTML = '';
-    if (solutions) solutions.style.display = 'none';
-
+    // Determine units visually
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
 
-    // 1. GENERATE MATH (Now set to 1 d.p.)
+    // Standardize units for the checker (lowercase)
+    const expectedVUnit = vUnit.toLowerCase();
+
+    // 1. GENERATE MATH (1 d.p. logic)
     let R1_val = Math.floor(Math.random() * 20) + 5; 
     let R2_val = Math.floor(Math.random() * 25) + 5; 
     let R3_val = Math.floor(Math.random() * 25) + 5; 
     let Vin_val = Math.floor(Math.random() * 20) + 5; 
 
-    // Calculate precision values to 1 d.p.
+    // Calculate parallel part (Rp)
     let Rp_exact = (R2_val * R3_val) / (R2_val + R3_val);
     let Rp_rounded = parseFloat(Rp_exact.toFixed(1));
 
+    // Calculate Total Resistance (Series R1 + Parallel Rp)
     let Rtotal_exact = R1_val + Rp_exact;
     let Rtotal_rounded = parseFloat(Rtotal_exact.toFixed(1));
 
+    // Calculate Final Vout
     let Vout_exact = Vin_val * (Rp_exact / Rtotal_exact);
     let Vout_val = parseFloat(Vout_exact.toFixed(1)); 
 
-    // Set the correct answer
+    // --- SAVE ANSWERS FOR VALIDATION ---
     currentAnswers.vNameHTML = 'V<sub>OUT</sub>';
     currentAnswers.vValue = Vout_val;
-    currentAnswers.vUnit = vUnit;
+    currentAnswers.vUnit = expectedVUnit; // Now 'v' or 'mv'
 
-    // Update UI Inputs
+    // Update UI Labels
     document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>V<sub>OUT</sub></span> = ";
-    const inputBox = document.getElementById('inputV');
-    
     if (inputBox) {
-        inputBox.value = ""; // Clear any old text
-        inputBox.placeholder = "e.g. 1.2 " + vUnit; // 1 d.p. placeholder as requested
+        inputBox.placeholder = "e.g. 1.2 " + vUnit;
     }
 
-    // --- DRAWING CODE (Remains the same as your original) ---
+    // 2. DRAWING CODE
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = brandBlack; 
     ctx.lineWidth = 2;
+
+    // Rails
     drawLine(ctx, 150, 60, 450, 60);
     drawLine(ctx, 150, 360, 450, 360);
     ctx.fillStyle = brandBlack;
     ctx.font = "bold 16px Arial";
     ctx.fillText("0V (GND)", 260, 390);
+
+    // Main Branch
     drawLine(ctx, 300, 60, 300, 100);
     drawComponent(ctx, 'fixed', 300, 125);
     drawLine(ctx, 300, 150, 300, 210);
+
+    // Junction and Vout tap
     ctx.beginPath(); ctx.arc(300, 210, 4, 0, Math.PI * 2); ctx.fill();
     drawLine(ctx, 300, 210, 410, 210); 
     ctx.beginPath(); ctx.arc(414, 210, 4, 0, Math.PI * 2); 
     ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
+
+    // Parallel Branches
     ctx.fillStyle = brandBlack;
     drawLine(ctx, 300, 210, 300, 240);
     ctx.beginPath(); ctx.arc(300, 240, 4, 0, Math.PI * 2); ctx.fill();
@@ -936,12 +955,16 @@ function generateGrade9DividerProblem() {
     drawLine(ctx, 380, 340, 300, 340);
     ctx.beginPath(); ctx.arc(300, 340, 4, 0, Math.PI * 2); ctx.fill();
     drawLine(ctx, 300, 340, 300, 360);
+
+    // Labels
     ctx.font = "16px Arial"; 
     ctx.fillStyle = brandBlack;
     ctx.fillText("+Vsupply = " + Vin_val + " " + vUnit, 230, 45); 
     ctx.fillText("R\u2081 = " + R1_val + " " + rUnitVisual, 340, 130);
     ctx.fillText("R\u2082 = " + R2_val + " " + rUnitVisual, 130, 300);
     ctx.fillText("R\u2083 = " + R3_val + " " + rUnitVisual, 420, 300);
+
+    // Vout indicator
     ctx.fillStyle = brandPink;
     ctx.font = "bold 18px Arial";
     ctx.fillText("V", 430, 216);
@@ -950,7 +973,7 @@ function generateGrade9DividerProblem() {
     ctx.font = "bold 16px Arial";
     ctx.fillText("= ?", 475, 216);
 
-    // 4. SOLUTION TEXT (Now showing 1 d.p. logic)
+    // 3. SOLUTION TEXT
     const solText = document.getElementById('solText');
     if (solText) {
         let logicHTML = "<strong>🏆 Grade 9 Solution: V<sub>OUT</sub> = " + Vout_val + " " + vUnit + "</strong><br><br>";
