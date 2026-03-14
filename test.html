@@ -1444,30 +1444,43 @@ function drawMonostable(ctx, R, C, rUnit, cUnit) {
 }
    
 function generateMonostableProblem(ctx, canvas) {
-    // 1. Setup Variables (Using same style as Astable)
+    // 0. RESET UI & STATE
+    resetAnswerBox();
+    currentMode = 'monostable';
+    const inputAstable = document.getElementById('inputAstable');
+    if (inputAstable) inputAstable.value = "";
+
+    // 1. Setup Variables
     const R1 = (Math.floor(Math.random() * 9) + 1) * 1000;
     const C_uF = [1, 10, 47, 100][Math.floor(Math.random() * 4)];
     const C_farads = C_uF / 1000000;
 
-  // 2. Calculate Answer and ROUND to 1 decimal place
+    // 2. Calculate Answer and ROUND to 1 decimal place
     const actualTime = 1.1 * R1 * C_farads;
     const roundedTime = parseFloat(actualTime.toFixed(1)); 
  
-    // Store for checking
+    // Store standardized answer for checking
     currentAnswers.expectedT = roundedTime;
-    currentMode = 'monostable';
+    currentAnswers.expectedUnit = 's'; // Standard lowercase 's'
 
     // 3. UI Setup
     document.getElementById('inputGroupAstable').style.display = "inline-block";
     document.getElementById('labelAstable').innerHTML = "Time Delay (T) = ";
-    // NEW PROMPT: Specifically asking for 1 d.p.
-    document.getElementById('inputAstable').placeholder = "Enter to 1 d.p. (e.g. 1.2s)";
     
-    // Hide the frequency box used in Astable
-    document.getElementById('inputAstableT').style.display = "none";
-    document.getElementById('labelAstableT').style.display = "none";
+    if (inputAstable) {
+        inputAstable.placeholder = "e.g. " + roundedTime + " s";
+    }
+    
+    // Ensure secondary input boxes from Astable mode are hidden
+    const inputAstableT = document.getElementById('inputAstableT');
+    const labelAstableT = document.getElementById('labelAstableT');
+    const groupRatio = document.getElementById('inputGroupMarkSpace');
+    
+    if (inputAstableT) inputAstableT.style.display = "none";
+    if (labelAstableT) labelAstableT.style.display = "none";
+    if (groupRatio) groupRatio.style.display = "none";
  
-    // 4. Drawing Helpers (Local to maintain Astable "Gold Standard" style)
+    // 4. Drawing Helpers
     const line = (x1, y1, x2, y2) => {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     };
@@ -1506,19 +1519,19 @@ function generateMonostableProblem(ctx, canvas) {
     ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
     ctx.fillText("555", 330, 195);
 
-    // Left Side Timing Network (Monostable: One R, One C)
+    // Timing Network
     const bX = 160;
-    line(bX, 40, bX, 85); drawNode(bX, 40); // Top to R
+    line(bX, 40, bX, 85); drawNode(bX, 40); 
     drawResistorBox(bX, 110, (R1/1000) + " k\u03a9");
-    line(bX, 135, bX, 285); drawNode(bX, 180); // R to Node to C
+    line(bX, 135, bX, 285); drawNode(bX, 180); 
     drawCapacitor(bX, 290, C_uF + " \u03bcF", "right");
-    line(bX, 295, bX, 360); drawNode(bX, 360); // C to Ground
+    line(bX, 295, bX, 360); drawNode(bX, 360); 
 
-    // Monostable Connections (Pin 6 and 7 joined)
-    line(bX, 180, 220, 180); drawNode(220, 180); // Main tap from R-C junction
-    line(220, 140, 220, 210); // Vertical bridge
-    line(220, 140, 260, 140); // Into Pin 7
-    line(220, 210, 260, 210); // Into Pin 6
+    // Monostable Specific: Pin 6 & 7 tied together
+    line(bX, 180, 220, 180); drawNode(220, 180); 
+    line(220, 140, 220, 210); 
+    line(220, 140, 260, 140); 
+    line(220, 210, 260, 210); 
     
     ctx.font = "14px Arial"; ctx.textAlign = "left";
     ctx.fillText("7", 265, 145);
@@ -1529,7 +1542,7 @@ function generateMonostableProblem(ctx, canvas) {
     ctx.fillText("2", 265, 245);
     ctx.textAlign = "center"; ctx.fillText("Trigger", 130, 235);
 
-    // Standard Power Connections (Pins 4, 8, 1, 5)
+    // Support Pins
     line(330, 40, 330, 80); drawNode(330, 40); drawNode(330, 80); line(300, 80, 360, 80);
     line(300, 80, 300, 120); ctx.fillText("4", 300, 135);
     line(360, 80, 360, 120); ctx.fillText("8", 360, 135);
@@ -1542,11 +1555,11 @@ function generateMonostableProblem(ctx, canvas) {
     line(400, 190, 460, 190); ctx.textAlign = "right"; ctx.fillText("3", 395, 195);
     ctx.textAlign = "left"; ctx.fillText("Output", 465, 195);
 
-      // 6. Update Solution Text to match the 1 d.p. requirement
+    // 6. Update Solution Text
     document.getElementById('solText').innerHTML = 
-        "<em>Formula:</em> T = 1.1 &times; R &times; C<br>" +
+        "<strong>Formula:</strong> T = 1.1 &times; R &times; C<br>" +
         "T = 1.1 &times; " + R1 + " &Omega; &times; " + C_farads.toExponential(2) + " F<br>" +
-        "T = <strong>" + roundedTime + " s</strong> (to 1 d.p.)";
+        "T = <strong>" + roundedTime + " s</strong>";
 }
     
 function generateColorCodeProblem(ctx, canvas) {
