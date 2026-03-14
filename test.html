@@ -195,7 +195,15 @@
             <div class="input-group" id="inputGroupV">
             <label id="labelV" for="inputV">V = </label>
             <input type="text" id="inputV" placeholder="e.g. 10 mV">
-    </div>
+            </div>
+
+            <div class="input-area">
+            <div id="instructionPrompt" style="color: #0d6efd; font-size: 0.9em; margin-bottom: 5px; font-style: italic;"></div>
+            <div class="input-group" id="inputGroupAstable">
+            <label for="inputAstable">f = </label>
+            <input type="text" id="inputAstable">
+            </div>
+            </div>
                         
                         <div class="input-group" id="inputGroupI">
                             <label id="labelI" for="inputI">I = </label>
@@ -1275,17 +1283,83 @@ function generateOscilloscopeProblem(ctx, canvas) {
     if (solText) solText.innerHTML = solTextStr;
 }
 
+
+
+
+function generateAstableProblem() {
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+    const promptEl = document.getElementById('instructionPrompt');
+    
+    // 0. Reset UI
+    if (typeof resetAnswerBox === "function") resetAnswerBox();
+    currentMode = 'astable';
+
+    // 1. Logic for picking question type
+    // 0 = Frequency & Period, 1 = Mark-Space Ratio
+    currentAnswers.astableQType = Math.random() < 0.5 ? 0 : 1;
+
+    if (currentAnswers.astableQType === 0) {
+        // --- FREQUENCY & PERIOD MODE ---
+        if (promptEl) promptEl.innerHTML = "(Give answer to 1 decimal place)";
+        
+        // (Your existing math for R1, R2, C)
+        const R1 = (Math.floor(Math.random() * 9) + 1) * 1000;
+        const R2 = (Math.floor(Math.random() * 9) + 1) * 1000;
+        const C = [0.1, 1, 10][Math.floor(Math.random() * 3)] * 1e-6;
+        
+        const period = 0.693 * (R1 + 2 * R2) * C;
+        const freq = 1 / period;
+
+        currentAnswers.astableValue = parseFloat(freq.toFixed(1));
+        currentAnswers.astableUnit = freq > 1000 ? 'kHz' : 'Hz';
+        currentAnswers.astableTValue = parseFloat((period * 1000).toFixed(1));
+        currentAnswers.astableTUnit = 'ms';
+
+        // Show relevant inputs
+        document.getElementById('inputGroupAstable').style.display = 'block';
+        document.getElementById('inputGroupMarkSpace').style.display = 'none';
+
+    } else {
+        // --- MARK-SPACE RATIO MODE ---
+        if (promptEl) promptEl.innerHTML = "(Give answer as a simplified fraction)";
+        
+        // (Your existing ratio logic)
+        // ... logic that finds simplified fraction ...
+        
+        document.getElementById('inputGroupAstable').style.display = 'none';
+        document.getElementById('inputGroupMarkSpace').style.display = 'block';
+    }
+
+    // 2. Draw the circuit (Existing drawing code)
+    drawAstableCircuit(ctx, R1, R2, C); 
+}
+
+
+
+
+
+
+
+
+
+
+
+    
 function generateAstableProblem(ctx, canvas) {
     // 0. RESET UI & STATE
-    resetAnswerBox();
+    if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'astable';
+    
     const inputAstable = document.getElementById('inputAstable');
     const inputAstableT = document.getElementById('inputAstableT');
     const inputRatio = document.getElementById('inputRatio');
+    const promptEl = document.getElementById('instructionPrompt'); // The new prompt element
     
     if (inputAstable) inputAstable.value = "";
     if (inputAstableT) inputAstableT.value = "";
     if (inputRatio) inputRatio.value = "";
+    if (promptEl) promptEl.innerHTML = "";
 
     // 1. Helper for simplifying the Ratio fraction
     const gcd = (a, b) => b ? gcd(b, a % b) : a;
@@ -1310,8 +1384,13 @@ function generateAstableProblem(ctx, canvas) {
     const qType = Math.floor(Math.random() * 2);
     currentAnswers.astableQType = qType;
 
-    // Toggle Input Boxes
+    // Toggle Input Boxes and Instructions
     if (qType === 0) {
+        if (promptEl) {
+            promptEl.innerHTML = "(Give answer to 1 decimal place)";
+            promptEl.style.color = "#0d6efd"; // Match your fraction prompt blue
+        }
+        
         document.getElementById('inputGroupAstable').style.display = "inline-block";
         if (inputAstable) inputAstable.placeholder = "e.g. " + freq.toFixed(1) + " Hz";
         if (inputAstableT) inputAstableT.placeholder = "e.g. " + period_ms.toFixed(1) + " ms";
@@ -1326,6 +1405,11 @@ function generateAstableProblem(ctx, canvas) {
         currentAnswers.astableTValue = parseFloat(period_ms.toFixed(1)); 
         currentAnswers.astableTUnit = "ms";
     } else {
+        if (promptEl) {
+            promptEl.innerHTML = "(Give answer as a simplified fraction)";
+            promptEl.style.color = "#0d6efd";
+        }
+
         document.getElementById('inputGroupAstable').style.display = "none";
         if (document.getElementById('inputGroupMarkSpace')) {
             document.getElementById('inputGroupMarkSpace').style.display = "inline-block";
@@ -1417,6 +1501,7 @@ function generateAstableProblem(ctx, canvas) {
     }
     document.getElementById('solText').innerHTML = solHTML;
 }
+    
 function drawMonostable(ctx, R, C, rUnit, cUnit) {
     ctx.clearRect(0, 0, 600, 420);
     ctx.strokeStyle = brandBlack;
