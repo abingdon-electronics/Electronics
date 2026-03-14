@@ -1734,42 +1734,64 @@ function switchTab(mode) {
     currentMode = mode;
     
     // 1. Highlight active tab
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    const activeTab = document.getElementById('tab-' + mode);
-    if (activeTab) activeTab.classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('active');
+        // Reset button colors to default pink unless active
+        if (!t.innerText.includes('Home')) {
+             t.style.backgroundColor = ""; 
+        }
+    });
 
-    // 2. Hide ALL input groups safely
+    const activeTab = document.getElementById('tab-' + mode);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+
+    // 2. Define ALL possible input groups
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
-        'inputGroupAstable', 'inputGroupColorVal', 'inputGroupColorNames'
+        'inputGroupAstable', 'inputGroupMonostable', 'inputGroupMarkSpace',
+        'inputGroupColorVal', 'inputGroupColorNames'
     ];
+
+    // 3. Hide all groups safely
     groups.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
 
-    // 3. Update Subtitles
+    // 4. Update the Subtitle
     const subtitle = document.getElementById('moduleSubtitle');
-    if (['analysis', 'divider', 'resistance', 'colorcode'].includes(mode)) {
-        subtitle.innerText = "Module 1: Circuit Basics";
-    } else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) {
-        subtitle.innerText = "Module 3: Timing Circuits";
+    if (subtitle) {
+        if (['analysis', 'divider', 'resistance', 'colorcode'].includes(mode)) {
+            subtitle.innerText = "Module 1: Circuit Basics";
+        } else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) {
+            subtitle.innerText = "Module 3: Timing Circuits";
+        }
     }
 
-    // 4. Clear UI state
+    // 5. Show Grade 9 buttons only for specific modes
+    const g9Div = document.getElementById('grade9DividerBtn');
+    const g9Res = document.getElementById('grade9ResistorBtn');
+    if (g9Div) g9Div.style.display = (mode === 'divider') ? 'inline-block' : 'none';
+    if (g9Res) g9Res.style.display = (mode === 'resistance') ? 'inline-block' : 'none';
+
+    // 6. Reset UI & Generate
     document.getElementById('feedback').innerHTML = '';
     document.getElementById('solutions').style.display = 'none';
-    if (document.getElementById('helpBtn')) document.getElementById('helpBtn').style.display = 'none';
+    const helpBtn = document.getElementById('helpBtn');
+    if (helpBtn) helpBtn.style.display = 'none';
     
-    // Clear all text inputs
+    // Clear inputs
     const inputs = document.querySelectorAll('.input-area input');
     inputs.forEach(i => i.value = '');
 
-    // 5. Generate the new problem
+    // 7. DRAW THE CANVAS (This triggers the oscilloscope logic)
     generateProblem();
 }
+    
 function openDataSheet() {
     const modal = document.getElementById('dataSheetModal');
     if (modal) modal.style.display = 'block';
