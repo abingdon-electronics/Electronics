@@ -405,7 +405,20 @@ let currentAnswers = {
     if (val >= 1000) return (val / 1000) + " kΩ";
     return val + " Ω";
 }   
+   function resetAnswerBox() {
+    const box = document.getElementById('inputV');
+    if (box) {
+        box.value = "";             // Wipes any stuck "2 d.p." text
+        box.defaultValue = "";      // Ensures browser memory is cleared
+        box.placeholder = "";       // Clears the old hint
+    }
+    // Also clear feedback and hide old solutions
+    const feedback = document.getElementById('feedback');
+    if (feedback) feedback.innerHTML = "";
     
+    const solutions = document.getElementById('solutions');
+    if (solutions) solutions.style.display = "none";
+} 
 
 
 // =======================================================================================================
@@ -503,6 +516,7 @@ function drawRoundRect(ctx, x, y, width, height, radius) {
 
 // this function deals with adding resistances in series and parallel
 function generateResistanceProblem(ctx, canvas) {
+    resetAnswerBox();
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
 
@@ -624,13 +638,14 @@ function generateResistanceProblem(ctx, canvas) {
 
     const inputBox = document.getElementById('inputV');
     if (inputBox) {
-        inputBox.value = ""; // Forces old text to disappear
         inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
     }
 
     const solText = document.getElementById('solText');
     if (solText) {
         solText.innerHTML = logicHTML;
+
+    
     }
 }
 
