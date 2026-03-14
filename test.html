@@ -520,6 +520,19 @@ function generateResistanceProblem(ctx, canvas) {
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
 
+    // --- UI CLEANUP ---
+    const inputBox = document.getElementById('inputV');
+    if (inputBox) {
+        inputBox.value = ""; //FORCE CLEAR AGAIN
+        inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
+    }
+    
+    const labelV = document.getElementById('labelV');
+    if (labelV) {
+        labelV.innerHTML = "<span style='color:" + brandPink + "'>Total Resistance</span> = ";
+    }
+
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = brandBlack; 
     ctx.lineWidth = 2; 
@@ -630,23 +643,14 @@ function generateResistanceProblem(ctx, canvas) {
     currentAnswers.rValue = rTotal;
     currentAnswers.rUnit = expectedUnitStr; 
 
-    // --- UI CLEANUP ---
-    const labelV = document.getElementById('labelV');
-    if (labelV) {
-        labelV.innerHTML = "<span style='color:" + brandPink + "'>Total Resistance</span> = ";
-    }
-
-    const inputBox = document.getElementById('inputV');
-    if (inputBox) {
-        inputBox.value = ""; //FORCE CLEAR AGAIN
-        inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
-    }
-
     const solText = document.getElementById('solText');
     if (solText) {
         solText.innerHTML = logicHTML;
 
-    
+    // This ensures that even after all the math is done, the box is 100% reset to an integer style.
+    if (inputBox) {
+        inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
+    }
     }
 }
 
