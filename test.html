@@ -1367,10 +1367,22 @@ function generateOscilloscopeProblem() {
     }
     ctx.stroke();
 
-    // 6. SHOW RELEVANT INPUTS & SET FRACTION PLACEHOLDERS
+// 6. SHOW RELEVANT INPUTS & WRAPPER
+    // This line is the critical fix: it turns the parent container back on
+    const oscWrapper = document.getElementById('oscilloscopeInputs');
+    if (oscWrapper) oscWrapper.style.display = "block";
+
     const qType = Math.floor(Math.random() * 3) + 1;
     currentAnswers.oscQType = qType;
 
+    // Set the main question text
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = "Analyze the oscilloscope trace and calculate the requested values.";
+    }
+
+    // Always show Amplitude
     document.getElementById('inputGroupOscAmp').style.display = "inline-block";
     document.getElementById('inputOscAmp').placeholder = "e.g. " + amplitude + vGainUnit;
 
@@ -1389,7 +1401,6 @@ function generateOscilloscopeProblem() {
         document.getElementById('inputOscFreq').placeholder = "e.g. " + freq_rounded + "Hz";
         solTextStr += "<strong>Period:</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit;
     } else {
-        // Use 'block' so the width:100% and internal spacer function correctly
         document.getElementById('inputGroupOscRatio').style.display = "block";
         document.getElementById('inputOscRatio').placeholder = "e.g. 1/2"; 
         solTextStr += "<strong>M/S Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = <strong>" + currentAnswers.oscRatioValue + "</strong>";
@@ -1398,6 +1409,10 @@ function generateOscilloscopeProblem() {
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = solTextStr;
 }
+
+
+
+
 
     
 function generateAstableProblem() {
