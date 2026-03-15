@@ -1340,10 +1340,8 @@ function generateOscilloscopeProblem() {
     currentAnswers.oscFreqValue = freq_rounded; 
     currentAnswers.oscFreqUnit = 'hz';
     
-    // EXAM BOARD STYLE: Ratio as a fraction (Mark / Space)
-    let ratioValue = parseFloat((markDivs / spaceDivs).toFixed(2));
-    currentAnswers.oscRatioValue = ratioValue;
-    currentAnswers.oscRatioUnit = "ratio"; // This helps validateMatch ignore units
+    // PRESERVE BACKUP STYLE: Ratio as a fraction string (Mark/Space)
+    currentAnswers.oscRatioValue = markDivs + "/" + spaceDivs;
 
     // 5. DRAW SETTINGS & WAVE
     ctx.fillStyle = "#000"; ctx.font = "bold 15px Arial"; ctx.textAlign = "left";
@@ -1366,7 +1364,7 @@ function generateOscilloscopeProblem() {
     }
     ctx.stroke();
 
-    // 6. SHOW RELEVANT INPUTS & SET PLACEHOLDERS
+    // 6. SHOW RELEVANT INPUTS & SET FRACTION PLACEHOLDERS
     const qType = Math.floor(Math.random() * 3) + 1;
     currentAnswers.oscQType = qType;
 
@@ -1389,18 +1387,14 @@ function generateOscilloscopeProblem() {
         solTextStr += "<strong>Period:</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit;
     } else {
         document.getElementById('inputGroupOscRatio').style.display = "inline-block";
-        document.getElementById('inputOscRatio').placeholder = "e.g. " + ratioValue;
-        solTextStr += "<strong>M/S Ratio:</strong> " + markDivs + " divs / " + spaceDivs + " divs = <strong>" + ratioValue + "</strong>";
+        // Show student exactly how to answer as a fraction
+        document.getElementById('inputOscRatio').placeholder = "e.g. 1/2"; 
+        solTextStr += "<strong>M/S Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = <strong>" + currentAnswers.oscRatioValue + "</strong>";
     }
 
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = solTextStr;
 }
-
-    const solElement = document.getElementById('solText');
-    if (solElement) solElement.innerHTML = solTextStr;
-}
-
 
     
 function generateAstableProblem() {
