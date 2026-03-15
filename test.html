@@ -1678,33 +1678,31 @@ function generateMonostableProblem() {
     if (monoGroup) monoGroup.style.display = "inline-block";
     
     const monoLabel = document.getElementById('labelMonostable');
-    const monoUnit = document.getElementById('unitMonostable');
+    const monoUnit = document.getElementById('unitMonostable'); // Target the unit span
     const monoPrompt = document.getElementById('monostableInstruction');
     const inputMono = document.getElementById('inputMonostable');
 
-    if (monoPrompt) {
-        monoPrompt.innerHTML = "(Give answer to 1 d.p.)";
-        // Prompt color and style are already handled by your HTML/CSS
-    }
+    if (monoPrompt) monoPrompt.innerHTML = "(Give answer to 1 d.p.)";
 
     if (inputMono) {
         inputMono.value = "";
-        // Set dynamic label, placeholder, and unit based on qType
-        if (qType === 1) {
+        
+        if (qType === 1) { // Calculating Time
             if (monoLabel) monoLabel.innerHTML = "T = ";
             if (monoUnit) monoUnit.innerHTML = " s";
             inputMono.placeholder = "e.g. 1.2";
-        } else if (qType === 2) {
+        } else if (qType === 2) { // Calculating Resistance
             if (monoLabel) monoLabel.innerHTML = "R = ";
             if (monoUnit) monoUnit.innerHTML = " k\u03a9";
             inputMono.placeholder = "e.g. 47.0";
-        } else if (qType === 3) {
+        } else if (qType === 3) { // Calculating Capacitance
             if (monoLabel) monoLabel.innerHTML = "C = ";
             if (monoUnit) monoUnit.innerHTML = " \u03bcF";
             inputMono.placeholder = "e.g. 10.0";
         }
     }
 
+    
     // 4. DRAWING HELPERS (Modified to allow color changes)
     const line = (x1, y1, x2, y2) => {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
