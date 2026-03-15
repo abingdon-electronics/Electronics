@@ -1276,71 +1276,74 @@ function generateAnalysisProblem(ctx, canvas) {
     }
 }   
             
-function generateOscilloscopeProblem(ctx, canvas) {
-    // 0. RESET UI & STATE
-    resetAnswerBox();
+function generateOscilloscopeProblem() {
+    // 1. SELF-INITIALIZE (The "Canvas Fix")
+    const canvas = document.getElementById('circuitCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    // 2. BEST PRACTICE RESET
+    hideAllInputGroups(); // This replaces all the manual hiding code
+    if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'oscilloscope';
 
-    // Clear all potential oscilloscope inputs
+    // Clear specific values
     ['inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = "";
     });
 
-    // 1. DRAW BACKGROUND & GRID
+    // 3. DRAW BACKGROUND & GRID
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#e0e5e7"; ctx.strokeStyle = "#888"; ctx.lineWidth = 2; 
+    
+    // Helper for round corners
+    const drawRoundRect = (ctx, x, y, w, h, r) => {
+        ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r);
+        ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r);
+        ctx.arcTo(x, y, x+w, y, r); ctx.closePath(); ctx.fill(); ctx.stroke();
+    };
     drawRoundRect(ctx, 20, 20, 400, 320, 25);
     
+    // Grid lines
     ctx.strokeStyle = "#555"; ctx.lineWidth = 1;
     for(let i=0; i<=8; i++) { let y = 20 + i*40; ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(420, y); ctx.stroke(); }
     for(let i=0; i<=10; i++) { let x = 20 + i*40; ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, 340); ctx.stroke(); }
     
+    // Axes
     ctx.strokeStyle = "#222"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(20, 180); ctx.lineTo(420, 180); ctx.stroke(); 
     ctx.beginPath(); ctx.moveTo(220, 20); ctx.lineTo(220, 340); ctx.stroke(); 
-    
-    ctx.lineWidth = 1;
-    for(let i=0; i<=50; i++) { let x = 20 + i*8; ctx.beginPath(); ctx.moveTo(x, 175); ctx.lineTo(x, 185); ctx.stroke(); }
-    for(let i=0; i<=40; i++) { let y = 20 + i*8; ctx.beginPath(); ctx.moveTo(215, y); ctx.lineTo(225, y); ctx.stroke(); }
 
-    // 2. SETUP VARIABLES & MATH
+    // 4. SETUP VARIABLES & MATH
     let vGainUnit = Math.random() < 0.5 ? 'V' : 'mV';
     let tBaseUnit = Math.random() < 0.5 ? 'ms' : 's';
-    
     let ampDivs = Math.floor(Math.random() * 3) + 1; 
     let vGain = [1, 2, 5][Math.floor(Math.random() * 3)];
     let amplitude = ampDivs * vGain;
-
     let markDivs = Math.floor(Math.random() * 4) + 1; 
     let spaceDivs = Math.floor(Math.random() * 4) + 1; 
     let tBase = [1, 2, 5, 10, 20, 50][Math.floor(Math.random() * 6)];
     let periodTime = (markDivs + spaceDivs) * tBase;
-    
     let frequency = (tBaseUnit === 'ms') ? (1000 / periodTime) : (1 / periodTime);
     let freq_rounded = parseFloat(frequency.toFixed(1));
 
-    // 3. SET STANDARDIZED ANSWERS (Lowercase units for checker)
+    // Store answers for checker
     currentAnswers.oscAmpValue = amplitude; 
     currentAnswers.oscAmpUnit = vGainUnit.toLowerCase();
-    
     currentAnswers.oscMarkValue = markDivs * tBase; 
     currentAnswers.oscMarkUnit = tBaseUnit.toLowerCase();
-    
     currentAnswers.oscSpaceValue = spaceDivs * tBase; 
     currentAnswers.oscSpaceUnit = tBaseUnit.toLowerCase();
-    
     currentAnswers.oscPeriodValue = periodTime; 
     currentAnswers.oscPeriodUnit = tBaseUnit.toLowerCase();
-    
     currentAnswers.oscFreqValue = freq_rounded; 
     currentAnswers.oscFreqUnit = 'hz';
-    
     currentAnswers.oscRatioValue = markDivs / spaceDivs; 
     currentAnswers.expectedUnit = 'ratio';
 
-    // 4. DRAW SETTINGS TEXT
-    ctx.fillStyle = brandBlack; ctx.font = "bold 15px Arial";
+    // 5. DRAW SETTINGS & WAVE
+    ctx.fillStyle = "#000"; ctx.font = "bold 15px Arial"; ctx.textAlign = "left";
     ctx.fillText("Settings:", 430, 80);
     ctx.font = "14px Arial";
     ctx.fillText("Time Base:", 430, 110);
@@ -1348,75 +1351,48 @@ function generateOscilloscopeProblem(ctx, canvas) {
     ctx.fillText("Voltage Gain:", 430, 170);
     ctx.fillText(vGain + " " + vGainUnit + " / div", 430, 190);
 
-    // 5. DRAW SQUARE WAVE
-    ctx.strokeStyle = brandBlack; ctx.lineWidth = 3; ctx.lineJoin = "bevel";
-    let path = []; 
+    ctx.strokeStyle = "#000"; ctx.lineWidth = 3;
     let phaseDivs = Math.floor(Math.random() * (markDivs + spaceDivs)); 
+    ctx.beginPath();
     for(let px = 20; px <= 420; px++) {
         let divOffset = (px - 20) / 40;
         let currentCycleTime = (divOffset + phaseDivs) % (markDivs + spaceDivs);
         let y = (currentCycleTime < markDivs) ? 180 - (ampDivs * 40) : 180; 
-        path.push({x: px, y: y});
-    }
-    ctx.beginPath(); ctx.moveTo(path[0].x, path[0].y);
-    for(let i=1; i<path.length; i++) {
-        if(path[i].y !== path[i-1].y) { 
-            ctx.lineTo(path[i].x, path[i-1].y); 
-            ctx.lineTo(path[i].x, path[i].y); 
-        } else { 
-            ctx.lineTo(path[i].x, path[i].y); 
-        }
+        if (px === 20) ctx.moveTo(px, y);
+        else ctx.lineTo(px, y);
     }
     ctx.stroke();
 
-    // 6. TOGGLE INPUT GROUPS & PLACEHOLDERS
+    // 6. SHOW RELEVANT INPUTS
     const qType = Math.floor(Math.random() * 3) + 1;
     currentAnswers.oscQType = qType;
 
-    // Always show and update Amplitude input
     document.getElementById('inputGroupOscAmp').style.display = "inline-block";
-    document.getElementById('inputOscAmp').placeholder = "e.g. " + amplitude + vGainUnit;
+    document.getElementById('inputOscAmp').placeholder = amplitude + vGainUnit;
 
-    let solTextStr = "<strong>Amplitude = " + amplitude + " " + vGainUnit + "</strong><br><em>Logic:</em> Height is " + ampDivs + " divs &times; " + vGain + vGainUnit + "/div.<br><br>";
-
-    // Reset visibility for other groups
-    document.getElementById('inputGroupOscMark').style.display = "none";
-    document.getElementById('inputGroupOscSpace').style.display = "none";
-    document.getElementById('inputGroupOscPeriod').style.display = "none";
-    document.getElementById('inputGroupOscFreq').style.display = "none";
-    document.getElementById('inputGroupOscRatio').style.display = "none";
+    let solTextStr = "<strong>Amplitude = " + amplitude + " " + vGainUnit + "</strong><br>Logic: " + ampDivs + " divs &times; " + vGain + " " + vGainUnit + "/div<br><br>";
 
     if (qType === 1) {
         document.getElementById('inputGroupOscMark').style.display = "inline-block";
         document.getElementById('inputGroupOscSpace').style.display = "inline-block";
-        document.getElementById('inputOscMark').placeholder = "e.g. " + (markDivs * tBase) + tBaseUnit;
-        document.getElementById('inputOscSpace').placeholder = "e.g. " + (spaceDivs * tBase) + tBaseUnit;
-
-        solTextStr += "<strong>Mark Time = " + currentAnswers.oscMarkValue + " " + tBaseUnit + "</strong> (" + markDivs + " divs &times; " + tBase + ")<br>";
-        solTextStr += "<strong>Space Time = " + currentAnswers.oscSpaceValue + " " + tBaseUnit + "</strong> (" + spaceDivs + " divs &times; " + tBase + ")";
+        solTextStr += "<strong>Mark Time:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit;
     } else if (qType === 2) {
         document.getElementById('inputGroupOscPeriod').style.display = "inline-block";
         document.getElementById('inputGroupOscFreq').style.display = "inline-block";
-        document.getElementById('inputOscPeriod').placeholder = "e.g. " + periodTime + tBaseUnit;
-        document.getElementById('inputOscFreq').placeholder = "e.g. " + freq_rounded + " Hz";
-
-        solTextStr += "<strong>Time Period = " + periodTime + " " + tBaseUnit + "</strong> (Mark + Space = " + (markDivs+spaceDivs) + " divs &times; " + tBase + ")<br>";
-        solTextStr += "<strong>Frequency = " + freq_rounded + " Hz</strong> (f = 1/T)";
+        solTextStr += "<strong>Period:</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit;
     } else {
         document.getElementById('inputGroupOscRatio').style.display = "inline-block";
-        document.getElementById('inputOscRatio').placeholder = "e.g. " + markDivs + "/" + spaceDivs;
-        solTextStr += "<strong>Mark-Space ratio = " + markDivs + "/" + spaceDivs + "</strong>";
+        solTextStr += "<strong>Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = " + markDivs + "/" + spaceDivs;
     }
 
-    const solText = document.getElementById('solText');
-    if (solText) solText.innerHTML = solTextStr;
+    const solElement = document.getElementById('solText');
+    if (solElement) solElement.innerHTML = solTextStr;
 }
-
-
 
 
     
 function generateAstableProblem() {
+    hideAllInputGroups();
     // 1. SELF-INITIALIZE CANVAS & CONTEXT
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
@@ -1649,6 +1625,7 @@ function drawMonostable(ctx, R, C, rUnit, cUnit) {
 }
     
 function generateMonostableProblem() {
+    hideAllInputGroups();
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -2524,7 +2501,33 @@ function toggleSolutions() {
         goHome(); // This ensures the 8 module buttons are shown first
         };   
     
+function hideAllInputGroups() {
+    // 1. Define all the possible groups that might be visible
+    const groups = [
+        'inputGroupV', 'inputGroupI', 'inputGroupR', 
+        'inputGroupMonostable', 'inputGroupAstable', 'inputGroupMarkSpace',
+        'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
+        'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
+        'inputGroupColorVal', 'inputGroupColorNames'
+    ];
 
+    // 2. Loop through and hide them
+    groups.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    // 3. Clear the feedback and solutions so they don't carry over
+    const feedback = document.getElementById('feedback');
+    if (feedback) feedback.innerHTML = "";
+    
+    const solutions = document.getElementById('solutions');
+    if (solutions) solutions.style.display = 'none';
+
+    // 4. Ensure the main container is visible
+    const content = document.getElementById('contentArea');
+    if (content) content.style.display = 'block';
+}
 </script>
 </body>
 </html>
