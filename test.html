@@ -1285,17 +1285,12 @@ function generateOscilloscopeProblem() {
     const ctx = canvas.getContext('2d');
 
     // 2. FULL UI RESET
-    // This removes all previous input groups and 'ghost' spacers
     hideAllInputGroups(); 
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'oscilloscope';
 
-    // Ensure the question area is visible
-    const qText = document.getElementById('questionText');
-    if (qText) {
-        qText.style.display = 'block';
-        qText.innerHTML = "Analyze the oscilloscope trace and calculate the values below.";
-    }
+    // REMOVED: The qText.style.display and qText.innerHTML lines that were here.
+    // This ensures the instruction text never appears.
 
     // Clear and reset the specific oscilloscope input fields
     const ids = ['inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
@@ -1374,7 +1369,6 @@ function generateOscilloscopeProblem() {
     ctx.stroke();
 
     // 6. SHOW RELEVANT INPUTS & TURN ON WRAPPER
-    // This is the critical line that ensures the inputs are visible!
     const oscWrapper = document.getElementById('oscilloscopeInputs');
     if (oscWrapper) oscWrapper.style.display = "block";
 
@@ -1408,7 +1402,6 @@ function generateOscilloscopeProblem() {
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = solTextStr;
 }
-
 
 
 
@@ -1454,21 +1447,17 @@ function generateAstableProblem() {
     const common = gcd(num, den);
     const ratioString = (num / common) + "/" + (den / common);
 
-   // 5. Choose Question Type
+    // 5. Choose Question Type
     const qType = Math.floor(Math.random() * 2);
     currentAnswers.astableQType = qType;
 
-    // UPDATE QUESTION TEXT (Ensures student knows what to do)
-    const qText = document.getElementById('questionText');
-    if (qText) {
-        qText.style.display = 'block';
-        qText.innerHTML = "Calculate the timing characteristics for this 555 Astable circuit.";
-    }
+    // --- REMOVED THE QUESTION TEXT LOGIC HERE ---
+    // No more qText.style.display or qText.innerHTML
 
     if (qType === 0) {
         // Show Standard Inputs, explicitly hide Ratio
         document.getElementById('inputGroupAstable').style.display = "inline-block";
-        document.getElementById('inputGroupMarkSpace').style.display = "none"; // Safety hide
+        document.getElementById('inputGroupMarkSpace').style.display = "none";
         
         if (astablePrompt) astablePrompt.innerHTML = "(Give answer to 1 d.p.)";
         if (inputAstable) inputAstable.placeholder = "e.g. " + freq.toFixed(1) + " Hz";
@@ -1481,7 +1470,7 @@ function generateAstableProblem() {
     } else {
         // Show Ratio Input, explicitly hide Standard
         document.getElementById('inputGroupMarkSpace').style.display = "block";
-        document.getElementById('inputGroupAstable').style.display = "none"; // Safety hide
+        document.getElementById('inputGroupAstable').style.display = "none";
         
         if (ratioPrompt) ratioPrompt.innerHTML = "(Give answer as a simplified fraction)";
         if (inputMarkSpace) inputMarkSpace.placeholder = "e.g. 2/1";
@@ -1513,6 +1502,7 @@ function generateAstableProblem() {
     };
 
     // 7. Drawing the Circuit
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "#000000"; ctx.lineWidth = 2; ctx.fillStyle = "#000000";
 
@@ -1652,6 +1642,7 @@ function generateMonostableProblem() {
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'monostable';
     
+    // Clear and hide questionText (No-Text Policy)
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.innerHTML = "";
@@ -1677,20 +1668,7 @@ function generateMonostableProblem() {
     let cLabel = C_uF + " \u03bcF";
     let tLabel = "Pulse Length = " + roundedTime + " s";
 
-    if (qType === 1) {
-        currentAnswers.expectedT = roundedTime;
-        currentAnswers.expectedUnit = 's';
-    } else if (qType === 2) {
-        currentAnswers.expectedT = R1_k;
-        currentAnswers.expectedUnit = 'k';
-        rLabel = "R = ?";
-    } else {
-        currentAnswers.expectedT = C_uF;
-        currentAnswers.expectedUnit = 'uf';
-        cLabel = "C = ?";
-    }
-
-// 3. UI SETUP (UNITS INSIDE THE BOX)
+    // 3. UI SETUP (UNITS INSIDE THE BOX)
     const monoGroup = document.getElementById('inputGroupMonostable');
     if (monoGroup) monoGroup.style.display = "inline-block";
     
@@ -1702,24 +1680,27 @@ function generateMonostableProblem() {
 
     if (inputMono) {
         inputMono.value = "";
-        
-        // Match the placeholder style of your Basics pages
         if (qType === 1) { // Calculating Time
             if (monoLabel) monoLabel.innerHTML = "T = ";
             inputMono.placeholder = "e.g. " + roundedTime.toFixed(1) + " s";
+            currentAnswers.expectedT = roundedTime;
             currentAnswers.expectedUnit = "s";
         } else if (qType === 2) { // Calculating Resistance
             if (monoLabel) monoLabel.innerHTML = "R = ";
             inputMono.placeholder = "e.g. " + R1_k.toFixed(1) + " k\u03a9";
+            currentAnswers.expectedT = R1_k;
             currentAnswers.expectedUnit = "k";
+            rLabel = "R = ?";
         } else if (qType === 3) { // Calculating Capacitance
             if (monoLabel) monoLabel.innerHTML = "C = ";
             inputMono.placeholder = "e.g. " + C_uF.toFixed(1) + " \u03bcF";
+            currentAnswers.expectedT = C_uF;
             currentAnswers.expectedUnit = "uf";
+            cLabel = "C = ?";
         }
     }
     
-    // 4. DRAWING HELPERS (Modified to allow color changes)
+    // 4. DRAWING HELPERS
     const line = (x1, y1, x2, y2) => {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     };
@@ -1731,10 +1712,10 @@ function generateMonostableProblem() {
         ctx.fillStyle = "white";
         ctx.fillRect(x - 12, y - 25, 24, 50);
         ctx.strokeRect(x - 12, y - 25, 24, 50);
-        ctx.fillStyle = oldColor; // Use the color set before calling helper
+        ctx.fillStyle = oldColor; 
         ctx.font = "14px Arial"; ctx.textAlign = "right";
         ctx.fillText(val, x - 20, y + 5);
-        ctx.fillStyle = "#000000"; // Reset to black
+        ctx.fillStyle = "#000000"; 
     };
     const drawCapacitor = (x, y, val, align="right") => {
         line(x - 15, y - 5, x + 15, y - 5);
@@ -1764,19 +1745,17 @@ function generateMonostableProblem() {
     const bX = 160;
     line(bX, 40, bX, 85); drawNode(bX, 40); 
     
-    // PINK LOGIC FOR R
     if (qType === 2) ctx.fillStyle = "#ff00ff"; 
     else ctx.fillStyle = "#000000";
     drawResistorBox(bX, 110, rLabel);
-    ctx.fillStyle = "#000000"; // Reset
+    ctx.fillStyle = "#000000"; 
 
     line(bX, 135, bX, 285); drawNode(bX, 180); 
     
-    // PINK LOGIC FOR C
     if (qType === 3) ctx.fillStyle = "#ff00ff"; 
     else ctx.fillStyle = "#000000";
     drawCapacitor(bX, 290, cLabel, "right");
-    ctx.fillStyle = "#000000"; // Reset
+    ctx.fillStyle = "#000000"; 
 
     line(bX, 295, bX, 360); drawNode(bX, 360); 
 
@@ -2082,8 +2061,9 @@ function generateProblem() {
     canvas.width = 600;
     canvas.height = 420;
 
-    // 2. Reset States & Cleanup UI
-    // This one line replaces Sections 2, 3, and 4 of your long version
+    // 2. Full UI Reset
+    // This clears all input groups, hides the solution box, 
+    // and hides the questionText container completely.
     hideAllInputGroups(); 
     
     hasCheckedCurrentProblem = false;
@@ -2091,14 +2071,11 @@ function generateProblem() {
     viewedSolution = false; 
     unitErrorMade = false; 
 
-    // 3. Prepare Question Area
+    // 3. Clear the question text content just in case
     const qText = document.getElementById('questionText');
-    if (qText) {
-        qText.innerHTML = ''; 
-        qText.style.display = 'block'; 
-    }
+    if (qText) qText.innerHTML = '';
 
-    // 4. ROUTER: Turn on ONLY what is needed for the current mode
+    // 4. ROUTER: Open module inputs silently (No text instructions)
     if (currentMode === 'analysis') {
         document.getElementById('inputGroupV').style.display = 'inline-block';
         document.getElementById('inputGroupI').style.display = 'inline-block';
@@ -2117,11 +2094,13 @@ function generateProblem() {
         setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
 
     } else if (currentMode === 'oscilloscope') {
-        // Generator now handles its own wrapper ('oscilloscopeInputs')
+        // Show the wrapper so the oscilloscope inputs appear, but no text
+        const oscWrapper = document.getElementById('oscilloscopeInputs');
+        if (oscWrapper) oscWrapper.style.display = 'block';
         generateOscilloscopeProblem(ctx, canvas);
 
     } else if (currentMode === 'astable') {
-        // Generator chooses between Freq or Ratio box
+        // Astable generator handles its own specific inputs
         generateAstableProblem(ctx, canvas);
 
     } else if (currentMode === 'monostable') {
@@ -2543,7 +2522,7 @@ function hideAllInputGroups() {
         'inputGroupColorVal', 'inputGroupColorNames'
     ];
 
-    // 2. Hide all groups
+    // 2. Hide all input groups
     groups.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
@@ -2554,27 +2533,27 @@ function hideAllInputGroups() {
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "";
 
-    // Hide the solution box and clear its inner text
+    // Hide and wipe the solution box
     const solutions = document.getElementById('solutions');
     const solText = document.getElementById('solText');
     if (solutions) solutions.style.display = 'none';
     if (solText) solText.innerHTML = "";
 
-    // Hide the question text container until the next generator fills it
+    // --- CRITICAL CHANGE: PERMANENTLY HIDE & EMPTY THE QUESTION TEXT ---
     const qText = document.getElementById('questionText');
-    if (qText) qText.style.display = 'none';
+    if (qText) {
+        qText.innerHTML = "";      // Remove any lingering text
+        qText.style.display = 'none'; // Remove from the layout
+    }
 
-    // Clear dynamic instruction prompts (like "1 d.p." or fraction hints)
+    // Clear instruction prompts and standard hints
     const promptEl = document.getElementById('instructionPrompt');
     if (promptEl) promptEl.innerHTML = '';
     
-    // Specifically clear Astable/Ratio sub-prompts if they exist
     const astablePrompt = document.getElementById('astableInstruction');
     const ratioPrompt = document.getElementById('ratioInstruction');
     if (astablePrompt) astablePrompt.innerHTML = "";
     if (ratioPrompt) ratioPrompt.innerHTML = "";
-
-    // Note: contentArea visibility is handled by goHome() or openModule()
 }
 
 // This is the "Master Switch" that cleans the page when it first opens
