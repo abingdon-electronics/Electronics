@@ -1279,17 +1279,25 @@ function generateAnalysisProblem(ctx, canvas) {
 }   
             
 function generateOscilloscopeProblem() {
-    // 1. SELF-INITIALIZE
+    // 1. SELF-INITIALIZE CANVAS
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // 2. BEST PRACTICE RESET
+    // 2. FULL UI RESET
+    // This removes all previous input groups and 'ghost' spacers
     hideAllInputGroups(); 
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'oscilloscope';
 
-    // Clear values and set default placeholders
+    // Ensure the question area is visible
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = "Analyze the oscilloscope trace and calculate the values below.";
+    }
+
+    // Clear and reset the specific oscilloscope input fields
     const ids = ['inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
     ids.forEach(id => {
         const el = document.getElementById(id);
@@ -1299,7 +1307,7 @@ function generateOscilloscopeProblem() {
         }
     });
 
-    // 3. DRAW BACKGROUND & GRID
+    // 3. DRAW BACKGROUND & GRID (OSCILLOSCOPE SCREEN)
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#e0e5e7"; ctx.strokeStyle = "#888"; ctx.lineWidth = 2; 
     
@@ -1331,7 +1339,7 @@ function generateOscilloscopeProblem() {
     let frequency = (tBaseUnit === 'ms') ? (1000 / periodTime) : (1 / periodTime);
     let freq_rounded = parseFloat(frequency.toFixed(1));
 
-    // Store answers
+    // Store answers for the checker
     currentAnswers.oscAmpValue = amplitude; 
     currentAnswers.oscAmpUnit = vGainUnit.toLowerCase();
     currentAnswers.oscMarkValue = markDivs * tBase; 
@@ -1342,11 +1350,9 @@ function generateOscilloscopeProblem() {
     currentAnswers.oscPeriodUnit = tBaseUnit.toLowerCase();
     currentAnswers.oscFreqValue = freq_rounded; 
     currentAnswers.oscFreqUnit = 'hz';
-    
-    // PRESERVE BACKUP STYLE: Ratio as a fraction string (Mark/Space)
     currentAnswers.oscRatioValue = markDivs + "/" + spaceDivs;
 
-    // 5. DRAW SETTINGS & WAVE
+    // 5. DRAW SETTINGS & WAVEFORM
     ctx.fillStyle = "#000"; ctx.font = "bold 15px Arial"; ctx.textAlign = "left";
     ctx.fillText("Settings:", 430, 80);
     ctx.font = "14px Arial";
@@ -1367,22 +1373,15 @@ function generateOscilloscopeProblem() {
     }
     ctx.stroke();
 
-// 6. SHOW RELEVANT INPUTS & WRAPPER
-    // This line is the critical fix: it turns the parent container back on
+    // 6. SHOW RELEVANT INPUTS & TURN ON WRAPPER
+    // This is the critical line that ensures the inputs are visible!
     const oscWrapper = document.getElementById('oscilloscopeInputs');
     if (oscWrapper) oscWrapper.style.display = "block";
 
     const qType = Math.floor(Math.random() * 3) + 1;
     currentAnswers.oscQType = qType;
 
-    // Set the main question text
-    const qText = document.getElementById('questionText');
-    if (qText) {
-        qText.style.display = 'block';
-        qText.innerHTML = "Analyze the oscilloscope trace and calculate the requested values.";
-    }
-
-    // Always show Amplitude
+    // Always show Amplitude input
     document.getElementById('inputGroupOscAmp').style.display = "inline-block";
     document.getElementById('inputOscAmp').placeholder = "e.g. " + amplitude + vGainUnit;
 
@@ -1391,14 +1390,14 @@ function generateOscilloscopeProblem() {
     if (qType === 1) {
         document.getElementById('inputGroupOscMark').style.display = "inline-block";
         document.getElementById('inputGroupOscSpace').style.display = "inline-block";
-        document.getElementById('inputOscMark').placeholder = "e.g. " + (markDivs * tBase) + tBaseUnit;
-        document.getElementById('inputOscSpace').placeholder = "e.g. " + (spaceDivs * tBase) + tBaseUnit;
+        document.getElementById('inputOscMark').placeholder = (markDivs * tBase) + tBaseUnit;
+        document.getElementById('inputOscSpace').placeholder = (spaceDivs * tBase) + tBaseUnit;
         solTextStr += "<strong>Mark:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit;
     } else if (qType === 2) {
         document.getElementById('inputGroupOscPeriod').style.display = "inline-block";
         document.getElementById('inputGroupOscFreq').style.display = "inline-block";
-        document.getElementById('inputOscPeriod').placeholder = "e.g. " + periodTime + tBaseUnit;
-        document.getElementById('inputOscFreq').placeholder = "e.g. " + freq_rounded + "Hz";
+        document.getElementById('inputOscPeriod').placeholder = periodTime + tBaseUnit;
+        document.getElementById('inputOscFreq').placeholder = freq_rounded + "Hz";
         solTextStr += "<strong>Period:</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit;
     } else {
         document.getElementById('inputGroupOscRatio').style.display = "block";
@@ -1409,7 +1408,6 @@ function generateOscilloscopeProblem() {
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = solTextStr;
 }
-
 
 
 
@@ -1456,13 +1454,22 @@ function generateAstableProblem() {
     const common = gcd(num, den);
     const ratioString = (num / common) + "/" + (den / common);
 
-    // 5. Choose Question Type
+   // 5. Choose Question Type
     const qType = Math.floor(Math.random() * 2);
     currentAnswers.astableQType = qType;
 
+    // UPDATE QUESTION TEXT (Ensures student knows what to do)
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = "Calculate the timing characteristics for this 555 Astable circuit.";
+    }
+
     if (qType === 0) {
-        // Show Standard Inputs
+        // Show Standard Inputs, explicitly hide Ratio
         document.getElementById('inputGroupAstable').style.display = "inline-block";
+        document.getElementById('inputGroupMarkSpace').style.display = "none"; // Safety hide
+        
         if (astablePrompt) astablePrompt.innerHTML = "(Give answer to 1 d.p.)";
         if (inputAstable) inputAstable.placeholder = "e.g. " + freq.toFixed(1) + " Hz";
         if (inputAstableT) inputAstableT.placeholder = "e.g. " + period_ms.toFixed(1) + " ms";
@@ -1472,8 +1479,10 @@ function generateAstableProblem() {
         currentAnswers.astableTValue = parseFloat(period_ms.toFixed(1)); 
         currentAnswers.astableTUnit = "ms";
     } else {
-        // Show Ratio Input - Using 'block' to respect your 100% width and spacer div
+        // Show Ratio Input, explicitly hide Standard
         document.getElementById('inputGroupMarkSpace').style.display = "block";
+        document.getElementById('inputGroupAstable').style.display = "none"; // Safety hide
+        
         if (ratioPrompt) ratioPrompt.innerHTML = "(Give answer as a simplified fraction)";
         if (inputMarkSpace) inputMarkSpace.placeholder = "e.g. 2/1";
         
@@ -2069,49 +2078,27 @@ function generateProblem() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // Canvas Scaling
+    // 1. Force Canvas Resolution
     canvas.width = 600;
     canvas.height = 420;
 
-    // 1. Reset Quiz State
+    // 2. Reset States & Cleanup UI
+    // This one line replaces Sections 2, 3, and 4 of your long version
+    hideAllInputGroups(); 
+    
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
     viewedSolution = false; 
     unitErrorMade = false; 
-    
-    // 2. Cleanup UI Elements
+
+    // 3. Prepare Question Area
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.innerHTML = ''; 
-        qText.style.display = 'block'; // Ensure it's ready for text
+        qText.style.display = 'block'; 
     }
 
-    const promptEl = document.getElementById('instructionPrompt');
-    if (promptEl) promptEl.innerHTML = '';
-
-    if (document.getElementById('helpBtn')) document.getElementById('helpBtn').style.display = 'none';
-    if (document.getElementById('solutions')) document.getElementById('solutions').style.display = 'none';
-    if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = '';
-
-    // 3. Clear ALL text inputs
-    const allInputs = document.querySelectorAll('.input-area input');
-    allInputs.forEach(i => i.value = '');
-
-    // 4. Hide ALL input groups (Added 'oscilloscopeInputs' to the list)
-    const groups = [
-        'inputGroupV', 'inputGroupI', 'inputGroupR', 
-        'oscilloscopeInputs', // <--- IMPORTANT: Hides the parent wrapper gap
-        'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
-        'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 
-        'inputGroupAstable', 'inputGroupMarkSpace', 'inputGroupMonostable',
-        'inputGroupColorVal', 'inputGroupColorNames'
-    ];
-    groups.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
-
-    // 5. ROUTER: Call specific module logic
+    // 4. ROUTER: Turn on ONLY what is needed for the current mode
     if (currentMode === 'analysis') {
         document.getElementById('inputGroupV').style.display = 'inline-block';
         document.getElementById('inputGroupI').style.display = 'inline-block';
@@ -2119,23 +2106,22 @@ function generateProblem() {
 
     } else if (currentMode === 'divider') {
         document.getElementById('inputGroupV').style.display = 'inline-block';
-        if (document.getElementById('grade9DividerBtn')) document.getElementById('grade9DividerBtn').style.display = 'inline-block';
+        const g9 = document.getElementById('grade9DividerBtn');
+        if (g9) g9.style.display = 'inline-block';
         generateDividerProblem(ctx, canvas);
 
     } else if (currentMode === 'resistance') {
         document.getElementById('inputGroupR').style.display = 'inline-block';
-        if (document.getElementById('grade9ResistorBtn')) document.getElementById('grade9ResistorBtn').style.display = 'inline-block';
+        const g9 = document.getElementById('grade9ResistorBtn');
+        if (g9) g9.style.display = 'inline-block';
         setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
 
     } else if (currentMode === 'oscilloscope') {
-        // Show the wrapper, then the specific generator picks the fields
-        const oscWrapper = document.getElementById('oscilloscopeInputs');
-        if (oscWrapper) oscWrapper.style.display = 'block';
+        // Generator now handles its own wrapper ('oscilloscopeInputs')
         generateOscilloscopeProblem(ctx, canvas);
 
     } else if (currentMode === 'astable') {
-        // REMOVED: The code that forced groupAstable and groupRatio to 'block'
-        // We now let the generator pick one OR the other, not both.
+        // Generator chooses between Freq or Ratio box
         generateAstableProblem(ctx, canvas);
 
     } else if (currentMode === 'monostable') {
@@ -2548,6 +2534,7 @@ function toggleSolutions() {
 // ==========================================
 
 function hideAllInputGroups() {
+    // 1. All specific input groups and parent wrappers
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 'oscilloscopeInputs',
         'inputGroupMonostable', 'inputGroupAstable', 'inputGroupMarkSpace',
@@ -2556,16 +2543,38 @@ function hideAllInputGroups() {
         'inputGroupColorVal', 'inputGroupColorNames'
     ];
 
+    // 2. Hide all groups
     groups.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
 
-    if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = "";
-    if (document.getElementById('solutions')) document.getElementById('solutions').style.display = 'none';
+    // 3. Reset UI Containers
+    // Clear feedback text
+    const feedback = document.getElementById('feedback');
+    if (feedback) feedback.innerHTML = "";
+
+    // Hide the solution box and clear its inner text
+    const solutions = document.getElementById('solutions');
+    const solText = document.getElementById('solText');
+    if (solutions) solutions.style.display = 'none';
+    if (solText) solText.innerHTML = "";
+
+    // Hide the question text container until the next generator fills it
+    const qText = document.getElementById('questionText');
+    if (qText) qText.style.display = 'none';
+
+    // Clear dynamic instruction prompts (like "1 d.p." or fraction hints)
+    const promptEl = document.getElementById('instructionPrompt');
+    if (promptEl) promptEl.innerHTML = '';
     
-    // We do NOT force contentArea to block here. 
-    // This keeps the page clean until a user clicks a module.
+    // Specifically clear Astable/Ratio sub-prompts if they exist
+    const astablePrompt = document.getElementById('astableInstruction');
+    const ratioPrompt = document.getElementById('ratioInstruction');
+    if (astablePrompt) astablePrompt.innerHTML = "";
+    if (ratioPrompt) ratioPrompt.innerHTML = "";
+
+    // Note: contentArea visibility is handled by goHome() or openModule()
 }
 
 // This is the "Master Switch" that cleans the page when it first opens
