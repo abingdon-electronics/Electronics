@@ -241,6 +241,7 @@
         .btn-download:disabled { background-color: #6c757d; cursor: wait; }
         
         .input-area { text-align: center; }
+        .input-spacer { height: 55px; visibility: hidden; display: block; }
         .input-group { margin: 10px 0; font-size: 18px; font-weight: bold; display: inline-block; margin-right: 15px; }
         input[type="text"] { 
     font-size: 18px; /* Slightly larger text */
@@ -416,8 +417,10 @@
                             <label id="labelOscFreq" for="inputOscFreq">Frequency = </label><input type="text" id="inputOscFreq">
                         </div>
                         <div class="input-group" id="inputGroupOscRatio" style="display:none;">
-                            <label id="labelOscRatio" for="inputOscRatio">Mark-Space ratio = </label><input type="text" id="inputOscRatio">
+                        <div class="input-spacer"></div> <label>Mark/Space Ratio = </label>
+                            <input type="text" id="inputOscRatio" placeholder="e.g. 1/2">
                         </div>
+                        
                     </div>
 
                     <!--RESISTOR COLOUR CODE INPUTS-->
@@ -1386,8 +1389,8 @@ function generateOscilloscopeProblem() {
         document.getElementById('inputOscFreq').placeholder = "e.g. " + freq_rounded + "Hz";
         solTextStr += "<strong>Period:</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit;
     } else {
-        document.getElementById('inputGroupOscRatio').style.display = "inline-block";
-        // Show student exactly how to answer as a fraction
+        // Use 'block' so the width:100% and internal spacer function correctly
+        document.getElementById('inputGroupOscRatio').style.display = "block";
         document.getElementById('inputOscRatio').placeholder = "e.g. 1/2"; 
         solTextStr += "<strong>M/S Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = <strong>" + currentAnswers.oscRatioValue + "</strong>";
     }
@@ -1399,7 +1402,7 @@ function generateOscilloscopeProblem() {
     
 function generateAstableProblem() {
     hideAllInputGroups();
-    // 1. SELF-INITIALIZE CANVAS & CONTEXT
+    // 1. SELF-INITIALIZE
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -1408,16 +1411,13 @@ function generateAstableProblem() {
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'astable';
     
-    // MATCHING THE HTML IDs
+    // Target inputs and clear values
     const inputAstable = document.getElementById('inputAstable');
     const inputAstableT = document.getElementById('inputAstableT');
     const inputMarkSpace = document.getElementById('inputMarkSpace');
-    
-    // Target the specific sub-instruction elements (The Grey Text)
     const astablePrompt = document.getElementById('astableInstruction');
     const ratioPrompt = document.getElementById('ratioInstruction');
     
-    // Clear old values and instructions
     if (inputAstable) inputAstable.value = "";
     if (inputAstableT) inputAstableT.value = "";
     if (inputMarkSpace) inputMarkSpace.value = "";
@@ -1445,29 +1445,24 @@ function generateAstableProblem() {
     const qType = Math.floor(Math.random() * 2);
     currentAnswers.astableQType = qType;
 
-    hideAllInputGroups(); 
-
     if (qType === 0) {
+        // Show Standard Inputs
         document.getElementById('inputGroupAstable').style.display = "inline-block";
         if (astablePrompt) astablePrompt.innerHTML = "(Give answer to 1 d.p.)";
-        
         if (inputAstable) inputAstable.placeholder = "e.g. " + freq.toFixed(1) + " Hz";
         if (inputAstableT) inputAstableT.placeholder = "e.g. " + period_ms.toFixed(1) + " ms";
         
-        // NAMES MATCHING YOUR checkAnswers()
         currentAnswers.astableValue = parseFloat(freq.toFixed(1)); 
         currentAnswers.astableUnit = "hz";
         currentAnswers.astableTValue = parseFloat(period_ms.toFixed(1)); 
         currentAnswers.astableTUnit = "ms";
     } else {
-        document.getElementById('inputGroupMarkSpace').style.display = "inline-block";
+        // Show Ratio Input - Using 'block' to respect your 100% width and spacer div
+        document.getElementById('inputGroupMarkSpace').style.display = "block";
         if (ratioPrompt) ratioPrompt.innerHTML = "(Give answer as a simplified fraction)";
-        
         if (inputMarkSpace) inputMarkSpace.placeholder = "e.g. 2/1";
         
-        // NAMES MATCHING YOUR checkAnswers()
         currentAnswers.astableRatio = ratioString;
-        currentAnswers.expectedUnit = "ratio"; 
     }
 
     // 6. Drawing Helpers
@@ -1498,14 +1493,12 @@ function generateAstableProblem() {
     ctx.strokeStyle = "#000000"; ctx.lineWidth = 2; ctx.fillStyle = "#000000";
 
     // Rails
-    ctx.font = "bold 16px Arial"; ctx.textAlign = "left";
-    line(100, 40, 500, 40); ctx.fillText("+Vcc", 510, 45);
+    line(100, 40, 500, 40); ctx.font = "bold 16px Arial"; ctx.textAlign = "left"; ctx.fillText("+Vcc", 510, 45);
     line(100, 360, 500, 360); ctx.fillText("0V", 510, 365);
     
     // 555 Box
     ctx.strokeRect(260, 120, 140, 140); 
-    ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
-    ctx.fillText("555", 330, 195);
+    ctx.font = "bold 24px Arial"; ctx.textAlign = "center"; ctx.fillText("555", 330, 195);
 
     // Components
     const bX = 160;
@@ -1517,14 +1510,13 @@ function generateAstableProblem() {
     drawCapacitor(bX, 290, C_uF + " \u03bcF", "right");
     line(bX, 295, bX, 360); drawNode(bX, 360);
 
-    // Connections
-    line(bX, 140, 260, 140); // Pin 7
-    ctx.font = "14px Arial"; ctx.textAlign = "left"; ctx.fillText("7", 265, 145);
+    // Pin Connections
+    line(bX, 140, 260, 140); ctx.font = "14px Arial"; ctx.textAlign = "left"; ctx.fillText("7", 265, 145);
     line(bX, 225, 220, 225); drawNode(220, 225); line(220, 180, 220, 240);
     line(220, 180, 260, 180); ctx.fillText("6", 265, 185); 
     line(220, 240, 260, 240); ctx.fillText("2", 265, 245); 
 
-    // Static Pins (4, 8, 1, 5)
+    // Static Pins
     line(330, 40, 330, 80); drawNode(330, 40); drawNode(330, 80); line(300, 80, 360, 80);
     line(300, 80, 300, 120); ctx.textAlign = "center"; ctx.fillText("8", 300, 135);
     line(360, 80, 360, 120); ctx.fillText("4", 360, 135);
@@ -1543,14 +1535,10 @@ function generateAstableProblem() {
         solHTML = "<strong>Frequency (f)</strong> = 1.44 / ((" + R1 + " + 2*" + R2 + ") * " + C_farads.toExponential(2) + ") = <strong>" + freq.toFixed(1) + " Hz</strong><br>" +
                   "<strong>Period (T)</strong> = 1 / f = <strong>" + period_ms.toFixed(1) + " ms</strong>";
     } else {
-        solHTML = "<strong>Mark-to-Space Ratio</strong> = (R1 + R2) / R2<br>" +
-                  "Ratio = (" + R1 + " + " + R2 + ") / " + R2 + "<br>" +
-                  "Ratio = " + num + " / " + den + " = <strong>" + ratioString + "</strong>";
+        solHTML = "<strong>Mark-to-Space Ratio</strong> = (R1 + R2) / R2 = (" + R1 + "+" + R2 + ")/" + R2 + " = <strong>" + ratioString + "</strong>";
     }
     document.getElementById('solText').innerHTML = solHTML;
 }
-
-
     
 function drawMonostable(ctx, R, C, rUnit, cUnit) {
     ctx.clearRect(0, 0, 600, 420);
