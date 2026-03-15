@@ -1890,15 +1890,20 @@ function generateColorCodeProblem(ctx, canvas) {
 // FUNCTION 3. NAVIGATION and UI (Traffic Control) 
 // ===========================================================================================================================      
 
-    function goHome() {
-    document.getElementById('mainMenu').style.display = 'grid'; // Returns to the 2-column grid
+   function goHome() {
+    // 1. Hide the work area and specific inputs
+    document.getElementById('contentArea').style.display = 'none';
+    hideAllInputGroups(); // <--- ADD THIS LINE to reset spacers and inputs
+    
+    // 2. Reset the menus
+    document.getElementById('mainMenu').style.display = 'grid'; 
     document.getElementById('menuBasics').style.display = 'none';
     document.getElementById('menuTiming').style.display = 'none';
     document.getElementById('menuPlaceholder').style.display = 'none';
-    document.getElementById('contentArea').style.display = 'none';
+    
+    // 3. Reset the title
     document.getElementById('moduleSubtitle').innerText = 'Mastering the GCSE Course';
 }
-
 function openModule(module) {
     // Hide Home Menu
     document.getElementById('mainMenu').style.display = 'none';
@@ -2049,60 +2054,38 @@ function generateProblem() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // --- FIX FOR CANVAS SCALING ---
-    // Forces the internal resolution to match your CSS box size
+    // Canvas Scaling
     canvas.width = 600;
-    canvas.height = 420; // Matches your actual layout height
-    // ------------------------------
+    canvas.height = 420;
 
-    // 1. Reset Quiz State for ALL modules
+    // 1. Reset Quiz State
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
     viewedSolution = false; 
     unitErrorMade = false; 
     
-    const helpBtn = document.getElementById('helpBtn');
-    const feedback = document.getElementById('feedback');
-    const solutions = document.getElementById('solutions');
-    const grade9DividerBtn = document.getElementById('grade9DividerBtn'); 
-    const grade9ResistorBtn = document.getElementById('grade9ResistorBtn');
-    
-    // UPGRADE: Clear and hide the question text container
+    // 2. Cleanup UI Elements
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.innerHTML = ''; 
-        qText.style.display = 'none';
+        qText.style.display = 'block'; // Ensure it's ready for text
     }
 
-    // NEW UPGRADE: Clear the dynamic instruction prompt (e.g., "1 d.p.")
     const promptEl = document.getElementById('instructionPrompt');
-    if (promptEl) {
-        promptEl.innerHTML = '';
-    }
+    if (promptEl) promptEl.innerHTML = '';
 
-    if (helpBtn) helpBtn.style.display = 'none';
-    if (solutions) solutions.style.display = 'none';
-    if (feedback) feedback.innerHTML = '';
-    
-    // 2. Hide Grade 9 Buttons by default
-    if (grade9DividerBtn) grade9DividerBtn.style.display = 'none';
-    if (grade9ResistorBtn) grade9ResistorBtn.style.display = 'none';
+    if (document.getElementById('helpBtn')) document.getElementById('helpBtn').style.display = 'none';
+    if (document.getElementById('solutions')) document.getElementById('solutions').style.display = 'none';
+    if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = '';
 
-    // 3. Reset all text inputs
-    const inputs = [
-        'inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 
-        'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 
-        'inputAstable', 'inputAstableT', 'inputMarkSpace', 'inputMonostable',
-        'inputResValue', 'inputResTol', 'inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'
-    ];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
+    // 3. Clear ALL text inputs
+    const allInputs = document.querySelectorAll('.input-area input');
+    allInputs.forEach(i => i.value = '');
 
-    // 4. Hide ALL input groups
+    // 4. Hide ALL input groups (Added 'oscilloscopeInputs' to the list)
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
+        'oscilloscopeInputs', // <--- IMPORTANT: Hides the parent wrapper gap
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 
         'inputGroupAstable', 'inputGroupMarkSpace', 'inputGroupMonostable',
@@ -2113,39 +2096,35 @@ function generateProblem() {
         if (el) el.style.display = 'none';
     });
 
-    // 5. ROUTER: Call specific module logic based on currentMode
+    // 5. ROUTER: Call specific module logic
     if (currentMode === 'analysis') {
-        const groupV = document.getElementById('inputGroupV');
-        const groupI = document.getElementById('inputGroupI');
-        if (groupV) groupV.style.display = 'inline-block';
-        if (groupI) groupI.style.display = 'inline-block';
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        document.getElementById('inputGroupI').style.display = 'inline-block';
         generateAnalysisProblem(ctx, canvas);
 
     } else if (currentMode === 'divider') {
-        const groupV = document.getElementById('inputGroupV');
-        if (groupV) groupV.style.display = 'inline-block';
-        if (grade9DividerBtn) grade9DividerBtn.style.display = 'inline-block';
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        if (document.getElementById('grade9DividerBtn')) document.getElementById('grade9DividerBtn').style.display = 'inline-block';
         generateDividerProblem(ctx, canvas);
 
     } else if (currentMode === 'resistance') {
-        const groupR = document.getElementById('inputGroupR');
-        if (groupR) groupR.style.display = 'inline-block';
-        if (grade9ResistorBtn) grade9ResistorBtn.style.display = 'inline-block';
+        document.getElementById('inputGroupR').style.display = 'inline-block';
+        if (document.getElementById('grade9ResistorBtn')) document.getElementById('grade9ResistorBtn').style.display = 'inline-block';
         setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
 
     } else if (currentMode === 'oscilloscope') {
+        // Show the wrapper, then the specific generator picks the fields
+        const oscWrapper = document.getElementById('oscilloscopeInputs');
+        if (oscWrapper) oscWrapper.style.display = 'block';
         generateOscilloscopeProblem(ctx, canvas);
 
     } else if (currentMode === 'astable') {
-        const groupAstable = document.getElementById('inputGroupAstable');
-        const groupRatio = document.getElementById('inputGroupMarkSpace');
-        if (groupAstable) groupAstable.style.display = 'block';
-        if (groupRatio) groupRatio.style.display = 'block';
+        // REMOVED: The code that forced groupAstable and groupRatio to 'block'
+        // We now let the generator pick one OR the other, not both.
         generateAstableProblem(ctx, canvas);
 
     } else if (currentMode === 'monostable') {
-        const groupMono = document.getElementById('inputGroupMonostable');
-        if (groupMono) groupMono.style.display = 'inline-block';
+        document.getElementById('inputGroupMonostable').style.display = 'inline-block';
         generateMonostableProblem(ctx, canvas);
 
     } else if (currentMode === 'colorcode') {
