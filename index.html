@@ -209,10 +209,10 @@
           
                     
                         <div class="input-group" id="inputGroupMonostable" style="display:none;">
-                            <label for="inputMonostable">T = </label>
-                            <input type="text" id="inputMonostable" style="width: 100px;">
-                        </div>  
-                
+                            <label id="labelMonostable" for="inputMonostable">T = </label>
+                            <input type="text" id="inputMonostable" style="width: 120px;">
+                            <div id="monostableInstruction" style="font-size: 0.9em; margin-top: 5px;"></div>
+                        </div>
                 
                         <div class="input-group" id="inputGroupOscAmp" style="display:none;">
                             <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label>
@@ -1525,16 +1525,33 @@ function generateMonostableProblem() {
     currentAnswers.expectedT = roundedTime;
     currentAnswers.expectedUnit = 's';
 
-    // 3. UI SETUP
-    // Show the Monostable Input Group as inline-block for a clean row
+    // 3. UI SETUP (DYNAMIC LABELS & PLACEHOLDERS)
     const monoGroup = document.getElementById('inputGroupMonostable');
     if (monoGroup) monoGroup.style.display = "inline-block";
     
-    // Clear and set placeholder to 1 d.p with 's' inside the box
-    const inputMono = document.getElementById('inputMonostable');
+    // Select the label and the prompt elements
+    const monoLabel = document.querySelector('#inputGroupMonostable label'); // The "Pulse Length =" text
+    const monoPrompt = document.getElementById('monostableInstruction');     // The "(Give answer to 1 d.p.)" text
+    const inputMono = document.getElementById('inputMonostable');           // The actual input box
+
+    if (monoPrompt) {
+        monoPrompt.innerHTML = "(Give answer to 1 d.p.)";
+        monoPrompt.style.color = "#6c757d"; // Professional grey
+    }
+
     if (inputMono) {
         inputMono.value = "";
-        inputMono.placeholder = actualTime.toFixed(1) + " s";
+        // Set dynamic label and placeholder based on qType
+        if (qType === 1) {
+            if (monoLabel) monoLabel.innerHTML = "Pulse Length = ";
+            inputMono.placeholder = "e.g. 5.2 s";
+        } else if (qType === 2) {
+            if (monoLabel) monoLabel.innerHTML = "Resistance = ";
+            inputMono.placeholder = "e.g. 47.0 kΩ";
+        } else if (qType === 3) {
+            if (monoLabel) monoLabel.innerHTML = "Capacitance = ";
+            inputMono.placeholder = "e.g. 22.0 μF";
+        }
     }
 
     // 4. Drawing Helpers
