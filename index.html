@@ -241,6 +241,7 @@
         .btn-download:disabled { background-color: #6c757d; cursor: wait; }
         
         .input-area { text-align: center; }
+        .input-spacer { height: 55px; visibility: hidden; display: block; }
         .input-group { margin: 10px 0; font-size: 18px; font-weight: bold; display: inline-block; margin-right: 15px; }
         input[type="text"] { 
     font-size: 18px; /* Slightly larger text */
@@ -399,7 +400,7 @@
                     </div>
                     
                     <!--OSCILLOSCOPE INPUTS (KEPT IN ONE BLOCK)-->
-                    <div id="oscilloscopeInputs">
+                    <div id="oscilloscopeInputs" style="display:none;">
                         <div class="input-group" id="inputGroupOscAmp" style="display:none;">
                             <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label><input type="text" id="inputOscAmp">
                         </div>
@@ -416,8 +417,10 @@
                             <label id="labelOscFreq" for="inputOscFreq">Frequency = </label><input type="text" id="inputOscFreq">
                         </div>
                         <div class="input-group" id="inputGroupOscRatio" style="display:none;">
-                            <label id="labelOscRatio" for="inputOscRatio">Mark-Space ratio = </label><input type="text" id="inputOscRatio">
+                        <div class="input-spacer"></div> <label>Mark/Space Ratio = </label>
+                            <input type="text" id="inputOscRatio" placeholder="e.g. 1/2">
                         </div>
+                        
                     </div>
 
                     <!--RESISTOR COLOUR CODE INPUTS-->
@@ -1276,27 +1279,33 @@ function generateAnalysisProblem(ctx, canvas) {
 }   
             
 function generateOscilloscopeProblem() {
-    // 1. SELF-INITIALIZE (The "Canvas Fix")
+    // 1. SELF-INITIALIZE CANVAS
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // 2. BEST PRACTICE RESET
-    hideAllInputGroups(); // This replaces all the manual hiding code
+    // 2. FULL UI RESET
+    hideAllInputGroups(); 
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'oscilloscope';
 
-    // Clear specific values
-    ['inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'].forEach(id => {
+    // REMOVED: The qText.style.display and qText.innerHTML lines that were here.
+    // This ensures the instruction text never appears.
+
+    // Clear and reset the specific oscilloscope input fields
+    const ids = ['inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
+    ids.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.value = "";
+        if (el) {
+            el.value = "";
+            el.placeholder = ""; 
+        }
     });
 
-    // 3. DRAW BACKGROUND & GRID
+    // 3. DRAW BACKGROUND & GRID (OSCILLOSCOPE SCREEN)
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#e0e5e7"; ctx.strokeStyle = "#888"; ctx.lineWidth = 2; 
     
-    // Helper for round corners
     const drawRoundRect = (ctx, x, y, w, h, r) => {
         ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r);
         ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r);
@@ -1304,12 +1313,10 @@ function generateOscilloscopeProblem() {
     };
     drawRoundRect(ctx, 20, 20, 400, 320, 25);
     
-    // Grid lines
     ctx.strokeStyle = "#555"; ctx.lineWidth = 1;
     for(let i=0; i<=8; i++) { let y = 20 + i*40; ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(420, y); ctx.stroke(); }
     for(let i=0; i<=10; i++) { let x = 20 + i*40; ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, 340); ctx.stroke(); }
     
-    // Axes
     ctx.strokeStyle = "#222"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(20, 180); ctx.lineTo(420, 180); ctx.stroke(); 
     ctx.beginPath(); ctx.moveTo(220, 20); ctx.lineTo(220, 340); ctx.stroke(); 
@@ -1327,7 +1334,7 @@ function generateOscilloscopeProblem() {
     let frequency = (tBaseUnit === 'ms') ? (1000 / periodTime) : (1 / periodTime);
     let freq_rounded = parseFloat(frequency.toFixed(1));
 
-    // Store answers for checker
+    // Store answers for the checker
     currentAnswers.oscAmpValue = amplitude; 
     currentAnswers.oscAmpUnit = vGainUnit.toLowerCase();
     currentAnswers.oscMarkValue = markDivs * tBase; 
@@ -1338,10 +1345,9 @@ function generateOscilloscopeProblem() {
     currentAnswers.oscPeriodUnit = tBaseUnit.toLowerCase();
     currentAnswers.oscFreqValue = freq_rounded; 
     currentAnswers.oscFreqUnit = 'hz';
-    currentAnswers.oscRatioValue = markDivs / spaceDivs; 
-    currentAnswers.expectedUnit = 'ratio';
+    currentAnswers.oscRatioValue = markDivs + "/" + spaceDivs;
 
-    // 5. DRAW SETTINGS & WAVE
+    // 5. DRAW SETTINGS & WAVEFORM
     ctx.fillStyle = "#000"; ctx.font = "bold 15px Arial"; ctx.textAlign = "left";
     ctx.fillText("Settings:", 430, 80);
     ctx.font = "14px Arial";
@@ -1362,37 +1368,47 @@ function generateOscilloscopeProblem() {
     }
     ctx.stroke();
 
-    // 6. SHOW RELEVANT INPUTS
+    // 6. SHOW RELEVANT INPUTS & TURN ON WRAPPER
+    const oscWrapper = document.getElementById('oscilloscopeInputs');
+    if (oscWrapper) oscWrapper.style.display = "block";
+
     const qType = Math.floor(Math.random() * 3) + 1;
     currentAnswers.oscQType = qType;
 
+    // Always show Amplitude input
     document.getElementById('inputGroupOscAmp').style.display = "inline-block";
-    document.getElementById('inputOscAmp').placeholder = amplitude + vGainUnit;
+    document.getElementById('inputOscAmp').placeholder = "e.g. " + amplitude + vGainUnit;
 
     let solTextStr = "<strong>Amplitude = " + amplitude + " " + vGainUnit + "</strong><br>Logic: " + ampDivs + " divs &times; " + vGain + " " + vGainUnit + "/div<br><br>";
 
     if (qType === 1) {
         document.getElementById('inputGroupOscMark').style.display = "inline-block";
         document.getElementById('inputGroupOscSpace').style.display = "inline-block";
-        solTextStr += "<strong>Mark Time:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit;
+        document.getElementById('inputOscMark').placeholder = (markDivs * tBase) + tBaseUnit;
+        document.getElementById('inputOscSpace').placeholder = (spaceDivs * tBase) + tBaseUnit;
+        solTextStr += "<strong>Mark:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit;
     } else if (qType === 2) {
         document.getElementById('inputGroupOscPeriod').style.display = "inline-block";
         document.getElementById('inputGroupOscFreq').style.display = "inline-block";
+        document.getElementById('inputOscPeriod').placeholder = periodTime + tBaseUnit;
+        document.getElementById('inputOscFreq').placeholder = freq_rounded + "Hz";
         solTextStr += "<strong>Period:</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit;
     } else {
-        document.getElementById('inputGroupOscRatio').style.display = "inline-block";
-        solTextStr += "<strong>Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = " + markDivs + "/" + spaceDivs;
+        document.getElementById('inputGroupOscRatio').style.display = "block";
+        document.getElementById('inputOscRatio').placeholder = "e.g. 1/2"; 
+        solTextStr += "<strong>M/S Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = <strong>" + currentAnswers.oscRatioValue + "</strong>";
     }
 
-    const solElement = document.getElementById('solText');
-    if (solElement) solElement.innerHTML = solTextStr;
+    const solText = document.getElementById('solText');
+    if (solText) solText.innerHTML = solTextStr;
 }
+
 
 
     
 function generateAstableProblem() {
     hideAllInputGroups();
-    // 1. SELF-INITIALIZE CANVAS & CONTEXT
+    // 1. SELF-INITIALIZE
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -1401,16 +1417,13 @@ function generateAstableProblem() {
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'astable';
     
-    // MATCHING THE HTML IDs
+    // Target inputs and clear values
     const inputAstable = document.getElementById('inputAstable');
     const inputAstableT = document.getElementById('inputAstableT');
     const inputMarkSpace = document.getElementById('inputMarkSpace');
-    
-    // Target the specific sub-instruction elements (The Grey Text)
     const astablePrompt = document.getElementById('astableInstruction');
     const ratioPrompt = document.getElementById('ratioInstruction');
     
-    // Clear old values and instructions
     if (inputAstable) inputAstable.value = "";
     if (inputAstableT) inputAstableT.value = "";
     if (inputMarkSpace) inputMarkSpace.value = "";
@@ -1438,29 +1451,31 @@ function generateAstableProblem() {
     const qType = Math.floor(Math.random() * 2);
     currentAnswers.astableQType = qType;
 
-    hideAllInputGroups(); 
+    // --- REMOVED THE QUESTION TEXT LOGIC HERE ---
+    // No more qText.style.display or qText.innerHTML
 
     if (qType === 0) {
+        // Show Standard Inputs, explicitly hide Ratio
         document.getElementById('inputGroupAstable').style.display = "inline-block";
-        if (astablePrompt) astablePrompt.innerHTML = "(Give answer to 1 d.p.)";
+        document.getElementById('inputGroupMarkSpace').style.display = "none";
         
+        if (astablePrompt) astablePrompt.innerHTML = "(Give answer to 1 d.p.)";
         if (inputAstable) inputAstable.placeholder = "e.g. " + freq.toFixed(1) + " Hz";
         if (inputAstableT) inputAstableT.placeholder = "e.g. " + period_ms.toFixed(1) + " ms";
         
-        // NAMES MATCHING YOUR checkAnswers()
         currentAnswers.astableValue = parseFloat(freq.toFixed(1)); 
         currentAnswers.astableUnit = "hz";
         currentAnswers.astableTValue = parseFloat(period_ms.toFixed(1)); 
         currentAnswers.astableTUnit = "ms";
     } else {
-        document.getElementById('inputGroupMarkSpace').style.display = "inline-block";
-        if (ratioPrompt) ratioPrompt.innerHTML = "(Give answer as a simplified fraction)";
+        // Show Ratio Input, explicitly hide Standard
+        document.getElementById('inputGroupMarkSpace').style.display = "block";
+        document.getElementById('inputGroupAstable').style.display = "none";
         
+        if (ratioPrompt) ratioPrompt.innerHTML = "(Give answer as a simplified fraction)";
         if (inputMarkSpace) inputMarkSpace.placeholder = "e.g. 2/1";
         
-        // NAMES MATCHING YOUR checkAnswers()
         currentAnswers.astableRatio = ratioString;
-        currentAnswers.expectedUnit = "ratio"; 
     }
 
     // 6. Drawing Helpers
@@ -1487,18 +1502,17 @@ function generateAstableProblem() {
     };
 
     // 7. Drawing the Circuit
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "#000000"; ctx.lineWidth = 2; ctx.fillStyle = "#000000";
 
     // Rails
-    ctx.font = "bold 16px Arial"; ctx.textAlign = "left";
-    line(100, 40, 500, 40); ctx.fillText("+Vcc", 510, 45);
+    line(100, 40, 500, 40); ctx.font = "bold 16px Arial"; ctx.textAlign = "left"; ctx.fillText("+Vcc", 510, 45);
     line(100, 360, 500, 360); ctx.fillText("0V", 510, 365);
     
     // 555 Box
     ctx.strokeRect(260, 120, 140, 140); 
-    ctx.font = "bold 24px Arial"; ctx.textAlign = "center";
-    ctx.fillText("555", 330, 195);
+    ctx.font = "bold 24px Arial"; ctx.textAlign = "center"; ctx.fillText("555", 330, 195);
 
     // Components
     const bX = 160;
@@ -1510,14 +1524,13 @@ function generateAstableProblem() {
     drawCapacitor(bX, 290, C_uF + " \u03bcF", "right");
     line(bX, 295, bX, 360); drawNode(bX, 360);
 
-    // Connections
-    line(bX, 140, 260, 140); // Pin 7
-    ctx.font = "14px Arial"; ctx.textAlign = "left"; ctx.fillText("7", 265, 145);
+    // Pin Connections
+    line(bX, 140, 260, 140); ctx.font = "14px Arial"; ctx.textAlign = "left"; ctx.fillText("7", 265, 145);
     line(bX, 225, 220, 225); drawNode(220, 225); line(220, 180, 220, 240);
     line(220, 180, 260, 180); ctx.fillText("6", 265, 185); 
     line(220, 240, 260, 240); ctx.fillText("2", 265, 245); 
 
-    // Static Pins (4, 8, 1, 5)
+    // Static Pins
     line(330, 40, 330, 80); drawNode(330, 40); drawNode(330, 80); line(300, 80, 360, 80);
     line(300, 80, 300, 120); ctx.textAlign = "center"; ctx.fillText("8", 300, 135);
     line(360, 80, 360, 120); ctx.fillText("4", 360, 135);
@@ -1536,14 +1549,10 @@ function generateAstableProblem() {
         solHTML = "<strong>Frequency (f)</strong> = 1.44 / ((" + R1 + " + 2*" + R2 + ") * " + C_farads.toExponential(2) + ") = <strong>" + freq.toFixed(1) + " Hz</strong><br>" +
                   "<strong>Period (T)</strong> = 1 / f = <strong>" + period_ms.toFixed(1) + " ms</strong>";
     } else {
-        solHTML = "<strong>Mark-to-Space Ratio</strong> = (R1 + R2) / R2<br>" +
-                  "Ratio = (" + R1 + " + " + R2 + ") / " + R2 + "<br>" +
-                  "Ratio = " + num + " / " + den + " = <strong>" + ratioString + "</strong>";
+        solHTML = "<strong>Mark-to-Space Ratio</strong> = (R1 + R2) / R2 = (" + R1 + "+" + R2 + ")/" + R2 + " = <strong>" + ratioString + "</strong>";
     }
     document.getElementById('solText').innerHTML = solHTML;
 }
-
-
     
 function drawMonostable(ctx, R, C, rUnit, cUnit) {
     ctx.clearRect(0, 0, 600, 420);
@@ -1633,6 +1642,7 @@ function generateMonostableProblem() {
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'monostable';
     
+    // Clear and hide questionText (No-Text Policy)
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.innerHTML = "";
@@ -1658,20 +1668,7 @@ function generateMonostableProblem() {
     let cLabel = C_uF + " \u03bcF";
     let tLabel = "Pulse Length = " + roundedTime + " s";
 
-    if (qType === 1) {
-        currentAnswers.expectedT = roundedTime;
-        currentAnswers.expectedUnit = 's';
-    } else if (qType === 2) {
-        currentAnswers.expectedT = R1_k;
-        currentAnswers.expectedUnit = 'k';
-        rLabel = "R = ?";
-    } else {
-        currentAnswers.expectedT = C_uF;
-        currentAnswers.expectedUnit = 'uf';
-        cLabel = "C = ?";
-    }
-
-// 3. UI SETUP (UNITS INSIDE THE BOX)
+    // 3. UI SETUP (UNITS INSIDE THE BOX)
     const monoGroup = document.getElementById('inputGroupMonostable');
     if (monoGroup) monoGroup.style.display = "inline-block";
     
@@ -1683,24 +1680,27 @@ function generateMonostableProblem() {
 
     if (inputMono) {
         inputMono.value = "";
-        
-        // Match the placeholder style of your Basics pages
         if (qType === 1) { // Calculating Time
             if (monoLabel) monoLabel.innerHTML = "T = ";
             inputMono.placeholder = "e.g. " + roundedTime.toFixed(1) + " s";
+            currentAnswers.expectedT = roundedTime;
             currentAnswers.expectedUnit = "s";
         } else if (qType === 2) { // Calculating Resistance
             if (monoLabel) monoLabel.innerHTML = "R = ";
             inputMono.placeholder = "e.g. " + R1_k.toFixed(1) + " k\u03a9";
+            currentAnswers.expectedT = R1_k;
             currentAnswers.expectedUnit = "k";
+            rLabel = "R = ?";
         } else if (qType === 3) { // Calculating Capacitance
             if (monoLabel) monoLabel.innerHTML = "C = ";
             inputMono.placeholder = "e.g. " + C_uF.toFixed(1) + " \u03bcF";
+            currentAnswers.expectedT = C_uF;
             currentAnswers.expectedUnit = "uf";
+            cLabel = "C = ?";
         }
     }
     
-    // 4. DRAWING HELPERS (Modified to allow color changes)
+    // 4. DRAWING HELPERS
     const line = (x1, y1, x2, y2) => {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     };
@@ -1712,10 +1712,10 @@ function generateMonostableProblem() {
         ctx.fillStyle = "white";
         ctx.fillRect(x - 12, y - 25, 24, 50);
         ctx.strokeRect(x - 12, y - 25, 24, 50);
-        ctx.fillStyle = oldColor; // Use the color set before calling helper
+        ctx.fillStyle = oldColor; 
         ctx.font = "14px Arial"; ctx.textAlign = "right";
         ctx.fillText(val, x - 20, y + 5);
-        ctx.fillStyle = "#000000"; // Reset to black
+        ctx.fillStyle = "#000000"; 
     };
     const drawCapacitor = (x, y, val, align="right") => {
         line(x - 15, y - 5, x + 15, y - 5);
@@ -1745,19 +1745,17 @@ function generateMonostableProblem() {
     const bX = 160;
     line(bX, 40, bX, 85); drawNode(bX, 40); 
     
-    // PINK LOGIC FOR R
     if (qType === 2) ctx.fillStyle = "#ff00ff"; 
     else ctx.fillStyle = "#000000";
     drawResistorBox(bX, 110, rLabel);
-    ctx.fillStyle = "#000000"; // Reset
+    ctx.fillStyle = "#000000"; 
 
     line(bX, 135, bX, 285); drawNode(bX, 180); 
     
-    // PINK LOGIC FOR C
     if (qType === 3) ctx.fillStyle = "#ff00ff"; 
     else ctx.fillStyle = "#000000";
     drawCapacitor(bX, 290, cLabel, "right");
-    ctx.fillStyle = "#000000"; // Reset
+    ctx.fillStyle = "#000000"; 
 
     line(bX, 295, bX, 360); drawNode(bX, 360); 
 
@@ -1895,15 +1893,20 @@ function generateColorCodeProblem(ctx, canvas) {
 // FUNCTION 3. NAVIGATION and UI (Traffic Control) 
 // ===========================================================================================================================      
 
-    function goHome() {
-    document.getElementById('mainMenu').style.display = 'grid'; // Returns to the 2-column grid
+   function goHome() {
+    // 1. Hide the work area and specific inputs
+    document.getElementById('contentArea').style.display = 'none';
+    hideAllInputGroups(); // <--- ADD THIS LINE to reset spacers and inputs
+    
+    // 2. Reset the menus
+    document.getElementById('mainMenu').style.display = 'grid'; 
     document.getElementById('menuBasics').style.display = 'none';
     document.getElementById('menuTiming').style.display = 'none';
     document.getElementById('menuPlaceholder').style.display = 'none';
-    document.getElementById('contentArea').style.display = 'none';
+    
+    // 3. Reset the title
     document.getElementById('moduleSubtitle').innerText = 'Mastering the GCSE Course';
 }
-
 function openModule(module) {
     // Hide Home Menu
     document.getElementById('mainMenu').style.display = 'none';
@@ -2054,103 +2057,54 @@ function generateProblem() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // --- FIX FOR CANVAS SCALING ---
-    // Forces the internal resolution to match your CSS box size
+    // 1. Force Canvas Resolution
     canvas.width = 600;
-    canvas.height = 420; // Matches your actual layout height
-    // ------------------------------
+    canvas.height = 420;
 
-    // 1. Reset Quiz State for ALL modules
+    // 2. Full UI Reset
+    // This clears all input groups, hides the solution box, 
+    // and hides the questionText container completely.
+    hideAllInputGroups(); 
+    
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
     viewedSolution = false; 
     unitErrorMade = false; 
-    
-    const helpBtn = document.getElementById('helpBtn');
-    const feedback = document.getElementById('feedback');
-    const solutions = document.getElementById('solutions');
-    const grade9DividerBtn = document.getElementById('grade9DividerBtn'); 
-    const grade9ResistorBtn = document.getElementById('grade9ResistorBtn');
-    
-    // UPGRADE: Clear and hide the question text container
+
+    // 3. Clear the question text content just in case
     const qText = document.getElementById('questionText');
-    if (qText) {
-        qText.innerHTML = ''; 
-        qText.style.display = 'none';
-    }
+    if (qText) qText.innerHTML = '';
 
-    // NEW UPGRADE: Clear the dynamic instruction prompt (e.g., "1 d.p.")
-    const promptEl = document.getElementById('instructionPrompt');
-    if (promptEl) {
-        promptEl.innerHTML = '';
-    }
-
-    if (helpBtn) helpBtn.style.display = 'none';
-    if (solutions) solutions.style.display = 'none';
-    if (feedback) feedback.innerHTML = '';
-    
-    // 2. Hide Grade 9 Buttons by default
-    if (grade9DividerBtn) grade9DividerBtn.style.display = 'none';
-    if (grade9ResistorBtn) grade9ResistorBtn.style.display = 'none';
-
-    // 3. Reset all text inputs
-    const inputs = [
-        'inputV', 'inputI', 'inputR', 'inputOscAmp', 'inputOscMark', 
-        'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio', 
-        'inputAstable', 'inputAstableT', 'inputMarkSpace', 'inputMonostable',
-        'inputResValue', 'inputResTol', 'inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'
-    ];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-
-    // 4. Hide ALL input groups
-    const groups = [
-        'inputGroupV', 'inputGroupI', 'inputGroupR', 
-        'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
-        'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio', 
-        'inputGroupAstable', 'inputGroupMarkSpace', 'inputGroupMonostable',
-        'inputGroupColorVal', 'inputGroupColorNames'
-    ];
-    groups.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
-
-    // 5. ROUTER: Call specific module logic based on currentMode
+    // 4. ROUTER: Open module inputs silently (No text instructions)
     if (currentMode === 'analysis') {
-        const groupV = document.getElementById('inputGroupV');
-        const groupI = document.getElementById('inputGroupI');
-        if (groupV) groupV.style.display = 'inline-block';
-        if (groupI) groupI.style.display = 'inline-block';
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        document.getElementById('inputGroupI').style.display = 'inline-block';
         generateAnalysisProblem(ctx, canvas);
 
     } else if (currentMode === 'divider') {
-        const groupV = document.getElementById('inputGroupV');
-        if (groupV) groupV.style.display = 'inline-block';
-        if (grade9DividerBtn) grade9DividerBtn.style.display = 'inline-block';
+        document.getElementById('inputGroupV').style.display = 'inline-block';
+        const g9 = document.getElementById('grade9DividerBtn');
+        if (g9) g9.style.display = 'inline-block';
         generateDividerProblem(ctx, canvas);
 
     } else if (currentMode === 'resistance') {
-        const groupR = document.getElementById('inputGroupR');
-        if (groupR) groupR.style.display = 'inline-block';
-        if (grade9ResistorBtn) grade9ResistorBtn.style.display = 'inline-block';
+        document.getElementById('inputGroupR').style.display = 'inline-block';
+        const g9 = document.getElementById('grade9ResistorBtn');
+        if (g9) g9.style.display = 'inline-block';
         setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
 
     } else if (currentMode === 'oscilloscope') {
+        // Show the wrapper so the oscilloscope inputs appear, but no text
+        const oscWrapper = document.getElementById('oscilloscopeInputs');
+        if (oscWrapper) oscWrapper.style.display = 'block';
         generateOscilloscopeProblem(ctx, canvas);
 
     } else if (currentMode === 'astable') {
-        const groupAstable = document.getElementById('inputGroupAstable');
-        const groupRatio = document.getElementById('inputGroupMarkSpace');
-        if (groupAstable) groupAstable.style.display = 'block';
-        if (groupRatio) groupRatio.style.display = 'block';
+        // Astable generator handles its own specific inputs
         generateAstableProblem(ctx, canvas);
 
     } else if (currentMode === 'monostable') {
-        const groupMono = document.getElementById('inputGroupMonostable');
-        if (groupMono) groupMono.style.display = 'inline-block';
+        document.getElementById('inputGroupMonostable').style.display = 'inline-block';
         generateMonostableProblem(ctx, canvas);
 
     } else if (currentMode === 'colorcode') {
@@ -2179,7 +2133,8 @@ function checkAnswers() {
         else activeInputs.push('inputOscRatio');
     }
     else if (currentMode === 'colorcode') {
-        if (document.getElementById('inputGroupColorVal').style.display !== 'none') {
+        const valGroup = document.getElementById('inputGroupColorVal');
+        if (valGroup && valGroup.style.display !== 'none') {
             activeInputs = ['inputResValue', 'inputResTol'];
         } else {
             activeInputs = ['inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'];
@@ -2193,7 +2148,7 @@ function checkAnswers() {
         activeInputs = ['inputMonostable'];
     }
 
-    // Check for empty boxes
+    // Check for empty boxes (Safety check prevents script crashes)
     let hasEmptyBox = false;
     activeInputs.forEach(id => {
         const el = document.getElementById(id);
@@ -2249,21 +2204,28 @@ function checkAnswers() {
     } else if (currentMode === 'resistance') {
         results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, currentAnswers.rUnit));
     } else if (currentMode === 'oscilloscope') {
+        // Amplitude
         results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
+        
         if (currentAnswers.oscQType === 1) {
+            // Mark & Space
             results.push(validateMatch(parseInput(document.getElementById('inputOscMark').value), currentAnswers.oscMarkValue, currentAnswers.oscMarkUnit));
             results.push(validateMatch(parseInput(document.getElementById('inputOscSpace').value), currentAnswers.oscSpaceValue, currentAnswers.oscSpaceUnit));
         } else if (currentAnswers.oscQType === 2) {
+            // Period & Frequency
             results.push(validateMatch(parseInput(document.getElementById('inputOscPeriod').value), currentAnswers.oscPeriodValue, currentAnswers.oscPeriodUnit));
             results.push(validateMatch(parseInput(document.getElementById('inputOscFreq').value), currentAnswers.oscFreqValue, currentAnswers.oscFreqUnit));
         } else {
-            results.push(validateMatch(parseInput(document.getElementById('inputOscRatio').value), currentAnswers.oscRatioValue, currentAnswers.oscRatioUnit));
+            // EXAM BOARD STYLE: Fraction match as string (e.g. "1/2")
+            const userRatio = document.getElementById('inputOscRatio').value.trim();
+            results.push(userRatio === currentAnswers.oscRatioValue ? 'correct' : 'wrong');
         }
     } else if (currentMode === 'astable') {
         if (currentAnswers.astableQType === 0) {
             results.push(validateMatch(parseInput(document.getElementById('inputAstable').value), currentAnswers.astableValue, currentAnswers.astableUnit));
             results.push(validateMatch(parseInput(document.getElementById('inputAstableT').value), currentAnswers.astableTValue, currentAnswers.astableTUnit));
         } else {
+            // String match for Mark/Space ratio
             const userRatio = document.getElementById('inputMarkSpace').value.trim();
             results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrong');
         }
@@ -2271,8 +2233,7 @@ function checkAnswers() {
     else if (currentMode === 'monostable') {
         const userInput = document.getElementById('inputMonostable').value;
         const parsedUser = parseInput(userInput);
-        
-        // validateMatch handles number comparison and the expected unit (s, k, or uf)
+        // validateMatch handles number comparison and the expected unit
         results.push(validateMatch(parsedUser, currentAnswers.expectedT, currentAnswers.expectedUnit));
     }
 
@@ -2547,37 +2508,61 @@ function toggleSolutions() {
             } else { sol.style.display = 'none'; }
 }
 
-        window.onload = function() {
-        goHome(); // This ensures the 8 module buttons are shown first
-        };   
-    
+// ==========================================
+// FINAL INITIALIZATION (Place at the end of your .js file)
+// ==========================================
+
 function hideAllInputGroups() {
-    // 1. Define all the possible groups that might be visible
+    // 1. All specific input groups and parent wrappers
     const groups = [
-        'inputGroupV', 'inputGroupI', 'inputGroupR', 
+        'inputGroupV', 'inputGroupI', 'inputGroupR', 'oscilloscopeInputs',
         'inputGroupMonostable', 'inputGroupAstable', 'inputGroupMarkSpace',
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
         'inputGroupColorVal', 'inputGroupColorNames'
     ];
 
-    // 2. Loop through and hide them
+    // 2. Hide all input groups
     groups.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
 
-    // 3. Clear the feedback and solutions so they don't carry over
+    // 3. Reset UI Containers
+    // Clear feedback text
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "";
-    
-    const solutions = document.getElementById('solutions');
-    if (solutions) solutions.style.display = 'none';
 
-    // 4. Ensure the main container is visible
-    const content = document.getElementById('contentArea');
-    if (content) content.style.display = 'block';
+    // Hide and wipe the solution box
+    const solutions = document.getElementById('solutions');
+    const solText = document.getElementById('solText');
+    if (solutions) solutions.style.display = 'none';
+    if (solText) solText.innerHTML = "";
+
+    // --- CRITICAL CHANGE: PERMANENTLY HIDE & EMPTY THE QUESTION TEXT ---
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.innerHTML = "";      // Remove any lingering text
+        qText.style.display = 'none'; // Remove from the layout
+    }
+
+    // Clear instruction prompts and standard hints
+    const promptEl = document.getElementById('instructionPrompt');
+    if (promptEl) promptEl.innerHTML = '';
+    
+    const astablePrompt = document.getElementById('astableInstruction');
+    const ratioPrompt = document.getElementById('ratioInstruction');
+    if (astablePrompt) astablePrompt.innerHTML = "";
+    if (ratioPrompt) ratioPrompt.innerHTML = "";
 }
+
+// This is the "Master Switch" that cleans the page when it first opens
+window.onload = function() {
+    hideAllInputGroups(); 
+    if (typeof goHome === "function") {
+        goHome(); 
+    }
+};
 </script>
 </body>
 </html>
