@@ -1511,7 +1511,7 @@ function generateMonostableProblem() {
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'monostable';
     
-    // Ensure questionText is cleared and hidden to match the simpler Basics layout
+    // Hide the general question text to keep the layout clean
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.innerHTML = "";
@@ -1526,22 +1526,28 @@ function generateMonostableProblem() {
 
     // 2. Calculate Answer (T = 1.1 * R * C)
     const actualTime = 1.1 * R1_ohms * C_farads;
-    const roundedTime = parseFloat(actualTime.toFixed(2)); 
+    // We store the 1 d.p. version as the expected answer
+    const roundedTime = parseFloat(actualTime.toFixed(1)); 
  
     if (typeof currentAnswers === "undefined") currentAnswers = {};
-    currentAnswers.expectedT = roundedTime;
+    currentAnswers.monostableValue = roundedTime;
     currentAnswers.expectedUnit = 's';
 
     // 3. UI SETUP
-    // Show the Monostable Input Group as inline-block for a clean row
+    hideAllInputGroups(); // Clear any other active inputs
     const monoGroup = document.getElementById('inputGroupMonostable');
     if (monoGroup) monoGroup.style.display = "inline-block";
     
-    // Clear and set placeholder to 1 d.p with 's' inside the box
+    // Set the GREY instruction text below the box
+    const monoPrompt = document.getElementById('monostableInstruction');
+    if (monoPrompt) {
+        monoPrompt.innerHTML = "(Give answer to 1 d.p.)";
+    }
+
     const inputMono = document.getElementById('inputMonostable');
     if (inputMono) {
         inputMono.value = "";
-        inputMono.placeholder = actualTime.toFixed(1) + " s";
+        inputMono.placeholder = "e.g. " + actualTime.toFixed(1) + " s";
     }
 
     // 4. Drawing Helpers
@@ -1626,7 +1632,7 @@ function generateMonostableProblem() {
             "<strong>Formula:</strong> T = 1.1 &times; R &times; C<br>" +
             "T = 1.1 &times; " + R1_k + "k&Omega; &times; " + C_uF + "&mu;F<br>" +
             "T = 1.1 &times; " + R1_ohms + " &Omega; &times; " + C_farads.toExponential(2) + " F<br>" +
-            "T = <strong>" + roundedTime + " s</strong>";
+            "T = <strong>" + actualTime.toFixed(1) + " s</strong>";
     }
 }
     
