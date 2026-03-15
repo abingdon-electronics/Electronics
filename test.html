@@ -1882,18 +1882,20 @@ function switchTab(mode) {
     // 1. Highlight active tab
     document.querySelectorAll('.tab').forEach(t => {
         t.classList.remove('active');
-        // Reset button colors to default pink unless active (using your existing logic)
         if (t.innerText && !t.innerText.includes('Home')) {
              t.style.backgroundColor = ""; 
+             t.style.color = "";
         }
     });
 
     const activeTab = document.getElementById('tab-' + mode);
     if (activeTab) {
         activeTab.classList.add('active');
+        activeTab.style.backgroundColor = "#333"; // Black highlight
+        activeTab.style.color = "#fff";
     }
 
-    // 2. Define ALL possible input groups from your HTML
+    // 2. Define ALL possible input groups
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
@@ -1925,12 +1927,11 @@ function switchTab(mode) {
     if (g9Res) g9Res.style.display = (mode === 'resistance') ? 'inline-block' : 'none';
 
     // 6. Reset UI State
+    if (typeof resetAnswerBox === "function") resetAnswerBox();
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = '';
-    
     const solutions = document.getElementById('solutions');
     if (solutions) solutions.style.display = 'none';
-    
     const helpBtn = document.getElementById('helpBtn');
     if (helpBtn) helpBtn.style.display = 'none';
     
@@ -1938,31 +1939,23 @@ function switchTab(mode) {
     const inputs = document.querySelectorAll('.input-area input');
     inputs.forEach(i => i.value = '');
 
-    // 7. SPECIFIC UI PREPARATION FOR TIMING MODULES
-    // We show the containers here so generateProblem() doesn't fail when trying to update labels
-    if (mode === 'oscilloscope') {
-        ['inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.display = 'block';
-        });
-    } else if (mode === 'astable') {
-        const astableGroup = document.getElementById('inputGroupAstable');
-        const msGroup = document.getElementById('inputGroupMarkSpace');
-        if (astableGroup) astableGroup.style.display = 'block';
-        if (msGroup) msGroup.style.display = 'block';
-    } else if (mode === 'monostable') {
-        const monoGroup = document.getElementById('inputGroupMonostable');
-        if (monoGroup) monoGroup.style.display = 'block';
-    } else if (mode === 'analysis' || mode === 'divider') {
-        const vGroup = document.getElementById('inputGroupV');
-        const iGroup = document.getElementById('inputGroupI');
-        if (vGroup) vGroup.style.display = 'block';
-        if (iGroup) iGroup.style.display = 'block';
-    }
+    // 7. Make the content area visible
+    const content = document.getElementById('contentArea');
+    if (content) content.style.display = 'block';
 
-    // 8. GENERATE THE PROBLEM
-    // Now that the containers are visible, the script can safely write to their labels
-    generateProblem();
+    // 8. CHOOSE THE CORRECT GENERATOR (The missing logic!)
+    if (mode === 'astable') {
+        generateAstableProblem();
+    } else if (mode === 'monostable') {
+        generateMonostableProblem();
+    } else if (mode === 'oscilloscope') {
+        generateOscilloscopeProblem();
+    } else if (mode === 'colorcode') {
+        generateColorCodeProblem(); 
+    } else {
+        // This handles analysis, divider, and resistance
+        generateProblem();
+    }
 }
     
 function openDataSheet() {
