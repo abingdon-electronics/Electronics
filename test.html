@@ -1675,32 +1675,35 @@ function generateMonostableProblem() {
         cLabel = "C = ?";
     }
 
-    // 3. UI SETUP (DYNAMIC LABELS & PLACEHOLDERS)
+// 3. UI SETUP (DYNAMIC LABELS, UNITS & PLACEHOLDERS)
     const monoGroup = document.getElementById('inputGroupMonostable');
     if (monoGroup) monoGroup.style.display = "inline-block";
     
-    // Select the label and the prompt elements
-    const monoLabel = document.querySelector('#inputGroupMonostable label'); // The "Pulse Length =" text
-    const monoPrompt = document.getElementById('monostableInstruction');     // The "(Give answer to 1 d.p.)" text
-    const inputMono = document.getElementById('inputMonostable');           // The actual input box
+    const monoLabel = document.getElementById('labelMonostable');
+    const monoUnit = document.getElementById('unitMonostable');
+    const monoPrompt = document.getElementById('monostableInstruction');
+    const inputMono = document.getElementById('inputMonostable');
 
     if (monoPrompt) {
         monoPrompt.innerHTML = "(Give answer to 1 d.p.)";
-        monoPrompt.style.color = "#6c757d"; // Professional grey
+        // Prompt color and style are already handled by your HTML/CSS
     }
 
     if (inputMono) {
         inputMono.value = "";
-        // Set dynamic label and placeholder based on qType
+        // Set dynamic label, placeholder, and unit based on qType
         if (qType === 1) {
-            if (monoLabel) monoLabel.innerHTML = "Pulse Length = ";
-            inputMono.placeholder = "e.g. 5.2 s";
+            if (monoLabel) monoLabel.innerHTML = "T = ";
+            if (monoUnit) monoUnit.innerHTML = " s";
+            inputMono.placeholder = "e.g. 1.2";
         } else if (qType === 2) {
-            if (monoLabel) monoLabel.innerHTML = "Resistance = ";
-            inputMono.placeholder = "e.g. 47.0 kΩ";
+            if (monoLabel) monoLabel.innerHTML = "R = ";
+            if (monoUnit) monoUnit.innerHTML = " k\u03a9";
+            inputMono.placeholder = "e.g. 47.0";
         } else if (qType === 3) {
-            if (monoLabel) monoLabel.innerHTML = "Capacitance = ";
-            inputMono.placeholder = "e.g. 22.0 μF";
+            if (monoLabel) monoLabel.innerHTML = "C = ";
+            if (monoUnit) monoUnit.innerHTML = " \u03bcF";
+            inputMono.placeholder = "e.g. 10.0";
         }
     }
 
