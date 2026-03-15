@@ -155,7 +155,21 @@
     document.getElementById('solText').innerHTML = solHTML;
 }Quiz</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1100px; margin: 0 auto; padding: 10px 20px; line-height: 1.6; color: #000; background-color: #fafafa; }
+        body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    max-width: 1100px; 
+    margin: 0 auto; 
+    padding: 10px 20px; 
+    line-height: 1.6; 
+    color: #000; 
+
+    /* THE NEW BLUEPRINT LOOK */
+    background-color: #1a2a3a; /* Deep navy */
+    background-image: 
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 30px 30px; /* Size of the grid squares */
+}
         .header { text-align: center; margin-bottom: 15px; }
         .header h1 { color: #000; margin-bottom: 0px; text-transform: uppercase; letter-spacing: 1px; font-size: 28px; }
         .header p { margin-top: 5px; font-size: 18px; color: #555; }
