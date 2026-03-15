@@ -1276,27 +1276,30 @@ function generateAnalysisProblem(ctx, canvas) {
 }   
             
 function generateOscilloscopeProblem() {
-    // 1. SELF-INITIALIZE (The "Canvas Fix")
+    // 1. SELF-INITIALIZE
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
     // 2. BEST PRACTICE RESET
-    hideAllInputGroups(); // This replaces all the manual hiding code
+    hideAllInputGroups(); 
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'oscilloscope';
 
-    // Clear specific values
-    ['inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'].forEach(id => {
+    // Clear values and set default placeholders
+    const ids = ['inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
+    ids.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.value = "";
+        if (el) {
+            el.value = "";
+            el.placeholder = ""; 
+        }
     });
 
     // 3. DRAW BACKGROUND & GRID
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#e0e5e7"; ctx.strokeStyle = "#888"; ctx.lineWidth = 2; 
     
-    // Helper for round corners
     const drawRoundRect = (ctx, x, y, w, h, r) => {
         ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r);
         ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r);
@@ -1304,12 +1307,10 @@ function generateOscilloscopeProblem() {
     };
     drawRoundRect(ctx, 20, 20, 400, 320, 25);
     
-    // Grid lines
     ctx.strokeStyle = "#555"; ctx.lineWidth = 1;
     for(let i=0; i<=8; i++) { let y = 20 + i*40; ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(420, y); ctx.stroke(); }
     for(let i=0; i<=10; i++) { let x = 20 + i*40; ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, 340); ctx.stroke(); }
     
-    // Axes
     ctx.strokeStyle = "#222"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(20, 180); ctx.lineTo(420, 180); ctx.stroke(); 
     ctx.beginPath(); ctx.moveTo(220, 20); ctx.lineTo(220, 340); ctx.stroke(); 
@@ -1327,7 +1328,7 @@ function generateOscilloscopeProblem() {
     let frequency = (tBaseUnit === 'ms') ? (1000 / periodTime) : (1 / periodTime);
     let freq_rounded = parseFloat(frequency.toFixed(1));
 
-    // Store answers for checker
+    // Store answers
     currentAnswers.oscAmpValue = amplitude; 
     currentAnswers.oscAmpUnit = vGainUnit.toLowerCase();
     currentAnswers.oscMarkValue = markDivs * tBase; 
@@ -1338,8 +1339,11 @@ function generateOscilloscopeProblem() {
     currentAnswers.oscPeriodUnit = tBaseUnit.toLowerCase();
     currentAnswers.oscFreqValue = freq_rounded; 
     currentAnswers.oscFreqUnit = 'hz';
-    currentAnswers.oscRatioValue = markDivs / spaceDivs; 
-    currentAnswers.expectedUnit = 'ratio';
+    
+    // EXAM BOARD STYLE: Ratio as a fraction (Mark / Space)
+    let ratioValue = parseFloat((markDivs / spaceDivs).toFixed(2));
+    currentAnswers.oscRatioValue = ratioValue;
+    currentAnswers.oscRatioUnit = "ratio"; // This helps validateMatch ignore units
 
     // 5. DRAW SETTINGS & WAVE
     ctx.fillStyle = "#000"; ctx.font = "bold 15px Arial"; ctx.textAlign = "left";
@@ -1362,27 +1366,36 @@ function generateOscilloscopeProblem() {
     }
     ctx.stroke();
 
-    // 6. SHOW RELEVANT INPUTS
+    // 6. SHOW RELEVANT INPUTS & SET PLACEHOLDERS
     const qType = Math.floor(Math.random() * 3) + 1;
     currentAnswers.oscQType = qType;
 
     document.getElementById('inputGroupOscAmp').style.display = "inline-block";
-    document.getElementById('inputOscAmp').placeholder = amplitude + vGainUnit;
+    document.getElementById('inputOscAmp').placeholder = "e.g. " + amplitude + vGainUnit;
 
     let solTextStr = "<strong>Amplitude = " + amplitude + " " + vGainUnit + "</strong><br>Logic: " + ampDivs + " divs &times; " + vGain + " " + vGainUnit + "/div<br><br>";
 
     if (qType === 1) {
         document.getElementById('inputGroupOscMark').style.display = "inline-block";
         document.getElementById('inputGroupOscSpace').style.display = "inline-block";
-        solTextStr += "<strong>Mark Time:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit;
+        document.getElementById('inputOscMark').placeholder = "e.g. " + (markDivs * tBase) + tBaseUnit;
+        document.getElementById('inputOscSpace').placeholder = "e.g. " + (spaceDivs * tBase) + tBaseUnit;
+        solTextStr += "<strong>Mark:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit;
     } else if (qType === 2) {
         document.getElementById('inputGroupOscPeriod').style.display = "inline-block";
         document.getElementById('inputGroupOscFreq').style.display = "inline-block";
+        document.getElementById('inputOscPeriod').placeholder = "e.g. " + periodTime + tBaseUnit;
+        document.getElementById('inputOscFreq').placeholder = "e.g. " + freq_rounded + "Hz";
         solTextStr += "<strong>Period:</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit;
     } else {
         document.getElementById('inputGroupOscRatio').style.display = "inline-block";
-        solTextStr += "<strong>Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = " + markDivs + "/" + spaceDivs;
+        document.getElementById('inputOscRatio').placeholder = "e.g. " + ratioValue;
+        solTextStr += "<strong>M/S Ratio:</strong> " + markDivs + " divs / " + spaceDivs + " divs = <strong>" + ratioValue + "</strong>";
     }
+
+    const solText = document.getElementById('solText');
+    if (solText) solText.innerHTML = solTextStr;
+}
 
     const solElement = document.getElementById('solText');
     if (solElement) solElement.innerHTML = solTextStr;
@@ -2249,15 +2262,21 @@ function checkAnswers() {
     } else if (currentMode === 'resistance') {
         results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, currentAnswers.rUnit));
     } else if (currentMode === 'oscilloscope') {
+        // Amplitude
         results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
+        
         if (currentAnswers.oscQType === 1) {
+            // Mark & Space
             results.push(validateMatch(parseInput(document.getElementById('inputOscMark').value), currentAnswers.oscMarkValue, currentAnswers.oscMarkUnit));
             results.push(validateMatch(parseInput(document.getElementById('inputOscSpace').value), currentAnswers.oscSpaceValue, currentAnswers.oscSpaceUnit));
         } else if (currentAnswers.oscQType === 2) {
+            // Period & Frequency
             results.push(validateMatch(parseInput(document.getElementById('inputOscPeriod').value), currentAnswers.oscPeriodValue, currentAnswers.oscPeriodUnit));
             results.push(validateMatch(parseInput(document.getElementById('inputOscFreq').value), currentAnswers.oscFreqValue, currentAnswers.oscFreqUnit));
         } else {
-            results.push(validateMatch(parseInput(document.getElementById('inputOscRatio').value), currentAnswers.oscRatioValue, currentAnswers.oscRatioUnit));
+            // M:S Ratio (Check as string match to handle the colon)
+            const userRatio = document.getElementById('inputOscRatio').value.trim();
+            results.push(userRatio === currentAnswers.oscRatioValue ? 'correct' : 'wrong');
         }
     } else if (currentMode === 'astable') {
         if (currentAnswers.astableQType === 0) {
@@ -2271,8 +2290,7 @@ function checkAnswers() {
     else if (currentMode === 'monostable') {
         const userInput = document.getElementById('inputMonostable').value;
         const parsedUser = parseInput(userInput);
-        
-        // validateMatch handles number comparison and the expected unit (s, k, or uf)
+        // Uses the dynamic expectedT and expectedUnit (s, k, or uf)
         results.push(validateMatch(parsedUser, currentAnswers.expectedT, currentAnswers.expectedUnit));
     }
 
