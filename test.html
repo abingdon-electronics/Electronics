@@ -2105,41 +2105,50 @@ function generateZenerProblem() {
     drawHollowZenerUp(ctx, xReg, 290); 
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
-    // --- RIGHT BRANCH (LOAD) ---
-    drawLine(ctx, xReg, yJunc, 300, yJunc); 
-    drawNode(ctx, xReg, yJunc);
-    drawNode(ctx, xReg, 60);
-    drawNode(ctx, xReg, 360);
+// --- RIGHT BRANCH (LOAD) ---
+    const bridgeStartX = xReg;     // 180
+    const switchStartX = 240;      // Moved left from 300
+    const switchEndX = 290;        // Moved left from 350
+    const loadX = 380;             // Kept same for overall balance
 
-    // Switch
-    drawLine(ctx, 300, yJunc, 340, yJunc - 20); 
-    ctx.beginPath(); ctx.arc(300, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
-    ctx.beginPath(); ctx.arc(350, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
-    drawLine(ctx, 350, yJunc, xLoad, yJunc); 
+    // 1. Bridge from Main branch to Switch
+    drawLine(ctx, bridgeStartX, yJunc, switchStartX, yJunc); 
     
-    // IL arrow on horizontal bridge (Black arrowhead)
-    ctx.strokeStyle = "black";
-    drawArrowOnWire(ctx, 355, yJunc, 375, yJunc); 
-
-    // Question Labels (Keeping pink ONLY for the "?" prompts as per your style)
+    // 2. Open Switch S (Positioned further left)
+    drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
+    ctx.beginPath(); ctx.arc(switchStartX, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
+    ctx.beginPath(); ctx.arc(switchEndX, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
+    ctx.fillStyle = "black";
+    ctx.fillText("S", switchStartX + 20, yJunc - 30);
+    
+    // 3. Wire from Switch to Load
+    drawLine(ctx, switchEndX, yJunc, loadX, yJunc); 
+    
+    // 4. Load Current Arrow (Now has plenty of space on the longer wire)
     const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
-    ctx.fillStyle = pink;
-    ctx.fillText("I", 360, yJunc - 15);
-    ctx.font = "10px Arial"; ctx.fillText("L", 366, yJunc - 10);
-    ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", 375, yJunc - 15);
-    
-    // Load Box and VL Label
-    ctx.strokeStyle = "black"; ctx.fillStyle = "black";
-    drawLine(ctx, xLoad, yJunc, xLoad, yJunc + 30);
-    ctx.strokeRect(xLoad - 30, yJunc + 30, 60, 45); 
-    ctx.fillText("LOAD", xLoad - 20, yJunc + 58);
-    drawLine(ctx, xLoad, yJunc + 75, xLoad, 360);
-    drawNode(ctx, xLoad, 360);
+    ctx.strokeStyle = "black"; // Arrowhead is black as per previous request
+    // Center the arrow on the segment between switch and load
+    drawArrowOnWire(ctx, switchEndX + 30, yJunc, switchEndX + 50, yJunc); 
 
+    // Pink IL Label
     ctx.fillStyle = pink;
-    ctx.fillText("V", xLoad + 40, yJunc + 55);
-    ctx.font = "10px Arial"; ctx.fillText("L", xLoad + 52, yJunc + 60);
-    ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xLoad + 62, yJunc + 55);
+    ctx.fillText("I", switchEndX + 45, yJunc - 15);
+    ctx.font = "10px Arial"; ctx.fillText("L", switchEndX + 51, yJunc - 10);
+    ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", switchEndX + 60, yJunc - 15);
+    
+    // 5. Load Box and VL Label
+    ctx.strokeStyle = "black"; ctx.fillStyle = "black";
+    drawLine(ctx, loadX, yJunc, loadX, yJunc + 30);
+    ctx.strokeRect(loadX - 30, yJunc + 30, 60, 45); 
+    ctx.fillText("LOAD", loadX - 20, yJunc + 58);
+    drawLine(ctx, loadX, yJunc + 75, loadX, 360);
+    drawNode(ctx, loadX, 360);
+
+    // Pink VL Label
+    ctx.fillStyle = pink;
+    ctx.fillText("V", loadX + 40, yJunc + 55);
+    ctx.font = "10px Arial"; ctx.fillText("L", loadX + 52, yJunc + 60);
+    ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", loadX + 62, yJunc + 55);
 
     // --- FOOTER TECHNICAL DATA ---
     ctx.fillStyle = "#444";
