@@ -463,17 +463,24 @@
 
                 <!--DIODE INPUTS-->
                 <div id="inputGroupZener" class="input-group" style="display:none; text-align: left; width: 100%;">
-                    <!--CANVAS TEXT under picture-->
-                    <div style="margin-bottom: 10px; color: #333; font-weight: normal;">
-                        The minimum Zener holding current = <span id="zenerMinHoldCurrent" style="font-weight: bold;">XX</span> mA.
-                    </div>
-    
-                    <div style="margin-bottom: 10px;">
-                        <label id="labelZener" for="inputZener" style="font-weight: bold;">I<sub>L(max)</sub> = </label>
-                        <input type="text" id="inputZener" placeholder="e.g. 15.0 mA" style="width: 140px;">
+                    <div style="margin-bottom: 12px;">
+                        <label for="zenerQ1" style="font-weight: bold;">1. Max I<sub>L</sub> = </label>
+                        <input type="text" id="zenerQ1" placeholder="mA" style="width: 100px;">
                     </div>
 
-                    <div id="zenerInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;">(Give answer to 1 d.p.)</div>
+                    <div style="margin-bottom: 12px;">
+                        <label for="zenerQ2" style="font-weight: bold;">2. V<sub>L</sub> at Max = </label>
+                        <input type="text" id="zenerQ2" placeholder="V" style="width: 100px;">
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <label for="zenerQ3" style="font-weight: bold;">3. P<sub>Z</sub> (Switch Open) = </label>
+                        <input type="text" id="zenerQ3" placeholder="mW" style="width: 100px;">
+                      </div>
+
+                    <div id="zenerInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;">
+                        (Give all answers to 1 d.p.)
+                    </div>
                 </div>
             
                 <!--THE CHECK ANSWER BUTTON-->
@@ -484,6 +491,36 @@
             </div> 
         </div> 
 
+
+<div id="inputGroupZener" style="display:none;">
+    <div class="input-group">
+        Max I<sub>L</sub>: <input type="text" id="zenerQ1" placeholder="mA">
+    </div>
+    <div class="input-group">
+        V<sub>L</sub> at Max: <input type="text" id="zenerQ2" placeholder="V">
+    </div>
+    <div class="input-group">
+        P<sub>Z</sub> (Open): <input type="text" id="zenerQ3" placeholder="mW">
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
 <!--6. ACTION CONTROLS (THE BUTTONS AT THE VERY BOTTOM)-->
             <div class="controls">
                 <button class="btn-black" onclick="handleGenerateClick()">Generate New Problem</button>
@@ -2011,7 +2048,7 @@ function generateZenerProblem() {
     currentMode = 'zener';
 
     // 1. RANDOM VARIABLES
-    const Vin = Math.floor(Math.random() * 10) + 6; // 6V to 15V Integer
+    const Vin = Math.floor(Math.random() * 10) + 6; // 6V to 15V
     const Vz = (Math.floor(Math.random() * 41) + 20) / 10; // 2.0 to 6.0 (1 d.p.)
     const Iz_min = Math.floor(Math.random() * 6) + 5; // 5 to 10 mA
     const Ir_mA = Math.floor(Math.random() * 401) + 200; // 200 to 600 mA
@@ -2021,7 +2058,7 @@ function generateZenerProblem() {
     const VL_at_max = Vz;
     const Pz_open_mW = Ir_mA * Vz;
 
-    // Store answers
+    // Store answers for the checker
     if (typeof currentAnswers === "undefined") currentAnswers = {};
     currentAnswers.zenerQ1 = parseFloat(IL_max.toFixed(1));
     currentAnswers.zenerQ2 = parseFloat(VL_at_max.toFixed(1));
@@ -2029,7 +2066,11 @@ function generateZenerProblem() {
 
     // 3. UI SETUP
     document.getElementById('inputGroupZener').style.display = "block";
-    
+    // Clear the text boxes
+    document.getElementById('zenerQ1').value = "";
+    document.getElementById('zenerQ2').value = "";
+    document.getElementById('zenerQ3').value = "";
+
     // 4. DRAWING
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "black";
@@ -2045,31 +2086,31 @@ function generateZenerProblem() {
 
     const xReg = 180; 
     const xLoad = 380;
-    const yJunc = 220; // Shifted down to give room for IR text
+    const yJunc = 220;
 
     // --- LEFT BRANCH ---
-    // A. Input Current IR (On the wire)
+    // Blue IR Label and Arrow on Wire
     ctx.fillStyle = "blue";
     ctx.strokeStyle = "blue";
+    ctx.font = "bold 16px Arial";
     ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
     
     drawLine(ctx, xReg, 60, xReg, 110); 
-    drawArrowOnWire(ctx, xReg, 80, xReg, 105); // Arrowhead pointing down
-    
+    drawArrowOnWire(ctx, xReg, 80, xReg, 105); 
     ctx.fillText("I", xReg + 12, 95);
     ctx.font = "10px Arial"; ctx.fillText("R", xReg + 18, 100);
-    ctx.font = "bold 16px Arial";
 
-    // B. Resistor (Lowered)
+    // Resistor
     ctx.strokeStyle = "black";
     drawComponent(ctx, 'fixed', xReg, 135); 
     
-    // C. Vertical Line through Diode
+    // Line through Diode
     drawLine(ctx, xReg, 160, xReg, 360); 
 
-    // D. Corrected Zener (Pointing UP)
+    // Zener (POINTING UP)
     drawHollowZenerUp(ctx, xReg, 290); 
     ctx.fillStyle = "black";
+    ctx.font = "bold 16px Arial";
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
     // --- RIGHT BRANCH (LOAD) ---
@@ -2082,10 +2123,9 @@ function generateZenerProblem() {
     drawLine(ctx, 300, yJunc, 340, yJunc - 20); 
     ctx.beginPath(); ctx.arc(300, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
     ctx.beginPath(); ctx.arc(350, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
-    
     drawLine(ctx, 350, yJunc, xLoad, yJunc); 
     
-    // E. IL current arrow on horizontal bridge
+    // Pink IL arrow on horizontal bridge
     const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
     ctx.strokeStyle = pink;
     drawArrowOnWire(ctx, 355, yJunc, 375, yJunc); 
@@ -2095,7 +2135,7 @@ function generateZenerProblem() {
     ctx.font = "10px Arial"; ctx.fillText("L", 366, yJunc - 10);
     ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", 375, yJunc - 15);
     
-    // F. Load Box and VL Label
+    // Load Box and VL Label
     ctx.strokeStyle = "black"; ctx.fillStyle = "black";
     drawLine(ctx, xLoad, yJunc, xLoad, yJunc + 30);
     ctx.strokeRect(xLoad - 30, yJunc + 30, 60, 45); 
@@ -2108,12 +2148,22 @@ function generateZenerProblem() {
     ctx.font = "10px Arial"; ctx.fillText("L", xLoad + 52, yJunc + 60);
     ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xLoad + 62, yJunc + 55);
 
-    // --- FOOTER ---
+    // --- FOOTER TECHNICAL DATA (The replacement for the answer box text) ---
     ctx.fillStyle = "#444";
     ctx.font = "italic 14px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("Minimum Zener holding current (Iz_min) = " + Iz_min + " mA", canvas.width/2, 390);
+    ctx.fillText("Technical Data: Min. Zener holding current (Iz min) = " + Iz_min + " mA", canvas.width/2, 390);
     ctx.textAlign = "left";
+
+    // 5. SOLUTION TEXT
+    const solElement = document.getElementById('solText');
+    if (solElement) {
+        solElement.innerHTML = `
+            <strong>1. Max Load Current:</strong> I<sub>L(max)</sub> = I<sub>R</sub> - I<sub>Zmin</sub> = ${Ir_mA}mA - ${Iz_min}mA = <b>${IL_max} mA</b><br>
+            <strong>2. Load Voltage:</strong> V<sub>L</sub> stays at Zener voltage while regulating: <b>${Vz.toFixed(1)} V</b><br>
+            <strong>3. Power (Switch Open):</strong> P = I &times; V = ${Ir_mA}mA &times; ${Vz.toFixed(1)}V = <b>${Pz_open_mW.toFixed(1)} mW</b>
+        `;
+    }
 }
 
     
