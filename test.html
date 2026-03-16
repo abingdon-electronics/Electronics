@@ -718,33 +718,6 @@ function drawRoundRect(ctx, x, y, width, height, radius) {
             ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius);
             ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); ctx.fill(); ctx.stroke();
 }
-
-/**
- * Helper to draw a Zener Diode Symbol vertically
- */
-function drawZenerSymbol(ctx, x, y) {
-    const size = 15;
-    ctx.strokeStyle = brandBlack;
-    ctx.fillStyle = brandBlack;
-    ctx.lineWidth = 2;
-
-    // Triangle
-    ctx.beginPath();
-    ctx.moveTo(x - size, y - size);
-    ctx.lineTo(x + size, y - size);
-    ctx.lineTo(x, y + size);
-    ctx.closePath();
-    ctx.fill();
-
-    // The Cathode Bar with Zener "wings"
-    ctx.beginPath();
-    ctx.moveTo(x - size, y + size); // Main Bar
-    ctx.lineTo(x + size, y + size);
-    ctx.lineTo(x + size, y + size + 5); // Bottom wing
-    ctx.moveTo(x - size, y + size);
-    ctx.lineTo(x - size, y + size - 5); // Top wing
-    ctx.stroke();
-}
   
 // =========================================================================================================      
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
