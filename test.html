@@ -2151,9 +2151,9 @@ function generateZenerProblem() {
     // CANVAS FOOTER TEXT
     ctx.fillStyle = "#444";
     ctx.font = "italic 18px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText(" Minimum Zener holding current = " + Iz_min + " mA", canvas.width/2, 390);
-    ctx.textAlign = "left";
+    ctx.textAlign = "left"; // Change from center to left
+    // Use 50 (to match your power rail start) or 10 (to match your Vin label)
+    ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 50, 390);
 
     // 5. SOLUTION TEXT
     const solElement = document.getElementById('solText');
