@@ -461,49 +461,46 @@
                     <label>Band 4: </label><input type="text" id="inputBandTol" style="width: 100px;">
                 </div>
 
-                <!--DIODE INPUTS-->
-                <div id="inputGroupZener" class="input-group" style="display:none; text-align: left; width: 100%;">
-                    <div style="margin-bottom: 12px;">
-                        <label for="zenerQ1" style="font-weight: bold;">1. Max I<sub>L</sub> = </label>
-                        <input type="text" id="zenerQ1" placeholder="mA" style="width: 100px;">
-                    </div>
+    //ZENER DIODE
+    <div id="inputGroupZener" style="display:none; text-align: left; width: 100%;">
+    
+    <div id="zenerClosedQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 15px;">
+        <p style="margin-top:0; font-weight: bold; color: #333;">The switch is CLOSED. Calculate:</p>
+        
+        <div style="margin-bottom: 12px;">
+            <label for="zenerQ_IL">1. Max Load Current (I<sub>L</sub>):</label><br>
+            <input type="number" id="zenerQ_IL" placeholder="mA" step="0.1" style="width: 120px; padding: 5px;">
+        </div>
 
-                    <div style="margin-bottom: 12px;">
-                        <label for="zenerQ2" style="font-weight: bold;">2. V<sub>L</sub> at Max = </label>
-                        <input type="text" id="zenerQ2" placeholder="V" style="width: 100px;">
-                    </div>
-
-                    <div style="margin-bottom: 12px;">
-                        <label for="zenerQ3" style="font-weight: bold;">3. P<sub>Z</sub> (Switch Open) = </label>
-                        <input type="text" id="zenerQ3" placeholder="mW" style="width: 100px;">
-                      </div>
-
-                    <div id="zenerInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;">
-                        (Give all answers to 1 d.p.)
-                    </div>
-                </div>
-            
-                <!--THE CHECK ANSWER BUTTON-->
-                <div style="margin-top: 20px;">
-                    <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
-                     <div id="feedback" class="feedback"></div>
-                </div>
-            </div> 
-        </div> 
-
-
-<div id="inputGroupZener" style="display:none;">
-    <div class="input-group">
-        Max I<sub>L</sub>: <input type="text" id="zenerQ1" placeholder="mA">
+        <div style="margin-bottom: 12px;">
+            <label for="zenerQ_VL">2. Load Voltage (V<sub>L</sub>):</label><br>
+            <input type="number" id="zenerQ_VL" placeholder="V" step="0.1" style="width: 120px; padding: 5px;">
+        </div>
     </div>
-    <div class="input-group">
-        V<sub>L</sub> at Max: <input type="text" id="zenerQ2" placeholder="V">
+
+    <div id="zenerOpenQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 15px;">
+        <p style="margin-top:0; font-weight: bold; color: #333;">The switch is OPEN. Calculate:</p>
+        
+        <div style="margin-bottom: 12px;">
+            <label for="zenerQ_IZ">1. Zener Current (I<sub>Z</sub>):</label><br>
+            <input type="number" id="zenerQ_IZ" placeholder="mA" step="0.1" style="width: 120px; padding: 5px;">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+            <label for="zenerQ_PZ">2. Zener Power (P<sub>Z</sub>):</label><br>
+            <input type="number" id="zenerQ_PZ" placeholder="mW" step="0.1" style="width: 120px; padding: 5px;">
+        </div>
     </div>
-    <div class="input-group">
-        P<sub>Z</sub> (Open): <input type="text" id="zenerQ3" placeholder="mW">
+
+    <div id="zenerInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;">
+        (Give all answers to 1 d.p.)
     </div>
 </div>
 
+<div style="margin-top: 20px;">
+    <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
+    <div id="feedback" class="feedback"></div>
+</div>
 
 
 
@@ -2052,36 +2049,31 @@ function generateZenerProblem() {
     const Vz = (Math.floor(Math.random() * 41) + 20) / 10; 
     const Iz_min = Math.floor(Math.random() * 6) + 5; 
     const Ir_mA = Math.floor(Math.random() * 401) + 200; 
-    
-    // UPGRADE: Randomize Switch State
+
+    // Determine state and store globally for the checker
     const switchClosed = Math.random() > 0.5;
     currentZenerState = switchClosed ? "closed" : "open"; 
 
-    // 2. MATH CALCULATIONS (Store for Checker)
+    // 2. MATH CALCULATIONS & STORAGE (Matches your currentAnswers style)
     if (typeof currentAnswers === "undefined") currentAnswers = {};
     currentAnswers.Ir_mA = Ir_mA;
     currentAnswers.Vz = Vz;
     currentAnswers.Iz_min = Iz_min;
     
-    // Specific targets for the two modes
+    // Exact targets for the dual-mode checker
     currentAnswers.targetIL = parseFloat((Ir_mA - Iz_min).toFixed(1));
     currentAnswers.targetVL = parseFloat(Vz.toFixed(1));
     currentAnswers.targetIZ = parseFloat(Ir_mA.toFixed(1));
     currentAnswers.targetPZ = parseFloat((Ir_mA * Vz).toFixed(1));
 
-    // 3. UI SETUP (Toggle Question Groups)
+    // 3. UI SETUP (Showing/Hiding specific question divs)
     document.getElementById('inputGroupZener').style.display = "block";
     const closedGroup = document.getElementById('zenerClosedQuestions');
     const openGroup = document.getElementById('zenerOpenQuestions');
     
-    // Hide both first, then show relevant one
-    closedGroup.style.display = "none";
-    openGroup.style.display = "none";
-    
-    if (switchClosed) {
-        closedGroup.style.display = "block";
-    } else {
-        openGroup.style.display = "block";
+    if (closedGroup && openGroup) {
+        closedGroup.style.display = switchClosed ? "block" : "none";
+        openGroup.style.display = switchClosed ? "none" : "block";
     }
 
     // 4. DRAWING
@@ -2099,7 +2091,7 @@ function generateZenerProblem() {
 
     const xReg = 180; 
     const xLoad = 380;
-    const yJunc = 220; // Intersection point for the horizontal branch
+    const yJunc = 220; 
 
     // --- LEFT BRANCH ---
     ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
@@ -2112,42 +2104,40 @@ function generateZenerProblem() {
     drawHollowZenerUp(ctx, xReg, 290); 
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
-    // --- RIGHT BRANCH (LOAD) ---
+    // --- RIGHT BRANCH (LOAD & SWITCH) ---
     const bridgeStartX = xReg;     
     const switchStartX = 240;      
     const switchEndX = 290;        
     const loadX = 380;             
 
-    // Bridge from Main branch to Switch
     drawLine(ctx, bridgeStartX, yJunc, switchStartX, yJunc); 
-    drawNode(ctx, xReg, yJunc); // Junction dot
+    drawNode(ctx, xReg, yJunc); 
     
-    // UPGRADE: Draw Switch based on state
+    // Draw the switch based on randomized state
     if (switchClosed) {
-        drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc);
+        drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); // Straight line
         ctx.fillText("S (Closed)", switchStartX + 10, yJunc - 30);
     } else {
-        drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
+        drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); // Angled line
         ctx.fillText("S (Open)", switchStartX + 10, yJunc - 30);
     }
     
+    // Switch terminals
     ctx.beginPath(); ctx.arc(switchStartX, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
     ctx.beginPath(); ctx.arc(switchEndX, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
     
     drawLine(ctx, switchEndX, yJunc, loadX, yJunc); 
     
-    // Load Current Arrow
     const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
     ctx.strokeStyle = "black";
     drawArrowOnWire(ctx, switchEndX + 30, yJunc, switchEndX + 50, yJunc); 
 
-    // Pink IL Label
     ctx.fillStyle = pink;
     ctx.fillText("I", switchEndX + 45, yJunc - 15);
     ctx.font = "10px Arial"; ctx.fillText("L", switchEndX + 51, yJunc - 10);
     ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", switchEndX + 60, yJunc - 15);
     
-    // Load Box and VL Label
+    // Load Box
     ctx.strokeStyle = "black"; ctx.fillStyle = "black";
     drawLine(ctx, loadX, yJunc, loadX, yJunc + 30);
     ctx.strokeRect(loadX - 30, yJunc + 30, 60, 45); 
@@ -2165,8 +2155,10 @@ function generateZenerProblem() {
     ctx.font = "italic 16px Arial";
     ctx.textAlign = "left";
     ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 70, 390);
-}
 
+    // Update the solution text based on the current picture
+    updateZenerSolution(switchClosed);
+}
     
     
 // ===========================================================================================================================      
