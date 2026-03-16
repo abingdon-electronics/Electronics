@@ -2047,18 +2047,18 @@ function generateZenerProblem() {
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'zener';
 
-    // 1. RANDOM VARIABLES
-    const Vin = Math.floor(Math.random() * 10) + 6; // 6V to 15V
-    const Vz = (Math.floor(Math.random() * 41) + 20) / 10; // 2.0 to 6.0 (1 d.p.)
-    const Iz_min = Math.floor(Math.random() * 6) + 5; // 5 to 10 mA
-    const Ir_mA = Math.floor(Math.random() * 401) + 200; // 200 to 600 mA
+    // 1. RANDOM VARIABLES (Stored for future question styles)
+    const Vin = Math.floor(Math.random() * 10) + 6; 
+    const Vz = (Math.floor(Math.random() * 41) + 20) / 10; 
+    const Iz_min = Math.floor(Math.random() * 6) + 5; 
+    const Ir_mA = Math.floor(Math.random() * 401) + 200; 
 
     // 2. MATH CALCULATIONS
     const IL_max = Ir_mA - Iz_min;
     const VL_at_max = Vz;
     const Pz_open_mW = Ir_mA * Vz;
 
-    // Store answers for the checker
+    // Store answers
     if (typeof currentAnswers === "undefined") currentAnswers = {};
     currentAnswers.zenerQ1 = parseFloat(IL_max.toFixed(1));
     currentAnswers.zenerQ2 = parseFloat(VL_at_max.toFixed(1));
@@ -2066,7 +2066,6 @@ function generateZenerProblem() {
 
     // 3. UI SETUP
     document.getElementById('inputGroupZener').style.display = "block";
-    // Clear the text boxes
     document.getElementById('zenerQ1').value = "";
     document.getElementById('zenerQ2').value = "";
     document.getElementById('zenerQ3').value = "";
@@ -2075,11 +2074,11 @@ function generateZenerProblem() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
+    ctx.fillStyle = "black";
     
     // Rails
     drawLine(ctx, 50, 60, 480, 60);   
     drawLine(ctx, 50, 360, 480, 360); 
-    ctx.fillStyle = "black";
     ctx.font = "bold 16px Arial";
     ctx.fillText(Vin + " V", 10, 65);
     ctx.fillText("0 V", 10, 365);
@@ -2089,28 +2088,20 @@ function generateZenerProblem() {
     const yJunc = 220;
 
     // --- LEFT BRANCH ---
-    // Blue IR Label and Arrow on Wire
-    ctx.fillStyle = "blue";
-    ctx.strokeStyle = "blue";
-    ctx.font = "bold 16px Arial";
+    // Input Current Value (Black, no IR symbol)
     ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
     
     drawLine(ctx, xReg, 60, xReg, 110); 
-    drawArrowOnWire(ctx, xReg, 80, xReg, 105); 
-    ctx.fillText("I", xReg + 12, 95);
-    ctx.font = "10px Arial"; ctx.fillText("R", xReg + 18, 100);
+    drawArrowOnWire(ctx, xReg, 80, xReg, 105); // Arrowhead is now black by default
 
     // Resistor
-    ctx.strokeStyle = "black";
     drawComponent(ctx, 'fixed', xReg, 135); 
     
-    // Line through Diode
+    // Wire through Diode
     drawLine(ctx, xReg, 160, xReg, 360); 
 
     // Zener (POINTING UP)
     drawHollowZenerUp(ctx, xReg, 290); 
-    ctx.fillStyle = "black";
-    ctx.font = "bold 16px Arial";
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
     // --- RIGHT BRANCH (LOAD) ---
@@ -2125,11 +2116,12 @@ function generateZenerProblem() {
     ctx.beginPath(); ctx.arc(350, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
     drawLine(ctx, 350, yJunc, xLoad, yJunc); 
     
-    // Pink IL arrow on horizontal bridge
-    const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
-    ctx.strokeStyle = pink;
+    // IL arrow on horizontal bridge (Black arrowhead)
+    ctx.strokeStyle = "black";
     drawArrowOnWire(ctx, 355, yJunc, 375, yJunc); 
 
+    // Question Labels (Keeping pink ONLY for the "?" prompts as per your style)
+    const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
     ctx.fillStyle = pink;
     ctx.fillText("I", 360, yJunc - 15);
     ctx.font = "10px Arial"; ctx.fillText("L", 366, yJunc - 10);
@@ -2148,26 +2140,12 @@ function generateZenerProblem() {
     ctx.font = "10px Arial"; ctx.fillText("L", xLoad + 52, yJunc + 60);
     ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xLoad + 62, yJunc + 55);
 
-    // CANVAS FOOTER TEXT
+    // --- FOOTER TECHNICAL DATA ---
     ctx.fillStyle = "#444";
-    ctx.font = "italic 16px Arial"; // 16px is clean and readable
-    ctx.textAlign = "left"; 
-    
-    // Positioned at X=50 to align with the rail, Y=390 for the bottom
-    ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 50, 390); 
-    
-    // Reset alignment so other functions don't break
+    ctx.font = "italic 16px Arial";
     ctx.textAlign = "left";
-
-    // 5. SOLUTION TEXT
-    const solElement = document.getElementById('solText');
-    if (solElement) {
-        solElement.innerHTML = `
-            <strong>1. Max Load Current:</strong> I<sub>L(max)</sub> = I<sub>R</sub> - I<sub>Zmin</sub> = ${Ir_mA}mA - ${Iz_min}mA = <b>${IL_max} mA</b><br>
-            <strong>2. Load Voltage:</strong> V<sub>L</sub> stays at Zener voltage while regulating: <b>${Vz.toFixed(1)} V</b><br>
-            <strong>3. Power (Switch Open):</strong> P = I &times; V = ${Ir_mA}mA &times; ${Vz.toFixed(1)}V = <b>${Pz_open_mW.toFixed(1)} mW</b>
-        `;
-    }
+    ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 50, 390);
+    ctx.textAlign = "left";
 }
 
     
