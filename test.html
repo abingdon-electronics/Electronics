@@ -2088,16 +2088,11 @@ function generateZenerProblem() {
     const yJunc = 220;
 
     // --- LEFT BRANCH ---
-    // Input Current Value (Black, no IR symbol)
+    // Input Current Value (Black)
     ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
     
     drawLine(ctx, xReg, 60, xReg, 110); 
-    drawArrowOnWire(ctx, xReg, 70, xReg, 85 ); 
-
-// --- LEFT BRANCH ---
-    // A. Input Current Value (Black)
-    // Position text at y=85 to match the higher arrow
-    ctx.fillText(Ir_mA + " mA", xReg - 75, 85); 
+    drawArrowOnWire(ctx, xReg, 70, xReg, 90 ); 
 
     
     // Resistor
