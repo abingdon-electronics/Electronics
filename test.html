@@ -2035,75 +2035,6 @@ function generateColorCodeProblem(ctx, canvas) {
     if (solText) solText.innerHTML = solTextStr;
 }
 
-function generateZenerProblem() {
-    hideAllInputGroups();
-    const canvas = document.getElementById('circuitCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
-    if (typeof resetAnswerBox === "function") resetAnswerBox();
-    currentMode = 'zener';
-
-    // 1. RANDOM VARIABLES
-    const Vin = Math.floor(Math.random() * 10) + 6; 
-    const Vz = (Math.floor(Math.random() * 41) + 20) / 10; 
-    const Iz_min = Math.floor(Math.random() * 6) + 5; 
-    const Ir_mA = Math.floor(Math.random() * 401) + 200; 
-
-    // Determine state and store globally for the checker
-    const switchClosed = Math.random() > 0.5;
-    currentZenerState = switchClosed ? "closed" : "open"; 
-
-    // 2. MATH CALCULATIONS & STORAGE (Matches your currentAnswers style)
-    if (typeof currentAnswers === "undefined") currentAnswers = {};
-    currentAnswers.Ir_mA = Ir_mA;
-    currentAnswers.Vz = Vz;
-    currentAnswers.Iz_min = Iz_min;
-    
-    // Exact targets for the dual-mode checker
-    currentAnswers.targetIL = parseFloat((Ir_mA - Iz_min).toFixed(1));
-    currentAnswers.targetVL = parseFloat(Vz.toFixed(1));
-    currentAnswers.targetIZ = parseFloat(Ir_mA.toFixed(1));
-    currentAnswers.targetPZ = parseFloat((Ir_mA * Vz).toFixed(1));
-
-    // 3. UI SETUP (Showing/Hiding specific question divs)
-    document.getElementById('inputGroupZener').style.display = "block";
-    const closedGroup = document.getElementById('zenerClosedQuestions');
-    const openGroup = document.getElementById('zenerOpenQuestions');
-    
-    if (closedGroup && openGroup) {
-        closedGroup.style.display = switchClosed ? "block" : "none";
-        openGroup.style.display = switchClosed ? "none" : "block";
-    }
-
-    // 4. DRAWING
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-    ctx.fillStyle = "black";
-    
-    // Rails
-    drawLine(ctx, 50, 60, 480, 60);   
-    drawLine(ctx, 50, 360, 480, 360); 
-    ctx.font = "bold 16px Arial";
-    ctx.fillText(Vin + " V", 10, 65);
-    ctx.fillText("0 V", 10, 365);
-
-    const xReg = 180; 
-    const xLoad = 380;
-    const yJunc = 220; 
-
-    // --- LEFT BRANCH ---
-    ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
-    drawLine(ctx, xReg, 60, xReg, 110); 
-    drawArrowOnWire(ctx, xReg, 70, xReg, 90); 
-    
-    drawComponent(ctx, 'fixed', xReg, 135); 
-    drawLine(ctx, xReg, 160, xReg, 360); 
-
-    drawHollowZenerUp(ctx, xReg, 290); 
-    ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
-
 // --- RIGHT BRANCH (LOAD & SWITCH) ---
     const bridgeStartX = xReg;     
     const switchStartX = 240;      
@@ -2182,7 +2113,6 @@ function generateZenerProblem() {
 
     // Update the solution text based on the current state
     updateZenerSolution(switchClosed);
-    
     
 // ===========================================================================================================================      
 // FUNCTION 3. NAVIGATION and UI (Traffic Control) 
