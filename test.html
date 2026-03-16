@@ -2844,6 +2844,12 @@ function hideAllInputGroups() {
     if (astablePrompt) astablePrompt.innerHTML = "";
     if (ratioPrompt) ratioPrompt.innerHTML = "";
     if (zenerPrompt) zenerPrompt.innerHTML = "";
+
+    // Ensure the Zener sub-groups are also hidden for the next run
+    const zOpen = document.getElementById('zenerOpenQuestions');
+    const zClosed = document.getElementById('zenerClosedQuestions');
+    if (zOpen) zOpen.style.display = 'none';
+    if (zClosed) zClosed.style.display = 'none';
 }
 
 // This is the "Master Switch" that cleans the page when it first opens
