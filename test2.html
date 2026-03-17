@@ -1905,33 +1905,50 @@ function generateZenerProblem() {
     drawHollowZenerUp(ctx, xReg, 290); 
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
-    // --- RIGHT BRANCH (LOAD & SWITCH) ---
+   // --- RIGHT BRANCH (LOAD & SWITCH) ---
     const switchStartX = 240;      
     const switchEndX = 290;        
     const loadX = 380;             
-    const pink = "#E64097"; // Explicitly set Abingdon Pink
+    const pink = "#E64097"; 
 
     drawLine(ctx, xReg, yJunc, switchStartX, yJunc); 
     drawNode(ctx, xReg, yJunc); 
     
     if (switchClosed) {
+        // 1. Draw Closed Switch Arm
         drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); 
-        ctx.fillStyle = "black";
-        ctx.font = "bold 16px Arial";
-        ctx.fillText("S (Closed)", switchStartX + 5, yJunc - 30);
 
+        // 2. Pink Labels with Subscripts (I_LOAD and V_LOAD)
         ctx.fillStyle = pink;
-        ctx.fillText("I_LOAD = ?", switchEndX + 40, yJunc - 15);
-        ctx.fillText("V_LOAD = ?", loadX + 40, yJunc + 55);
+        ctx.textAlign = "left";
+        
+        // I subscript LOAD
+        ctx.font = "bold 16px Arial"; ctx.fillText("I", switchEndX + 40, yJunc - 15);
+        ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", switchEndX + 47, yJunc - 10);
+        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", switchEndX + 80, yJunc - 15);
+        
+        // V subscript LOAD
+        ctx.font = "bold 16px Arial"; ctx.fillText("V", loadX + 40, yJunc + 55);
+        ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", loadX + 52, yJunc + 60);
+        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", loadX + 85, yJunc + 55);
+
     } else {
+        // 1. Draw Open Switch Arm
         drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
-        ctx.fillStyle = "black";
-        ctx.font = "bold 16px Arial";
-        ctx.fillText("S (Open)", switchStartX + 5, yJunc - 30);
 
+        // 2. Pink Labels with Subscripts (I_ZENER and P_ZENER)
         ctx.fillStyle = pink;
-        ctx.fillText("I_ZENER = ?", xReg + 20, 270);
-        ctx.fillText("P_ZENER = ?", xReg + 20, 310);
+        ctx.textAlign = "left";
+
+        // I subscript ZENER
+        ctx.font = "bold 16px Arial"; ctx.fillText("I", xReg + 20, 270);
+        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 26, 275);
+        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 68, 270);
+        
+        // P subscript ZENER
+        ctx.font = "bold 16px Arial"; ctx.fillText("P", xReg + 20, 310);
+        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 32, 315);
+        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 74, 310);
     }
     
     // Switch terminals
