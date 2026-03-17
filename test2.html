@@ -1914,38 +1914,39 @@ function generateZenerProblem() {
     drawLine(ctx, xReg, yJunc, switchStartX, yJunc); 
     drawNode(ctx, xReg, yJunc); 
     
+    // 1. Draw the Switch Label "S" (Centered above the switch gap)
+    ctx.fillStyle = "black";
+    ctx.font = "bold 16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("S", (switchStartX + switchEndX) / 2, yJunc - 30);
+    ctx.textAlign = "left"; // Reset alignment for other labels
+
     if (switchClosed) {
-        // 1. Draw Closed Switch Arm
+        // --- SWITCH IS CLOSED ---
         drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); 
 
-        // 2. Pink Labels with Subscripts (I_LOAD and V_LOAD)
         ctx.fillStyle = pink;
-        ctx.textAlign = "left";
-        
-        // I subscript LOAD
+        // I subscript LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("I", switchEndX + 40, yJunc - 15);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", switchEndX + 47, yJunc - 10);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", switchEndX + 80, yJunc - 15);
         
-        // V subscript LOAD
+        // V subscript LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("V", loadX + 40, yJunc + 55);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", loadX + 52, yJunc + 60);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", loadX + 85, yJunc + 55);
 
     } else {
-        // 1. Draw Open Switch Arm
+        // --- SWITCH IS OPEN ---
         drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
 
-        // 2. Pink Labels with Subscripts (I_ZENER and P_ZENER)
         ctx.fillStyle = pink;
-        ctx.textAlign = "left";
-
-        // I subscript ZENER
+        // I subscript ZENER = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("I", xReg + 20, 270);
         ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 26, 275);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 68, 270);
         
-        // P subscript ZENER
+        // P subscript ZENER = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("P", xReg + 20, 310);
         ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 32, 315);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 74, 310);
