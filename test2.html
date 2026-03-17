@@ -1993,36 +1993,38 @@ function generateZenerProblem() {
     drawLine(ctx, loadX, yJunc + 75, loadX, 360);
     drawNode(ctx, loadX, 360);
 
-    // Footer Data (Minimum Holding Current)
+    // --- Footer Data ---
     ctx.font = "bold 16px Arial";
     ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 70, 390);
 
-    // 4. Update the Solution text
-    if (typeof updateZenerSolution === "function") {
-        updateZenerSolution(switchClosed);
-    }
-
+    // --- 1. SET THE QUESTION TEXT (Plain text, no inputs) ---
     const solElement = document.getElementById('solText');
     if (solElement) {
-        solElement.style.display = "block"; // Make sure it's visible
+        solElement.style.display = "block"; 
+        
+        // We define the question based on the switch state
+        let questionHTML = "";
         if (switchClosed) {
-            solElement.innerHTML = `
+            questionHTML = `
                 <p><b>I<sub>LOAD</sub> = ?</b> (e.g. 12.4 mA)</p>
                 <p><b>V<sub>LOAD</sub> = ?</b> (e.g. 5.1 V)</p>
             `;
         } else {
-            solElement.innerHTML = `
+            questionHTML = `
                 <p><b>I<sub>ZENER</sub> = ?</b> (e.g. 8.2 mA)</p>
                 <p><b>P<sub>ZENER</sub> = ?</b> (e.g. 42.5 mW)</p>
             `;
         }
-        // Add the 1 d.p. instruction
-        solElement.innerHTML += `<p style="font-size: 0.9em; margin-top: 15px; color: #666;">
-                                    <i>Give all answers to 1 decimal place.</i>
-                                 </p>`;
+        
+        // Add the instruction prompt
+        questionHTML += `<p style="font-size: 0.9em; margin-top: 15px; color: #666;">
+                            <i>Give all answers to 1 decimal place.</i>
+                         </p>`;
+                         
+        // Inject the plain text into the box
+        solElement.innerHTML = questionHTML;
     }
-    
-}
+} // <--- END of generateZenerProblem (DO NOT call updateZenerSolution here)
     
 // ===========================================================================================================================      
 // FUNCTION 3. NAVIGATION and UI (Traffic Control) 
