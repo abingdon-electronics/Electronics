@@ -315,6 +315,7 @@
 
     <!--ZENER DIODE-->
     <div id="inputGroupZener" style="display:none; text-align: left; width: 100%;">
+    <!-- Questions and inputs are now generated dynamically in the #solText area -->
     <!-- CLOSED SWITCH SECTION -->
     <div id="zenerClosedQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 15px;">
         <p style="margin-top:0; font-weight: bold; color: #333;">Switch S is CLOSED. Calculate:</p>
@@ -1866,28 +1867,27 @@ function generateZenerProblem() {
     currentAnswers.targetIZ = parseFloat(Ir_mA.toFixed(1));
     currentAnswers.targetPZ = parseFloat((Ir_mA * Vz).toFixed(1));
 
-    // 3. UI SETUP
+    // 3. UI SETUP (Handle the hidden input groups)
     const zenerMainGroup = document.getElementById('inputGroupZener');
     if(zenerMainGroup) zenerMainGroup.style.display = "block";
 
     // Ensure both sub-groups are HIDDEN before we decide which one to show
-    if (document.getElementById('zenerClosedQuestions')) document.getElementById('zenerClosedQuestions').style.display = "none";
-    if (document.getElementById('zenerOpenQuestions')) document.getElementById('zenerOpenQuestions').style.display = "none";
-    
     const closedGroup = document.getElementById('zenerClosedQuestions');
     const openGroup = document.getElementById('zenerOpenQuestions');
+    
+    if (closedGroup) closedGroup.style.display = "none";
+    if (openGroup) openGroup.style.display = "none";
     
     if (closedGroup && openGroup) {
         closedGroup.style.display = switchClosed ? "block" : "none";
         openGroup.style.display = switchClosed ? "none" : "block";
     }
 
-    // 4. DRAWING
+    // 4. DRAWING - RAILS
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
     ctx.fillStyle = "black";
     
-    // Rails
     drawLine(ctx, 50, 60, 480, 60);   
     drawLine(ctx, 50, 360, 480, 360); 
     ctx.font = "bold 16px Arial";
@@ -1898,18 +1898,21 @@ function generateZenerProblem() {
     const xLoad = 380;
     const yJunc = 220; 
 
-    // --- LEFT BRANCH ---
+    // --- LEFT BRANCH (Series Resistor Section) ---
     ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
     drawLine(ctx, xReg, 60, xReg, 110); 
     drawArrowOnWire(ctx, xReg, 70, xReg, 90); 
     
     drawComponent(ctx, 'fixed', xReg, 135); 
-    drawLine(ctx, xReg, 160, xReg, 360); 
+    drawLine(ctx, xReg, 160, xReg, 220); // Down to main junction
 
+    // --- ZENER DIODE BRANCH ---
+    drawLine(ctx, xReg, 220, xReg, 290);
     drawHollowZenerUp(ctx, xReg, 290); 
+    drawLine(ctx, xReg, 290, xReg, 360); // Down to ground rail
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
- // --- RIGHT BRANCH (LOAD & SWITCH) ---
+    // --- RIGHT BRANCH (LOAD & SWITCH) ---
     const switchStartX = 240;      
     const switchEndX = 290;        
     const loadX = 380;             
@@ -1924,10 +1927,10 @@ function generateZenerProblem() {
     drawLine(ctx, xReg, yJunc, switchStartX, yJunc); 
     drawNode(ctx, xReg, yJunc); 
     
-    // Base wire to the Load (Plain line, no arrow here)
+    // Base wire to the Load
     drawLine(ctx, switchEndX, yJunc, loadX, yJunc); 
 
-    // Label the switch "S" centrally below the gap
+    // Label the switch "S"
     ctx.font = "bold 16px Arial";
     ctx.textAlign = "center";
     ctx.fillText("S", (switchStartX + switchEndX) / 2, yJunc + 25); 
@@ -1937,47 +1940,43 @@ function generateZenerProblem() {
     ctx.beginPath(); ctx.arc(switchStartX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
     ctx.beginPath(); ctx.arc(switchEndX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
 
-    // 2. State-Dependent Drawing (Interactive Elements)
+    // 2. State-Dependent Drawing (Interactive Pink Elements)
     if (switchClosed) {
-        // --- CASE: SWITCH CLOSED (Solving for Load) ---
         ctx.strokeStyle = "black";
         drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); // Draw closed arm
 
-        // Switch to Pink for Interactive elements
         ctx.strokeStyle = pink;
         ctx.fillStyle = pink;
 
-        // Pink Load Arrow replaces the black one
+        // Pink Load Arrow
         drawArrowOnWire(ctx, switchEndX + 20, yJunc, switchEndX + 50, yJunc);
 
-        // I subscript LOAD = ?
+        // I LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("I", switchEndX + 45, yJunc - 15);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", switchEndX + 52, yJunc - 10);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", switchEndX + 85, yJunc - 15);
         
-        // V subscript LOAD = ?
+        // V LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("V", loadX + 40, yJunc + 55);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", loadX + 52, yJunc + 60);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", loadX + 85, yJunc + 55);
 
     } else {
-        // --- CASE: SWITCH OPEN (Solving for Zener) ---
         ctx.strokeStyle = "black";
         drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); // Draw open arm
 
-        // Switch to Pink for Interactive elements
         ctx.strokeStyle = pink;
         ctx.fillStyle = pink;
 
-        // Pink Zener Arrow (Snapped to vertical wire)
+        // Pink Zener Arrow
         drawArrowOnWire(ctx, xReg, 230, xReg, 255);
 
-        // I ZENER = ? (Moved LEFT and DOWN to level with arrow head at 255)
+        // I ZENER = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("I", xReg - 91, 255);
         ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg - 85, 260);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg - 48, 255);
         
-        // P ZENER = ? (Moved DOWN slightly to y=298 for better centering)
+        // P ZENER = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("P", xReg + 37, 298);
         ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 44, 303);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 79, 298);
@@ -1997,14 +1996,16 @@ function generateZenerProblem() {
     drawLine(ctx, loadX, yJunc + 75, loadX, 360);
     drawNode(ctx, loadX, 360);
 
-    // --- Footer Data ---
+    // Footer Data
     ctx.font = "bold 16px Arial";
     ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 70, 390);
 
-    // --- DISPLAY THE PLAIN TEXT QUESTION ---
+    // --- 4. DISPLAY THE PLAIN TEXT QUESTION IN THE BLUE BOX ---
     const solElement = document.getElementById('solText');
-    if (solElement) {
-        solElement.style.display = "block"; 
+    const solPanel = document.getElementById('solutions'); 
+    
+    if (solElement && solPanel) {
+        solPanel.style.display = 'block'; 
         if (switchClosed) {
             solElement.innerHTML = `
                 <p><b>I<sub>LOAD</sub> = ?</b> (e.g. 12.4 mA)</p>
@@ -2016,12 +2017,8 @@ function generateZenerProblem() {
                 <p><b>P<sub>ZENER</sub> = ?</b> (e.g. 42.5 mW)</p>
             `;
         }
-        // Add the 1 d.p. instruction
-        solElement.innerHTML += `<p style="font-size: 0.9em; margin-top: 15px; color: #666;">
-                                    <i>Give all answers to 1 decimal place.</i>
-                                 </p>`;
+        solElement.innerHTML += `<p style="font-size: 0.85em; color: #666; font-style: italic; margin-top: 10px;">Give all answers to 1 decimal place.</p>`;
     }
-    // IMPORTANT: Do NOT call updateZenerSolution(switchClosed) here!
 }
     
 // ===========================================================================================================================      
@@ -2265,17 +2262,22 @@ function generateProblem() {
 // FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
 // =======================================================================================================   
     
+/**
+ * CHECK ANSWERS
+ * Complete version with Zener upgrades and no omissions.
+ */
 function checkAnswers() {
     if (isCurrentProblemSolved) return; 
 
     const feedback = document.getElementById('feedback');
     const helpBtn = document.getElementById('helpBtn');
 
-    // 1. Identify which inputs are currently active
+    // 1. Identify active inputs
     let activeInputs = [];
     if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
     else if (currentMode === 'divider') activeInputs = ['inputV'];
     else if (currentMode === 'resistance') activeInputs = ['inputR']; 
+    else if (currentMode === 'zener') activeInputs = ['zAns1', 'zAns2'];
     else if (currentMode === 'oscilloscope') {
         activeInputs = ['inputOscAmp'];
         if (currentAnswers.oscQType === 1) activeInputs.push('inputOscMark', 'inputOscSpace');
@@ -2284,92 +2286,44 @@ function checkAnswers() {
     }
     else if (currentMode === 'colorcode') {
         const valGroup = document.getElementById('inputGroupColorVal');
-        if (valGroup && valGroup.style.display !== 'none') {
-            activeInputs = ['inputResValue', 'inputResTol'];
-        } else {
-            activeInputs = ['inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'];
-        }
+        activeInputs = (valGroup && valGroup.style.display !== 'none') ? 
+            ['inputResValue', 'inputResTol'] : ['inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'];
     }
     else if (currentMode === 'astable') {
-        if (currentAnswers.astableQType === 0) activeInputs = ['inputAstable', 'inputAstableT'];
-        else activeInputs = ['inputMarkSpace'];
+        activeInputs = (currentAnswers.astableQType === 0) ? ['inputAstable', 'inputAstableT'] : ['inputMarkSpace'];
     }
-    else if (currentMode === 'monostable') {
-        activeInputs = ['inputMonostable'];
-    }
-    // --- ADDED ZENER INPUT IDENTIFICATION ---
-    else if (currentMode === 'zener') {
-        if (currentZenerState === "closed") {
-            activeInputs = ['zenerQ_IL', 'zenerQ_VL'];
-        } else {
-            activeInputs = ['zenerQ_IZ', 'zenerQ_PZ'];
-        }
-    }
+    else if (currentMode === 'monostable') activeInputs = ['inputMonostable'];
 
-    // Check for empty boxes
-    let hasEmptyBox = false;
-    activeInputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el || el.value.trim() === '') {
-            hasEmptyBox = true;
-        }
-    });
-
+    // 2. Check for empty boxes
+    let hasEmptyBox = activeInputs.some(id => !document.getElementById(id) || document.getElementById(id).value.trim() === '');
     if (hasEmptyBox) {
         feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a value!</span>";
         return; 
     }
     
-    if (!hasCheckedCurrentProblem) { 
-        problemsAttempted++; 
-        hasCheckedCurrentProblem = true; 
-    }
+    if (!hasCheckedCurrentProblem) { problemsAttempted++; hasCheckedCurrentProblem = true; }
 
     // 3. Grade the inputs
     let results = [];
-    
     if (currentMode === 'zener') {
-        // --- ADDED ZENER GRADING LOGIC ---
-        if (currentZenerState === "closed") {
-            const valIL = parseFloat(document.getElementById('zenerQ_IL').value);
-            const valVL = parseFloat(document.getElementById('zenerQ_VL').value);
-            
-            results.push(Math.abs(valIL - currentAnswers.targetIL) < 0.2 ? 'correct' : 'wrong');
-            results.push(Math.abs(valVL - currentAnswers.targetVL) < 0.2 ? 'correct' : 'wrong');
-        } else {
-            const valIZ = parseFloat(document.getElementById('zenerQ_IZ').value);
-            const valPZ = parseFloat(document.getElementById('zenerQ_PZ').value);
-            
-            results.push(Math.abs(valIZ - currentAnswers.targetIZ) < 0.2 ? 'correct' : 'wrong');
-            results.push(Math.abs(valPZ - currentAnswers.targetPZ) < 0.5 ? 'correct' : 'wrong');
-        }
-        // Note: Zener doesn't use the 'parseInput' unit-checking helper currently 
-        // because units are pre-defined in labels (mA/V/mW).
+        const val1 = parseFloat(document.getElementById('zAns1').value);
+        const val2 = parseFloat(document.getElementById('zAns2').value);
+        results.push(Math.abs(val1 - currentAnswers.target1) < 0.2 ? 'correct' : 'wrong');
+        results.push(Math.abs(val2 - currentAnswers.target2) < (currentZenerState === "closed" ? 0.2 : 0.5) ? 'correct' : 'wrong');
     } 
     else if (currentMode === 'colorcode') {
-        // ... (Keep existing colorcode logic)
         const valGroup = document.getElementById('inputGroupColorVal');
         if (valGroup && valGroup.style.display !== 'none') {
             const userRes = parseInput(document.getElementById('inputResValue').value);
             const userTol = parseFloat(document.getElementById('inputResTol').value);
-            if (userRes && Math.abs(userRes.val - currentAnswers.resVal) < (currentAnswers.resVal * 0.01)) {
-                results.push('correct');
-            } else {
-                results.push('wrong');
-            }
+            results.push((userRes && Math.abs(userRes.val - currentAnswers.resVal) < (currentAnswers.resVal * 0.01)) ? 'correct' : 'wrong');
             results.push(userTol === currentAnswers.resTol ? 'correct' : 'wrong');
         } else {
             const b1 = document.getElementById('inputBand1').value.toLowerCase().trim();
             const b2 = document.getElementById('inputBand2').value.toLowerCase().trim();
             const b3 = document.getElementById('inputBand3').value.toLowerCase().trim();
             const b4 = document.getElementById('inputBandTol').value.toLowerCase().trim();
-
-            if (b1 === currentAnswers.b1 && b2 === currentAnswers.b2 && 
-                b3 === currentAnswers.b3 && b4 === currentAnswers.tol) {
-                results.push('correct');
-            } else {
-                results.push('wrong');
-            }
+            results.push((b1 === currentAnswers.b1 && b2 === currentAnswers.b2 && b3 === currentAnswers.b3 && b4 === currentAnswers.tol) ? 'correct' : 'wrong');
         }
     } 
     else if (currentMode === 'analysis') {
@@ -2387,65 +2341,42 @@ function checkAnswers() {
         } else if (currentAnswers.oscQType === 2) {
             results.push(validateMatch(parseInput(document.getElementById('inputOscPeriod').value), currentAnswers.oscPeriodValue, currentAnswers.oscPeriodUnit));
             results.push(validateMatch(parseInput(document.getElementById('inputOscFreq').value), currentAnswers.oscFreqValue, currentAnswers.oscFreqUnit));
-        } else {
-            const userRatio = document.getElementById('inputOscRatio').value.trim();
-            results.push(userRatio === currentAnswers.oscRatioValue ? 'correct' : 'wrong');
-        }
+        } else results.push(document.getElementById('inputOscRatio').value.trim() === currentAnswers.oscRatioValue ? 'correct' : 'wrong');
     } else if (currentMode === 'astable') {
         if (currentAnswers.astableQType === 0) {
             results.push(validateMatch(parseInput(document.getElementById('inputAstable').value), currentAnswers.astableValue, currentAnswers.astableUnit));
             results.push(validateMatch(parseInput(document.getElementById('inputAstableT').value), currentAnswers.astableTValue, currentAnswers.astableTUnit));
-        } else {
-            const userRatio = document.getElementById('inputMarkSpace').value.trim();
-            results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrong');
-        }
-    } 
-    else if (currentMode === 'monostable') {
+        } else results.push(document.getElementById('inputMarkSpace').value.trim() === currentAnswers.astableRatio ? 'correct' : 'wrong');
+    } else if (currentMode === 'monostable') {
         results.push(validateMatch(parseInput(document.getElementById('inputMonostable').value), currentAnswers.expectedT, currentAnswers.expectedUnit));
     }
 
-    // 4. Final Scoring and Feedback Display
-    // UNIVERSAL BORDER FEEDBACK:
-    // This loops through every box the user just typed in and turns it green or red.
-        activeInputs.forEach((id, index) => {
-            const inputElement = document.getElementById(id);
-                if (inputElement) {
-                // If the result for this specific box is 'correct', turn it Green. Otherwise, turn it Red.
-                inputElement.style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
-                inputElement.style.borderWidth = "2px";
-            }
+    // 4. Final Scoring and Feedback
+    activeInputs.forEach((id, index) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
+            el.style.borderWidth = "2px";
+        }
     });
+
     if (results.every(r => r === 'correct')) {
         isCurrentProblemSolved = true;
         if (!viewedSolution && !unitErrorMade) {
             problemsCorrect++;
             feedback.innerHTML = "<span style='color: #198754;'>Correct! Great job!</span>";
-        } else if (unitErrorMade) {
-            feedback.innerHTML = "<span style='color: #fd7e14;'>Correct! (No point awarded due to earlier unit error).</span>";
-        } else {
-            feedback.innerHTML = "<span style='color: #E64097;'>Correct! (Solution viewed).</span>";
-        }
+        } else if (unitErrorMade) feedback.innerHTML = "<span style='color: #fd7e14;'>Correct! (No point: earlier unit error).</span>";
+        else feedback.innerHTML = "<span style='color: #E64097;'>Correct! (Solution viewed).</span>";
         if (helpBtn) helpBtn.style.display = 'none';
-        
-        // Auto-show solution on success for Zener
         const solBox = document.getElementById('solutions');
         if (solBox) solBox.style.display = 'block';
-
     } else {
         if (helpBtn) helpBtn.style.display = 'block';
-        if (results.includes('nounit')) {
-            unitErrorMade = true;
-            feedback.innerHTML = "<span style='color: #fd7e14;'>Don't forget your units! (Mark lost)</span>";
-        } else if (results.includes('wrongunit')) {
-            unitErrorMade = true;
-            feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost)</span>";
-        } else if (results.some(r => r === 'correct')) {
-            feedback.innerHTML = "<span style='color: #dc3545;'>One is right, one is wrong. Check logic!</span>";
-        } else {
-            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Check your math!</span>";
-        }
+        if (results.includes('nounit')) { unitErrorMade = true; feedback.innerHTML = "<span style='color: #fd7e14;'>Don't forget units! (Mark lost)</span>"; }
+        else if (results.includes('wrongunit')) { unitErrorMade = true; feedback.innerHTML = "<span style='color: #fd7e14;'>Number right, units wrong! (Mark lost)</span>"; }
+        else if (results.some(r => r === 'correct')) feedback.innerHTML = "<span style='color: #dc3545;'>One is right, one is wrong.</span>";
+        else feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Check your math!</span>";
     }
-
     updateScoreboard();
 }
     
