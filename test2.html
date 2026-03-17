@@ -65,7 +65,7 @@
     height: auto;
 }
 
-        #mainMenu .tab {
+#mainMenu .tab {
     width: 320px;      /* Big width for Home Page only */
     min-height: 90px;  /* Big height for Home Page only */
     font-size: 19px;   /* Larger text for Home Page only */
@@ -108,16 +108,20 @@
         .input-spacer { height: 55px; visibility: hidden; display: block; }
         .input-group { margin: 10px 0; font-size: 18px; font-weight: bold; display: inline-block; margin-right: 15px; }
         input[type="text"] { 
-    font-size: 18px; /* Slightly larger text */
-    padding: 10px;  /* More 'breathing room' inside the box */
-    height: 45px;   /* Consistent height */
-    width: 140px;   /* Slightly wider for unit strings */
-    text-align: center;
-    margin: 0 5px; 
-    border: 2px solid #ccc; /* Thicker border to match brand style */
-    border-radius: 6px; 
-    outline-color: #E64097;
-    box-sizing: border-box; /* Ensures padding doesn't break the width */
+            font-size: 18px; /* Slightly larger text */
+            padding: 10px;  /* More 'breathing room' inside the box */
+            height: 45px;   /* Consistent height */
+            width: 140px;   /* Slightly wider for unit strings */
+            text-align: center;
+            margin: 0 5px; 
+            border: 2px solid #ccc; /* Thicker border to match brand style */
+            border-radius: 6px; 
+            outline-color: #E64097;
+            box-sizing: border-box; /* Ensures padding doesn't break the width */
+}
+        input[type="text"]:focus {
+        border-color: #E64097 !important; /* Turns pink again when they start typing a new answer */
+        outline: none;
 }
         b.feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
         
@@ -1434,6 +1438,8 @@ function generateAstableProblem() {
         
         currentAnswers.astableValue = parseFloat(freq.toFixed(1)); 
         currentAnswers.astableTValue = parseFloat(period_ms.toFixed(1)); 
+        currentAnswers.astableUnit = "hz";   // Tells the judge to expect Hz
+        currentAnswers.astableTUnit = "ms";  // Tells the judge to expect ms
     } else {
         if(groupRatio) groupRatio.style.display = "inline-block";
         if(groupStd) groupStd.style.display = "none";
@@ -2292,14 +2298,16 @@ function checkAnswers() {
     }
 
     // 4. Final Scoring and Feedback Display
-    // Update border colors for Zener specifically
-    if (currentMode === 'zener') {
+    // UNIVERSAL BORDER FEEDBACK:
+    // This loops through every box the user just typed in and turns it green or red.
         activeInputs.forEach((id, index) => {
-            document.getElementById(id).style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
-            document.getElementById(id).style.borderWidth = "2px";
-        });
-    }
-
+            const inputElement = document.getElementById(id);
+                if (inputElement) {
+                // If the result for this specific box is 'correct', turn it Green. Otherwise, turn it Red.
+                inputElement.style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
+                inputElement.style.borderWidth = "2px";
+            }
+    });
     if (results.every(r => r === 'correct')) {
         isCurrentProblemSolved = true;
         if (!viewedSolution && !unitErrorMade) {
