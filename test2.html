@@ -2001,6 +2001,27 @@ function generateZenerProblem() {
     if (typeof updateZenerSolution === "function") {
         updateZenerSolution(switchClosed);
     }
+
+    const solElement = document.getElementById('solText');
+    if (solElement) {
+        solElement.style.display = "block"; // Make sure it's visible
+        if (switchClosed) {
+            solElement.innerHTML = `
+                <p><b>I<sub>LOAD</sub> = ?</b> (e.g. 12.4 mA)</p>
+                <p><b>V<sub>LOAD</sub> = ?</b> (e.g. 5.1 V)</p>
+            `;
+        } else {
+            solElement.innerHTML = `
+                <p><b>I<sub>ZENER</sub> = ?</b> (e.g. 8.2 mA)</p>
+                <p><b>P<sub>ZENER</sub> = ?</b> (e.g. 42.5 mW)</p>
+            `;
+        }
+        // Add the 1 d.p. instruction
+        solElement.innerHTML += `<p style="font-size: 0.9em; margin-top: 15px; color: #666;">
+                                    <i>Give all answers to 1 decimal place.</i>
+                                 </p>`;
+    }
+    
 }
     
 // ===========================================================================================================================      
@@ -2678,24 +2699,22 @@ function updateZenerSolution(isClosed) {
     if (!solElement) return;
 
     if (isClosed) {
-        // This math matches the "Switch Closed" state
         solElement.innerHTML = `
-            <strong>Switch Closed Solution:</strong><br>
-            1. The Zener diode is active, so it takes its minimum current: <strong>${currentAnswers.Iz_min}mA</strong>.<br>
-            2. The load current is whatever is left over from the total current.<br>
+            <p><strong>Switch Closed Solution:</strong></p>
+            <p>1. The Zener diode is active, taking its minimum current: <b>${currentAnswers.Iz_min} mA</b>.</p>
+            <p>2. The load current is the remaining total current:<br>
             I<sub>LOAD</sub> = I<sub>TOTAL</sub> - I<sub>ZENER</sub><br>
-            I<sub>LOAD</sub> = ${currentAnswers.Ir_mA}mA - ${currentAnswers.Iz_min}mA = <strong>${currentAnswers.targetIL}mA</strong><br>
-            3. The voltage across the load is clamped by the Zener: <strong>${currentAnswers.targetVL}V</strong>.
+            I<sub>LOAD</sub> = ${currentAnswers.Ir_mA} mA - ${currentAnswers.Iz_min} mA = <b>${currentAnswers.targetIL} mA</b></p>
+            <p>3. The load voltage is clamped by the Zener: <b>${currentAnswers.targetVL} V</b>.</p>
         `;
     } else {
-        // This math matches the "Switch Open" state
         solElement.innerHTML = `
-            <strong>Switch Open Solution:</strong><br>
-            1. Because the switch is open, the load is disconnected. I<sub>LOAD</sub> = 0mA.<br>
-            2. This means 100% of the current must go through the Zener diode.<br>
-            I<sub>ZENER</sub> = <strong>${currentAnswers.targetIZ}mA</strong><br>
-            3. Power Dissipated = I &times; V<br>
-            P<sub>ZENER</sub> = ${currentAnswers.targetIZ}mA &times; ${currentAnswers.Vz}V = <strong>${currentAnswers.targetPZ}mW</strong>.
+            <p><strong>Switch Open Solution:</strong></p>
+            <p>1. The load is disconnected, so I<sub>LOAD</sub> = 0 mA.</p>
+            <p>2. Total current now flows through the Zener:<br>
+            I<sub>ZENER</sub> = <b>${currentAnswers.targetIZ} mA</b></p>
+            <p>3. Power Dissipated = I &times; V<br>
+            P<sub>ZENER</sub> = ${currentAnswers.targetIZ} mA &times; ${currentAnswers.Vz} V = <b>${currentAnswers.targetPZ} mW</b>.</p>
         `;
     }
 }
