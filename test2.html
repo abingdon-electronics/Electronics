@@ -1905,95 +1905,99 @@ function generateZenerProblem() {
     drawHollowZenerUp(ctx, xReg, 290); 
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
-   // --- RIGHT BRANCH (LOAD & SWITCH) ---
+ // --- RIGHT BRANCH (LOAD & SWITCH) ---
     const switchStartX = 240;      
     const switchEndX = 290;        
     const loadX = 380;             
     const pink = "#E64097"; // Abingdon Pink
 
-    // Draw connecting wires and junction node
+    // 1. Draw Base Circuit (Strictly Black)
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = "black";
+    ctx.lineWidth = 2;
+    
+    // Horizontal wire from junction to switch
     drawLine(ctx, xReg, yJunc, switchStartX, yJunc); 
     drawNode(ctx, xReg, yJunc); 
     
-    // Draw Switch Label "S" below the switch arm
-    ctx.fillStyle = "black";
+    // Base wire to the Load (Plain line, no arrow here)
+    drawLine(ctx, switchEndX, yJunc, loadX, yJunc); 
+
+    // Label the switch "S" centrally below the gap
     ctx.font = "bold 16px Arial";
     ctx.textAlign = "center";
     ctx.fillText("S", (switchStartX + switchEndX) / 2, yJunc + 25); 
     ctx.textAlign = "left"; 
 
-    if (switchClosed) {
-        // --- SWITCH IS CLOSED (Asking for LOAD values) ---
-        drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); 
+    // Switch terminals (Small circles)
+    ctx.beginPath(); ctx.arc(switchStartX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
+    ctx.beginPath(); ctx.arc(switchEndX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
 
+    // 2. State-Dependent Drawing (Interactive Elements)
+    if (switchClosed) {
+        // --- CASE: SWITCH CLOSED (Solving for Load) ---
+        ctx.strokeStyle = "black";
+        drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); // Draw closed arm
+
+        // Switch to Pink for Interactive elements
         ctx.strokeStyle = pink;
         ctx.fillStyle = pink;
 
-        // 1. Pink Arrow for I LOAD (Replacing the black one at same position)
-        // Positioned between switch and load box
+        // Draw Pink Load Arrow (Only shows when relevant)
         drawArrowOnWire(ctx, switchEndX + 20, yJunc, switchEndX + 50, yJunc);
 
-        // 2. I subscript LOAD = ?
+        // Subscript Label: I LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("I", switchEndX + 45, yJunc - 15);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", switchEndX + 52, yJunc - 10);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", switchEndX + 85, yJunc - 15);
         
-        // 3. V subscript LOAD = ?
+        // Subscript Label: V LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("V", loadX + 40, yJunc + 55);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", loadX + 52, yJunc + 60);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", loadX + 85, yJunc + 55);
 
     } else {
-        // --- SWITCH IS OPEN (Asking for ZENER values) ---
-        drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
+        // --- CASE: SWITCH OPEN (Solving for Zener) ---
+        ctx.strokeStyle = "black";
+        drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); // Draw open arm
 
+        // Switch to Pink for Interactive elements
         ctx.strokeStyle = pink;
         ctx.fillStyle = pink;
 
-        // 1. Pink Arrow for I ZENER (Shifted Left to be ON the wire and Higher)
-        // This puts the arrow directly on the vertical wire above the diode
-        drawArrowOnWire(ctx, xReg, 230, xReg, 260);
+        // Pink Zener Arrow (Snapped to vertical wire, moved up)
+        drawArrowOnWire(ctx, xReg, 230, xReg, 255);
 
-        // 2. I subscript ZENER = ? (Shifted Left to match arrow move)
-        ctx.font = "bold 16px Arial"; ctx.fillText("I", xReg - 75, 245);
-        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg - 69, 250);
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg - 27, 245);
+        // I ZENER = ? (Moved significantly LEFT to avoid crowding)
+        ctx.font = "bold 16px Arial"; ctx.fillText("I", xReg - 115, 245);
+        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg - 109, 250);
+        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg - 67, 245);
         
-        // 3. P subscript ZENER = ? (Right side)
-        ctx.font = "bold 16px Arial"; ctx.fillText("P", xReg + 25, 310);
-        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 37, 315);
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 79, 310);
+        // P ZENER = ? (Centered vertically with the Zener diode)
+        ctx.font = "bold 16px Arial"; ctx.fillText("P", xReg + 25, 292);
+        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 37, 297);
+        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 79, 292);
     }
-
-    // --- CLEANUP ---
-    // Ensure the wire to the load is drawn, but WITHOUT a black arrow
+    
+    // 3. Final Draw (Load Box and Ground Connections)
     ctx.strokeStyle = "black";
-    drawLine(ctx, switchEndX, yJunc, loadX, yJunc); 
+    ctx.fillStyle = "black";
     
-    
-    // Switch terminals
-    ctx.strokeStyle = "black";
-    ctx.beginPath(); ctx.arc(switchStartX, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
-    ctx.beginPath(); ctx.arc(switchEndX, yJunc, 3, 0, Math.PI*2); ctx.stroke(); 
-    
-    // Wire to Load
-    drawLine(ctx, switchEndX, yJunc, loadX, yJunc); 
-    drawArrowOnWire(ctx, switchEndX + 30, yJunc, switchEndX + 50, yJunc); 
-
-    // Load Box
-    ctx.strokeStyle = "black"; ctx.fillStyle = "black";
+    // Load Resistor Box
     drawLine(ctx, loadX, yJunc, loadX, yJunc + 30);
     ctx.strokeRect(loadX - 30, yJunc + 30, 60, 45); 
+    ctx.font = "bold 14px Arial"; // Slightly smaller for the box label
     ctx.fillText("LOAD", loadX - 20, yJunc + 58);
+    
+    // Complete the path to ground
     drawLine(ctx, loadX, yJunc + 75, loadX, 360);
     drawNode(ctx, loadX, 360);
 
-    // Footer Data
-    ctx.fillStyle = "black";
+    // Footer Data (Minimum Holding Current)
     ctx.font = "bold 16px Arial";
     ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 70, 390);
 
-    // 5. Update the solution (Make sure this function exists elsewhere in your script)
+    // 4. Update the Solution text
     if (typeof updateZenerSolution === "function") {
         updateZenerSolution(switchClosed);
     }
