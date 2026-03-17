@@ -1943,15 +1943,15 @@ function generateZenerProblem() {
         ctx.strokeStyle = pink;
         ctx.fillStyle = pink;
 
-        // Draw Pink Load Arrow (Only shows when relevant)
+        // Pink Load Arrow replaces the black one
         drawArrowOnWire(ctx, switchEndX + 20, yJunc, switchEndX + 50, yJunc);
 
-        // Subscript Label: I LOAD = ?
+        // I subscript LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("I", switchEndX + 45, yJunc - 15);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", switchEndX + 52, yJunc - 10);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", switchEndX + 85, yJunc - 15);
         
-        // Subscript Label: V LOAD = ?
+        // V subscript LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("V", loadX + 40, yJunc + 55);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", loadX + 52, yJunc + 60);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", loadX + 85, yJunc + 55);
@@ -1965,18 +1965,18 @@ function generateZenerProblem() {
         ctx.strokeStyle = pink;
         ctx.fillStyle = pink;
 
-        // Pink Zener Arrow (Snapped to vertical wire, moved up)
+        // Pink Zener Arrow (Snapped to vertical wire)
         drawArrowOnWire(ctx, xReg, 230, xReg, 255);
 
-        // I ZENER = ? (Moved significantly LEFT to avoid crowding)
-        ctx.font = "bold 16px Arial"; ctx.fillText("I", xReg - 115, 245);
-        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg - 109, 250);
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg - 67, 245);
+        // I ZENER = ? (Moved LEFT and DOWN to level with arrow head at 255)
+        ctx.font = "bold 16px Arial"; ctx.fillText("I", xReg - 120, 255);
+        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg - 114, 260);
+        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg - 72, 255);
         
-        // P ZENER = ? (Centered vertically with the Zener diode)
-        ctx.font = "bold 16px Arial"; ctx.fillText("P", xReg + 25, 292);
-        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 37, 297);
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 79, 292);
+        // P ZENER = ? (Moved DOWN slightly to y=298 for better centering)
+        ctx.font = "bold 16px Arial"; ctx.fillText("P", xReg + 25, 298);
+        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 37, 303);
+        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 79, 298);
     }
     
     // 3. Final Draw (Load Box and Ground Connections)
@@ -1986,7 +1986,7 @@ function generateZenerProblem() {
     // Load Resistor Box
     drawLine(ctx, loadX, yJunc, loadX, yJunc + 30);
     ctx.strokeRect(loadX - 30, yJunc + 30, 60, 45); 
-    ctx.font = "bold 14px Arial"; // Slightly smaller for the box label
+    ctx.font = "bold 14px Arial"; 
     ctx.fillText("LOAD", loadX - 20, yJunc + 58);
     
     // Complete the path to ground
