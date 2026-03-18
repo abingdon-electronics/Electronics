@@ -446,31 +446,15 @@
 const brandPink = "#E64097";
 const brandBlack = "#000000";
 
-
-// --- GLOBAL STATE (Ensure these are at the top of your script) ---
-// Ensure this object contains all keys expected by the master grader (grader_logic.js)
+// --- GLOBAL STATE ---
 let currentAnswers = { 
-    vNameHTML: '', vValue: 0, vUnit: '', 
-    iNameHTML: '', iValue: 0, iUnit: '', 
-    rValue: 0, rUnit: '', 
-    osc1Value: 0, osc1Unit: '', 
-    osc2Value: 0, osc2Unit: '',
-    astableRatio: '', 
-    // Zener specific targets used by the master grader logic
-    target1: 0, 
-    target2: 0,
-    targetIL: 0, 
-    targetVL: 0,
-    targetIZ: 0,
-    targetPZ: 0
+    target1: 0, target2: 0 
 }; 
 
 let currentZenerState = "open"; 
 let currentMode = ""; 
 let isCurrentProblemSolved = false;
 let hasCheckedCurrentProblem = false;
-let problemsAttempted = 0;
-let problemsCorrect = 0;
 
 /* --- 2. MAIN CONTROLLER --- */
 function handleGenerateClick() {
@@ -1897,37 +1881,52 @@ function validateMatch(userObj, targetVal, targetUnit) {
     return 'wrong';
 }
 
-/**
+**
  * GENERATE ZENER PROBLEM
- * Generates a circuit and injects dynamic HTML inputs into the solutions panel
- */
-
-/**
- * GENERATE ZENER PROBLEM
- * Deep Dive Fix: Restores variable mapping from the working Backup 
- * while keeping the dynamic UI injection from Iteration 2.
+ * Direct drawing and deep cleaning implementation.
  */
 function generateZenerProblem() {
-    // 1. Reset UI & Canvas (Deep Cleaning)
-    hideAllInputGroups();
+    // 1. DEEP CLEAN (Strictly following BackUP logic)
+    if (typeof hideAllInputGroups === "function") hideAllInputGroups();
     
+    const feedback = document.getElementById('feedback');
+    if (feedback) feedback.innerHTML = "";
+
+    const solutions = document.getElementById('solutions');
+    const solText = document.getElementById('solText');
+    if (solutions) {
+        solutions.style.display = 'none';
+        if (solText) solText.innerHTML = "";
+    }
+
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.innerHTML = "";      
+        qText.style.display = 'none'; 
+    }
+
+    // Reset instruction prompts
+    ['astableInstruction', 'ratioInstruction', 'zenerInstruction'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = "";
+    });
+
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    // Core Reset Logic
+    // Canvas State Reset
     ctx.setTransform(1, 0, 0, 1, 0, 0); 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath(); 
     
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     
-    // Set state
     currentMode = 'zener'; 
     isCurrentProblemSolved = false;
     hasCheckedCurrentProblem = false;
     
-    // 2. Random Variables & Math
+    // 2. RANDOM VARIABLES & MATH
     const Vin = Math.floor(Math.random() * 10) + 6; 
     const Vz = (Math.floor(Math.random() * 41) + 20) / 10; 
     const Iz_min = Math.floor(Math.random() * 6) + 5; 
@@ -1936,30 +1935,23 @@ function generateZenerProblem() {
     const switchClosed = Math.random() > 0.5;
     currentZenerState = switchClosed ? "closed" : "open"; 
 
-    // Syncing with Master Grader Expectations (targetIL, targetVL, etc.)
+    // Target Assignment
     if (switchClosed) {
-        currentAnswers.targetIL = parseFloat((Ir_mA - Iz_min).toFixed(1)); // I_LOAD
-        currentAnswers.targetVL = parseFloat(Vz.toFixed(1));              // V_LOAD
-        // Duplicating to target1/2 for local redundant checks
-        currentAnswers.target1 = currentAnswers.targetIL;
-        currentAnswers.target2 = currentAnswers.targetVL;
+        currentAnswers.target1 = parseFloat((Ir_mA - Iz_min).toFixed(1)); // I_LOAD
+        currentAnswers.target2 = parseFloat(Vz.toFixed(1));              // V_LOAD
     } else {
-        currentAnswers.targetIZ = parseFloat(Ir_mA.toFixed(1));           // I_ZENER
-        currentAnswers.targetPZ = parseFloat((Ir_mA * Vz).toFixed(1));    // P_ZENER
-        // Duplicating to target1/2 for local redundant checks
-        currentAnswers.target1 = currentAnswers.targetIZ;
-        currentAnswers.target2 = currentAnswers.targetPZ;
+        currentAnswers.target1 = parseFloat(Ir_mA.toFixed(1));           // I_ZENER
+        currentAnswers.target2 = parseFloat((Ir_mA * Vz).toFixed(1));    // P_ZENER
     }
 
-    // 3. Drawing Circuit
+    // 3. DIRECT DRAWING (Assuming utilities exist in global scope)
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
     ctx.fillStyle = "black";
     
-    if (typeof drawLine === "function") {
-        drawLine(ctx, 50, 60, 480, 60);   
-        drawLine(ctx, 50, 360, 480, 360); 
-    }
+    drawLine(ctx, 50, 60, 480, 60);   
+    drawLine(ctx, 50, 360, 480, 360); 
+    
     ctx.font = "bold 16px Arial";
     ctx.fillText(Vin + " V", 10, 65);
     ctx.fillText("0 V", 10, 365);
@@ -1969,23 +1961,25 @@ function generateZenerProblem() {
     const yJunc = 220; 
 
     ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
-    if (typeof drawLine === "function") drawLine(ctx, xReg, 60, xReg, 110); 
-    if (typeof drawArrowOnWire === "function") drawArrowOnWire(ctx, xReg, 70, xReg, 90); 
-    if (typeof drawComponent === "function") drawComponent(ctx, 'fixed', xReg, 135); 
-    if (typeof drawLine === "function") drawLine(ctx, xReg, 160, xReg, 220); 
-
-    if (typeof drawLine === "function") drawLine(ctx, xReg, 220, xReg, 290);
-    if (typeof drawHollowZenerUp === "function") drawHollowZenerUp(ctx, xReg, 290); 
-    if (typeof drawLine === "function") drawLine(ctx, xReg, 290, xReg, 360); 
+    
+    drawLine(ctx, xReg, 60, xReg, 110);
+    drawArrowOnWire(ctx, xReg, 70, xReg, 90); 
+    drawComponent(ctx, 'fixed', xReg, 135); 
+    drawLine(ctx, xReg, 160, xReg, 220); 
+    
+    drawLine(ctx, xReg, 220, xReg, 290);
+    drawHollowZenerUp(ctx, xReg, 290); 
+    drawLine(ctx, xReg, 290, xReg, 360); 
+    
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
     const switchStartX = 240;      
     const switchEndX = 290;        
     const pink = "#E64097"; 
 
-    if (typeof drawLine === "function") drawLine(ctx, xReg, yJunc, switchStartX, yJunc); 
-    if (typeof drawNode === "function") drawNode(ctx, xReg, yJunc); 
-    if (typeof drawLine === "function") drawLine(ctx, switchEndX, yJunc, xLoad, yJunc); 
+    drawLine(ctx, xReg, yJunc, switchStartX, yJunc); 
+    drawNode(ctx, xReg, yJunc); 
+    drawLine(ctx, switchEndX, yJunc, xLoad, yJunc); 
 
     ctx.font = "bold 16px Arial";
     ctx.textAlign = "center";
@@ -1997,139 +1991,90 @@ function generateZenerProblem() {
 
     if (switchClosed) {
         ctx.strokeStyle = "black";
-        if (typeof drawLine === "function") drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); 
+        drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); 
         ctx.strokeStyle = pink; ctx.fillStyle = pink;
-        if (typeof drawArrowOnWire === "function") drawArrowOnWire(ctx, switchEndX + 20, yJunc, switchEndX + 50, yJunc);
+        drawArrowOnWire(ctx, switchEndX + 20, yJunc, switchEndX + 50, yJunc);
         ctx.fillText("I_LOAD = ?", switchEndX + 45, yJunc - 15);
         ctx.fillText("V_LOAD = ?", xLoad + 40, yJunc + 55);
     } else {
         ctx.strokeStyle = "black";
-        if (typeof drawLine === "function") drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
+        drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
         ctx.strokeStyle = pink; ctx.fillStyle = pink;
-        if (typeof drawArrowOnWire === "function") drawArrowOnWire(ctx, xReg, 230, xReg, 255);
+        drawArrowOnWire(ctx, xReg, 230, xReg, 255);
         ctx.fillText("I_ZENER = ?", xReg - 91, 255);
         ctx.fillText("P_ZENER = ?", xReg + 37, 298);
     }
     
     ctx.strokeStyle = "black"; ctx.fillStyle = "black";
-    if (typeof drawLine === "function") drawLine(ctx, xLoad, yJunc, xLoad, yJunc + 30);
+    drawLine(ctx, xLoad, yJunc, xLoad, yJunc + 30);
     ctx.strokeRect(xLoad - 30, yJunc + 30, 60, 45); 
     ctx.fillText("LOAD", xLoad - 20, yJunc + 58);
-    if (typeof drawLine === "function") drawLine(ctx, xLoad, yJunc + 75, xLoad, 360);
-    if (typeof drawNode === "function") drawNode(ctx, xLoad, 360);
+    drawLine(ctx, xLoad, yJunc + 75, xLoad, 360);
+    drawNode(ctx, xLoad, 360);
+    
     ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 70, 390);
 
-    // 4. Dynamic UI Injection
-    const solPanel = document.getElementById('solutions');
-    const solText = document.getElementById('solText');
-    
-    if (solPanel && solText) {
-        solPanel.style.display = 'block'; 
+    // 4. DYNAMIC UI INJECTION
+    if (solutions && solText) {
+        solutions.style.display = 'block'; 
         const label1 = switchClosed ? "I LOAD" : "I ZENER";
         const label2 = switchClosed ? "V LOAD" : "P ZENER";
         const unit2 = switchClosed ? "V" : "mW";
 
         solText.innerHTML = `
-            <div style="display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 15px; background: #fff; border: 2px solid #333; border-radius: 8px; box-shadow: 4px 4px 0px rgba(0,0,0,0.1);">
+            <div style="display: flex; gap: 20px; align-items: center; justify-content: center; padding: 15px; background: #fff; border: 2px solid #333; border-radius: 8px;">
                 <div style="text-align: center;">
                     <span style="font-weight: bold; display: block; margin-bottom: 5px; color: #E64097;">${label1}</span>
-                    <input type="number" id="zAns1" step="0.1" style="width: 90px; padding: 8px; border: 2px solid #ccc; border-radius: 4px; text-align: center; font-size: 1.1em;"> <span style="font-weight:bold">mA</span>
+                    <input type="number" id="zAns1" step="0.1" style="width: 90px; padding: 8px; border: 2px solid #ccc; text-align: center;"> <span style="font-weight:bold">mA</span>
                 </div>
                 <div style="text-align: center;">
                     <span style="font-weight: bold; display: block; margin-bottom: 5px; color: #E64097;">${label2}</span>
-                    <input type="number" id="zAns2" step="0.1" style="width: 90px; padding: 8px; border: 2px solid #ccc; border-radius: 4px; text-align: center; font-size: 1.1em;"> <span style="font-weight:bold">${unit2}</span>
+                    <input type="number" id="zAns2" step="0.1" style="width: 90px; padding: 8px; border: 2px solid #ccc; text-align: center;"> <span style="font-weight:bold">${unit2}</span>
                 </div>
             </div>
-            <p style="text-align: center; margin-top: 10px; font-size: 0.85em; color: #666;">Enter values to 1 decimal place.</p>`;
+            <p style="text-align: center; margin-top: 10px; font-size: 0.8em; color: #666;">Enter values to 1 decimal place.</p>`;
     }
 }
-
- /**
- * MASTER CHECK ANSWERS
- * Synced with latest Iteration 2 logic and Backup naming conventions.
+ 
+/**
+ * CHECK ANSWERS
  */
 function checkAnswers() {
-    if (isCurrentProblemSolved) return; 
+    if (isCurrentProblemSolved || currentMode !== 'zener') return; 
 
     const feedback = document.getElementById('feedback');
-    if (!feedback) return;
+    const inp1 = document.getElementById('zAns1');
+    const inp2 = document.getElementById('zAns2');
 
-    // 1. Map Inputs per mode
-    let activeInputs = [];
-    if (currentMode === 'zener') {
-        activeInputs = ['zAns1', 'zAns2'];
-    } else if (currentMode === 'analysis') {
-        activeInputs = ['inputV', 'inputI'];
-    } else if (currentMode === 'divider') {
-        activeInputs = ['inputV'];
-    } else if (currentMode === 'astable') {
-        activeInputs = ['inputAstable', 'inputAstableT'];
-    } else if (currentMode === 'monostable') {
-        activeInputs = ['inputMonostable'];
-    }
-
-    // 2. Validation
-    let hasEmpty = false;
-    activeInputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el || el.value.trim() === "") hasEmpty = true;
-    });
-
-    if (hasEmpty) {
-        feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a value!</span>";
+    if (!inp1 || !inp2 || inp1.value.trim() === "" || inp2.value.trim() === "") {
+        if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>Please enter both values!</span>";
         return;
     }
 
     if (!hasCheckedCurrentProblem) {
-        problemsAttempted++;
+        if (typeof problemsAttempted !== 'undefined') problemsAttempted++;
         hasCheckedCurrentProblem = true;
     }
 
-    // 3. Grading Logic
-    let results = [];
-    if (currentMode === 'zener') {
-        const val1 = parseFloat(document.getElementById('zAns1').value);
-        const val2 = parseFloat(document.getElementById('zAns2').value);
+    const val1 = parseFloat(inp1.value);
+    const val2 = parseFloat(inp2.value);
+    
+    let isCorrect1 = Math.abs(val1 - currentAnswers.target1) < 0.2;
+    let isCorrect2 = Math.abs(val2 - currentAnswers.target2) < (currentZenerState === "closed" ? 0.2 : 0.5);
 
-        // Check using the synchronized naming from Backup
-        if (currentZenerState === "closed") {
-            results.push(Math.abs(val1 - currentAnswers.targetIL) < 0.2 ? 'correct' : 'wrong');
-            results.push(Math.abs(val2 - currentAnswers.targetVL) < 0.2 ? 'correct' : 'wrong');
-        } else {
-            results.push(Math.abs(val1 - currentAnswers.targetIZ) < 0.2 ? 'correct' : 'wrong');
-            results.push(Math.abs(val2 - currentAnswers.targetPZ) < 0.5 ? 'correct' : 'wrong');
-        }
-    } else {
-        // Fallback for other modes using standard validation
-        activeInputs.forEach(id => {
-            const el = document.getElementById(id);
-            if (el && typeof parseInput === "function" && typeof validateMatch === "function") {
-                // ... validation logic
-            }
-        });
-    }
+    inp1.style.borderColor = isCorrect1 ? "#28a745" : "#dc3545";
+    inp2.style.borderColor = isCorrect2 ? "#28a745" : "#dc3545";
 
-    // 4. UI Feedback
-    activeInputs.forEach((id, index) => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
-            el.style.backgroundColor = (results[index] === 'correct') ? "#f8fff9" : "#fff8f8";
-            el.style.borderWidth = "2px";
-        }
-    });
-
-    if (results.length > 0 && results.every(r => r === 'correct')) {
+    if (isCorrect1 && isCorrect2) {
         isCurrentProblemSolved = true;
-        problemsCorrect++;
-        feedback.innerHTML = "<span style='color: #28a745; font-weight: bold;'>Correct! Great job!</span>";
-        
+        if (typeof problemsCorrect !== 'undefined') problemsCorrect++;
+        if (feedback) feedback.innerHTML = "<span style='color: #28a745; font-weight: bold;'>Correct! Great job!</span>";
         const helpBtn = document.getElementById('helpBtn');
         if (helpBtn) helpBtn.style.display = 'none';
     } else {
-        feedback.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Incorrect. Check your math!</span>";
+        if (feedback) feedback.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Incorrect. Check your math!</span>";
     }
-
+    
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
     
