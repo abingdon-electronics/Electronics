@@ -313,45 +313,44 @@
                     <label>Band 4: </label><input type="text" id="inputBandTol" style="width: 100px;">
                 </div>
 
-    <!--ZENER DIODE-->
-    <div id="inputGroupZener" style="display:none; text-align: left; width: 100%;">
+<!-- ZENER DIODE SECTION -->
+<div id="inputGroupZener" style="display:none; text-align: left; width: 100%;">
     
-    <div id="zenerClosedQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 15px;">
-        <p style="margin-top:0; font-weight: bold; color: #333;">Switch S is CLOSED. Calculate:</p>
+    <!-- Case 1: Switch CLOSED -->
+    <div id="zenerClosedQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
+        <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is CLOSED. Calculate:</p>
         
-        <div style="margin-bottom: 12px;">
-            <label for="zenerQ_IL">1. Max Load Current (I<sub>L</sub>):</label><br>
-            <input type="number" id="zenerQ_IL" placeholder="mA" step="0.1" style="width: 120px; padding: 5px;">
+        <div style="margin-bottom: 15px;">
+            <label for="zenerQ_IL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Max Load Current (I<sub>L</sub>):</label>
+            <input type="text" id="zenerQ_IL" placeholder="e.g. 15.2 mA" class="standard-input" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
-        <div style="margin-bottom: 12px;">
-            <label for="zenerQ_VL">2. Load Voltage (V<sub>L</sub>):</label><br>
-            <input type="number" id="zenerQ_VL" placeholder="V" step="0.1" style="width: 120px; padding: 5px;">
+        <div style="margin-bottom: 15px;">
+            <label for="zenerQ_VL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Load Voltage (V<sub>L</sub>):</label>
+            <input type="text" id="zenerQ_VL" placeholder="e.g. 12.0 V" class="standard-input" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
     </div>
 
-    <div id="zenerOpenQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 15px;">
-        <p style="margin-top:0; font-weight: bold; color: #333;">Switch S is OPEN. Calculate:</p>
+    <!-- Case 2: Switch OPEN -->
+    <div id="zenerOpenQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
+        <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is OPEN. Calculate:</p>
         
-        <div style="margin-bottom: 12px;">
-            <label for="zenerQ_IZ">1. Zener Current (I<sub>Z</sub>):</label><br>
-            <input type="number" id="zenerQ_IZ" placeholder="mA" step="0.1" style="width: 120px; padding: 5px;">
+        <div style="margin-bottom: 15px;">
+            <label for="zenerQ_IZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Zener Current (I<sub>Z</sub>):</label>
+            <input type="text" id="zenerQ_IZ" placeholder="e.g. 24.5 mA" class="standard-input" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
-        <div style="margin-bottom: 12px;">
-            <label for="zenerQ_PZ">2. Zener Power (P<sub>Z</sub>):</label><br>
-            <input type="number" id="zenerQ_PZ" placeholder="mW" step="0.1" style="width: 120px; padding: 5px;">
+        <div style="margin-bottom: 15px;">
+            <label for="zenerQ_PZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Zener Power (P<sub>Z</sub>):</label>
+            <input type="text" id="zenerQ_PZ" placeholder="e.g. 150.0 mW" class="standard-input" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
-    </div>
-
-    <div id="zenerInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;">
-        (Give all answers to 1 d.p.)
     </div>
 </div>
 
+<!-- Controls shared by all modes -->
 <div style="margin-top: 20px;">
-    <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
-    <div id="feedback" class="feedback"></div>
+    <button class="btn-check" onclick="checkAnswers()" style="padding: 10px 20px; background-color: #E64097; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Check Answer(s)</button>
+    <div id="feedback" class="feedback" style="margin-top: 15px; font-weight: bold; min-height: 1.2em;"></div>
 </div>
             
 <!--6. ACTION CONTROLS (THE BUTTONS AT THE VERY BOTTOM)-->
@@ -2696,79 +2695,100 @@ function updateZenerSolution(isClosed) {
 
     if (isClosed) {
         solElement.innerHTML = `
-            <p><strong>Switch Closed Solution:</strong></p>
-            <p>1. The Zener diode is active, taking its minimum current: <b>${currentAnswers.Iz_min} mA</b>.</p>
-            <p>2. The load current is the remaining total current:<br>
-            I<sub>LOAD</sub> = I<sub>TOTAL</sub> - I<sub>ZENER</sub><br>
-            I<sub>LOAD</sub> = ${currentAnswers.Ir_mA} mA - ${currentAnswers.Iz_min} mA = <b>${currentAnswers.targetIL} mA</b></p>
-            <p>3. The load voltage is clamped by the Zener: <b>${currentAnswers.targetVL} V</b>.</p>
-        `;
+            <div class="solution-card">
+                <p><strong>Solution (Switch Closed):</strong></p>
+                <p>1. Zener takes minimum current: <b>${currentAnswers.Iz_min} mA</b></p>
+                <p>2. I<sub>LOAD</sub> = I<sub>TOTAL</sub> - I<sub>ZENER</sub><br>
+                   ${currentAnswers.Ir_mA} mA - ${currentAnswers.Iz_min} mA = <b>${currentAnswers.targetIL} mA</b></p>
+                <p>3. V<sub>LOAD</sub> is clamped to V<sub>Z</sub>: <b>${currentAnswers.targetVL} V</b></p>
+            </div>`;
     } else {
         solElement.innerHTML = `
-            <p><strong>Switch Open Solution:</strong></p>
-            <p>1. The load is disconnected, so I<sub>LOAD</sub> = 0 mA.</p>
-            <p>2. Total current now flows through the Zener:<br>
-            I<sub>ZENER</sub> = <b>${currentAnswers.targetIZ} mA</b></p>
-            <p>3. Power Dissipated = I &times; V<br>
-            P<sub>ZENER</sub> = ${currentAnswers.targetIZ} mA &times; ${currentAnswers.Vz} V = <b>${currentAnswers.targetPZ} mW</b>.</p>
-        `;
+            <div class="solution-card">
+                <p><strong>Solution (Switch Open):</strong></p>
+                <p>1. No Load connected: <b>I<sub>L</sub> = 0 mA</b></p>
+                <p>2. All current through Zener: <b>${currentAnswers.targetIZ} mA</b></p>
+                <p>3. P<sub>ZENER</sub> = I<sub>Z</sub> × V<sub>Z</sub><br>
+                   ${currentAnswers.targetIZ} mA × ${currentAnswers.Vz} V = <b>${currentAnswers.targetPZ} mW</b></p>
+            </div>`;
     }
 }
     
+/**
+ * PART 1: The Master Reset
+ * This hides the containers and resets the UI layout.
+ */
 function hideAllInputGroups() {
-    // 1. All specific input groups and parent wrappers
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 'oscilloscopeInputs',
         'inputGroupMonostable', 'inputGroupAstable', 'inputGroupMarkSpace',
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
-        'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener' // Added Zener
+        'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener'
     ];
 
-    // 2. Hide all input groups
+    // 1. Hide the main input wrappers
     groups.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
 
-    // 3. Reset UI Containers
-    // Clear feedback text
+    // 2. Clear Feedback and Solution areas
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "";
 
-    // Hide and wipe the solution box
     const solutions = document.getElementById('solutions');
     const solText = document.getElementById('solText');
     if (solutions) solutions.style.display = 'none';
     if (solText) solText.innerHTML = "";
 
-    // --- CRITICAL CHANGE: PERMANENTLY HIDE & EMPTY THE QUESTION TEXT ---
+    // 3. Wipe and hide the Question Text
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML = "";      // Remove any lingering text
-        qText.style.display = 'none'; // Remove from the layout
+        qText.innerHTML = "";      
+        qText.style.display = 'none'; 
     }
 
-    // Clear instruction prompts and standard hints
-    const promptEl = document.getElementById('instructionPrompt');
-    if (promptEl) promptEl.innerHTML = '';
-    
-    const astablePrompt = document.getElementById('astableInstruction');
-    const ratioPrompt = document.getElementById('ratioInstruction');
-    const zenerPrompt = document.getElementById('zenerInstruction'); // Added Zener instruction reset
-    
-    if (astablePrompt) astablePrompt.innerHTML = "";
-    if (ratioPrompt) ratioPrompt.innerHTML = "";
-    if (zenerPrompt) zenerPrompt.innerHTML = "";
+    // 4. Clear instruction prompts
+    const prompts = ['instructionPrompt', 'astableInstruction', 'ratioInstruction', 'zenerInstruction'];
+    prompts.forEach(id => {
+        const p = document.getElementById(id);
+        if (p) p.innerHTML = "";
+    });
 
-    // Ensure the Zener sub-groups are also hidden for the next run
+    // 5. Specifically hide Zener sub-sections
     const zOpen = document.getElementById('zenerOpenQuestions');
     const zClosed = document.getElementById('zenerClosedQuestions');
     if (zOpen) zOpen.style.display = 'none';
     if (zClosed) zClosed.style.display = 'none';
+
+    // 6. IMPORTANT: Always call the data clearer as well
+    clearZenerInputs();
 }
 
-// This is the "Master Switch" that cleans the page when it first opens
+/**
+ * PART 2: The Data Clearer
+ * This specifically empties the values inside the input boxes.
+ */
+function clearZenerInputs() {
+    // Ensure these IDs match the 'id' attributes in your HTML <input> tags
+    const zenerIds = [
+        'zenerQ_IL', 
+        'zenerQ_VL', 
+        'zenerQ_IZ', 
+        'zenerQ_PZ'
+    ];
+    
+    zenerIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = ''; // Remove the number typed by the user
+            el.style.backgroundColor = ''; // Remove any red/green background colors
+        }
+    });
+}
+
+// Master Switch on Load
 window.onload = function() {
     hideAllInputGroups(); 
     if (typeof goHome === "function") {
