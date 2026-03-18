@@ -2040,7 +2040,7 @@ function switchTab(mode) {
     // 1. Highlight active tab & Reset all others
     document.querySelectorAll('.tab').forEach(t => {
         t.classList.remove('active');
-        // Reset styles to default pink/transparent
+        // Reset styles to default (empty strings let CSS classes take over)
         if (t.innerText && !t.innerText.includes('Home')) {
              t.style.backgroundColor = ""; 
              t.style.color = "";
@@ -2051,17 +2051,18 @@ function switchTab(mode) {
     const activeTab = document.getElementById('tab-' + mode);
     if (activeTab) {
         activeTab.classList.add('active');
-        activeTab.style.backgroundColor = "#333"; // Turn it Black
-        activeTab.style.color = "#fff";           // White text
+        activeTab.style.backgroundColor = "#333"; // Active state: Black
+        activeTab.style.color = "#fff";           // Active state: White text
     }
 
-    // 2. Hide ALL potential input groups
+    // 2. Hide ALL potential input groups to start fresh
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
         'inputGroupAstable', 'inputGroupMonostable', 'inputGroupMarkSpace',
-        'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener'
+        'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener',
+        'inputGroupSilicon' // Added for consistency
     ];
 
     groups.forEach(id => {
@@ -2069,7 +2070,7 @@ function switchTab(mode) {
         if (el) el.style.display = 'none';
     });
 
-    // 3. Update the Subtitle based on the module
+    // 3. Update the Subtitle based on the module grouping
     const subtitle = document.getElementById('moduleSubtitle');
     if (subtitle) {
         if (['analysis', 'divider', 'resistance', 'colorcode'].includes(mode)) {
@@ -2087,7 +2088,7 @@ function switchTab(mode) {
     if (g9Div) g9Div.style.display = (mode === 'divider') ? 'inline-block' : 'none';
     if (g9Res) g9Res.style.display = (mode === 'resistance') ? 'inline-block' : 'none';
 
-    // 5. Reset UI Elements
+    // 5. Reset UI Elements and Feedback
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     
     const feedback = document.getElementById('feedback');
@@ -2099,15 +2100,19 @@ function switchTab(mode) {
     const helpBtn = document.getElementById('helpBtn');
     if (helpBtn) helpBtn.style.display = 'none';
     
-    // Clear all text inputs globally
+    // Clear all text inputs globally to prevent old answers carrying over
     const inputs = document.querySelectorAll('.input-area input');
-    inputs.forEach(i => i.value = '');
+    inputs.forEach(i => {
+        i.value = '';
+        i.style.backgroundColor = ''; // Clear correctness coloring
+    });
 
     // 6. Ensure the main work area is visible
     const content = document.getElementById('contentArea');
     if (content) content.style.display = 'block';
 
     // 7. CALL THE CORRECT GENERATOR
+    // We prioritize specific generators first; fallback to general generateProblem()
     if (mode === 'astable') {
         generateAstableProblem();
     } else if (mode === 'monostable') {
@@ -2115,22 +2120,32 @@ function switchTab(mode) {
     } else if (mode === 'oscilloscope') {
         generateOscilloscopeProblem();
     } else if (mode === 'zener') {
+        // Show the Zener input group before generating
+        const zGroup = document.getElementById('inputGroupZener');
+        if (zGroup) zGroup.style.display = 'inline-block';
+        
         if (typeof generateZenerProblem === "function") {
             generateZenerProblem();
         }
     } else if (mode === 'silicon') {
-        // Placeholder for silicon generator
-        console.log("Silicon diode module selected");
+        const sGroup = document.getElementById('inputGroupSilicon');
+        if (sGroup) sGroup.style.display = 'inline-block';
+        
+        if (typeof generateSiliconProblem === "function") {
+            generateSiliconProblem();
+        } else {
+            console.log("Silicon diode module selected (Generator missing)");
+        }
     } else if (mode === 'colorcode') {
         if (typeof generateColorCodeProblem === "function") {
             generateColorCodeProblem();
         }
     } else {
-        // Fallback for basics: analysis, divider, and resistance
+        // Fallback for Module 1 basics: analysis, divider, and resistance
+        // generateProblem() acts as an internal router for these modes
         generateProblem();
     }
 }
-
 
 
 function openDataSheet() {
