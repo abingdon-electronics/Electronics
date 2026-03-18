@@ -449,6 +449,7 @@ const brandBlack = "#000000";
 
 // --- GLOBAL STATE (Ensure these are at the top of your script) ---
     
+// --- GLOBAL STATE ---
 let currentAnswers = { 
     vNameHTML: '', vValue: 0, vUnit: '', 
     iNameHTML: '', iValue: 0, iUnit: '', 
@@ -457,6 +458,8 @@ let currentAnswers = {
     osc2Value: 0, osc2Unit: '',
     astableRatio: '', 
     // Zener specific targets used by the grader
+    target1: 0, 
+    target2: 0,
     targetIL: 0, 
     targetVL: 0,
     targetIZ: 0,
@@ -464,7 +467,7 @@ let currentAnswers = {
 }; 
 
 let currentZenerState = "open"; 
-let currentMode = ""; // Should always be lowercase 'zener' for consistency
+let currentMode = ""; // Set to 'zener' during generation
 let isCurrentProblemSolved = false;
 let hasCheckedCurrentProblem = false;
 let problemsAttempted = 0;
@@ -1908,7 +1911,9 @@ function validateMatch(userObj, targetVal, targetUnit) {
  * Generates a circuit and injects dynamic HTML inputs into the solutions panel
  */
 function generateZenerProblem() {
-    // 1. Deep Clean UI
+    // 1. Reset UI & Canvas (Deep Cleaning)
+    hideAllInputGroups();
+    
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -1917,54 +1922,40 @@ function generateZenerProblem() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath(); 
     
-    hideAllInputGroups();
-    currentMode = 'zener'; // Force lowercase to match grader logic
+    if (typeof resetAnswerBox === "function") resetAnswerBox();
+    
+    // Set state
+    currentMode = 'zener'; 
     isCurrentProblemSolved = false;
     hasCheckedCurrentProblem = false;
     
-    // 2. Variables
-    const Vin = Math.floor(Math.random() * 10) + 6;        
-    const Vz = (Math.floor(Math.random() * 41) + 20) / 10;  
-    const Iz_min = Math.floor(Math.random() * 6) + 5;      
-    const Ir_mA = Math.floor(Math.random() * 401) + 200;   
-    
-    const isClosed = Math.random() > 0.5;
-    currentZenerState = isClosed ? "closed" : "open"; 
+    // 2. Random Variables & Math
+    const Vin = Math.floor(Math.random() * 10) + 6; 
+    const Vz = (Math.floor(Math.random() * 41) + 20) / 10; 
+    const Iz_min = Math.floor(Math.random() * 6) + 5; 
+    const Ir_mA = Math.floor(Math.random() * 401) + 200; 
 
-    // 3. Logic & Answer Calculation (Stored in global currentAnswers)
-    if (isClosed) {
-        currentAnswers.targetIL = parseFloat((Ir_mA - Iz_min).toFixed(1)); 
-        currentAnswers.targetVL = parseFloat(Vz.toFixed(1));              
+    const switchClosed = Math.random() > 0.5;
+    currentZenerState = switchClosed ? "closed" : "open"; 
+
+    // Store targets globally for the grader
+    if (switchClosed) {
+        currentAnswers.target1 = parseFloat((Ir_mA - Iz_min).toFixed(1)); // I_LOAD
+        currentAnswers.target2 = parseFloat(Vz.toFixed(1));              // V_LOAD
+        currentAnswers.targetIL = currentAnswers.target1;
+        currentAnswers.targetVL = currentAnswers.target2;
     } else {
-        currentAnswers.targetIZ = parseFloat(Ir_mA.toFixed(1));           
-        currentAnswers.targetPZ = parseFloat((Ir_mA * Vz).toFixed(1));    
+        currentAnswers.target1 = parseFloat(Ir_mA.toFixed(1));           // I_ZENER
+        currentAnswers.target2 = parseFloat((Ir_mA * Vz).toFixed(1));    // P_ZENER
+        currentAnswers.targetIZ = currentAnswers.target1;
+        currentAnswers.targetPZ = currentAnswers.target2;
     }
 
-    // 4. Dynamic UI Injection
-    const solPanel = document.getElementById('solutions');
-    const solText = document.getElementById('solText');
+    // 3. Drawing Circuit
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.fillStyle = "black";
     
-    if (solPanel && solText) {
-        solPanel.style.display = 'block'; 
-        const label1 = isClosed ? "I LOAD" : "I ZENER";
-        const label2 = isClosed ? "V LOAD" : "P ZENER";
-        const unit2 = isClosed ? "V" : "mW";
-
-        solText.innerHTML = `
-            <div style="display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 15px; background: #fff; border: 2px solid #333; border-radius: 8px; box-shadow: 4px 4px 0px rgba(0,0,0,0.1);">
-                <div style="text-align: center;">
-                    <span style="font-weight: bold; display: block; margin-bottom: 5px; color: #E64097;">${label1}</span>
-                    <input type="number" id="zAns1" step="0.1" style="width: 90px; padding: 8px; border: 2px solid #ccc; border-radius: 4px; text-align: center; font-size: 1.1em;"> <span style="font-weight:bold">mA</span>
-                </div>
-                <div style="text-align: center;">
-                    <span style="font-weight: bold; display: block; margin-bottom: 5px; color: #E64097;">${label2}</span>
-                    <input type="number" id="zAns2" step="0.1" style="width: 90px; padding: 8px; border: 2px solid #ccc; border-radius: 4px; text-align: center; font-size: 1.1em;"> <span style="font-weight:bold">${unit2}</span>
-                </div>
-            </div>`;
-    }
-
-    // 5. Drawing (Ensure your helper functions: drawLine, drawComponent, etc. are available globally)
-    ctx.strokeStyle = "black"; ctx.lineWidth = 2;
     if (typeof drawLine === "function") {
         drawLine(ctx, 50, 60, 480, 60);   
         drawLine(ctx, 50, 360, 480, 360); 
@@ -1977,28 +1968,43 @@ function generateZenerProblem() {
     const xLoad = 380;
     const yJunc = 220; 
 
+    ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
     if (typeof drawLine === "function") drawLine(ctx, xReg, 60, xReg, 110); 
+    if (typeof drawArrowOnWire === "function") drawArrowOnWire(ctx, xReg, 70, xReg, 90); 
     if (typeof drawComponent === "function") drawComponent(ctx, 'fixed', xReg, 135); 
     if (typeof drawLine === "function") drawLine(ctx, xReg, 160, xReg, 220); 
-    ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
 
     if (typeof drawLine === "function") drawLine(ctx, xReg, 220, xReg, 290);
     if (typeof drawHollowZenerUp === "function") drawHollowZenerUp(ctx, xReg, 290); 
     if (typeof drawLine === "function") drawLine(ctx, xReg, 290, xReg, 360); 
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
+    const switchStartX = 240;      
+    const switchEndX = 290;        
     const pink = "#E64097"; 
-    if (typeof drawLine === "function") drawLine(ctx, xReg, yJunc, 240, yJunc); 
-    if (typeof drawNode === "function") drawNode(ctx, xReg, yJunc); 
 
-    if (isClosed) {
-        if (typeof drawLine === "function") drawLine(ctx, 240, yJunc, 290, yJunc); 
+    if (typeof drawLine === "function") drawLine(ctx, xReg, yJunc, switchStartX, yJunc); 
+    if (typeof drawNode === "function") drawNode(ctx, xReg, yJunc); 
+    if (typeof drawLine === "function") drawLine(ctx, switchEndX, yJunc, xLoad, yJunc); 
+
+    ctx.font = "bold 16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("S", (switchStartX + switchEndX) / 2, yJunc + 25); 
+    ctx.textAlign = "left"; 
+
+    ctx.beginPath(); ctx.arc(switchStartX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
+    ctx.beginPath(); ctx.arc(switchEndX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
+
+    if (switchClosed) {
+        ctx.strokeStyle = "black";
+        if (typeof drawLine === "function") drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); 
         ctx.strokeStyle = pink; ctx.fillStyle = pink;
-        if (typeof drawArrowOnWire === "function") drawArrowOnWire(ctx, 310, yJunc, 340, yJunc);
-        ctx.fillText("I_LOAD = ?", 315, yJunc - 15);
+        if (typeof drawArrowOnWire === "function") drawArrowOnWire(ctx, switchEndX + 20, yJunc, switchEndX + 50, yJunc);
+        ctx.fillText("I_LOAD = ?", switchEndX + 45, yJunc - 15);
         ctx.fillText("V_LOAD = ?", xLoad + 40, yJunc + 55);
     } else {
-        if (typeof drawLine === "function") drawLine(ctx, 240, yJunc, 280, yJunc - 20); 
+        ctx.strokeStyle = "black";
+        if (typeof drawLine === "function") drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
         ctx.strokeStyle = pink; ctx.fillStyle = pink;
         if (typeof drawArrowOnWire === "function") drawArrowOnWire(ctx, xReg, 230, xReg, 255);
         ctx.fillText("I_ZENER = ?", xReg - 91, 255);
@@ -2011,18 +2017,36 @@ function generateZenerProblem() {
     ctx.fillText("LOAD", xLoad - 20, yJunc + 58);
     if (typeof drawLine === "function") drawLine(ctx, xLoad, yJunc + 75, xLoad, 360);
     if (typeof drawNode === "function") drawNode(ctx, xLoad, 360);
-    
     ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 70, 390);
-}
 
+    // 4. Dynamic UI Injection
+    const solPanel = document.getElementById('solutions');
+    const solText = document.getElementById('solText');
+    
+    if (solPanel && solText) {
+        solPanel.style.display = 'block'; 
+        const label1 = switchClosed ? "I LOAD" : "I ZENER";
+        const label2 = switchClosed ? "V LOAD" : "P ZENER";
+        const unit2 = switchClosed ? "V" : "mW";
+
+        solText.innerHTML = `
+            <div style="display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 15px; background: #fff; border: 2px solid #333; border-radius: 8px; box-shadow: 4px 4px 0px rgba(0,0,0,0.1);">
+                <div style="text-align: center;">
+                    <span style="font-weight: bold; display: block; margin-bottom: 5px; color: #E64097;">${label1}</span>
+                    <input type="number" id="zAns1" step="0.1" style="width: 90px; padding: 8px; border: 2px solid #ccc; border-radius: 4px; text-align: center; font-size: 1.1em;"> <span style="font-weight:bold">mA</span>
+                </div>
+                <div style="text-align: center;">
+                    <span style="font-weight: bold; display: block; margin-bottom: 5px; color: #E64097;">${label2}</span>
+                    <input type="number" id="zAns2" step="0.1" style="width: 90px; padding: 8px; border: 2px solid #ccc; border-radius: 4px; text-align: center; font-size: 1.1em;"> <span style="font-weight:bold">${unit2}</span>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 10px; font-size: 0.85em; color: #666;">Enter values to 1 decimal place.</p>`;
+    }
+}
 /**
- * UPDATED CHECK ANSWERS LOGIC
- * Replaces the relevant section of your 2000-line script
- */
-/**
- * MASTER CHECK ANSWERS
- */
-/**
+
+
+ /**
  * MASTER CHECK ANSWERS
  * Handles logic for all modes by checking currentMode string
  */
@@ -2042,8 +2066,9 @@ function checkAnswers() {
         activeInputs = ['inputV'];
     } else if (currentMode === 'astable') {
         activeInputs = ['inputAstable', 'inputAstableT'];
+    } else if (currentMode === 'monostable') {
+        activeInputs = ['inputMonostable'];
     }
-    // Add other modes as needed...
 
     // 2. Validation
     let hasEmpty = false;
@@ -2068,17 +2093,19 @@ function checkAnswers() {
         const val1 = parseFloat(document.getElementById('zAns1').value);
         const val2 = parseFloat(document.getElementById('zAns2').value);
 
-        if (currentZenerState === "closed") {
-            results.push(Math.abs(val1 - currentAnswers.targetIL) < 0.2 ? 'correct' : 'wrong');
-            results.push(Math.abs(val2 - currentAnswers.targetVL) < 0.2 ? 'correct' : 'wrong');
-        } else {
-            results.push(Math.abs(val1 - currentAnswers.targetIZ) < 0.2 ? 'correct' : 'wrong');
-            results.push(Math.abs(val2 - currentAnswers.targetPZ) < 0.5 ? 'correct' : 'wrong');
-        }
+        // Check if correct (Tolerance of 0.2)
+        results.push(Math.abs(val1 - currentAnswers.target1) < 0.2 ? 'correct' : 'wrong');
+        const tol2 = currentZenerState === "closed" ? 0.2 : 0.5; // P_Zener gets slightly more tolerance
+        results.push(Math.abs(val2 - currentAnswers.target2) < tol2 ? 'correct' : 'wrong');
     } else {
-        // Fallback for non-zener modes using your existing validateMatch logic
-        // This assumes you have access to the original currentAnswers values
-        feedback.innerHTML = "Processing generic mode...";
+        // Standard parseInput and validateMatch logic for other modes
+        activeInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && typeof parseInput === "function" && typeof validateMatch === "function") {
+                // This would be replaced with actual mode-specific comparison logic
+                // For now, we provide the feedback mechanism
+            }
+        });
     }
 
     // 4. UI Feedback
@@ -2087,13 +2114,17 @@ function checkAnswers() {
         if (el) {
             el.style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
             el.style.backgroundColor = (results[index] === 'correct') ? "#f8fff9" : "#fff8f8";
+            el.style.borderWidth = "2px";
         }
     });
 
-    if (results.every(r => r === 'correct')) {
+    if (results.length > 0 && results.every(r => r === 'correct')) {
         isCurrentProblemSolved = true;
         problemsCorrect++;
         feedback.innerHTML = "<span style='color: #28a745; font-weight: bold;'>Correct! Great job!</span>";
+        
+        const helpBtn = document.getElementById('helpBtn');
+        if (helpBtn) helpBtn.style.display = 'none';
     } else {
         feedback.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Incorrect. Check your math!</span>";
     }
