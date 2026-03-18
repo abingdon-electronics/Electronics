@@ -1840,52 +1840,87 @@ function generateColorCodeProblem(ctx, canvas) {
  * Restored with original coordinate math and dynamic input system.
  * Fix: Explicitly hides old Zener static boxes to prevent "extra boxes".
  */
+/**
+ * GLOBAL UTILITIES & STATE
+ */
+let currentMode = 'none';
+let currentAnswers = {};
+let isCurrentProblemSolved = false;
+let hasCheckedCurrentProblem = false;
+let problemsAttempted = 0;
+let currentScore = 0;
+let currentZenerState = "open";
+
+// Helper to hide all static input groups defined in the HTML
+function hideAllInputGroups() {
+    const groups = [
+        'inputGroupAnalysis', 'inputGroupDivider', 'inputGroupRes', 
+        'inputGroupOsc', 'inputGroupColor', 'inputGroupColorVal', 
+        'inputGroupAstable', 'inputGroupMonostable', 'solutions',
+        'zenerOpenQuestions', 'zenerClosedQuestions'
+    ];
+    groups.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    const feedback = document.getElementById('feedback');
+    if (feedback) feedback.innerHTML = "";
+    
+    isCurrentProblemSolved = false;
+    hasCheckedCurrentProblem = false;
+}
+
+// Helper to parse strings like "10k" or "4.7u" into numbers
+function parseInput(inputStr) {
+    if (!inputStr) return null;
+    const regex = /^([0-9.]+)\s*([a-zA-Zμ]*)$/;
+    const match = inputStr.trim().match(regex);
+    if (!match) return null;
+    return { val: parseFloat(match[1]), unit: match[2] };
+}
+
+// Helper to validate user input against expected values and units
+function validateMatch(userObj, targetVal, targetUnit) {
+    if (!userObj) return 'wrong';
+    const valMatch = Math.abs(userObj.val - targetVal) < (targetVal * 0.05); // 5% tolerance
+    const unitMatch = (userObj.unit || "").toLowerCase() === (targetUnit || "").toLowerCase();
+    if (valMatch && unitMatch) return 'correct';
+    if (valMatch && !unitMatch) return 'wrongunit';
+    return 'wrong';
+}
+
+/**
+ * GENERATE ZENER PROBLEM
+ * Fix: Uses dynamic HTML to avoid the "ghost box" bug.
+ */
 function generateZenerProblem() {
-    // 0. RESET UI & STATE
     hideAllInputGroups();
     
-    // Specifically hide the old Zener groups that might be lingering
-    const oldZenerOpen = document.getElementById('zenerOpenQuestions');
-    const oldZenerClosed = document.getElementById('zenerClosedQuestions');
-    if (oldZenerOpen) oldZenerOpen.style.display = 'none';
-    if (oldZenerClosed) oldZenerClosed.style.display = 'none';
-
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    // Deep clean the canvas
+    // Deep Clean Canvas
     ctx.setTransform(1, 0, 0, 1, 0, 0); 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath(); 
     
-    if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'zener';
 
-    // 1. RANDOM VARIABLES
+    // 1. Random Variables
     const Vin = Math.floor(Math.random() * 10) + 6; 
     const Vz = (Math.floor(Math.random() * 41) + 20) / 10; 
     const Iz_min = Math.floor(Math.random() * 6) + 5; 
     const Ir_mA = Math.floor(Math.random() * 401) + 200; 
-
     const switchClosed = Math.random() > 0.5;
     currentZenerState = switchClosed ? "closed" : "open"; 
 
-    // 2. MATH CALCULATIONS
-    if (typeof currentAnswers === "undefined") currentAnswers = {};
-    currentAnswers.Ir_mA = Ir_mA;
-    currentAnswers.Vz = Vz;
-    currentAnswers.Iz_min = Iz_min;
-    
-    // Target 1: IL or IZ | Target 2: VL or PZ
+    // 2. Math Calculations
     currentAnswers.target1 = switchClosed ? parseFloat((Ir_mA - Iz_min).toFixed(1)) : parseFloat(Ir_mA.toFixed(1));
     currentAnswers.target2 = switchClosed ? parseFloat(Vz.toFixed(1)) : parseFloat((Ir_mA * Vz).toFixed(1));
 
-    // 3. DRAWING - RAILS & LABELS (Original Coordinates)
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-    ctx.fillStyle = "black";
-    
+    // 3. Drawing Logic (Rails and Components)
+    ctx.strokeStyle = "black"; ctx.fillStyle = "black"; ctx.lineWidth = 2;
     drawLine(ctx, 50, 60, 480, 60);   
     drawLine(ctx, 50, 360, 480, 360); 
     ctx.font = "bold 16px Arial";
@@ -1896,20 +1931,19 @@ function generateZenerProblem() {
     const xLoad = 380;
     const yJunc = 220; 
 
-    // Series Resistor Section
+    // Series Resistor
     ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
     drawLine(ctx, xReg, 60, xReg, 110); 
     drawArrowOnWire(ctx, xReg, 70, xReg, 90); 
     drawComponent(ctx, 'fixed', xReg, 135); 
     drawLine(ctx, xReg, 160, xReg, 220); 
 
-    // Zener Branch
+    // Zener
     drawLine(ctx, xReg, 220, xReg, 290);
     drawHollowZenerUp(ctx, xReg, 290); 
     drawLine(ctx, xReg, 290, xReg, 360); 
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
-    // Right Branch (Load & Switch)
     const switchStartX = 240;      
     const switchEndX = 290;        
     const pink = "#E64097"; 
@@ -1918,65 +1952,102 @@ function generateZenerProblem() {
     drawNode(ctx, xReg, yJunc); 
     drawLine(ctx, switchEndX, yJunc, xLoad, yJunc); 
 
-    ctx.font = "bold 16px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("S", (switchStartX + switchEndX) / 2, yJunc + 25); 
-    ctx.textAlign = "left"; 
-
-    ctx.beginPath(); ctx.arc(switchStartX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
-    ctx.beginPath(); ctx.arc(switchEndX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
-
-    // 4. STATE DRAWING
     if (switchClosed) {
         ctx.strokeStyle = "black";
         drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); 
         ctx.strokeStyle = pink; ctx.fillStyle = pink;
         drawArrowOnWire(ctx, switchEndX + 20, yJunc, switchEndX + 50, yJunc);
-        ctx.font = "bold 16px Arial"; ctx.fillText("I", switchEndX + 45, yJunc - 15);
-        ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", switchEndX + 52, yJunc - 10);
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", switchEndX + 85, yJunc - 15);
-        ctx.font = "bold 16px Arial"; ctx.fillText("V", xLoad + 40, yJunc + 55);
-        ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", xLoad + 52, yJunc + 60);
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xLoad + 85, yJunc + 55);
+        ctx.fillText("I_LOAD = ?", switchEndX + 45, yJunc - 15);
+        ctx.fillText("V_LOAD = ?", xLoad + 40, yJunc + 55);
     } else {
         ctx.strokeStyle = "black";
         drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
         ctx.strokeStyle = pink; ctx.fillStyle = pink;
         drawArrowOnWire(ctx, xReg, 230, xReg, 255);
-        ctx.font = "bold 16px Arial"; ctx.fillText("I", xReg - 91, 255);
-        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg - 85, 260);
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg - 48, 255);
-        ctx.font = "bold 16px Arial"; ctx.fillText("P", xReg + 37, 298);
-        ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 44, 303);
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 79, 298);
+        ctx.fillText("I_ZENER = ?", xReg - 91, 255);
+        ctx.fillText("P_ZENER = ?", xReg + 37, 298);
     }
     
     ctx.strokeStyle = "black"; ctx.fillStyle = "black";
     drawLine(ctx, xLoad, yJunc, xLoad, yJunc + 30);
     ctx.strokeRect(xLoad - 30, yJunc + 30, 60, 45); 
-    ctx.font = "bold 14px Arial"; 
     ctx.fillText("LOAD", xLoad - 20, yJunc + 58);
     drawLine(ctx, xLoad, yJunc + 75, xLoad, 360);
     drawNode(ctx, xLoad, 360);
-    ctx.font = "bold 16px Arial";
     ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 70, 390);
 
-    // 5. DYNAMIC UI GENERATION
+    // 4. Dynamic UI Generation
     const solElement = document.getElementById('solText');
     const solPanel = document.getElementById('solutions'); 
     if (solElement && solPanel) {
         solPanel.style.display = 'block'; 
-        if (switchClosed) {
-            solElement.innerHTML = `
-                <p><b>I<sub>LOAD</sub>:</b> <input type="text" id="zAns1" inputmode="decimal" style="width:65px; padding:4px;"> mA</p>
-                <p><b>V<sub>LOAD</sub>:</b> <input type="text" id="zAns2" inputmode="decimal" style="width:65px; padding:4px;"> V</p>`;
-        } else {
-            solElement.innerHTML = `
-                <p><b>I<sub>ZENER</sub>:</b> <input type="text" id="zAns1" inputmode="decimal" style="width:65px; padding:4px;"> mA</p>
-                <p><b>P<sub>ZENER</sub>:</b> <input type="text" id="zAns2" inputmode="decimal" style="width:65px; padding:4px;"> mW</p>`;
-        }
-        solElement.innerHTML += `<p style="font-size: 0.85em; color: #666; margin-top: 10px;"><i>Give answers to 1 decimal place.</i></p>`;
+        const label1 = switchClosed ? "I LOAD" : "I ZENER";
+        const label2 = switchClosed ? "V LOAD" : "P ZENER";
+        const unit2 = switchClosed ? "V" : "mW";
+
+        solElement.innerHTML = `
+            <div style="background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #ddd;">
+                <p><b>${label1}:</b> <input type="text" id="zAns1" style="width:70px;"> mA</p>
+                <p><b>${label2}:</b> <input type="text" id="zAns2" style="width:70px;"> ${unit2}</p>
+                <p style="font-size: 0.8em; color: #666;"><i>Answer to 1 decimal place.</i></p>
+            </div>`;
     }
+}
+
+/**
+ * CHECK ANSWERS (Master Function)
+ */
+function checkAnswers() {
+    if (isCurrentProblemSolved) return; 
+    const feedback = document.getElementById('feedback');
+    let activeInputs = [];
+
+    // Setup IDs based on mode
+    if (currentMode === 'zener') activeInputs = ['zAns1', 'zAns2'];
+    else if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
+    else if (currentMode === 'divider') activeInputs = ['inputV'];
+    else if (currentMode === 'resistance') activeInputs = ['inputR'];
+    else if (currentMode === 'monostable') activeInputs = ['inputMonostable'];
+
+    let hasEmpty = activeInputs.some(id => !document.getElementById(id) || document.getElementById(id).value.trim() === '');
+    if (hasEmpty) {
+        feedback.innerHTML = "<span style='color:#dc3545;'>Please enter a value!</span>";
+        return;
+    }
+
+    if (!hasCheckedCurrentProblem) { problemsAttempted++; hasCheckedCurrentProblem = true; }
+
+    let results = [];
+    if (currentMode === 'zener') {
+        const val1 = parseFloat(document.getElementById('zAns1').value);
+        const val2 = parseFloat(document.getElementById('zAns2').value);
+        results.push(Math.abs(val1 - currentAnswers.target1) < 0.2 ? 'correct' : 'wrong');
+        const tol2 = currentZenerState === "closed" ? 0.2 : 0.5;
+        results.push(Math.abs(val2 - currentAnswers.target2) < tol2 ? 'correct' : 'wrong');
+    } else {
+        // Handle all other modes
+        activeInputs.forEach(id => {
+            const userObj = parseInput(document.getElementById(id).value);
+            results.push(validateMatch(userObj, currentAnswers.val, currentAnswers.unit));
+        });
+    }
+
+    activeInputs.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.borderColor = results[i] === 'correct' ? "#28a745" : "#dc3545";
+            el.style.borderWidth = "2px";
+        }
+    });
+
+    if (results.length > 0 && results.every(r => r === 'correct')) {
+        isCurrentProblemSolved = true;
+        currentScore++;
+        feedback.innerHTML = "<span style='color:#198754;'>Correct!</span>";
+    } else {
+        feedback.innerHTML = "<span style='color:#dc3545;'>Check your values.</span>";
+    }
+    updateScoreboard();
 }
     
 function switchTab(mode) {
