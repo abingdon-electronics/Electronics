@@ -441,6 +441,7 @@
 const brandPink = "#E64097";
 const brandBlack = "#000000";
 
+let currentZenerProb = {};
 let currentMode = 'analysis'; 
 let problemsAttempted = 0;
 let problemsCorrect = 0;
@@ -1841,31 +1842,49 @@ function generateZenerProblem() {
     if (solBox) solBox.style.display = "none";
 
     // 1. RANDOM VARIABLES
-    const Vin = Math.floor(Math.random() * 10) + 6; 
-    const Vz = (Math.floor(Math.random() * 41) + 20) / 10; 
+    const Vin = Math.floor(Math.random() * 10) + 12; // Adjusted Vin for better regulation scenarios
+    const Vz = (Math.floor(Math.random() * 41) + 40) / 10; // 4.0V - 8.0V
     const Iz_min = Math.floor(Math.random() * 6) + 5; 
-    const Ir_mA = Math.floor(Math.random() * 401) + 200; 
+    
+    // Values for potential regulation calculation
+    const R1 = (Math.floor(Math.random() * 10) + 10) * 10; // 100-200Ω
+    const RL = (Math.floor(Math.random() * 20) + 10) * 10; // 100-300Ω
 
     const switchClosed = Math.random() > 0.5;
     currentZenerState = switchClosed ? "closed" : "open"; 
 
-    // 2. MATH CALCULATIONS & STORAGE
+    // 2. MATH CALCULATIONS (The "Regulation Test" Logic)
     if (typeof currentAnswers === "undefined") currentAnswers = {};
-    currentAnswers.Ir_mA = Ir_mA;
+    
+    // Calculate what the voltage WOULD be without the Zener (Potential Divider)
+    const V_unregulated = Vin * (RL / (R1 + RL));
+    const isRegulating = V_unregulated > Vz;
+    
+    // Final Circuit values based on regulation state
+    const finalVL = isRegulating ? Vz : V_unregulated;
+    const finalIL = (finalVL / RL) * 1000; // in mA
+    const totalCurrent_mA = ((Vin - finalVL) / R1) * 1000;
+    const finalIZ = totalCurrent_mA - finalIL;
+
+    // STORE EVERYTHING in currentAnswers for the checker and the Data Sheet
+    currentAnswers.Vin = Vin;
     currentAnswers.Vz = Vz;
+    currentAnswers.R1 = R1;
+    currentAnswers.RL = RL;
+    currentAnswers.V_unregulated = parseFloat(V_unregulated.toFixed(2));
+    currentAnswers.isRegulating = isRegulating;
     currentAnswers.Iz_min = Iz_min;
     
-    // Matches the checkAnswers() logic exactly
-    currentAnswers.targetIL = parseFloat((Ir_mA - Iz_min).toFixed(1));
-    currentAnswers.targetVL = parseFloat(Vz.toFixed(1));
-    currentAnswers.targetIZ = parseFloat(Ir_mA.toFixed(1));
-    currentAnswers.targetPZ = parseFloat((Ir_mA * Vz).toFixed(1));
+    // Target answers for validation
+    currentAnswers.targetIL = parseFloat(finalIL.toFixed(1));
+    currentAnswers.targetVL = parseFloat(finalVL.toFixed(1));
+    currentAnswers.targetIZ = parseFloat(finalIZ.toFixed(1));
+    currentAnswers.targetPZ = parseFloat((finalIZ * finalVL).toFixed(1));
 
     // 3. UI SETUP
     const zenerMainGroup = document.getElementById('inputGroupZener');
     if(zenerMainGroup) zenerMainGroup.style.display = "block";
 
-    // Ensure both sub-groups are HIDDEN before we decide which one to show
     if (document.getElementById('zenerClosedQuestions')) document.getElementById('zenerClosedQuestions').style.display = "none";
     if (document.getElementById('zenerOpenQuestions')) document.getElementById('zenerOpenQuestions').style.display = "none";
     
@@ -1893,130 +1912,78 @@ function generateZenerProblem() {
     const xLoad = 380;
     const yJunc = 220; 
 
-    // --- LEFT BRANCH ---
-    ctx.fillText(Ir_mA + " mA", xReg - 75, 90); 
+    // --- LEFT BRANCH (Series Resistor) ---
+    // Label with the R1 value so students can do the math
+    ctx.fillText(R1 + " Ω", xReg - 25, 135); 
     drawLine(ctx, xReg, 60, xReg, 110); 
-    drawArrowOnWire(ctx, xReg, 70, xReg, 90); 
-    
     drawComponent(ctx, 'fixed', xReg, 135); 
     drawLine(ctx, xReg, 160, xReg, 360); 
 
+    // Zener
     drawHollowZenerUp(ctx, xReg, 290); 
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
- // --- RIGHT BRANCH (LOAD & SWITCH) ---
+    // --- RIGHT BRANCH (LOAD & SWITCH) ---
     const switchStartX = 240;      
     const switchEndX = 290;        
     const loadX = 380;             
     const pink = "#E64097"; // Abingdon Pink
 
-    // 1. Draw Base Circuit (Strictly Black)
     ctx.strokeStyle = "black";
     ctx.fillStyle = "black";
-    ctx.lineWidth = 2;
     
-    // Horizontal wire from junction to switch
     drawLine(ctx, xReg, yJunc, switchStartX, yJunc); 
     drawNode(ctx, xReg, yJunc); 
-    
-    // Base wire to the Load (Plain line, no arrow here)
     drawLine(ctx, switchEndX, yJunc, loadX, yJunc); 
 
-    // Label the switch "S" centrally below the gap
     ctx.font = "bold 16px Arial";
     ctx.textAlign = "center";
     ctx.fillText("S", (switchStartX + switchEndX) / 2, yJunc + 25); 
     ctx.textAlign = "left"; 
 
-    // Switch terminals (Small circles)
     ctx.beginPath(); ctx.arc(switchStartX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
     ctx.beginPath(); ctx.arc(switchEndX, yJunc, 3, 0, Math.PI * 2); ctx.stroke(); 
 
-    // 2. State-Dependent Drawing (Interactive Elements)
     if (switchClosed) {
-        // --- CASE: SWITCH CLOSED (Solving for Load) ---
         ctx.strokeStyle = "black";
-        drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); // Draw closed arm
-
-        // Switch to Pink for Interactive elements
+        drawLine(ctx, switchStartX, yJunc, switchEndX, yJunc); 
         ctx.strokeStyle = pink;
         ctx.fillStyle = pink;
-
-        // Pink Load Arrow replaces the black one
         drawArrowOnWire(ctx, switchEndX + 20, yJunc, switchEndX + 50, yJunc);
-
-        // I subscript LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("I", switchEndX + 45, yJunc - 15);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", switchEndX + 52, yJunc - 10);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", switchEndX + 85, yJunc - 15);
-        
-        // V subscript LOAD = ?
         ctx.font = "bold 16px Arial"; ctx.fillText("V", loadX + 40, yJunc + 55);
         ctx.font = "bold 10px Arial"; ctx.fillText("LOAD", loadX + 52, yJunc + 60);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", loadX + 85, yJunc + 55);
-
     } else {
-        // --- CASE: SWITCH OPEN (Solving for Zener) ---
         ctx.strokeStyle = "black";
-        drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); // Draw open arm
-
-        // Switch to Pink for Interactive elements
+        drawLine(ctx, switchStartX, yJunc, switchEndX - 10, yJunc - 20); 
         ctx.strokeStyle = pink;
         ctx.fillStyle = pink;
-
-        // Pink Zener Arrow (Snapped to vertical wire)
         drawArrowOnWire(ctx, xReg, 230, xReg, 255);
-
-        // I ZENER = ? (Moved LEFT and DOWN to level with arrow head at 255)
         ctx.font = "bold 16px Arial"; ctx.fillText("I", xReg - 91, 255);
         ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg - 85, 260);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg - 48, 255);
-        
-        // P ZENER = ? (Moved DOWN slightly to y=298 for better centering)
         ctx.font = "bold 16px Arial"; ctx.fillText("P", xReg + 37, 298);
         ctx.font = "bold 10px Arial"; ctx.fillText("ZENER", xReg + 44, 303);
         ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", xReg + 79, 298);
     }
     
-    // 3. Final Draw (Load Box and Ground Connections)
     ctx.strokeStyle = "black";
     ctx.fillStyle = "black";
-    
-    // Load Resistor Box
+    drawComponent(ctx, 'fixed', loadX, yJunc + 55); // Use actual resistor drawing
+    ctx.fillText(RL + " Ω", loadX + 35, yJunc + 40);
     drawLine(ctx, loadX, yJunc, loadX, yJunc + 30);
-    ctx.strokeRect(loadX - 30, yJunc + 30, 60, 45); 
-    ctx.font = "bold 14px Arial"; 
-    ctx.fillText("LOAD", loadX - 20, yJunc + 58);
-    
-    // Complete the path to ground
-    drawLine(ctx, loadX, yJunc + 75, loadX, 360);
+    drawLine(ctx, loadX, yJunc + 80, loadX, 360);
     drawNode(ctx, loadX, 360);
 
-    // --- Footer Data ---
     ctx.font = "bold 16px Arial";
     ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 70, 390);
 
-    // --- DISPLAY THE PLAIN TEXT QUESTION ---
-    const solElement = document.getElementById('solText');
-    if (solElement) {
-        solElement.style.display = "block"; 
-        if (switchClosed) {
-            solElement.innerHTML = `
-                <p><b>I<sub>LOAD</sub> = ?</b> (e.g. 12.4 mA)</p>
-                <p><b>V<sub>LOAD</sub> = ?</b> (e.g. 5.1 V)</p>
-            `;
-        } else {
-            solElement.innerHTML = `
-                <p><b>I<sub>ZENER</sub> = ?</b> (e.g. 8.2 mA)</p>
-                <p><b>P<sub>ZENER</sub> = ?</b> (e.g. 42.5 mW)</p>
-            `;
-        }
-        // Add the 1 d.p. instruction
-        solElement.innerHTML += `<p style="font-size: 0.9em; margin-top: 15px; color: #666;">
-                                    <i>Give all answers to 1 decimal place.</i>
-                                 </p>`;
-    }
-    // IMPORTANT: Do NOT call updateZenerSolution(switchClosed) here!
+    // Reset Data Sheet area if it exists
+    const steps = document.getElementById('solutionSteps');
+    if (steps) steps.innerHTML = `<p class="text-gray-400 italic">Complete the problem to unlock the breakdown.</p>`;
 }
     
 // ===========================================================================================================================      
@@ -2292,7 +2259,7 @@ function checkAnswers() {
     else if (currentMode === 'monostable') {
         activeInputs = ['inputMonostable'];
     }
-    // --- ADDED ZENER INPUT IDENTIFICATION ---
+    // --- ZENER INPUT IDENTIFICATION ---
     else if (currentMode === 'zener') {
         if (currentZenerState === "closed") {
             activeInputs = ['zenerQ_IL', 'zenerQ_VL'];
@@ -2322,27 +2289,22 @@ function checkAnswers() {
 
     // 3. Grade the inputs
     let results = [];
+    const tolerance = 0.2;
     
     if (currentMode === 'zener') {
-        // --- ADDED ZENER GRADING LOGIC ---
         if (currentZenerState === "closed") {
             const valIL = parseFloat(document.getElementById('zenerQ_IL').value);
             const valVL = parseFloat(document.getElementById('zenerQ_VL').value);
-            
-            results.push(Math.abs(valIL - currentAnswers.targetIL) < 0.2 ? 'correct' : 'wrong');
-            results.push(Math.abs(valVL - currentAnswers.targetVL) < 0.2 ? 'correct' : 'wrong');
+            results.push(Math.abs(valIL - currentAnswers.targetIL) <= tolerance ? 'correct' : 'wrong');
+            results.push(Math.abs(valVL - currentAnswers.targetVL) <= tolerance ? 'correct' : 'wrong');
         } else {
             const valIZ = parseFloat(document.getElementById('zenerQ_IZ').value);
             const valPZ = parseFloat(document.getElementById('zenerQ_PZ').value);
-            
-            results.push(Math.abs(valIZ - currentAnswers.targetIZ) < 0.2 ? 'correct' : 'wrong');
-            results.push(Math.abs(valPZ - currentAnswers.targetPZ) < 0.5 ? 'correct' : 'wrong');
+            results.push(Math.abs(valIZ - currentAnswers.targetIZ) <= tolerance ? 'correct' : 'wrong');
+            results.push(Math.abs(valPZ - currentAnswers.targetPZ) <= 0.5 ? 'correct' : 'wrong');
         }
-        // Note: Zener doesn't use the 'parseInput' unit-checking helper currently 
-        // because units are pre-defined in labels (mA/V/mW).
     } 
     else if (currentMode === 'colorcode') {
-        // ... (Keep existing colorcode logic)
         const valGroup = document.getElementById('inputGroupColorVal');
         if (valGroup && valGroup.style.display !== 'none') {
             const userRes = parseInput(document.getElementById('inputResValue').value);
@@ -2358,7 +2320,6 @@ function checkAnswers() {
             const b2 = document.getElementById('inputBand2').value.toLowerCase().trim();
             const b3 = document.getElementById('inputBand3').value.toLowerCase().trim();
             const b4 = document.getElementById('inputBandTol').value.toLowerCase().trim();
-
             if (b1 === currentAnswers.b1 && b2 === currentAnswers.b2 && 
                 b3 === currentAnswers.b3 && b4 === currentAnswers.tol) {
                 results.push('correct');
@@ -2399,17 +2360,15 @@ function checkAnswers() {
         results.push(validateMatch(parseInput(document.getElementById('inputMonostable').value), currentAnswers.expectedT, currentAnswers.expectedUnit));
     }
 
-    // 4. Final Scoring and Feedback Display
-    // UNIVERSAL BORDER FEEDBACK:
-    // This loops through every box the user just typed in and turns it green or red.
-        activeInputs.forEach((id, index) => {
-            const inputElement = document.getElementById(id);
-                if (inputElement) {
-                // If the result for this specific box is 'correct', turn it Green. Otherwise, turn it Red.
-                inputElement.style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
-                inputElement.style.borderWidth = "2px";
-            }
+    // 4. Final Scoring and Universal Border Feedback
+    activeInputs.forEach((id, index) => {
+        const inputElement = document.getElementById(id);
+        if (inputElement) {
+            inputElement.style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
+            inputElement.style.borderWidth = "2px";
+        }
     });
+
     if (results.every(r => r === 'correct')) {
         isCurrentProblemSolved = true;
         if (!viewedSolution && !unitErrorMade) {
@@ -2422,7 +2381,7 @@ function checkAnswers() {
         }
         if (helpBtn) helpBtn.style.display = 'none';
         
-        // Auto-show solution on success for Zener
+        // Auto-show solution on success
         const solBox = document.getElementById('solutions');
         if (solBox) solBox.style.display = 'block';
 
