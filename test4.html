@@ -1390,10 +1390,10 @@ function generateOscilloscopeProblem() {
 }
  
 function generateAstableProblem() {
-    // 1. UI RESET
+    // 1. UI RESET & DEEP CLEAN
     hideAllInputGroups();
     const solBox = document.getElementById('solText');
-    if (solBox) solBox.style.display = "none"; // Hide previous answer
+    if (solBox) solBox.style.display = "none";
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     
     // 2. SELF-INITIALIZE CANVAS
@@ -1402,7 +1402,7 @@ function generateAstableProblem() {
     const ctx = canvas.getContext('2d');
     currentMode = 'astable';
     
-    // 3. CLEAR OLD INPUTS
+    // 3. CLEAR OLD INPUTS & PROMPTS
     const inputAstable = document.getElementById('inputAstable');
     const inputAstableT = document.getElementById('inputAstableT');
     const inputMarkSpace = document.getElementById('inputMarkSpace');
@@ -1421,6 +1421,7 @@ function generateAstableProblem() {
     const freq = 1.44 / ((R1 + 2 * R2) * C_farads);
     const period_ms = (1 / freq) * 1000;
     
+    // Fraction Simplification for Mark/Space Ratio (R1+R2)/R2
     const gcd = (a, b) => b ? gcd(b, a % b) : a;
     const num = R1 + R2;
     const den = R2;
@@ -1429,66 +1430,69 @@ function generateAstableProblem() {
 
     // 5. CHOOSE QUESTION TYPE
     const qType = Math.floor(Math.random() * 2);
+    if (typeof currentAnswers === "undefined") currentAnswers = {};
     currentAnswers.astableQType = qType;
 
-    // Toggle Input Groups
     const groupStd = document.getElementById('inputGroupAstable');
     const groupRatio = document.getElementById('inputGroupMarkSpace');
 
     if (qType === 0) {
         if(groupStd) groupStd.style.display = "inline-block";
-        if(groupRatio) groupRatio.style.display = "none";
         if(astablePrompt) astablePrompt.innerHTML = "(Give answer to 1 d.p.)";
         
         currentAnswers.astableValue = parseFloat(freq.toFixed(1)); 
         currentAnswers.astableTValue = parseFloat(period_ms.toFixed(1)); 
-        currentAnswers.astableUnit = "hz";   // Tells the judge to expect Hz
-        currentAnswers.astableTUnit = "ms";  // Tells the judge to expect ms
+        currentAnswers.astableUnit = "hz";
+        currentAnswers.astableTUnit = "ms";
     } else {
         if(groupRatio) groupRatio.style.display = "inline-block";
-        if(groupStd) groupStd.style.display = "none";
         if(ratioPrompt) ratioPrompt.innerHTML = "(Simplified fraction, e.g. 2/1)";
         
         currentAnswers.astableRatio = ratioString;
     }
 
-    // 6. DRAWING HELPERS (Kept your logic)
+    // 6. DRAWING HELPERS
     const line = (x1, y1, x2, y2) => { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
     const drawNode = (x, y) => { ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill(); };
     const drawResistorBox = (x, y, val) => {
         ctx.fillStyle = "white"; ctx.fillRect(x - 12, y - 25, 24, 50); ctx.strokeRect(x - 12, y - 25, 24, 50);
-        ctx.fillStyle = "#000"; ctx.font = "14px Arial"; ctx.textAlign = "right"; ctx.fillText(val, x - 20, y + 5);
+        ctx.fillStyle = "#000"; ctx.font = "bold 14px Arial"; ctx.textAlign = "right"; ctx.fillText(val, x - 20, y + 5);
     };
     const drawCapacitor = (x, y, val, align="right") => {
         line(x - 15, y - 5, x + 15, y - 5); line(x - 15, y + 5, x + 15, y + 5);
-        ctx.font = "14px Arial"; ctx.textAlign = align;
+        ctx.font = "bold 14px Arial"; ctx.textAlign = align;
         ctx.fillText(val, align === "right" ? x - 25 : x + 25, y + 5);
     };
 
-    // 7. DRAWING THE CIRCUIT (Your layout)
+    // 7. DRAWING THE CIRCUIT
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.fillStyle = "#000";
 
+    // Power Rails
     line(100, 40, 500, 40); ctx.font = "bold 16px Arial"; ctx.textAlign = "left"; ctx.fillText("+Vcc", 510, 45);
     line(100, 360, 500, 360); ctx.fillText("0V", 510, 365);
+    
+    // 555 Body
     ctx.strokeRect(260, 120, 140, 140); 
     ctx.font = "bold 24px Arial"; ctx.textAlign = "center"; ctx.fillText("555", 330, 195);
 
+    // Left-side Network (Timing Components)
     const bX = 160;
     line(bX, 40, bX, 60); drawNode(bX, 40);
-    drawResistorBox(bX, 85, (R1/1000) + " k\u03a9");
+    drawResistorBox(bX, 85, (R1/1000) + " kΩ");
     line(bX, 110, bX, 155); drawNode(bX, 140);
-    drawResistorBox(bX, 180, (R2/1000) + " k\u03a9");
+    drawResistorBox(bX, 180, (R2/1000) + " kΩ");
     line(bX, 205, bX, 285); drawNode(bX, 225);
-    drawCapacitor(bX, 290, C_uF + " \u03bcF", "right");
+    drawCapacitor(bX, 290, C_uF + " μF", "right");
     line(bX, 295, bX, 360); drawNode(bX, 360);
 
+    // Internal connections to Pins 7, 6, 2
     line(bX, 140, 260, 140); ctx.font = "14px Arial"; ctx.textAlign = "left"; ctx.fillText("7", 265, 145);
     line(bX, 225, 220, 225); drawNode(220, 225); line(220, 180, 220, 240);
     line(220, 180, 260, 180); ctx.fillText("6", 265, 185); 
     line(220, 240, 260, 240); ctx.fillText("2", 265, 245); 
 
-    // Static Pins & Output (Your existing logic)
+    // Static Pin Connections (Pins 8, 4, 1, 5)
     line(330, 40, 330, 80); drawNode(330, 40); drawNode(330, 80); line(300, 80, 360, 80);
     line(300, 80, 300, 120); ctx.textAlign = "center"; ctx.fillText("8", 300, 135);
     line(360, 80, 360, 120); ctx.fillText("4", 360, 135);
@@ -1496,10 +1500,12 @@ function generateAstableProblem() {
     line(360, 260, 360, 305); ctx.fillText("5", 360, 255);
     drawCapacitor(360, 310, "10 nF", "left");
     line(360, 315, 360, 360); drawNode(360, 360);
+    
+    // Output (Pin 3)
     line(400, 190, 460, 190); ctx.textAlign = "right"; ctx.fillText("3", 395, 195);
     ctx.textAlign = "left"; ctx.fillText("Output", 465, 195);
 
-    // 8. Update Solution Text
+    // 8. UPDATE SOLUTION TEXT
     if (solBox) {
         solBox.innerHTML = qType === 0 ? 
             "<strong>f</strong> = " + freq.toFixed(1) + " Hz, <strong>T</strong> = " + period_ms.toFixed(1) + " ms" :
@@ -1508,19 +1514,23 @@ function generateAstableProblem() {
 }
     
 function drawMonostable(ctx, R, C, rUnit, cUnit) {
+    // Note: brandBlack assumes a global constant, falling back to "#000"
+    const color = typeof brandBlack !== "undefined" ? brandBlack : "#000";
     ctx.clearRect(0, 0, 600, 420);
-    ctx.strokeStyle = brandBlack;
+    ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.font = "bold 16px Arial";
-    ctx.fillStyle = brandBlack;
+    ctx.fillStyle = color;
 
     // 1. Draw the 555 Chip (Centered)
     const chipX = 250, chipY = 150, w = 120, h = 160;
     ctx.strokeRect(chipX, chipY, w, h);
-    ctx.fillText("555", chipX + 45, chipY + 85);
+    ctx.textAlign = "center";
+    ctx.fillText("555", chipX + 60, chipY + 85);
 
     // 2. Pin Labels (Standard Monostable Layout)
     ctx.font = "12px Arial";
+    ctx.textAlign = "left";
     ctx.fillText("8", chipX + 30, chipY + 15); // VCC
     ctx.fillText("4", chipX + 80, chipY + 15); // Reset
     ctx.fillText("1", chipX + 55, chipY + h - 5); // GND
@@ -1530,15 +1540,14 @@ function drawMonostable(ctx, R, C, rUnit, cUnit) {
     ctx.fillText("6", chipX + 5, chipY + 70); // THR
 
     // 3. Power Rails
-    // Top Rail (VCC)
     ctx.beginPath();
     ctx.moveTo(chipX + 35, chipY); ctx.lineTo(chipX + 35, chipY - 50); // Pin 8 up
     ctx.moveTo(chipX + 85, chipY); ctx.lineTo(chipX + 85, chipY - 50); // Pin 4 up
     ctx.moveTo(150, chipY - 50); ctx.lineTo(400, chipY - 50); // Horizontal Rail
     ctx.stroke();
+    ctx.font = "bold 16px Arial";
     ctx.fillText("+Vcc", 410, chipY - 45);
 
-    // Bottom Rail (GND)
     ctx.beginPath();
     ctx.moveTo(chipX + 60, chipY + h); ctx.lineTo(chipX + 60, chipY + h + 40); // Pin 1 down
     ctx.moveTo(150, chipY + h + 40); ctx.lineTo(400, chipY + h + 40); // Horizontal Rail
@@ -1546,42 +1555,49 @@ function drawMonostable(ctx, R, C, rUnit, cUnit) {
     ctx.fillText("0V", 410, chipY + h + 45);
 
     // 4. External Components (R and C)
-    // Resistor R1 from VCC to Pin 7
-    drawResistor(ctx, 200, chipY - 20); 
+    // Draw Resistor (simplified as box if drawResistor utility is missing)
+    if (typeof drawResistor === "function") {
+        drawResistor(ctx, 200, chipY - 20); 
+    } else {
+        ctx.strokeRect(188, chipY - 25, 24, 50);
+    }
+    
     ctx.beginPath();
     ctx.moveTo(200, chipY - 50); ctx.lineTo(200, chipY - 40); // To Rail
     ctx.moveTo(200, chipY + 10); ctx.lineTo(200, chipY + 40); // To Pin 7 line
     ctx.lineTo(chipX, chipY + 40); // Into Pin 7
     ctx.stroke();
     ctx.font = "bold 14px Arial";
-    ctx.fillText("R = " + R + rUnit, 110, chipY - 5);
+    ctx.textAlign = "right";
+    ctx.fillText("R = " + R + rUnit, 180, chipY + 5);
 
-    // Join Pin 6 to Pin 7 (Threshold to Discharge)
+    // Join Pin 6 to Pin 7
     ctx.beginPath();
     ctx.moveTo(chipX, chipY + 70); ctx.lineTo(200, chipY + 70); ctx.lineTo(200, chipY + 40);
     ctx.stroke();
 
-    // Capacitor C1 from Pin 6 junction to GND
+    // Capacitor C1
     ctx.beginPath();
     ctx.moveTo(200, chipY + 70); ctx.lineTo(200, chipY + 100); // Wire down
-    // Capacitor Plates
-    ctx.moveTo(185, 100 + chipY); ctx.lineTo(215, 100 + chipY);
+    ctx.moveTo(185, 100 + chipY); ctx.lineTo(215, 100 + chipY); // Plates
     ctx.moveTo(185, 108 + chipY); ctx.lineTo(215, 108 + chipY);
-    // To Ground
-    ctx.moveTo(200, 108 + chipY); ctx.lineTo(200, chipY + h + 40);
+    ctx.moveTo(200, 108 + chipY); ctx.lineTo(200, chipY + h + 40); // To Ground
     ctx.stroke();
-    ctx.fillText("C = " + C + cUnit, 110, chipY + 110);
+    ctx.textAlign = "right";
+    ctx.fillText("C = " + C + cUnit, 180, chipY + 110);
 
     // 5. Trigger Input (Pin 2)
     ctx.beginPath();
     ctx.moveTo(chipX, chipY + 130); ctx.lineTo(chipX - 40, chipY + 130);
     ctx.stroke();
-    ctx.fillText("Trigger", chipX - 90, chipY + 135);
+    ctx.textAlign = "right";
+    ctx.fillText("Trigger", chipX - 45, chipY + 135);
 
     // 6. Output (Pin 3)
     ctx.beginPath();
     ctx.moveTo(chipX + w, chipY + 80); ctx.lineTo(chipX + w + 40, chipY + 80);
     ctx.stroke();
+    ctx.textAlign = "left";
     ctx.fillText("Vout", chipX + w + 45, chipY + 85);
 }
     
@@ -1594,7 +1610,8 @@ function generateMonostableProblem() {
     // 0. RESET UI & STATE
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'monostable';
-    document.getElementById('solText').style.display = "none"; // Hide old answer
+    const solBox = document.getElementById('solText');
+    if (solBox) solBox.style.display = "none"; 
 
     // 1. SETUP VARIABLES
     const R1_k = Math.floor(Math.random() * 173) + 47; 
@@ -1611,8 +1628,8 @@ function generateMonostableProblem() {
     const qType = Math.floor(Math.random() * 3) + 1;
     currentAnswers.monoQType = qType;
 
-    let rLabel = R1_k + " k\u03a9";
-    let cLabel = C_uF + " \u03bcF";
+    let rLabel = R1_k + " kΩ";
+    let cLabel = C_uF + " μF";
     let tLabel = "Pulse Length (T) = " + roundedTime + " s";
 
     // 3. UI SETUP
@@ -1626,21 +1643,20 @@ function generateMonostableProblem() {
     if (monoPrompt) monoPrompt.innerHTML = "(Give answer to 1 d.p.)";
     if (inputMono) inputMono.value = "";
 
-    // Coordination with checkAnswers()
     if (qType === 1) { // Calculating Time
         if (monoLabel) monoLabel.innerHTML = "T = ";
-        inputMono.placeholder = "e.g. " + roundedTime + " s";
+        if (inputMono) inputMono.placeholder = "e.g. " + roundedTime + " s";
         currentAnswers.expectedT = roundedTime;
         currentAnswers.expectedUnit = "s";
     } else if (qType === 2) { // Calculating Resistance
         if (monoLabel) monoLabel.innerHTML = "R = ";
-        inputMono.placeholder = "e.g. " + R1_k + " k\u03a9";
+        if (inputMono) inputMono.placeholder = "e.g. " + R1_k + " kΩ";
         currentAnswers.expectedT = R1_k;
         currentAnswers.expectedUnit = "k";
         rLabel = "R = ?";
     } else if (qType === 3) { // Calculating Capacitance
         if (monoLabel) monoLabel.innerHTML = "C = ";
-        inputMono.placeholder = "e.g. " + C_uF + " \u03bcF";
+        if (inputMono) inputMono.placeholder = "e.g. " + C_uF + " μF";
         currentAnswers.expectedT = C_uF;
         currentAnswers.expectedUnit = "uf";
         cLabel = "C = ?";
@@ -1661,7 +1677,7 @@ function generateMonostableProblem() {
         ctx.fillStyle = color; 
         ctx.font = "bold 14px Arial"; ctx.textAlign = "right";
         ctx.fillText(val, x - 20, y + 5);
-        ctx.fillStyle = "#000"; // Reset for next draw
+        ctx.fillStyle = "#000";
     };
     const drawCapacitor = (x, y, val, align="right", color="#000") => {
         ctx.strokeStyle = "#000";
@@ -1688,15 +1704,9 @@ function generateMonostableProblem() {
     // Timing Components
     const bX = 160;
     line(bX, 40, bX, 85); drawNode(bX, 40); 
-    
-    // Highlight R if it's the question
     drawResistorBox(bX, 110, rLabel, (qType === 2 ? "#E64097" : "#000"));
-
     line(bX, 135, bX, 285); drawNode(bX, 180); 
-    
-    // Highlight C if it's the question
     drawCapacitor(bX, 290, cLabel, "right", (qType === 3 ? "#E64097" : "#000"));
-
     line(bX, 295, bX, 360); drawNode(bX, 360); 
 
     // Internal Pin Connections
@@ -1731,32 +1741,50 @@ function generateMonostableProblem() {
     ctx.fillText(tLabel, 300, 410);
 
     // 7. SOLUTION TEXT
-    const solElement = document.getElementById('solText');
-    if (solElement) {
+    if (solBox) {
         if (qType === 1) {
-            solElement.innerHTML = "<strong>Find T:</strong> T = 1.1 &times; R &times; C = 1.1 &times; " + R1_k + "k &times; " + C_uF + "&mu;F = <strong>" + roundedTime + " s</strong>";
+            solBox.innerHTML = "<strong>Find T:</strong> T = 1.1 &times; R &times; C = 1.1 &times; " + R1_k + "k &times; " + C_uF + "&mu;F = <strong>" + roundedTime + " s</strong>";
         } else if (qType === 2) {
-            solElement.innerHTML = "<strong>Find R:</strong> R = T / (1.1 &times; C) = " + roundedTime + " / (1.1 &times; " + C_uF + "&mu;F) = <strong>" + R1_k + " k&Omega;</strong>";
+            solBox.innerHTML = "<strong>Find R:</strong> R = T / (1.1 &times; C) = " + roundedTime + " / (1.1 &times; " + C_uF + "&mu;F) = <strong>" + R1_k + " k&Omega;</strong>";
         } else {
-            solElement.innerHTML = "<strong>Find C:</strong> C = T / (1.1 &times; R) = " + roundedTime + " / (1.1 &times; " + R1_k + "k) = <strong>" + C_uF + " &mu;F</strong>";
+            solBox.innerHTML = "<strong>Find C:</strong> C = T / (1.1 &times; R) = " + roundedTime + " / (1.1 &times; " + R1_k + "k) = <strong>" + C_uF + " &mu;F</strong>";
         }
     }
 }
     
-function generateColorCodeProblem(ctx, canvas) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+function formatResValue(val) {
+    if (val >= 1000000) return (val / 1000000).toFixed(val % 1000000 === 0 ? 0 : 1) + " MΩ";
+    if (val >= 1000) return (val / 1000).toFixed(val % 1000 === 0 ? 0 : 1) + " kΩ";
+    return val + " Ω";
+}
+
+function generateColorCodeProblem() {
+    // 1. UI RESET
+    hideAllInputGroups();
+    const canvas = document.getElementById('circuitCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const solBox = document.getElementById('solText');
+    if (solBox) solBox.style.display = "none";
+    if (typeof resetAnswerBox === "function") resetAnswerBox();
     
+    currentMode = 'colorCode';
+
+    // 2. CONSTANTS
     const resColors = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'grey', 'white'];
     const tolColors = { 'gold': 5, 'silver': 10 };
 
-    const b1 = Math.floor(Math.random() * 9) + 1; 
-    const b2 = Math.floor(Math.random() * 10);    
-    const b3 = Math.floor(Math.random() * 7);     
+    // 3. GENERATE RANDOM RESISTOR
+    const b1 = Math.floor(Math.random() * 9) + 1; // First digit 1-9
+    const b2 = Math.floor(Math.random() * 10);    // Second digit 0-9
+    const b3 = Math.floor(Math.random() * 7);     // Multiplier 10^0 to 10^6
     const tolKey = Math.random() > 0.5 ? 'gold' : 'silver';
+    
     const resistanceValue = (b1 * 10 + b2) * Math.pow(10, b3);
     const toleranceValue = tolColors[tolKey];
 
-    // Store answers for grading
+    // Store state for checking
+    if (typeof currentAnswers === "undefined") currentAnswers = {};
     currentAnswers.resVal = resistanceValue;
     currentAnswers.resTol = toleranceValue;
     currentAnswers.b1 = resColors[b1];
@@ -1764,71 +1792,85 @@ function generateColorCodeProblem(ctx, canvas) {
     currentAnswers.b3 = resColors[b3];
     currentAnswers.tol = tolKey;
 
-    // Draw Resistor Body
-    ctx.lineWidth = 4; ctx.strokeStyle = '#000';
-    ctx.beginPath(); ctx.moveTo(100, 210); ctx.lineTo(500, 210); ctx.stroke(); 
-    ctx.fillStyle = '#f4d3a6'; ctx.fillRect(200, 170, 200, 80); ctx.strokeRect(200, 170, 200, 80); 
+    // 4. DRAWING SETUP
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineWidth = 4; 
+    ctx.strokeStyle = '#000';
+    
+    // Draw Leads
+    ctx.beginPath(); 
+    ctx.moveTo(100, 210); ctx.lineTo(500, 210); 
+    ctx.stroke(); 
+    
+    // Draw Resistor Body (Tan/Beige)
+    ctx.fillStyle = '#f4d3a6'; 
+    ctx.fillRect(200, 170, 200, 80); 
+    ctx.strokeRect(200, 170, 200, 80); 
 
+    // 5. CHOOSE QUESTION TYPE (0: Color->Value, 1: Value->Color)
     const qType = Math.floor(Math.random() * 2);
+    currentAnswers.colorQType = qType;
     let solTextStr = "";
 
-    if (qType === 0) {
-        // TYPE 0: Visual Resistor -> Student enters Resistance and Tolerance NUMBER
-        const drawBand = (x, color) => {
-            ctx.fillStyle = (color === 'gold') ? '#FFD700' : (color === 'silver') ? '#C0C0C0' : color;
-            ctx.fillRect(x, 170, 20, 80); ctx.strokeRect(x, 170, 20, 80);
-        };
-        drawBand(220, resColors[b1]);
-        drawBand(250, resColors[b2]);
-        drawBand(280, resColors[b3]);
-        drawBand(360, tolKey);
-
-        document.getElementById('inputGroupColorVal').style.display = 'block';
-
-        // Generate Solution Logic for Help Button
-        solTextStr = "<strong>Solution: " + formatResValue(resistanceValue) + " &plusmn; " + toleranceValue + "%</strong><br><br>";
-        solTextStr += "<em>Logic:</em><br>";
-        solTextStr += "Band 1 (" + resColors[b1].toUpperCase() + ") = " + b1 + "<br>";
-        solTextStr += "Band 2 (" + resColors[b2].toUpperCase() + ") = " + b2 + "<br>";
-        solTextStr += "Band 3 (" + resColors[b3].toUpperCase() + ") = Multiplier 10<sup>" + b3 + "</sup><br>";
-        solTextStr += "Band 4 (" + tolKey.toUpperCase() + ") = &plusmn;" + toleranceValue + "%";
-    } else {
-        // TYPE 1: B&W Resistor -> Student enters Colour NAMES
-        const drawHiddenBand = (x, num) => {
+    const drawBand = (x, color, isHidden = false, label = "") => {
+        if (isHidden) {
             ctx.fillStyle = '#ccc'; 
-            ctx.fillRect(x, 170, 20, 80); ctx.strokeRect(x, 170, 20, 80);
+        } else {
+            const colorMap = { 'gold': '#FFD700', 'silver': '#C0C0C0', 'grey': '#888', 'white': '#fff' };
+            ctx.fillStyle = colorMap[color] || color;
+        }
+        ctx.fillRect(x, 170, 22, 80); 
+        ctx.strokeRect(x, 170, 22, 80);
+        
+        if (label) {
             ctx.fillStyle = '#000';
             ctx.font = 'bold 22px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(num, x + 10, 160);
-        };
-        drawHiddenBand(220, "1");
-        drawHiddenBand(250, "2");
-        drawHiddenBand(280, "3");
-        drawHiddenBand(360, "4");
+            ctx.fillText(label, x + 11, 160);
+        }
+    };
+
+    if (qType === 0) {
+        // Show Bands, Ask for Resistance/Tolerance
+        drawBand(225, resColors[b1]);
+        drawBand(255, resColors[b2]);
+        drawBand(285, resColors[b3]);
+        drawBand(355, tolKey);
+
+        const groupVal = document.getElementById('inputGroupColorVal');
+        if (groupVal) groupVal.style.display = 'inline-block';
+
+        solTextStr = `<strong>Solution: ${formatResValue(resistanceValue)} ± ${toleranceValue}%</strong><br><br>`;
+        solTextStr += `<em>Step-by-step:</em><br>`;
+        solTextStr += `1st Band (${resColors[b1].toUpperCase()}): <strong>${b1}</strong><br>`;
+        solTextStr += `2nd Band (${resColors[b2].toUpperCase()}): <strong>${b2}</strong><br>`;
+        solTextStr += `3rd Band (${resColors[b3].toUpperCase()}): <strong>x 10<sup>${b3}</sup></strong><br>`;
+        solTextStr += `4th Band (${tolKey.toUpperCase()}): <strong>±${toleranceValue}%</strong>`;
+    } else {
+        // Show Value, Ask for Color Names
+        drawBand(225, null, true, "1");
+        drawBand(255, null, true, "2");
+        drawBand(285, null, true, "3");
+        drawBand(355, null, true, "4");
 
         const formatted = formatResValue(resistanceValue);
         ctx.fillStyle = '#000';
-        ctx.font = 'bold 28px Arial';
+        ctx.font = 'bold 32px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(`${formatted} ± ${toleranceValue}%`, 300, 310);
+        ctx.fillText(`${formatted} ± ${toleranceValue}%`, 300, 320);
 
-        document.getElementById('inputGroupColorNames').style.display = 'block';
-        
+        const groupNames = document.getElementById('inputGroupColorNames');
+        if (groupNames) groupNames.style.display = 'inline-block';
 
-        // Generate Solution Logic for Help Button
-        solTextStr = "<strong>Required Colours:</strong><br><br>";
-        solTextStr += "1. " + resColors[b1].toUpperCase() + " (for digit " + b1 + ")<br>";
-        solTextStr += "2. " + resColors[b2].toUpperCase() + " (for digit " + b2 + ")<br>";
-        solTextStr += "3. " + resColors[b3].toUpperCase() + " (for multiplier 10<sup>" + b3 + "</sup>)<br>";
-        solTextStr += "4. " + tolKey.toUpperCase() + " (for &plusmn;" + toleranceValue + "%)";
+        solTextStr = `<strong>Correct Colors:</strong><br><br>`;
+        solTextStr += `1. <strong>${resColors[b1].toUpperCase()}</strong> (${b1})<br>`;
+        solTextStr += `2. <strong>${resColors[b2].toUpperCase()}</strong> (${b2})<br>`;
+        solTextStr += `3. <strong>${resColors[b3].toUpperCase()}</strong> (10<sup>${b3}</sup>)<br>`;
+        solTextStr += `4. <strong>${tolKey.toUpperCase()}</strong> (±${toleranceValue}%)`;
     }
 
-    // Push the solution text to the hidden div
-    const solText = document.getElementById('solText');
-    if (solText) solText.innerHTML = solTextStr;
+    if (solBox) solBox.innerHTML = solTextStr;
 }
-
 function generateZenerProblem() {
     hideAllInputGroups();
     const canvas = document.getElementById('circuitCanvas');
@@ -2016,22 +2058,19 @@ function generateZenerProblem() {
                 <p><b>P<sub>ZENER</sub> = ?</b> (e.g. 42.5 mW)</p>
             `;
         }
-        // Add the 1 d.p. instruction
         solElement.innerHTML += `<p style="font-size: 0.9em; margin-top: 15px; color: #666;">
                                     <i>Give all answers to 1 decimal place.</i>
                                  </p>`;
     }
-    // IMPORTANT: Do NOT call updateZenerSolution(switchClosed) here!
-}
-    
+}   
 // ===========================================================================================================================      
 // FUNCTION 3. NAVIGATION and UI (Traffic Control) 
 // ===========================================================================================================================      
 
-   function goHome() {
+function goHome() {
     // 1. Hide the work area and specific inputs
     document.getElementById('contentArea').style.display = 'none';
-    hideAllInputGroups(); // <--- ADD THIS LINE to reset spacers and inputs
+    hideAllInputGroups(); 
     
     // 2. Reset the menus
     document.getElementById('mainMenu').style.display = 'grid'; 
@@ -2050,7 +2089,7 @@ function openModule(module) {
     // Hide all sub-menus first
     document.getElementById('menuBasics').style.display = 'none';
     document.getElementById('menuTiming').style.display = 'none';
-    document.getElementById('menuDiodes').style.display = 'none'; // Added for Diodes
+    document.getElementById('menuDiodes').style.display = 'none'; 
     document.getElementById('menuPlaceholder').style.display = 'none';
     
     // Show the content area
@@ -2062,10 +2101,10 @@ function openModule(module) {
         switchTab('analysis');
     } else if (module === 'timing') {
         document.getElementById('menuTiming').style.display = 'flex';
-        switchTab('oscilloscope'); // Default to oscilloscope
+        switchTab('oscilloscope'); 
     } else if (module === 'diodes') {
         document.getElementById('menuDiodes').style.display = 'flex';
-        switchTab('zener'); // Default to Zener Diodes
+        switchTab('zener'); 
     } else {
         document.getElementById('menuPlaceholder').style.display = 'flex';
         document.getElementById('contentArea').style.display = 'none';
@@ -2078,19 +2117,17 @@ function switchTab(mode) {
     // 1. Highlight active tab & Reset all others
     document.querySelectorAll('.tab').forEach(t => {
         t.classList.remove('active');
-        // Reset styles to default pink/transparent
         if (t.innerText && !t.innerText.includes('Home')) {
              t.style.backgroundColor = ""; 
              t.style.color = "";
         }
     });
 
-    // Find the specific button using the ID (e.g., tab-astable)
     const activeTab = document.getElementById('tab-' + mode);
     if (activeTab) {
         activeTab.classList.add('active');
-        activeTab.style.backgroundColor = "#333"; // Turn it Black
-        activeTab.style.color = "#fff";           // White text
+        activeTab.style.backgroundColor = "#333"; 
+        activeTab.style.color = "#fff";           
     }
 
     // 2. Hide ALL potential input groups
@@ -2137,7 +2174,6 @@ function switchTab(mode) {
     const helpBtn = document.getElementById('helpBtn');
     if (helpBtn) helpBtn.style.display = 'none';
     
-    // Clear all text inputs globally
     const inputs = document.querySelectorAll('.input-area input');
     inputs.forEach(i => i.value = '');
 
@@ -2147,29 +2183,21 @@ function switchTab(mode) {
 
     // 7. CALL THE CORRECT GENERATOR
     if (mode === 'astable') {
-        generateAstableProblem();
+        if (typeof generateAstableProblem === "function") generateAstableProblem();
     } else if (mode === 'monostable') {
-        generateMonostableProblem();
+        if (typeof generateMonostableProblem === "function") generateMonostableProblem();
     } else if (mode === 'oscilloscope') {
-        generateOscilloscopeProblem();
+        if (typeof generateOscilloscopeProblem === "function") generateOscilloscopeProblem();
     } else if (mode === 'zener') {
-        if (typeof generateZenerProblem === "function") {
-            generateZenerProblem();
-        }
+        if (typeof generateZenerProblem === "function") generateZenerProblem();
     } else if (mode === 'silicon') {
-        // Placeholder for silicon generator
         console.log("Silicon diode module selected");
     } else if (mode === 'colorcode') {
-        if (typeof generateColorCodeProblem === "function") {
-            generateColorCodeProblem();
-        }
+        if (typeof generateColorCodeProblem === "function") generateColorCodeProblem();
     } else {
-        // Fallback for basics: analysis, divider, and resistance
-        generateProblem();
+        if (typeof generateProblem === "function") generateProblem();
     }
 }
-
-
 
 function openDataSheet() {
     const modal = document.getElementById('dataSheetModal');
@@ -2181,90 +2209,145 @@ function closeDataSheet() {
     if (modal) modal.style.display = 'none';
 }
 
-    function openSubmissionModal() {
-            if (problemsAttempted === 0) {
-                alert("Please attempt at least one question before downloading your score!");
-                return;
-            }
-            // Clear previous inputs
-            document.getElementById('studentNameInput').value = '';
-            document.getElementById('teacherSelect').value = '';
-            
-            // Show modal
-            document.getElementById('submissionModal').style.display = 'flex';
-        }
+function openSubmissionModal() {
+    if (typeof problemsAttempted !== "undefined" && problemsAttempted === 0) {
+        // No browser alerts - using feedback box or ignoring for now as per instructions
+        return;
+    }
+    const nameInput = document.getElementById('studentNameInput');
+    const teacherSelect = document.getElementById('teacherSelect');
+    if (nameInput) nameInput.value = '';
+    if (teacherSelect) teacherSelect.value = '';
+    
+    const modal = document.getElementById('submissionModal');
+    if (modal) modal.style.display = 'flex';
+}
 
 function closeModal() {
-            document.getElementById('submissionModal').style.display = 'none';
-        }
+    const modal = document.getElementById('submissionModal');
+    if (modal) modal.style.display = 'none';
+}
+/**
+ * ===============================================================================================================      
+ * FUNCTION 4. MAIN ROUTER
+ * ===============================================================================================================      
+ */
 
-// ===============================================================================================================      
-// FUNCTION 4. MAIN ROUTER
-// ===============================================================================================================      
-    
 function generateProblem() {
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // 1. Force Canvas Resolution
+    // 1. Force Canvas Resolution for consistent drawing across all modules
     canvas.width = 600;
     canvas.height = 420;
 
     // 2. Full UI Reset
-    // This clears all input groups, hides the solution box, 
-    // and hides the questionText container completely.
-    hideAllInputGroups(); 
+    // Clears all input groups, hides solution boxes, and resets flags
+    if (typeof hideAllInputGroups === "function") {
+        hideAllInputGroups(); 
+    }
     
+    // Global State Reset
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
     viewedSolution = false; 
     unitErrorMade = false; 
 
-    // 3. Clear the question text content just in case
+    // 3. Clear the question text content for a clean slate
     const qText = document.getElementById('questionText');
-    if (qText) qText.innerHTML = '';
+    if (qText) {
+        qText.innerHTML = '';
+        qText.style.display = 'none'; // Keep it hidden unless a module specifically needs it
+    }
 
-    // 4. ROUTER: Open module inputs silently (No text instructions)
+    // Reset feedback and solution areas
+    const feedback = document.getElementById('feedback');
+    if (feedback) feedback.innerHTML = '';
+    
+    const solutions = document.getElementById('solutions');
+    if (solutions) solutions.style.display = 'none';
+
+    // 4. ROUTER: Open module inputs and trigger specific generators
+    // Logic ensures only relevant UI elements are shown for the active mode
+    
     if (currentMode === 'analysis') {
-        document.getElementById('inputGroupV').style.display = 'inline-block';
-        document.getElementById('inputGroupI').style.display = 'inline-block';
-        generateAnalysisProblem(ctx, canvas);
+        const groupV = document.getElementById('inputGroupV');
+        const groupI = document.getElementById('inputGroupI');
+        if (groupV) groupV.style.display = 'inline-block';
+        if (groupI) groupI.style.display = 'inline-block';
+        
+        if (typeof generateAnalysisProblem === "function") {
+            generateAnalysisProblem(ctx, canvas);
+        }
 
     } else if (currentMode === 'divider') {
-        document.getElementById('inputGroupV').style.display = 'inline-block';
+        const groupV = document.getElementById('inputGroupV');
+        if (groupV) groupV.style.display = 'inline-block';
+        
         const g9 = document.getElementById('grade9DividerBtn');
         if (g9) g9.style.display = 'inline-block';
-        generateDividerProblem(ctx, canvas);
+        
+        if (typeof generateDividerProblem === "function") {
+            generateDividerProblem(ctx, canvas);
+        }
 
     } else if (currentMode === 'resistance') {
-        document.getElementById('inputGroupR').style.display = 'inline-block';
+        const groupR = document.getElementById('inputGroupR');
+        if (groupR) groupR.style.display = 'inline-block';
+        
         const g9 = document.getElementById('grade9ResistorBtn');
         if (g9) g9.style.display = 'inline-block';
-        setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
+        
+        // Timeout ensures the DOM has processed the display changes before drawing complex resistor networks
+        setTimeout(() => { 
+            if (typeof generateResistanceProblem === "function") {
+                generateResistanceProblem(ctx, canvas); 
+            }
+        }, 20);
 
     } else if (currentMode === 'oscilloscope') {
-        // Show the wrapper so the oscilloscope inputs appear, but no text
+        // Show the wrapper for oscilloscope-specific dial inputs
         const oscWrapper = document.getElementById('oscilloscopeInputs');
         if (oscWrapper) oscWrapper.style.display = 'block';
-        generateOscilloscopeProblem(ctx, canvas);
+        
+        if (typeof generateOscilloscopeProblem === "function") {
+            generateOscilloscopeProblem(ctx, canvas);
+        }
 
     } else if (currentMode === 'astable') {
-        // Astable generator handles its own specific inputs
-        generateAstableProblem(ctx, canvas);
+        // Astable generator manages its own specific input visibility (Mark/Space/Frequency)
+        if (typeof generateAstableProblem === "function") {
+            generateAstableProblem(ctx, canvas);
+        }
 
     } else if (currentMode === 'monostable') {
-        document.getElementById('inputGroupMonostable').style.display = 'inline-block';
-        generateMonostableProblem(ctx, canvas);
+        const groupMono = document.getElementById('inputGroupMonostable');
+        if (groupMono) groupMono.style.display = 'inline-block';
+        
+        if (typeof generateMonostableProblem === "function") {
+            generateMonostableProblem(ctx, canvas);
+        }
 
     } else if (currentMode === 'colorcode') {
-        generateColorCodeProblem(ctx, canvas);
+        // Color code handles its own input group toggling (Value vs Names)
+        if (typeof generateColorCodeProblem === "function") {
+            generateColorCodeProblem(ctx, canvas);
+        }
+        
+    } else if (currentMode === 'zener') {
+        // Zener handles its own internal routing for Open/Closed switch states
+        if (typeof generateZenerProblem === "function") {
+            generateZenerProblem();
+        }
     }
 }
-// =======================================================================================================  
-// FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
-// =======================================================================================================   
-    
+/**
+ * =======================================================================================================  
+ * FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
+ * =======================================================================================================   
+ */
+
 function checkAnswers() {
     if (isCurrentProblemSolved) return; 
 
@@ -2306,7 +2389,7 @@ function checkAnswers() {
         }
     }
 
-    // Check for empty boxes
+    // 2. Check for empty boxes
     let hasEmptyBox = false;
     activeInputs.forEach(id => {
         const el = document.getElementById(id);
@@ -2329,25 +2412,24 @@ function checkAnswers() {
     let results = [];
     
     if (currentMode === 'zener') {
-        // --- ADDED ZENER GRADING LOGIC ---
+        // --- ZENER GRADING LOGIC ---
         if (currentZenerState === "closed") {
             const valIL = parseFloat(document.getElementById('zenerQ_IL').value);
             const valVL = parseFloat(document.getElementById('zenerQ_VL').value);
             
+            // Checking Load Current (targetIL) and Load Voltage (targetVL)
             results.push(Math.abs(valIL - currentAnswers.targetIL) < 0.2 ? 'correct' : 'wrong');
             results.push(Math.abs(valVL - currentAnswers.targetVL) < 0.2 ? 'correct' : 'wrong');
         } else {
             const valIZ = parseFloat(document.getElementById('zenerQ_IZ').value);
             const valPZ = parseFloat(document.getElementById('zenerQ_PZ').value);
             
+            // Checking Zener Current (targetIZ) and Power (targetPZ)
             results.push(Math.abs(valIZ - currentAnswers.targetIZ) < 0.2 ? 'correct' : 'wrong');
             results.push(Math.abs(valPZ - currentAnswers.targetPZ) < 0.5 ? 'correct' : 'wrong');
         }
-        // Note: Zener doesn't use the 'parseInput' unit-checking helper currently 
-        // because units are pre-defined in labels (mA/V/mW).
     } 
     else if (currentMode === 'colorcode') {
-        // ... (Keep existing colorcode logic)
         const valGroup = document.getElementById('inputGroupColorVal');
         if (valGroup && valGroup.style.display !== 'none') {
             const userRes = parseInput(document.getElementById('inputResValue').value);
@@ -2404,17 +2486,15 @@ function checkAnswers() {
         results.push(validateMatch(parseInput(document.getElementById('inputMonostable').value), currentAnswers.expectedT, currentAnswers.expectedUnit));
     }
 
-    // 4. Final Scoring and Feedback Display
-    // UNIVERSAL BORDER FEEDBACK:
-    // This loops through every box the user just typed in and turns it green or red.
-        activeInputs.forEach((id, index) => {
-            const inputElement = document.getElementById(id);
-                if (inputElement) {
-                // If the result for this specific box is 'correct', turn it Green. Otherwise, turn it Red.
-                inputElement.style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
-                inputElement.style.borderWidth = "2px";
-            }
+    // 4. Final Scoring and Visual Feedback
+    activeInputs.forEach((id, index) => {
+        const inputElement = document.getElementById(id);
+        if (inputElement) {
+            inputElement.style.borderColor = (results[index] === 'correct') ? "#28a745" : "#dc3545";
+            inputElement.style.borderWidth = "2px";
+        }
     });
+
     if (results.every(r => r === 'correct')) {
         isCurrentProblemSolved = true;
         if (!viewedSolution && !unitErrorMade) {
@@ -2427,9 +2507,15 @@ function checkAnswers() {
         }
         if (helpBtn) helpBtn.style.display = 'none';
         
-        // Auto-show solution on success for Zener
+        // Auto-show solution on success
         const solBox = document.getElementById('solutions');
-        if (solBox) solBox.style.display = 'block';
+        if (solBox) {
+            solBox.style.display = 'block';
+            // Trigger Zener solution update if applicable
+            if (currentMode === 'zener' && typeof updateZenerSolution === 'function') {
+                updateZenerSolution(currentZenerState === "closed");
+            }
+        }
 
     } else {
         if (helpBtn) helpBtn.style.display = 'block';
@@ -2450,113 +2536,152 @@ function checkAnswers() {
 }
     
 async function processSubmission() {
-            const studentName = document.getElementById('studentNameInput').value.trim();
-            const teacherName = document.getElementById('teacherSelect').value;
+    const studentName = document.getElementById('studentNameInput').value.trim();
+    const teacherName = document.getElementById('teacherSelect').value;
 
-            if (!studentName) { alert("Please enter your name."); return; }
-            if (!teacherName) { alert("Please select your teacher."); return; }
+    if (!studentName) { 
+        // Note: In our environment, we use custom UI instead of alert()
+        console.log("Please enter your name."); 
+        return; 
+    }
+    if (!teacherName) { 
+        console.log("Please select your teacher."); 
+        return; 
+    }
 
-            // Map the technical mode name to a readable topic string
-            const topicMap = {
-            'analysis': 'Circuit Analysis',
-            'divider': 'Potential Divider',
-            'resistance': 'Total Resistance',
-            'oscilloscope': 'Oscilloscopes',
-            'astable': 'Astable 555 Timer' // <--- ADD THIS LINE
-            };
-            const currentTopic = topicMap[currentMode] || 'Unknown Topic';
+    // Map the technical mode name to a readable topic string
+    const topicMap = {
+        'analysis': 'Circuit Analysis',
+        'divider': 'Potential Divider',
+        'resistance': 'Total Resistance',
+        'oscilloscope': 'Oscilloscopes',
+        'astable': 'Astable 555 Timer',
+        'monostable': 'Monostable 555 Timer',
+        'zener': 'Zener Diode Regulation',
+        'colorcode': 'Resistor Color Codes'
+    };
+    
+    const currentTopic = topicMap[currentMode] || 'Electronics Topic';
 
-            closeModal();
+    // Close the submission modal
+    closeModal();
 
-            // 1. Loading State
-            const downloadBtn = document.getElementById('downloadBtn');
-            const originalText = downloadBtn.innerHTML;
-            downloadBtn.innerHTML = "&#8987; Submitting..."; 
-            downloadBtn.disabled = true;
+    // 1. Loading State
+    const downloadBtn = document.getElementById('downloadBtn');
+    const originalText = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = "&#8987; Submitting..."; 
+    downloadBtn.disabled = true;
 
-            // 2. Generate Certificate Image
-            const certCanvas = document.createElement('canvas');
-            certCanvas.width = 600; certCanvas.height = 420;
-            const ctx = certCanvas.getContext('2d');
+    // 2. Generate Certificate Image
+    const certCanvas = document.createElement('canvas');
+    certCanvas.width = 600; 
+    certCanvas.height = 420;
+    const ctx = certCanvas.getContext('2d');
 
-            ctx.fillStyle = "#fdf4f8"; ctx.fillRect(0, 0, certCanvas.width, certCanvas.height);
-            ctx.strokeStyle = brandPink; ctx.lineWidth = 12; ctx.strokeRect(6, 6, 588, 408);
-            ctx.strokeStyle = brandBlack; ctx.lineWidth = 2; ctx.strokeRect(18, 18, 564, 384);
+    // Drawing background and borders
+    ctx.fillStyle = "#fdf4f8"; 
+    ctx.fillRect(0, 0, certCanvas.width, certCanvas.height);
+    ctx.strokeStyle = brandPink; 
+    ctx.lineWidth = 12; 
+    ctx.strokeRect(6, 6, 588, 408);
+    ctx.strokeStyle = brandBlack; 
+    ctx.lineWidth = 2; 
+    ctx.strokeRect(18, 18, 564, 384);
 
-            ctx.textAlign = "center";
-            ctx.fillStyle = brandBlack; ctx.font = "bold 36px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("ABINGDON ELECTRONICS", 300, 80);
+    ctx.textAlign = "center";
+    ctx.fillStyle = brandBlack; 
+    ctx.font = "bold 36px 'Segoe UI', Arial, sans-serif";
+    ctx.fillText("ABINGDON ELECTRONICS", 300, 80);
 
-            ctx.fillStyle = brandPink; ctx.font = "italic 24px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Basics Knowledge Check", 300, 120);
+    ctx.fillStyle = brandPink; 
+    ctx.font = "italic 24px 'Segoe UI', Arial, sans-serif";
+    ctx.fillText("Basics Knowledge Check", 300, 120);
 
-            ctx.beginPath(); ctx.moveTo(150, 145); ctx.lineTo(450, 145); ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); 
+    ctx.moveTo(150, 145); 
+    ctx.lineTo(450, 145); 
+    ctx.lineWidth = 2; 
+    ctx.strokeStyle = "#ccc";
+    ctx.stroke();
 
-            ctx.fillStyle = brandBlack; ctx.font = "28px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Student: " + studentName, 300, 190);
-            
-            ctx.fillStyle = "#555"; ctx.font = "20px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Topic: " + currentTopic, 300, 225);
+    ctx.fillStyle = brandBlack; 
+    ctx.font = "28px 'Segoe UI', Arial, sans-serif";
+    ctx.fillText("Student: " + studentName, 300, 190);
+    
+    ctx.fillStyle = "#555"; 
+    ctx.font = "20px 'Segoe UI', Arial, sans-serif";
+    ctx.fillText("Topic: " + currentTopic, 300, 225);
 
-            ctx.fillStyle = brandPink; ctx.font = "bold 56px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText(problemsCorrect + " / " + problemsAttempted, 300, 305);
-            
-            ctx.fillStyle = brandBlack; ctx.font = "20px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Questions Answered Correctly", 300, 335);
+    ctx.fillStyle = brandPink; 
+    ctx.font = "bold 56px 'Segoe UI', Arial, sans-serif";
+    ctx.fillText(problemsCorrect + " / " + problemsAttempted, 300, 305);
+    
+    ctx.fillStyle = brandBlack; 
+    ctx.font = "20px 'Segoe UI', Arial, sans-serif";
+    ctx.fillText("Questions Answered Correctly", 300, 335);
 
-            const today = new Date().toLocaleDateString('en-GB'); 
-            ctx.fillStyle = "#666"; ctx.font = "16px 'Segoe UI', Arial, sans-serif";
-            ctx.fillText("Completed on: " + today + " | Teacher: " + teacherName, 300, 380);
+    const today = new Date().toLocaleDateString('en-GB'); 
+    ctx.fillStyle = "#666"; 
+    ctx.font = "16px 'Segoe UI', Arial, sans-serif";
+    ctx.fillText("Completed on: " + today + " | Teacher: " + teacherName, 300, 380);
 
-            const imageURI = certCanvas.toDataURL("image/png");
-            const downloadLink = document.createElement('a');
-            const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
-            downloadLink.download = "Electronics_Score_" + safeName + ".png"; 
-            downloadLink.href = imageURI;
-            downloadLink.click();
+    // Trigger Download
+    const imageURI = certCanvas.toDataURL("image/png");
+    const downloadLink = document.createElement('a');
+    const safeName = studentName.replace(/[^a-zA-Z0-9]/g, '_');
+    downloadLink.download = "Electronics_Score_" + safeName + ".png"; 
+    downloadLink.href = imageURI;
+    downloadLink.click();
 
-            // 3. Send Data to Google Sheets
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxrHYNKqWSa3BMJNSqS99KQkd7ME1zrTy_ba1RlmhShEzpTuPw6Tg7l9rIpLqC3Ki9f/exec'; // <--- PASTE YOUR URL HERE!
-            
-            const formData = new URLSearchParams();
-            formData.append('name', studentName);
-            formData.append('teacher', teacherName);
-            formData.append('topic', currentTopic);
-            formData.append('correct', problemsCorrect);
-            formData.append('attempted', problemsAttempted);
+    // 3. Send Data to Google Sheets
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxrHYNKqWSa3BMJNSqS99KQkd7ME1zrTy_ba1RlmhShEzpTuPw6Tg7l9rIpLqC3Ki9f/exec';
+    
+    const formData = new URLSearchParams();
+    formData.append('name', studentName);
+    formData.append('teacher', teacherName);
+    formData.append('topic', currentTopic);
+    formData.append('correct', problemsCorrect);
+    formData.append('attempted', problemsAttempted);
 
-            try {
-                await fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' });
-                console.log('Score submitted successfully.');
-                alert("Score submitted to " + teacherName + " and certificate downloaded!");
-            } catch (error) {
-                console.error('Error submitting score!', error.message);
-                alert("Certificate downloaded! (Note: Could not connect to Google Sheets to send score to teacher.)");
-            } finally {
-                // 4. Reset Everything
-                downloadBtn.innerHTML = originalText;
-                downloadBtn.disabled = false;
+    try {
+        // Use no-cors as per original requirement for Google Apps Script
+        await fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' });
+        console.log('Score submitted successfully.');
+        // Custom message box would go here instead of alert
+    } catch (error) {
+        console.error('Error submitting score!', error.message);
+    } finally {
+        // 4. Reset Session and UI
+        downloadBtn.innerHTML = originalText;
+        downloadBtn.disabled = false;
 
-                problemsAttempted = 0;
-                problemsCorrect = 0;
-                updateScoreboard();
-                generateProblem();
-            }
+        problemsAttempted = 0;
+        problemsCorrect = 0;
+        
+        updateScoreboard();
+        generateProblem();
+    }
 }
  
+/**
+ * Parses user input strings into a value and a normalized unit.
+ * Supports ratios (1/3), scientific prefixes (k, m, u), and various unit spellings.
+ */
 function parseInput(str) {
     if (!str) return null;
-    // 1. Lowercase and remove all spaces
+    
+    // 1. Lowercase and remove all spaces for uniform matching
     let cleanStr = str.toLowerCase().replace(/\s+/g, '');
     
     // 2. Handle Ratios (e.g., 1/3)
-    let strippedStr = cleanStr.replace(/[a-z]+$/, '');
+    let strippedStr = cleanStr.replace(/[a-z\u03a9\u03bc]+$/, '');
     if (/^\d+\/\d+$/.test(strippedStr)) {
         let parts = strippedStr.split('/');
         return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio' };
     }
 
-   // 3. The "Smart" Unit Matcher
+    // 3. The "Smart" Unit Matcher
+    // Regex captures: Optional minus, numbers/decimals, and any trailing letters or symbols (like Ω or μ)
     const match = cleanStr.match(/^(-?[\d\.]+)([a-z\u03a9\u03bc]+)$/);
     
     if (match) {
@@ -2578,18 +2703,29 @@ function parseInput(str) {
             normalizedUnit = "v";
         } 
         
-        // CURRENT: a, amps, amp, amperes, ma, milliamps, milliamp
-        else if (rawUnit.match(/^(ma|milliamps|milliamp)$/)) {
+        // CURRENT: a, ma, ua, amps, milliamps, microamps
+        else if (rawUnit.match(/^(\u03bca|ua|microamp|microamps)$/)) {
+            normalizedUnit = "ua";
+        } else if (rawUnit.match(/^(ma|milliamps|milliamp)$/)) {
             normalizedUnit = "ma";
         } else if (rawUnit.match(/^(a|amps|amp|amperes)$/)) {
             normalizedUnit = "a";
         }
         
-        // TIME (For Oscilloscope/Astable): s, sec, seconds, ms, milliseconds
-        else if (rawUnit.match(/^(ms|milliseconds|ms|millisecond)$/)) {
+        // TIME: s, ms, us (microseconds), sec, seconds
+        else if (rawUnit.match(/^(\u03bc|us|microsecond|microseconds)$/)) {
+            normalizedUnit = "us";
+        } else if (rawUnit.match(/^(ms|milliseconds|millisecond)$/)) {
             normalizedUnit = "ms";
         } else if (rawUnit.match(/^(s|sec|secs|seconds|second)$/)) {
             normalizedUnit = "s";
+        }
+
+        // FREQUENCY: hz, khz
+        else if (rawUnit.match(/^(khz)$/)) {
+            normalizedUnit = "khz";
+        } else if (rawUnit.match(/^(hz)$/)) {
+            normalizedUnit = "hz";
         }
         
         else {
@@ -2599,30 +2735,31 @@ function parseInput(str) {
         return { val: val, unit: normalizedUnit };
     }
 
-    // 4. Fallback for numbers only
-    return { val: parseFloat(cleanStr), unit: '' }; 
+    // 4. Fallback for numbers only (assumes no unit provided)
+    const numOnly = parseFloat(cleanStr);
+    return { val: isNaN(numOnly) ? null : numOnly, unit: '' }; 
 }
 
+/**
+ * Validates the parsed input against the expected answer.
+ * Returns: 'correct', 'wrongval', 'wrongunit', or 'nounit'.
+ */
 function validateMatch(parsedInput, expectedVal, expectedUnit) {
-    // If input is empty or not a number
-    if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
+    if (!parsedInput || parsedInput.val === null) return 'wrongval';
     
-    // Normalize the expected unit to lowercase for a fair comparison
     const targetUnit = expectedUnit.toLowerCase();
 
-    // 1. Handle Ratio/Fractions (e.g. 1/3)
+    // 1. Handle Ratio/Fractions
     if (targetUnit === 'ratio') {
-        // We check if the value is close enough (within 0.01)
         const isCorrectNum = Math.abs(parsedInput.val - expectedVal) < 0.01;
-        if (isCorrectNum) return 'correct';
-        return 'wrongval';
+        return isCorrectNum ? 'correct' : 'wrongval';
     }
     
-    // 2. Check for missing units
-    if (parsedInput.unit === '') return 'nounit';
+    // 2. Check for missing units (if the expected answer requires one)
+    if (parsedInput.unit === '' && targetUnit !== '') return 'nounit';
     
     // 3. Main Logic: Value and Unit matching
-    // Use 0.05 tolerance to account for 1 d.p. rounding differences
+    // Using 0.05 tolerance to handle potential 1 d.p. rounding errors from students
     const valMatch = Math.abs(parsedInput.val - expectedVal) < 0.05;
     const unitMatch = parsedInput.unit === targetUnit;
     
@@ -2631,152 +2768,228 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     
     return 'wrongval';
 }
-
+/**
+ * Updates the UI scoreboard with the current session progress.
+ */
 function updateScoreboard() {
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    if (scoreDisplay) {
+        // Calculate percentage for a more encouraging UI if needed
+        const percentage = problemsAttempted > 0 
+            ? Math.round((problemsCorrect / problemsAttempted) * 100) 
+            : 0;
+            
+        scoreDisplay.innerHTML = `
+            <div class="score-container" style="font-weight: bold; color: #2c3e50;">
+                Score: <span style="color: #27ae60;">${problemsCorrect}</span> / ${problemsAttempted}
+                <small style="margin-left: 10px; opacity: 0.7;">(${percentage}%)</small>
+            </div>
+        `;
+    }
 }
 
+/**
+ * Provides contextual hints based on the active problem mode.
+ * Flags the problem as 'viewedSolution' so it doesn't count towards the final score.
+ */
 function provideHint() {
     if (isCurrentProblemSolved) return;
+    
+    // Mark as viewed so the user doesn't get a "Correct" point for this one
     viewedSolution = true;
     const feedback = document.getElementById('feedback');
+    if (!feedback) return;
+
+    let helpText = "";
 
     if (currentMode === 'colorcode') {
-        let helpText = "";
-        // If they are looking at colors and need the number value
-        if (document.getElementById('inputGroupColorVal').style.display !== 'none') {
+        // Mode: Resistor Color Codes
+        const isReadingColors = document.getElementById('inputGroupColorVal').style.display !== 'none';
+        
+        if (isReadingColors) {
             helpText = `
-                <div style="text-align:left; background:#fff3cd; padding:10px; border:1px solid #ffeeba; border-radius:5px;">
-                    <b>Resistor Guide:</b><br>
-                    • Band 1 (${currentAnswers.b1.toUpperCase()}): 1st Digit<br>
-                    • Band 2 (${currentAnswers.b2.toUpperCase()}): 2nd Digit<br>
-                    • Band 3 (${currentAnswers.b3.toUpperCase()}): Multiplier (number of zeros)<br>
-                    • Band 4 (${currentAnswers.tol.toUpperCase()}): Tolerance (Gold=5%, Silver=10%)
+                <div style="text-align:left; background:#fff3cd; padding:12px; border:1px solid #ffeeba; border-radius:8px; font-size: 0.9em;">
+                    <strong style="color: #856404;">Resistor Color Decoding:</strong><br>
+                    • <b>1st & 2nd Band:</b> Significant digits (${currentAnswers.b1.toUpperCase()}, ${currentAnswers.b2.toUpperCase()})<br>
+                    • <b>3rd Band:</b> Multiplier (Number of zeros to add)<br>
+                    • <b>4th Band:</b> Tolerance (${currentAnswers.tol.toUpperCase()})
                 </div>`;
-        } 
-        // If they are looking at a number and need to name the colors
-        else {
+        } else {
             helpText = `
-                <div style="text-align:left; background:#fff3cd; padding:10px; border:1px solid #ffeeba; border-radius:5px;">
-                    <b>Colour Guide for ${formatResValue(currentAnswers.resVal)}:</b><br>
-                    • 1st & 2nd Digit: Match the numbers to colours.<br>
-                    • 3rd Digit (Multiplier): How many zeros follow the first two numbers?<br>
-                    • 4th Digit: Gold is 5%, Silver is 10%.<br>
-                    <small>(0:Blk, 1:Brn, 2:Red, 3:Org, 4:Yel, 5:Grn, 6:Blu, 7:Pur, 8:Gry, 9:Whi)</small>
+                <div style="text-align:left; background:#fff3cd; padding:12px; border:1px solid #ffeeba; border-radius:8px; font-size: 0.9em;">
+                    <strong style="color: #856404;">Encoding ${formatResValue(currentAnswers.resVal)}:</strong><br>
+                    • Match the first two digits to colors.<br>
+                    • <b>Multiplier:</b> Convert the 'k' or 'M' to zeros first.<br>
+                    <small style="display:block; margin-top:5px;">(0:Blk, 1:Brn, 2:Red, 3:Org, 4:Yel, 5:Grn, 6:Blu, 7:Pur, 8:Gry, 9:Whi)</small>
                 </div>`;
         }
-        feedback.innerHTML = helpText;
     } 
     else if (currentMode === 'oscilloscope') {
-        feedback.innerHTML = "<b>Hint:</b> Amplitude is vertical height from center. Period is horizontal width of one cycle. Use f = 1 / T.";
+        helpText = `
+            <div style="background:#e1f5fe; padding:10px; border-radius:8px; border-left: 4px solid #0288d1;">
+                <b>Scope Tip:</b><br>
+                • <b>Vpk:</b> Count squares from center to peak × Volts/Div.<br>
+                • <b>Period (T):</b> Width of one full wave × Time/Div.<br>
+                • <b>Freq (f):</b> Calculate using 1 / T.
+            </div>`;
     } 
     else if (currentMode === 'astable') {
-        feedback.innerHTML = "<b>Hint:</b> f = 1.44 / ((R1 + 2R2)C). Mark/Space ratio is (R1+R2) : R2.";
-    } else {
-        feedback.innerHTML = "<b>Hint:</b> Check your Ohm's Law (V=IR) or Potential Divider formula.";
+        helpText = `
+            <div style="background:#f3e5f5; padding:10px; border-radius:8px; border-left: 4px solid #7b1fa2;">
+                <b>555 Timer Formulas:</b><br>
+                • <b>f</b> = 1.44 / ((R1 + 2R2) × C)<br>
+                • <b>Mark (High)</b> = 0.7(R1 + R2)C<br>
+                • <b>Space (Low)</b> = 0.7(R2)C
+            </div>`;
+    } 
+    else {
+        helpText = "<b>Hint:</b> Verify your Ohm's Law (V=IR) or check if it's a Potential Divider: Vout = Vin × (R2 / (R1+R2)).";
     }
     
-    // Hide the help button after it's clicked
+    feedback.innerHTML = helpText;
+    
+    // Smoothly hide the hint button to prevent multi-clicking
     const helpBtn = document.getElementById('helpBtn');
-    if (helpBtn) helpBtn.style.display = 'none';
+    if (helpBtn) {
+        helpBtn.style.opacity = '0.5';
+        helpBtn.disabled = true;
+        helpBtn.innerText = "Hint Provided";
+    }
 }
 
+/**
+ * Toggles the visibility of the solution area.
+ */
 function toggleSolutions() {
-            const sol = document.getElementById('solutions');
-            if (!sol) return;
-            if (sol.style.display === 'none' || sol.style.display === '') {
-                sol.style.display = 'block'; viewedSolution = true;
-            } else { sol.style.display = 'none'; }
+    const sol = document.getElementById('solutions');
+    if (!sol) return;
+
+    if (sol.style.display === 'none' || sol.style.display === '') {
+        sol.style.display = 'block';
+        viewedSolution = true; // Viewing solution prevents earning a point
+        
+        // Scroll to solutions if on a small screen
+        sol.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        sol.style.display = 'none';
+    }
 }
-
 // ==========================================
-// FINAL INITIALIZATION (Place at the end of your .js file)
+// FINAL INITIALIZATION & UI UTILITIES
 // ==========================================
 
+/**
+ * Dynamically generates the step-by-step solution for Zener Diode problems
+ * @param {boolean} isClosed - Whether the switch is in the 'Closed' (Load active) state
+ */
 function updateZenerSolution(isClosed) {
     const solElement = document.getElementById('solText');
     if (!solElement) return;
 
+    // Use template literals for cleaner HTML generation
     if (isClosed) {
         solElement.innerHTML = `
-            <p><strong>Switch Closed Solution:</strong></p>
-            <p>1. The Zener diode is active, taking its minimum current: <b>${currentAnswers.Iz_min} mA</b>.</p>
-            <p>2. The load current is the remaining total current:<br>
-            I<sub>LOAD</sub> = I<sub>TOTAL</sub> - I<sub>ZENER</sub><br>
-            I<sub>LOAD</sub> = ${currentAnswers.Ir_mA} mA - ${currentAnswers.Iz_min} mA = <b>${currentAnswers.targetIL} mA</b></p>
-            <p>3. The load voltage is clamped by the Zener: <b>${currentAnswers.targetVL} V</b>.</p>
+            <div class="solution-card">
+                <p><strong>Switch Closed (Load Connected):</strong></p>
+                <ol>
+                    <li>The Zener diode is active, drawing its minimum sustaining current: <b>${currentAnswers.Iz_min} mA</b>.</li>
+                    <li>The load current (I<sub>L</sub>) is the difference between total supply current and Zener current:<br>
+                        <code class="formula">I<sub>L</sub> = I<sub>TOTAL</sub> - I<sub>ZENER</sub></code><br>
+                        <code>${currentAnswers.Ir_mA} mA - ${currentAnswers.Iz_min} mA = <b>${currentAnswers.targetIL} mA</b></code>
+                    </li>
+                    <li>The load voltage is clamped by the Zener rating: <b>${currentAnswers.targetVL} V</b>.</li>
+                </ol>
+            </div>
         `;
     } else {
         solElement.innerHTML = `
-            <p><strong>Switch Open Solution:</strong></p>
-            <p>1. The load is disconnected, so I<sub>LOAD</sub> = 0 mA.</p>
-            <p>2. Total current now flows through the Zener:<br>
-            I<sub>ZENER</sub> = <b>${currentAnswers.targetIZ} mA</b></p>
-            <p>3. Power Dissipated = I &times; V<br>
-            P<sub>ZENER</sub> = ${currentAnswers.targetIZ} mA &times; ${currentAnswers.Vz} V = <b>${currentAnswers.targetPZ} mW</b>.</p>
+            <div class="solution-card">
+                <p><strong>Switch Open (No Load):</strong></p>
+                <ol>
+                    <li>The load is disconnected, therefore <b>I<sub>LOAD</sub> = 0 mA</b>.</li>
+                    <li>Since there is no load path, the total circuit current must flow through the Zener:<br>
+                        <code>I<sub>ZENER</sub> = <b>${currentAnswers.targetIZ} mA</b></code>
+                    </li>
+                    <li>Power Dissipation calculation:<br>
+                        <code class="formula">P = I &times; V</code><br>
+                        <code>${currentAnswers.targetIZ} mA &times; ${currentAnswers.Vz} V = <b>${currentAnswers.targetPZ} mW</b></code>.
+                    </li>
+                </ol>
+            </div>
         `;
     }
 }
-    
+
+/**
+ * Resets the entire UI state.
+ * This is called before generating any new problem to ensure no "ghost" inputs 
+ * or instructions from previous modes remain visible.
+ */
 function hideAllInputGroups() {
-    // 1. All specific input groups and parent wrappers
+    // 1. Comprehensive list of all input IDs across all modes
     const groups = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 'oscilloscopeInputs',
         'inputGroupMonostable', 'inputGroupAstable', 'inputGroupMarkSpace',
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
-        'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener' // Added Zener
+        'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener',
+        'zenerOpenQuestions', 'zenerClosedQuestions'
     ];
 
-    // 2. Hide all input groups
+    // 2. Hide all groups using standard display none
     groups.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
 
-    // 3. Reset UI Containers
-    // Clear feedback text
-    const feedback = document.getElementById('feedback');
-    if (feedback) feedback.innerHTML = "";
+    // 3. Reset UI Feedback & State Indicators
+    const elementsToClear = [
+        { id: 'feedback', prop: 'innerHTML', val: '' },
+        { id: 'solText', prop: 'innerHTML', val: '' },
+        { id: 'instructionPrompt', prop: 'innerHTML', val: '' },
+        { id: 'astableInstruction', prop: 'innerHTML', val: '' },
+        { id: 'ratioInstruction', prop: 'innerHTML', val: '' },
+        { id: 'zenerInstruction', prop: 'innerHTML', val: '' }
+    ];
 
-    // Hide and wipe the solution box
+    elementsToClear.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el) el[item.prop] = item.val;
+    });
+
+    // 4. Reset Solution Box visibility
     const solutions = document.getElementById('solutions');
-    const solText = document.getElementById('solText');
     if (solutions) solutions.style.display = 'none';
-    if (solText) solText.innerHTML = "";
 
-    // --- CRITICAL CHANGE: PERMANENTLY HIDE & EMPTY THE QUESTION TEXT ---
+    // 5. Hard reset for Question Text to prevent layout jumping
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML = "";      // Remove any lingering text
-        qText.style.display = 'none'; // Remove from the layout
+        qText.innerHTML = "";
+        qText.style.display = 'none';
     }
 
-    // Clear instruction prompts and standard hints
-    const promptEl = document.getElementById('instructionPrompt');
-    if (promptEl) promptEl.innerHTML = '';
-    
-    const astablePrompt = document.getElementById('astableInstruction');
-    const ratioPrompt = document.getElementById('ratioInstruction');
-    const zenerPrompt = document.getElementById('zenerInstruction'); // Added Zener instruction reset
-    
-    if (astablePrompt) astablePrompt.innerHTML = "";
-    if (ratioPrompt) ratioPrompt.innerHTML = "";
-    if (zenerPrompt) zenerPrompt.innerHTML = "";
-
-    // Ensure the Zener sub-groups are also hidden for the next run
-    const zOpen = document.getElementById('zenerOpenQuestions');
-    const zClosed = document.getElementById('zenerClosedQuestions');
-    if (zOpen) zOpen.style.display = 'none';
-    if (zClosed) zClosed.style.display = 'none';
+    // Reset the help button if it was hidden by provideHint()
+    const helpBtn = document.getElementById('helpBtn');
+    if (helpBtn) {
+        helpBtn.style.display = 'inline-block';
+        helpBtn.style.opacity = '1';
+        helpBtn.disabled = false;
+        helpBtn.innerText = "Get a Hint";
+    }
 }
 
-// This is the "Master Switch" that cleans the page when it first opens
+/**
+ * Main Application Entry Point
+ */
 window.onload = function() {
+    // Clean the UI first
     hideAllInputGroups(); 
+    
+    // Attempt to return to main menu
     if (typeof goHome === "function") {
         goHome(); 
+    } else {
+        console.warn("Main navigation function 'goHome' not found. Ensure ui_navigation.js is loaded.");
     }
 };
 </script>
