@@ -130,7 +130,7 @@
     <p id="moduleSubtitle">Mastering the GCSE Course</p>
 </div>
 
-<!--2. MAIN CATEGORY MENU  These are the "Navigation Folders." They hold your buttons and keep the menu looking consistent.-->
+<!--2. MAIN CATEGORY MENU -->
 <div id="mainMenu" class="tabs">
     <button class="tab" onclick="openModule('basics')">1. Circuit Basics</button>
     <button class="tab" onclick="openModule('transistors')">5. Transistors</button>
@@ -142,7 +142,7 @@
     <button class="tab" onclick="openModule('diodes')">8. Diodes</button>
 </div>
 
-<!--3. SUB-MENUS (APPEAR AFTER CLICKING A MAIN CATEGORY) This is the main "Stage." When you click a module, we show this whole area; when you go "Home," we hide it.-->
+<!--3. SUB-MENUS -->
 <!--BASICS PAGE -->
 <div id="menuBasics" class="tabs" style="display:none;">
     <button class="tab" id="tab-analysis" onclick="switchTab('analysis')">Circuit Analysis</button>
@@ -152,7 +152,7 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
 </div>
 
-<!--TIMINGPAGE -->
+<!--TIMING PAGE -->
 <div id="menuTiming" class="tabs" style="display:none;">
     <button class="tab" id="tab-oscilloscope" onclick="switchTab('oscilloscope')">Oscilloscope</button>
     <button class="tab" id="tab-astable" onclick="switchTab('astable')">Astable 555</button>
@@ -160,7 +160,7 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
 </div>
 
-<!--DIODESPAGE -->
+<!--DIODES PAGE -->
 <div id="menuDiodes" class="tabs" style="display:none;">
     <button class="tab" id="tab-silicon" onclick="switchTab('silicon')">Silicon Diodes</button>
     <button class="tab" id="tab-zener" onclick="switchTab('zener')">Zener Diodes</button>
@@ -171,9 +171,7 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Module Under Construction - Return Home</button>
 </div>
 
-
-    
-<!--4. THE MAIN WORK AREA (CANVAS + QUIZ) This is an "Input Envelope." We keep the label, the text box, and the instruction together so they move as one unit.-->
+<!--4. THE MAIN WORK AREA (CANVAS + QUIZ)-->
 <div id="contentArea" style="display:none;">
     <div class="main-layout">
         
@@ -199,153 +197,143 @@
                     </div>
                 </div>
                 
-        <!--5. THE INPUT AREA (ALL POSSIBLE ANSWER BOXES) Iincuding the placeholder divs for the grey text ("Give answer to 1 d.p.") -->
-        <div class="input-area">
+                <!--5. THE INPUT AREA -->
+                <div class="input-area">
 
-                <!--OHM'S LAW / DIVIDER INPUTS-->
-                <div class="input-group" id="inputGroupV" style="display:none;">
-                    <label id="labelV" for="inputV">V = </label>
-                    <input type="text" id="inputV" placeholder="e.g. 10 mV">
-                </div>
-                <div class="input-group" id="inputGroupI" style="display:none;">
-                       <label id="labelI" for="inputI">I = </label>
-                    <input type="text" id="inputI" placeholder="e.g. 5 mA">
-                </div>
+                    <!--OHM'S LAW / DIVIDER INPUTS-->
+                    <div class="input-group" id="inputGroupV" style="display:none;">
+                        <label id="labelV" for="inputV">V = </label>
+                        <input type="text" id="inputV" placeholder="e.g. 10 mV">
+                    </div>
+                    <div class="input-group" id="inputGroupI" style="display:none;">
+                        <label id="labelI" for="inputI">I = </label>
+                        <input type="text" id="inputI" placeholder="e.g. 5 mA">
+                    </div>
 
-                <!--TOTAL RESISTANCE INPUTS-->
-                <div class="input-group" id="inputGroupR" style="display:none;">
-                    <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
-                    <input type="text" id="inputR" placeholder="e.g. 10 ohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
-                </div>
+                    <!--TOTAL RESISTANCE INPUTS-->
+                    <div class="input-group" id="inputGroupR" style="display:none;">
+                        <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
+                        <input type="text" id="inputR" placeholder="e.g. 10 ohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
+                    </div>
 
-                <div class="input-group" id="inputGroupMonostable" style="display:none;">
-                    <label id="labelMonostable" for="inputMonostable">T = </label>
-                    <input type="text" id="inputMonostable" style="width: 140px;">
-                 <!--GREY INSTRUCTION SUB-LABEL-->
-                    <div id="monostableInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;"></div>
-                </div>
-                    
-                <!--555 ASTABLE: FREQUENCY AND PERIOD INPUTS-->
-                <div class="input-group" id="inputGroupAstable" style="display:none; text-align: center; width: 100%;">
-                    <div style="margin-bottom: 10px;">
-                        <label id="labelAstable" for="inputAstable">Frequency = </label>
-                        <input type="text" id="inputAstable" placeholder="e.g. 50 Hz">
-                    </div>
-                    <div>
-                        <label id="labelAstableT" for="inputAstableT">Time Period = </label>
-                        <input type="text" id="inputAstableT" placeholder="e.g. 20 ms">
-                    </div>
-                    <!--GREY INSTRUCTION SUB-LABEL-->
-                    <div id="astableInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px;"></div>
-                </div>
-
-                <div class="input-group" id="inputGroupMarkSpace" style="display:none; text-align: center; width: 100%;">
-                    <div style="height: 55px; visibility: hidden;"></div> 
-                    <div style="margin-bottom: 10px;">
-                        <label for="inputMarkSpace" style="font-weight: bold;">Mark-Space Ratio = </label>
-                        <input type="text" id="inputMarkSpace" placeholder="e.g. 2/1" style="height: 45px; width: 120px; font-size: 18px; text-align: center;">
-                    </div>
-                    <!--GREY INSTRUCTION SUB-LABEL-->
-                    <div id="ratioInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px;"></div>
-                </div>
-                    
-                <!--OSCILLOSCOPE INPUTS (KEPT IN ONE BLOCK)-->
-                <div id="oscilloscopeInputs" style="display:none;">
-                    <div class="input-group" id="inputGroupOscAmp" style="display:none;">
-                        <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label><input type="text" id="inputOscAmp">
-                    </div>
-                    <div class="input-group" id="inputGroupOscMark" style="display:none;">
-                        <label id="labelOscMark" for="inputOscMark">Mark Time = </label><input type="text" id="inputOscMark">
-                    </div>
-                    <div class="input-group" id="inputGroupOscSpace" style="display:none;">
-                        <label id="labelOscSpace" for="inputOscSpace">Space Time = </label><input type="text" id="inputOscSpace">
-                    </div>
-                    <div class="input-group" id="inputGroupOscPeriod" style="display:none;">
-                        <label id="labelOscPeriod" for="inputOscPeriod">Time Period = </label><input type="text" id="inputOscPeriod">
-                    </div>
-                    <div class="input-group" id="inputGroupOscFreq" style="display:none;">
-                        <label id="labelOscFreq" for="inputOscFreq">Frequency = </label><input type="text" id="inputOscFreq">
-                    </div>
-                    <div class="input-group" id="inputGroupOscRatio" style="display:none;">
-                    <div class="input-spacer"></div> <label>Mark/Space Ratio = </label>
-                        <input type="text" id="inputOscRatio" placeholder="e.g. 1/2">
+                    <div class="input-group" id="inputGroupMonostable" style="display:none;">
+                        <label id="labelMonostable" for="inputMonostable">T = </label>
+                        <input type="text" id="inputMonostable" style="width: 140px;">
+                        <div id="monostableInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;"></div>
                     </div>
                         
+                    <!--555 ASTABLE: FREQUENCY AND PERIOD INPUTS-->
+                    <div class="input-group" id="inputGroupAstable" style="display:none; text-align: center; width: 100%;">
+                        <div style="margin-bottom: 10px;">
+                            <label id="labelAstable" for="inputAstable">Frequency = </label>
+                            <input type="text" id="inputAstable" placeholder="e.g. 50 Hz">
+                        </div>
+                        <div>
+                            <label id="labelAstableT" for="inputAstableT">Time Period = </label>
+                            <input type="text" id="inputAstableT" placeholder="e.g. 20 ms">
+                        </div>
+                        <div id="astableInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px;"></div>
+                    </div>
+
+                    <div class="input-group" id="inputGroupMarkSpace" style="display:none; text-align: center; width: 100%;">
+                        <div style="height: 55px; visibility: hidden;"></div> 
+                        <div style="margin-bottom: 10px;">
+                            <label for="inputMarkSpace" style="font-weight: bold;">Mark-Space Ratio = </label>
+                            <input type="text" id="inputMarkSpace" placeholder="e.g. 2/1" style="height: 45px; width: 120px; font-size: 18px; text-align: center;">
+                        </div>
+                        <div id="ratioInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px;"></div>
+                    </div>
+                        
+                    <!--OSCILLOSCOPE INPUTS-->
+                    <div id="oscilloscopeInputs" style="display:none;">
+                        <div class="input-group" id="inputGroupOscAmp" style="display:none;">
+                            <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label><input type="text" id="inputOscAmp">
+                        </div>
+                        <div class="input-group" id="inputGroupOscMark" style="display:none;">
+                            <label id="labelOscMark" for="inputOscMark">Mark Time = </label><input type="text" id="inputOscMark">
+                        </div>
+                        <div class="input-group" id="inputGroupOscSpace" style="display:none;">
+                            <label id="labelOscSpace" for="inputOscSpace">Space Time = </label><input type="text" id="inputOscSpace">
+                        </div>
+                        <div class="input-group" id="inputGroupOscPeriod" style="display:none;">
+                            <label id="labelOscPeriod" for="inputOscPeriod">Time Period = </label><input type="text" id="inputOscPeriod">
+                        </div>
+                        <div class="input-group" id="inputGroupOscFreq" style="display:none;">
+                            <label id="labelOscFreq" for="inputOscFreq">Frequency = </label><input type="text" id="inputOscFreq">
+                        </div>
+                        <div class="input-group" id="inputGroupOscRatio" style="display:none;">
+                            <div class="input-spacer"></div> <label>Mark/Space Ratio = </label>
+                            <input type="text" id="inputOscRatio" placeholder="e.g. 1/2">
+                        </div>
+                    </div>
+
+                    <!--RESISTOR COLOUR CODE INPUTS-->
+                    <div id="inputGroupColorVal" class="input-group" style="display:none;">
+                        <label>Resistance: </label><input type="text" id="inputResValue" style="width: 140px;">
+                        <label>Tolerance (%): </label><input type="text" id="inputResTol" style="width: 140px;">
+                    </div>
+                    <div id="inputGroupColorNames" class="input-group" style="display:none; text-align: center;">
+                        <label>Band 1: </label><input type="text" id="inputBand1" style="width: 100px;">
+                        <label>Band 2: </label><input type="text" id="inputBand2" style="width: 100px;">
+                        <label>Band 3: </label><input type="text" id="inputBand3" style="width: 100px;">
+                        <label>Band 4: </label><input type="text" id="inputBandTol" style="width: 100px;">
+                    </div>
+
+                    <!--ZENER DIODE-->
+                    <div id="inputGroupZener" style="display:none; text-align: left; width: 100%;">
+                        <div id="zenerClosedQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 15px;">
+                            <p style="margin-top:0; font-weight: bold; color: #333;">Switch S is CLOSED. Calculate:</p>
+                            <div style="margin-bottom: 12px;">
+                                <label for="zenerQ_IL">1. Max Load Current (I<sub>L</sub>):</label><br>
+                                <input type="number" id="zenerQ_IL" placeholder="mA" step="0.1" style="width: 120px; padding: 5px;">
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <label for="zenerQ_VL">2. Load Voltage (V<sub>L</sub>):</label><br>
+                                <input type="number" id="zenerQ_VL" placeholder="V" step="0.1" style="width: 120px; padding: 5px;">
+                            </div>
+                        </div>
+                        <div id="zenerOpenQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 15px;">
+                            <p style="margin-top:0; font-weight: bold; color: #333;">Switch S is OPEN. Calculate:</p>
+                            <div style="margin-bottom: 12px;">
+                                <label for="zenerQ_IZ">1. Zener Current (I<sub>Z</sub>):</label><br>
+                                <input type="number" id="zenerQ_IZ" placeholder="mA" step="0.1" style="width: 120px; padding: 5px;">
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <label for="zenerQ_PZ">2. Zener Power (P<sub>Z</sub>):</label><br>
+                                <input type="number" id="zenerQ_PZ" placeholder="mW" step="0.1" style="width: 120px; padding: 5px;">
+                            </div>
+                        </div>
+                        <div id="zenerInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;">
+                            (Give all answers to 1 d.p.)
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
+                        <div id="feedback" class="feedback"></div>
+                    </div>
+                </div>
+                
+                <!--6. ACTION CONTROLS -->
+                <div class="controls">
+                    <button class="btn-black" onclick="handleGenerateClick()">Generate New Problem</button>
+                    <button id="grade9DividerBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge (Divider)</button>
+                    <button id="grade9ResistorBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge (Resistance)</button>
+                    <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solution)</button>
+                    <button id="dataSheetBtn" class="btn-check" style="background-color: #6c757d; color: white;" onclick="openDataSheet()">📖 Data Sheet</button>
                 </div>
 
-                <!--RESISTOR COLOUR CODE INPUTS-->
-                <div id="inputGroupColorVal" class="input-group" style="display:none;">
-                    <label>Resistance: </label><input type="text" id="inputResValue" style="width: 140px;">
-                    <label>Tolerance (%): </label><input type="text" id="inputResTol" style="width: 140px;">
+                <!--7. SOLUTIONS PANEL -->
+                <div id="solutions" class="solutions" style="display:none;">
+                    <h3>Step-by-Step Logic</h3>
+                    <p id="solText"></p>
                 </div>
-                <div id="inputGroupColorNames" class="input-group" style="display:none; text-align: center;">
-                    <label>Band 1: </label><input type="text" id="inputBand1" style="width: 100px;">
-                    <label>Band 2: </label><input type="text" id="inputBand2" style="width: 100px;">
-                    <label>Band 3: </label><input type="text" id="inputBand3" style="width: 100px;">
-                    <label>Band 4: </label><input type="text" id="inputBandTol" style="width: 100px;">
-                </div>
-
-    <!--ZENER DIODE-->
-    <div id="inputGroupZener" style="display:none; text-align: left; width: 100%;">
-    
-    <div id="zenerClosedQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 15px;">
-        <p style="margin-top:0; font-weight: bold; color: #333;">Switch S is CLOSED. Calculate:</p>
-        
-        <div style="margin-bottom: 12px;">
-            <label for="zenerQ_IL">1. Max Load Current (I<sub>L</sub>):</label><br>
-            <input type="number" id="zenerQ_IL" placeholder="mA" step="0.1" style="width: 120px; padding: 5px;">
-        </div>
-
-        <div style="margin-bottom: 12px;">
-            <label for="zenerQ_VL">2. Load Voltage (V<sub>L</sub>):</label><br>
-            <input type="number" id="zenerQ_VL" placeholder="V" step="0.1" style="width: 120px; padding: 5px;">
-        </div>
-    </div>
-
-    <div id="zenerOpenQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 15px;">
-        <p style="margin-top:0; font-weight: bold; color: #333;">Switch S is OPEN. Calculate:</p>
-        
-        <div style="margin-bottom: 12px;">
-            <label for="zenerQ_IZ">1. Zener Current (I<sub>Z</sub>):</label><br>
-            <input type="number" id="zenerQ_IZ" placeholder="mA" step="0.1" style="width: 120px; padding: 5px;">
-        </div>
-
-        <div style="margin-bottom: 12px;">
-            <label for="zenerQ_PZ">2. Zener Power (P<sub>Z</sub>):</label><br>
-            <input type="number" id="zenerQ_PZ" placeholder="mW" step="0.1" style="width: 120px; padding: 5px;">
-        </div>
-    </div>
-
-    <div id="zenerInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;">
-        (Give all answers to 1 d.p.)
-    </div>
-</div>
-
-<div style="margin-top: 20px;">
-    <button class="btn-check" onclick="checkAnswers()">Check Answer(s)</button>
-    <div id="feedback" class="feedback"></div>
-</div>
-            
-<!--6. ACTION CONTROLS (THE BUTTONS AT THE VERY BOTTOM)-->
-            <div class="controls">
-                <button class="btn-black" onclick="handleGenerateClick()">Generate New Problem</button>
-                <button id="grade9DividerBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge (Divider)</button>
-                <button id="grade9ResistorBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge (Resistance)</button>
-                <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solution)</button>
-                <button id="dataSheetBtn" class="btn-check" style="background-color: #6c757d; color: white;" onclick="openDataSheet()">📖 Data Sheet</button>
             </div>
-
-            <!--7. SOLUTIONS PANEL (SHOWN ONLY WHEN HELP IS CLICKED)-->
-            <div id="solutions" class="solutions" style="display:none;">
-                <h3>Step-by-Step Logic</h3>
-                <p id="solText"></p>
-            </div>
         </div>
     </div>
 </div>
 
-<!--8. POP-UP MODALS (HIDDEN BY DEFAULT) They are coded at the bottom of the file so they don't get in the way of the main layout, but they "pop" to the front when needed.-->
-<!--STUDENT SUBMISSION MODAL-->
+<!--8. POP-UP MODALS -->
 <div id="submissionModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <h3>Submit Your Score</h3>
@@ -370,7 +358,6 @@
     </div>
 </div>
 
-<!--ELECTRONICS DATA SHEET MODAL-->
 <div id="dataSheetModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center;">
     <div style="background-color: white; padding: 20px; border-radius: 15px; max-width: 600px; width: 90%; position: relative; margin: 10% auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
         <span onclick="closeDataSheet()" style="position: absolute; right: 15px; top: 10px; font-size: 28px; cursor: pointer; color: #E64097; font-weight: bold;">&times;</span>
@@ -407,9 +394,11 @@
         </div>
     </div>
 </div>
-<script>
+</body>
+
+<script> 
 // SCRIPT STARTS NOW============================================================================      
-// GLOBAL VARIABLES
+// GLOBAL VARIABLES & CONFIGURATION
 // ================================================================================================  
 const brandPink = "#E64097";
 const brandBlack = "#000000";
@@ -422,17 +411,31 @@ let isCurrentProblemSolved = false;
 let viewedSolution = false; 
 let unitErrorMade = false; 
 
+// State tracking for specific modules
+let currentZenerState = "open"; 
+
 let currentAnswers = { 
     vNameHTML: '', vValue: 0, vUnit: '', 
     iNameHTML: '', iValue: 0, iUnit: '', 
     rValue: 0, rUnit: '', 
     osc1Value: 0, osc1Unit: '', 
     osc2Value: 0, osc2Unit: '',
-    astableRatio: '' // Added for 555 logic
+    astableRatio: '',
+    target1: 0, target2: 0 // Used for Zener/Multi-part questions
 };
 
 /* --- 2. MAIN CONTROLLER --- */
+/**
+ * Redirects the "New Problem" button click to the correct generator 
+ * based on the active tab (currentMode).
+ */
 function handleGenerateClick() {
+    // Reset state before generating new content
+    isCurrentProblemSolved = false;
+    hasCheckedCurrentProblem = false;
+    viewedSolution = false;
+    unitErrorMade = false;
+
     if (currentMode === 'zener') {
         generateZenerProblem();
     } else if (currentMode === 'astable') {
@@ -444,7 +447,7 @@ function handleGenerateClick() {
     } else if (currentMode === 'colorcode') {
         generateColorCodeProblem();
     } else {
-        generateProblem(); // Default for basics
+        generateProblem(); // Default basics (Ohm's Law / Divider)
     }
 }
 
@@ -452,61 +455,89 @@ function handleGenerateClick() {
 // FUNCTION 0: SMALL UTILITIES (HELPERS)   
 // ==================================================================================================================
     
-    function formatResValue(val) {
-    if (val >= 1000000) return (val / 1000000) + " MΩ";
-    if (val >= 1000) return (val / 1000) + " kΩ";
+/**
+ * Converts raw Ohms into K or M notation for UI display.
+ */
+function formatResValue(val) {
+    if (val >= 1000000) return (val / 1000000).toFixed(1) + " MΩ";
+    if (val >= 1000) return (val / 1000).toFixed(1) + " kΩ";
     return val + " Ω";
 }   
-   function resetAnswerBox() {
-    const box = document.getElementById('inputV');
-    if (box) {
-        box.value = "";             // Wipes any stuck "2 d.p." text
-        box.defaultValue = "";      // Ensures browser memory is cleared
-        box.placeholder = "";       // Clears the old hint
-    }
-    // Also clear feedback and hide old solutions
+
+/**
+ * Deep cleans the UI to prevent overlapping text from previous questions.
+ */
+function resetAnswerBox() {
+    // 1. Clear standard input boxes
+    const boxes = ['inputV', 'inputI', 'inputR', 'zAns1', 'zAns2'];
+    boxes.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = "";
+            el.defaultValue = "";
+            el.placeholder = "";
+            el.style.borderColor = "#ced4da"; // Reset to neutral grey
+        }
+    });
+
+    // 2. Clear feedback text
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "";
     
+    // 3. Clear dynamic solution and question areas
+    const solText = document.getElementById('solText');
+    if (solText) solText.innerHTML = "";
+
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.innerHTML = "";
+        qText.style.display = "none";
+    }
+
     const solutions = document.getElementById('solutions');
     if (solutions) solutions.style.display = "none";
 } 
 
 
 // =======================================================================================================
-// FUNCTION 1: DRAWING Helpers
+// FUNCTION 1: DRAWING HELPERS
 // =======================================================================================================
 
+/**
+ * Draws the standard IEC resistor rectangle.
+ */
 function drawResistor(ctx, x, y) {
-            ctx.beginPath();
-            ctx.rect(x - 12, y - 25, 24, 50); 
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.stroke();
-            ctx.closePath();
+    ctx.beginPath();
+    ctx.rect(x - 12, y - 25, 24, 50); 
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
 }
 
-//Draws specific components over the standard resistor box
-// (Make sure this is pasted ABOVE generateDividerProblem)
-    function drawComponent(ctx, type, x, y) {
+/**
+ * Draws specialized sensors/components on top of the base resistor.
+ * Upgrade: Uses relative offsets so symbols scale with the resistor size.
+ */
+function drawComponent(ctx, type, x, y) {
     drawResistor(ctx, x, y); // Always draw the base resistor rectangle first
     
     ctx.strokeStyle = "#000";
     ctx.fillStyle = "#000";
     ctx.lineWidth = 2;
     
-    // Exact center of the resistor
+    // Center point for modifications
     let cx = x; 
     let cy = y;
 
     if (type === 'variable') {
-        // Extended diagonal line for Variable Resistor
+        // Diagonal arrow for Variable Resistor
         ctx.beginPath();
         ctx.moveTo(cx - 25, cy + 25);
         ctx.lineTo(cx + 25, cy - 25);
         ctx.stroke();
         
-        // Clean, un-filled arrowhead at the top right
+        // Arrowhead
         ctx.beginPath();
         ctx.moveTo(cx + 25, cy - 25);
         ctx.lineTo(cx + 15, cy - 25);
@@ -515,39 +546,36 @@ function drawResistor(ctx, x, y) {
         ctx.stroke();
         
     } else if (type === 'thermistor') {
-        // WJEC thermistor line 
+        // Standard "hockey stick" line for Thermistor
         ctx.beginPath();
-        // Start further out at the bottom right corner to give more space
         ctx.moveTo(cx + 22, cy + 30);
-        // Go straight up parallel to the side of the resistor
-        ctx.lineTo(cx + 22, cy + 10);
-        // Cut diagonally across to the top left corner
-        ctx.lineTo(cx - 22, cy - 30); 
+        ctx.lineTo(cx + 22, cy + 18); // Vertical tail
+        ctx.lineTo(cx - 22, cy - 25); // Main diagonal
         ctx.stroke();
         
     } else if (type === 'ldr') {
-        // WJEC LDR: 2 inward arrows
-        ctx.beginPath();
-        ctx.moveTo(cx - 40, cy - 15);
-        ctx.lineTo(cx - 24, cy - 5);
-        ctx.lineTo(cx - 30, cy - 5);
-        ctx.moveTo(cx - 24, cy - 5);
-        ctx.lineTo(cx - 24, cy - 11);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.moveTo(cx - 40, cy + 5);
-        ctx.lineTo(cx - 24, cy + 15);
-        ctx.lineTo(cx - 30, cy + 15);
-        ctx.moveTo(cx - 24, cy + 15);
-        ctx.lineTo(cx - 24, cy + 9);
-        ctx.stroke();
+        // Two inward-pointing arrows for Light Dependent Resistor
+        const drawArrow = (offsetY) => {
+            ctx.beginPath();
+            ctx.moveTo(cx - 45, cy + offsetY - 10);
+            ctx.lineTo(cx - 28, cy + offsetY);
+            ctx.stroke();
+            // Tiny arrowhead
+            ctx.beginPath();
+            ctx.moveTo(cx - 28, cy + offsetY);
+            ctx.lineTo(cx - 35, cy + offsetY);
+            ctx.moveTo(cx - 28, cy + offsetY);
+            ctx.lineTo(cx - 28, cy - 7 + offsetY);
+            ctx.stroke();
+        };
+        drawArrow(-8); // Top arrow
+        drawArrow(12); // Bottom arrow
     }
 }
 
-// --- GLOBAL DRAWING HELPERS ---
-// These can be called by any function in your script
-
+/**
+ * Standard line drawing utility.
+ */
 function drawLine(ctx, x1, y1, x2, y2) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
@@ -555,47 +583,63 @@ function drawLine(ctx, x1, y1, x2, y2) {
     ctx.stroke();
 }
 
+/**
+ * Draws a circuit connection node (the black dot).
+ */
 function drawNode(ctx, x, y) {
     ctx.beginPath();
     ctx.arc(x, y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = "#000000"; // Black dots
+    ctx.fillStyle = "#000000";
     ctx.fill();
 }
 
+/**
+ * Draws a rounded rectangle (useful for IC chips like 555 timers).
+ */
 function drawRoundRect(ctx, x, y, width, height, radius) {
-            ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); 
+    ctx.moveTo(x + radius, y); 
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius); 
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); 
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius); 
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y); 
+    ctx.closePath(); 
+    ctx.fill(); 
+    ctx.stroke();
 }
 
-
-
- // GCSE Style Zener - Pointed UP
+/**
+ * Draws a Zener Diode pointing UP (Cathode at top).
+ */
 function drawHollowZenerUp(ctx, x, y) {
     const size = 18;
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
 
-    // 1. Triangle Pointed UP
+    // 1. Triangle pointing up
     ctx.beginPath();
-    ctx.moveTo(x - size, y + size); // Bottom Left
-    ctx.lineTo(x + size, y + size); // Bottom Right
-    ctx.lineTo(x, y - size);        // Top Point (Up)
+    ctx.moveTo(x - size, y + size); 
+    ctx.lineTo(x + size, y + size); 
+    ctx.lineTo(x, y - size);        
     ctx.closePath();
     ctx.stroke();
 
-    // 2. Cathode Bar (At the top point)
+    // 2. Cathode bar with the Zener "hooks"
     ctx.beginPath();
     ctx.moveTo(x - size, y - size); 
     ctx.lineTo(x + size, y - size); 
-    ctx.lineTo(x + size, y - size + 8); // Hook points BACKWARD/DOWN
+    ctx.lineTo(x + size, y - size + 8); // Downward hook
+    ctx.moveTo(x - size, y - size);
+    ctx.lineTo(x - size, y - size - 8); // Upward hook
     ctx.stroke();
 }
 
 /**
- * Arrowhead on wire helper
+ * Draws an arrowhead on a wire to indicate current flow.
  */
 function drawArrowOnWire(ctx, fromx, fromy, tox, toy) {
     const headlen = 10;
@@ -609,37 +653,36 @@ function drawArrowOnWire(ctx, fromx, fromy, tox, toy) {
     ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
     ctx.stroke();
 }
-
-  
 // =========================================================================================================      
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
 // =========================================================================================================     
 
-// this function deals with adding resistances in series and parallel
-function generateResistanceProblem(ctx, canvas) {
+/**
+ * Standard Resistance Problem Generator
+ * Handles Series, Parallel, and simple Combined circuits.
+ */
+function generateResistanceProblem() {
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // 1. UI & State Reset
     resetAnswerBox();
+    
+    // Randomize units (50/50 split between Ohms and kOhms)
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
 
-    // --- UI CLEANUP ---
-    const inputBox = document.getElementById('inputR');
-    if (inputBox) {
-        inputBox.value = ""; //FORCE CLEAR AGAIN
-        inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
-    }
-    
     const labelV = document.getElementById('labelV');
     if (labelV) {
-        labelV.innerHTML = "<span style='color:" + brandPink + "'>Total Resistance</span> = ";
+        labelV.innerHTML = `<span style='color:${brandPink}'>Total Resistance</span> = `;
     }
-
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = brandBlack; 
     ctx.lineWidth = 2; 
     ctx.font = "bold 18px Arial";
 
-    // Draw Rails
+    // Draw Universal Supply Rails
     drawLine(ctx, 150, 60, 450, 60); 
     drawLine(ctx, 150, 360, 450, 360); 
     ctx.fillStyle = brandBlack; 
@@ -655,10 +698,10 @@ function generateResistanceProblem(ctx, canvas) {
         const r2 = (Math.floor(Math.random() * 10) + 1) * 10;
         rTotal = r1 + r2;
         
-        logicHTML = "<strong>Solution: R<sub>Total</sub> = " + rTotal + " " + rUnitVisual + "</strong><br><br>";
-        logicHTML += "<em>Step 1:</em> For resistors in series, simply add the values together.<br>";
-        logicHTML += "R<sub>Total</sub> = R\u2081 + R\u2082<br>";
-        logicHTML += "R<sub>Total</sub> = " + r1 + " + " + r2 + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
+        logicHTML = `<strong>Solution: R<sub>Total</sub> = ${rTotal} ${rUnitVisual}</strong><br><br>`;
+        logicHTML += `<em>Step 1:</em> For resistors in series, simply add the values together.<br>`;
+        logicHTML += `R<sub>Total</sub> = R₁ + R₂<br>`;
+        logicHTML += `R<sub>Total</sub> = ${r1} + ${r2} = <strong>${rTotal} ${rUnitVisual}</strong>`;
 
         drawLine(ctx, 300, 60, 300, 120); 
         drawResistor(ctx, 300, 145); 
@@ -667,11 +710,11 @@ function generateResistanceProblem(ctx, canvas) {
         drawLine(ctx, 300, 280, 300, 360);
         
         ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-        ctx.fillText("R\u2081 = " + r1 + " " + rUnitVisual, 330, 150); 
-        ctx.fillText("R\u2082 = " + r2 + " " + rUnitVisual, 330, 260);
+        ctx.fillText(`R₁ = ${r1} ${rUnitVisual}`, 330, 150); 
+        ctx.fillText(`R₂ = ${r2} ${rUnitVisual}`, 330, 260);
 
     } else if (scenario === 1) {
-        // --- SCENARIO 1: PARALLEL (Centered) ---
+        // --- SCENARIO 1: PARALLEL ---
         const pairs = [
             {r1: 10, r2: 10, req: 5}, {r1: 30, r2: 60, req: 20}, 
             {r1: 12, r2: 24, req: 8}, {r1: 40, r2: 40, req: 20},
@@ -696,17 +739,17 @@ function generateResistanceProblem(ctx, canvas) {
         drawLine(ctx, 300, bottomRailY, 300, 360);
 
         ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-        ctx.fillText("R\u2081 = " + pair.r1 + " " + rUnitVisual, 120, midY + 5); 
-        ctx.fillText("R\u2082 = " + pair.r2 + " " + rUnitVisual, 405, midY + 5);
+        ctx.fillText(`R₁ = ${pair.r1} ${rUnitVisual}`, 120, midY + 5); 
+        ctx.fillText(`R₂ = ${pair.r2} ${rUnitVisual}`, 405, midY + 5);
 
-        logicHTML = "<strong>Solution: R<sub>Total</sub> = " + rTotal + " " + rUnitVisual + "</strong><br><br>";
-        logicHTML += "<em>Step 1:</em> Find the total resistance using <strong>Product &divide; Sum</strong>.<br>";
-        logicHTML += "R<sub>Total</sub> = (R\u2081 &times; R\u2082) / (R\u2081 + R\u2082)<br>";
-        logicHTML += "R<sub>Total</sub> = (" + pair.r1 + " &times; " + pair.r2 + ") / (" + pair.r1 + " + " + pair.r2 + ")<br>";
-        logicHTML += "R<sub>Total</sub> = " + (pair.r1 * pair.r2) + " / " + (pair.r1 + pair.r2) + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
+        logicHTML = `<strong>Solution: R<sub>Total</sub> = ${rTotal} ${rUnitVisual}</strong><br><br>`;
+        logicHTML += `<em>Step 1:</em> Use <strong>Product ÷ Sum</strong> for two resistors in parallel.<br>`;
+        logicHTML += `R<sub>Total</sub> = (R₁ × R₂) / (R₁ + R₂)<br>`;
+        logicHTML += `R<sub>Total</sub> = (${pair.r1} × ${pair.r2}) / (${pair.r1} + ${pair.r2})<br>`;
+        logicHTML += `R<sub>Total</sub> = ${pair.r1 * pair.r2} / ${pair.r1 + pair.r2} = <strong>${rTotal} ${rUnitVisual}</strong>`;
 
     } else {
-        // --- SCENARIO 2: SERIES-PARALLEL COMBINATION ---
+        // --- SCENARIO 2: SERIES-PARALLEL ---
         const sp = [
             {r1: 10, r2: 20, r3: 20, rp: 10, req: 20}, 
             {r1: 15, r2: 30, r3: 60, rp: 20, req: 35}, 
@@ -729,51 +772,42 @@ function generateResistanceProblem(ctx, canvas) {
         drawLine(ctx, 300, 320, 300, 360);
 
         ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-        ctx.fillText("R\u2081 = " + s.r1 + " " + rUnitVisual, 335, 120);
-        ctx.fillText("R\u2082 = " + s.r2 + " " + rUnitVisual, 120, 250); 
-        ctx.fillText("R\u2083 = " + s.r3 + " " + rUnitVisual, 405, 250);
+        ctx.fillText(`R₁ = ${s.r1} ${rUnitVisual}`, 335, 120);
+        ctx.fillText(`R₂ = ${s.r2} ${rUnitVisual}`, 120, 250); 
+        ctx.fillText(`R₃ = ${s.r3} ${rUnitVisual}`, 405, 250);
 
-        logicHTML = "<strong>Solution: R<sub>Total</sub> = " + rTotal + " " + rUnitVisual + "</strong><br><br>";
-        logicHTML += "<em>Step 1:</em> Find the parallel part (R<sub>p</sub>) using <strong>Product &divide; Sum</strong>.<br>";
-        logicHTML += "R<sub>p</sub> = (R\u2082 &times; R\u2083) / (R\u2082 + R\u2083)<br>";
-        logicHTML += "R<sub>p</sub> = (" + s.r2 + " &times; " + s.r3 + ") / (" + s.r2 + " + " + s.r3 + ") = " + s.rp + " " + rUnitVisual + "<br><br>";
-        logicHTML += "<em>Step 2:</em> Add the series resistor (R\u2081) to the parallel result.<br>";
-        logicHTML += "R<sub>Total</sub> = R\u2081 + R<sub>p</sub> = " + s.r1 + " + " + s.rp + " = <strong>" + s.req + " " + rUnitVisual + "</strong>";
+        logicHTML = `<strong>Solution: R<sub>Total</sub> = ${rTotal} ${rUnitVisual}</strong><br><br>`;
+        logicHTML += `<em>Step 1:</em> Calculate the parallel branch (Rₚ).<br>`;
+        logicHTML += `Rₚ = (${s.r2} × ${s.r3}) / (${s.r2} + ${s.r3}) = ${s.rp} ${rUnitVisual}<br><br>`;
+        logicHTML += `<em>Step 2:</em> Add the series resistor (R₁).<br>`;
+        logicHTML += `R<sub>Total</sub> = R₁ + Rₚ = ${s.r1} + ${s.rp} = <strong>${s.req} ${rUnitVisual}</strong>`;
     }
 
-    // This matches the "normalized" units in our new parseInput
-    currentAnswers.rUnit = (rUnitVisual === 'k\u03A9') ? 'kohms' : 'ohms';
-    currentAnswers.rValue = rTotal; // e.g., 10
-    
+    // Save for Checker
+    currentAnswers.rUnit = expectedUnitStr;
+    currentAnswers.rValue = rTotal; 
     
     const solText = document.getElementById('solText');
-    if (solText) {
-        solText.innerHTML = logicHTML;
+    if (solText) solText.innerHTML = logicHTML;
 
-    // This ensures that even after all the math is done, the box is 100% reset to an integer style.
-    if (inputBox) {
-        inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
-    }
-    }
+    const inputBox = document.getElementById('inputR');
+    if (inputBox) inputBox.placeholder = `e.g. ${rTotal} ${rUnitVisual}`;
 }
 
+/**
+ * Grade 9 Resistance (Harder values/Decimals)
+ */
 function generateGrade9Resistance() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
     
-    // 0. RESET UI & STATE
-    resetAnswerBox(); // Standardizes UI cleanup
-    const inputR = document.getElementById('inputR');
-    if (inputR) inputR.value = '';
-
-    // Randomize the unit for the problem
+    resetAnswerBox();
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
-    // Standardize for the checker (lowercase)
     const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // --- CALCULATOR MATH ---
+    // --- CALCULATOR MATH (More Complex) ---
     let r1 = Math.floor(Math.random() * 40) + 10;
     let r2 = (Math.random() * 50 + 5).toFixed(1);
     let r3 = (Math.random() * 50 + 5).toFixed(1);
@@ -781,93 +815,92 @@ function generateGrade9Resistance() {
     let R2_num = parseFloat(r2);
     let R3_num = parseFloat(r3);
     
-    // Calculate Parallel part (Rp)
     let rp_exact = (R2_num * R3_num) / (R2_num + R3_num);
-    let rp_rounded = parseFloat(rp_exact.toFixed(2));
-    
-    // Calculate Total (Series R1 + Parallel Rp)
     let total_exact = r1 + rp_exact;
+    
+    // Results rounded to 2 decimal places for accuracy
+    let rp_rounded = parseFloat(rp_exact.toFixed(2));
     let rTotal = parseFloat(total_exact.toFixed(2));
 
-    // --- COMPLETE DRAWING ---
     ctx.strokeStyle = brandBlack; ctx.lineWidth = 2;
     
-    // Top and Bottom Supply Rails
     drawLine(ctx, 150, 40, 450, 40); 
     drawLine(ctx, 150, 360, 450, 360);
     ctx.fillStyle = brandBlack; ctx.font = "bold 16px Arial";
     ctx.fillText("+V", 290, 30); ctx.fillText("GND", 285, 385);
 
-    // Main vertical path
     drawLine(ctx, 300, 40, 300, 80); 
-    drawResistor(ctx, 300, 105); // R1
+    drawResistor(ctx, 300, 105); 
     drawLine(ctx, 300, 130, 300, 170);
     
-    // Parallel Section
     drawLine(ctx, 220, 170, 380, 170); 
-    drawLine(ctx, 220, 170, 220, 210); drawResistor(ctx, 220, 235); // R2
-    drawLine(ctx, 380, 170, 380, 210); drawResistor(ctx, 380, 235); // R3
+    drawLine(ctx, 220, 170, 220, 210); drawResistor(ctx, 220, 235); 
+    drawLine(ctx, 380, 170, 380, 210); drawResistor(ctx, 380, 235); 
     drawLine(ctx, 220, 260, 220, 320); 
     drawLine(ctx, 380, 260, 380, 320);
     drawLine(ctx, 220, 320, 380, 320); 
     drawLine(ctx, 300, 320, 300, 360); 
 
-    // Labels
     ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-    ctx.fillText("R\u2081 = " + r1 + " " + rUnitVisual, 335, 110);
-    ctx.fillText("R\u2082 = " + r2 + " " + rUnitVisual, 115, 240); 
-    ctx.fillText("R\u2083 = " + r3 + " " + rUnitVisual, 405, 240);
+    ctx.fillText(`R₁ = ${r1} ${rUnitVisual}`, 335, 110);
+    ctx.fillText(`R₂ = ${r2} ${rUnitVisual}`, 115, 240); 
+    ctx.fillText(`R₃ = ${r3} ${rUnitVisual}`, 405, 240);
 
-    // --- SOLUTION TEXT ---
     const solText = document.getElementById('solText');
     if (solText) {
-        let logicHTML = "<strong>Solution: R<sub>Total</sub> = " + rTotal + " " + rUnitVisual + "</strong><br><br>";
-        logicHTML += "<em>Step 1:</em> Find parallel resistance R<sub>p</sub> using <strong>(R\u2082 &times; R\u2083) &divide; (R\u2082 + R\u2083)</strong>.<br>";
-        logicHTML += "R<sub>p</sub> = (" + r2 + " &times; " + r3 + ") / (" + r2 + " + " + r3 + ") = <strong>" + rp_rounded + " " + rUnitVisual + "</strong><br><br>";
-        logicHTML += "<em>Step 2:</em> Add the series resistor R\u2081.<br>";
-        logicHTML += "R<sub>Total</sub> = " + r1 + " + " + rp_rounded + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
+        let logicHTML = `<strong>Solution: R<sub>Total</sub> = ${rTotal} ${rUnitVisual}</strong><br><br>`;
+        logicHTML += `<em>Step 1:</em> Find Rₚ using <strong>(R₂ × R₃) ÷ (R₂ + R₃)</strong>.<br>`;
+        logicHTML += `Rₚ = (${r2} × ${r3}) / (${r2} + ${r3}) = <strong>${rp_rounded} ${rUnitVisual}</strong><br><br>`;
+        logicHTML += `<em>Step 2:</em> Add the series resistor R₁.<br>`;
+        logicHTML += `R<sub>Total</sub> = ${r1} + ${rp_rounded} = <strong>${rTotal} ${rUnitVisual}</strong>`;
         solText.innerHTML = logicHTML;
     }
 
-    // --- SAVE ANSWERS FOR VALIDATION ---
     currentAnswers.rValue = rTotal;
-    currentAnswers.rUnit = expectedUnitStr; // Matches 'ohms' or 'kohms' from parseInput
+    currentAnswers.rUnit = expectedUnitStr;
     
-    // Placeholder hint
-    if (inputR) inputR.placeholder = "e.g. " + rTotal + " " + rUnitVisual;
+    const inputR = document.getElementById('inputR');
+    if (inputR) inputR.placeholder = `e.g. ${rTotal} ${rUnitVisual}`;
 }
-// =======================================================
-//  Generates the Potential Divider Problem (4-Variables)
-// =======================================================
-function generateDividerProblem(ctx, canvas) {
-    // 0. RESET UI & STATE
+// =========================================================================================================
+// FUNCTION 2B. POTENTIAL DIVIDER GENERATORS
+// =========================================================================================================
+
+/**
+ * Standard Potential Divider Problem (4-Variable Randomizer)
+ * Can ask for Vout, Vsupply, R1, or R2.
+ */
+function generateDividerProblem() {
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // 1. UI & State Reset
     resetAnswerBox(); 
     currentMode = 'divider';
     const inputBox = document.getElementById('inputV');
-    if (inputBox) inputBox.value = ""; // Force clear old input
+    if (inputBox) inputBox.value = ""; 
 
-    // Determine units visually
+    // Determine visual units
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     
-    // Standardize units for the checker (must be lowercase)
+    // Standardize units for validation logic
     const expectedVUnit = vUnit.toLowerCase(); 
     const expectedRUnit = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
 
-    // 1. GENERATE THE 4-VARIABLE MATH LOGIC
+    // 2. MATH LOGIC (Integer-based generation for clean results)
     let R1_val = Math.floor(Math.random() * 10) + 1; 
     let R2_val = Math.floor(Math.random() * 10) + 1;
     let current = Math.floor(Math.random() * 5) + 1; 
     let Vin_val = (R1_val + R2_val) * current;
     let Vout_val = Vin_val * (R2_val / (R1_val + R2_val));
 
-    // 0: Find Vout, 1: Find Vin, 2: Find R1, 3: Find R2
+    // 0: Vout, 1: Vsupply, 2: R1, 3: R2
     let targetVar = Math.floor(Math.random() * 4); 
 
-    // Clear Canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Set the correct answer logic standardized to our "Smart Parser"
+    // Save Correct Answer State
     if (targetVar === 0) {
         currentAnswers.vNameHTML = 'V<sub>OUT</sub>';
         currentAnswers.vValue = parseFloat(Vout_val.toFixed(1)); 
@@ -886,23 +919,22 @@ function generateDividerProblem(ctx, canvas) {
         currentAnswers.vUnit = expectedRUnit; 
     }
 
-    // Update Input Box Label and Placeholder
-    document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
+    // Update UI Elements
+    const labelV = document.getElementById('labelV');
+    if (labelV) labelV.innerHTML = `<span style="color:${brandPink}">${currentAnswers.vNameHTML}</span> = `;
+    
     if (inputBox) {
-        if (targetVar === 0 || targetVar === 1) {
-            inputBox.placeholder = "e.g. 10 " + vUnit; 
-        } else {
-            inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
-        }
+        const hintUnit = (targetVar < 2) ? vUnit : rUnitVisual;
+        inputBox.placeholder = `e.g. 10 ${hintUnit}`; 
     }
 
-    // Prepare labels for the drawing
-    let labelR1   = (targetVar === 2) ? "?" : R1_val + " " + rUnitVisual;
-    let labelR2   = (targetVar === 3) ? "?" : R2_val + " " + rUnitVisual;
-    let labelVin  = (targetVar === 1) ? "?" : Vin_val + " " + vUnit;
-    let labelVout = (targetVar === 0) ? "?" : Vout_val.toFixed(1) + " " + vUnit;
+    // Drawing Labels
+    let labelR1   = (targetVar === 2) ? "?" : `${R1_val} ${rUnitVisual}`;
+    let labelR2   = (targetVar === 3) ? "?" : `${R2_val} ${rUnitVisual}`;
+    let labelVin  = (targetVar === 1) ? "?" : `${Vin_val} ${vUnit}`;
+    let labelVout = (targetVar === 0) ? "?" : `${Vout_val.toFixed(1)} ${vUnit}`;
 
-    // Random Component Selection
+    // Random Component Selection for Variety
     let compTop, compBottom;
     const combo = Math.floor(Math.random() * 3); 
     if (combo === 0) {
@@ -913,11 +945,11 @@ function generateDividerProblem(ctx, canvas) {
     } else if (combo === 1) {
         compTop = 'fixed'; compBottom = 'fixed';
     } else {
-        if (Math.random() < 0.5) { compTop = 'fixed'; compBottom = 'variable'; }
-        else { compTop = 'variable'; compBottom = 'fixed'; }
+        compTop = (Math.random() < 0.5) ? 'fixed' : 'variable';
+        compBottom = (compTop === 'fixed') ? 'variable' : 'fixed';
     }
 
-    // 2. DRAW THE CIRCUIT
+    // 3. CIRCUIT DRAWING
     ctx.strokeStyle = brandBlack;
     ctx.lineWidth = 2;
     ctx.font = "bold 18px Arial";
@@ -933,174 +965,167 @@ function generateDividerProblem(ctx, canvas) {
     drawComponent(ctx, compBottom, 300, 295);
     drawLine(ctx, 300, 320, 300, 360);
 
+    // Tap point and Vout line
     ctx.beginPath(); ctx.arc(300, 210, 4, 0, Math.PI * 2); ctx.fillStyle = "#000"; ctx.fill();
     ctx.beginPath(); ctx.moveTo(300, 210); ctx.lineTo(380, 210); ctx.stroke();
     ctx.beginPath(); ctx.arc(384, 210, 4, 0, Math.PI * 2); ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
 
-    // 3. DRAW TEXT LABELS
+    // Text Labels on Canvas
     const colorVout = (targetVar === 0) ? brandPink : brandBlack;
     const colorVin  = (targetVar === 1) ? brandPink : brandBlack;
     const colorR1   = (targetVar === 2) ? brandPink : brandBlack;
     const colorR2   = (targetVar === 3) ? brandPink : brandBlack;
     
     ctx.font = "16px Arial"; 
-    ctx.fillStyle = colorR1; ctx.fillText("R\u2081 = " + labelR1, 350, 130);
-    ctx.fillStyle = colorR2; ctx.fillText("R\u2082 = " + labelR2, 350, 300);
-    ctx.fillStyle = colorVin; ctx.fillText("+Vsupply = " + labelVin, 230, 45); 
-    ctx.fillStyle = colorVout; ctx.font = "bold 18px Arial"; ctx.fillText("V", 400, 216);
+    ctx.fillStyle = colorR1; ctx.fillText(`R₁ = ${labelR1}`, 350, 130);
+    ctx.fillStyle = colorR2; ctx.fillText(`R₂ = ${labelR2}`, 350, 300);
+    ctx.fillStyle = colorVin; ctx.fillText(`+Vsupply = ${labelVin}`, 230, 45); 
+    
+    ctx.fillStyle = colorVout; 
+    ctx.font = "bold 18px Arial"; ctx.fillText("V", 400, 216);
     ctx.font = "bold 11px Arial"; ctx.fillText("OUT", 413, 222);
-    ctx.font = "bold 16px Arial"; ctx.fillText("= " + labelVout, 445, 216);
+    ctx.font = "bold 16px Arial"; ctx.fillText(`= ${labelVout}`, 445, 216);
 
-    // 4. SOLUTION LOGIC PANEL
+    // 4. SOLUTION PANEL
     const solText = document.getElementById('solText');
     if (solText) {
-        let logicHTML = "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + " " + (targetVar < 2 ? vUnit : rUnitVisual) + "</strong><br><br>";
-        logicHTML += "<em>Core Equation:</em> <strong>V<sub>OUT</sub> = V<sub>supply</sub> &times; (R\u2082 / (R\u2081 + R\u2082))</strong><br><br>";
+        let logicHTML = `<strong>${currentAnswers.vNameHTML} = ${currentAnswers.vValue} ${(targetVar < 2 ? vUnit : rUnitVisual)}</strong><br><br>`;
+        logicHTML += `<em>Core Equation:</em> <strong>V<sub>OUT</sub> = V<sub>supply</sub> × (R₂ / (R₁ + R₂))</strong><br><br>`;
         
         if (targetVar === 0) {
-            logicHTML += "<em>Step 1:</em> Find R<sub>TOTAL</sub> = " + R1_val + " + " + R2_val + " = " + (R1_val+R2_val) + "<br>";
-            logicHTML += "<em>Step 2:</em> V<sub>OUT</sub> = " + Vin_val + " &times; (" + R2_val + " / " + (R1_val+R2_val) + ") = <strong>" + Vout_val.toFixed(1) + " " + vUnit + "</strong>";
+            logicHTML += `<em>Step 1:</em> Find R<sub>TOTAL</sub> = ${R1_val} + ${R2_val} = ${R1_val + R2_val}<br>`;
+            logicHTML += `<em>Step 2:</em> V<sub>OUT</sub> = ${Vin_val} × (${R2_val} / ${R1_val + R2_val}) = <strong>${Vout_val.toFixed(1)} ${vUnit}</strong>`;
         } else if (targetVar === 1) {
-            logicHTML += "<em>Step 1:</em> Rearrange for V<sub>supply</sub> = V<sub>OUT</sub> / (R\u2082 / R<sub>TOTAL</sub>)<br>";
-            logicHTML += "<em>Step 2:</em> V<sub>supply</sub> = " + Vout_val.toFixed(1) + " / (" + R2_val + " / " + (R1_val+R2_val) + ") = <strong>" + Vin_val.toFixed(1) + " " + vUnit + "</strong>";
-        } else if (targetVar === 2) {
-            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> is " + Vout_val.toFixed(1) + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val.toFixed(1) + ") = " + (Vin_val-Vout_val).toFixed(1) + "V.<br>";
-            logicHTML += "<em>Step 2:</em> Since voltage shares in ratio: R\u2081 = R\u2082 &times; (V<sub>R1</sub> / V<sub>R2</sub>)<br>";
-            logicHTML += "<em>Step 3:</em> R\u2081 = " + R2_val + " &times; (" + (Vin_val-Vout_val).toFixed(1) + " / " + Vout_val.toFixed(1) + ") = <strong>" + R1_val.toFixed(1) + " " + rUnitVisual + "</strong>";
-        } else if (targetVar === 3) {
-            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> is " + Vout_val.toFixed(1) + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val.toFixed(1) + ") = " + (Vin_val-Vout_val).toFixed(1) + "V.<br>";
-            logicHTML += "<em>Step 2:</em> Since voltage shares in ratio: R\u2082 = R\u2081 &times; (V<sub>R2</sub> / V<sub>R1</sub>)<br>";
-            logicHTML += "<em>Step 3:</em> R\u2082 = " + R1_val + " &times; (" + Vout_val.toFixed(1) + " / " + (Vin_val-Vout_val).toFixed(1) + ") = <strong>" + R2_val.toFixed(1) + " " + rUnitVisual + "</strong>";
+            logicHTML += `<em>Step 1:</em> Rearrange: V<sub>supply</sub> = V<sub>OUT</sub> / (R₂ / R<sub>TOTAL</sub>)<br>`;
+            logicHTML += `<em>Step 2:</em> V<sub>supply</sub> = ${Vout_val.toFixed(1)} / (${R2_val} / ${R1_val + R2_val}) = <strong>${Vin_val.toFixed(1)} ${vUnit}</strong>`;
+        } else {
+            const vR1 = (Vin_val - Vout_val).toFixed(1);
+            const vR2 = Vout_val.toFixed(1);
+            logicHTML += `<em>Step 1:</em> Voltages split in ratio. V<sub>R1</sub> = ${vR1}V and V<sub>R2</sub> = ${vR2}V.<br>`;
+            if (targetVar === 2) {
+                logicHTML += `<em>Step 2:</em> R₁ = R₂ × (V<sub>R1</sub> / V<sub>R2</sub>)<br>`;
+                logicHTML += `<em>Step 3:</em> R₁ = ${R2_val} × (${vR1} / ${vR2}) = <strong>${R1_val.toFixed(1)} ${rUnitVisual}</strong>`;
+            } else {
+                logicHTML += `<em>Step 2:</em> R₂ = R₁ × (V<sub>R2</sub> / V<sub>R1</sub>)<br>`;
+                logicHTML += `<em>Step 3:</em> R₂ = ${R1_val} × (${vR2} / ${vR1}) = <strong>${R2_val.toFixed(1)} ${rUnitVisual}</strong>`;
+            }
         }
         solText.innerHTML = logicHTML;
     }
 }
-// ======================================================
-// Grade 9 Parallel Divider Problem (Calculator Required)
-// ======================================================
+
+/**
+ * Grade 9 Divider (Parallel Network)
+ */
 function generateGrade9DividerProblem() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
 
-    // 0. RESET UI & STATE
-    resetAnswerBox(); // Clears feedback/solutions
+    resetAnswerBox(); 
     currentMode = 'divider'; 
     const inputBox = document.getElementById('inputV');
-    if (inputBox) {
-        inputBox.value = ""; // Clear old text
-    }
+    if (inputBox) inputBox.value = ""; 
 
-    // Update Question Text
-    const qText = document.getElementById('questionText');
-    if (qText) {
-        qText.innerHTML = "<strong>🏆 Grade 9 Challenge:</strong> Calculate the output voltage (V<sub>OUT</sub>) for this parallel-series network. <em>(Give your answer to 1 decimal place)</em>";
-    }
-
-    // Determine units visually
+    // Visual units
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
-
-    // Standardize units for the checker (lowercase)
     const expectedVUnit = vUnit.toLowerCase();
 
-    // 1. GENERATE MATH (1 d.p. logic)
+    // MATH LOGIC (Calculator required values)
     let R1_val = Math.floor(Math.random() * 20) + 5; 
     let R2_val = Math.floor(Math.random() * 25) + 5; 
     let R3_val = Math.floor(Math.random() * 25) + 5; 
     let Vin_val = Math.floor(Math.random() * 20) + 5; 
 
-    // Calculate parallel part (Rp)
     let Rp_exact = (R2_val * R3_val) / (R2_val + R3_val);
-    let Rp_rounded = parseFloat(Rp_exact.toFixed(1));
-
-    // Calculate Total Resistance (Series R1 + Parallel Rp)
     let Rtotal_exact = R1_val + Rp_exact;
+    let Vout_exact = Vin_val * (Rp_exact / Rtotal_exact);
+    
+    let Vout_val = parseFloat(Vout_exact.toFixed(1)); 
+    let Rp_rounded = parseFloat(Rp_exact.toFixed(1));
     let Rtotal_rounded = parseFloat(Rtotal_exact.toFixed(1));
 
-    // Calculate Final Vout
-    let Vout_exact = Vin_val * (Rp_exact / Rtotal_exact);
-    let Vout_val = parseFloat(Vout_exact.toFixed(1)); 
-
-    // --- SAVE ANSWERS FOR VALIDATION ---
+    // Save State
     currentAnswers.vNameHTML = 'V<sub>OUT</sub>';
     currentAnswers.vValue = Vout_val;
-    currentAnswers.vUnit = expectedVUnit; // Now 'v' or 'mv'
+    currentAnswers.vUnit = expectedVUnit;
 
-    // Update UI Labels
-    document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>V<sub>OUT</sub></span> = ";
-    if (inputBox) {
-        inputBox.placeholder = "e.g. 1.2 " + vUnit;
-    }
+    const labelV = document.getElementById('labelV');
+    if (labelV) labelV.innerHTML = `<span style="color:${brandPink}">V<sub>OUT</sub></span> = `;
+    if (inputBox) inputBox.placeholder = `e.g. 1.2 ${vUnit}`;
 
-    // 2. DRAWING CODE
+    // DRAWING
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = brandBlack; 
     ctx.lineWidth = 2;
 
-    // Rails
     drawLine(ctx, 150, 60, 450, 60);
     drawLine(ctx, 150, 360, 450, 360);
     ctx.fillStyle = brandBlack;
     ctx.font = "bold 16px Arial";
     ctx.fillText("0V (GND)", 260, 390);
 
-    // Main Branch
+    // Schematic Branching
     drawLine(ctx, 300, 60, 300, 100);
     drawComponent(ctx, 'fixed', 300, 125);
     drawLine(ctx, 300, 150, 300, 210);
 
-    // Junction and Vout tap
     ctx.beginPath(); ctx.arc(300, 210, 4, 0, Math.PI * 2); ctx.fill();
     drawLine(ctx, 300, 210, 410, 210); 
     ctx.beginPath(); ctx.arc(414, 210, 4, 0, Math.PI * 2); 
     ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
 
-    // Parallel Branches
-    ctx.fillStyle = brandBlack;
     drawLine(ctx, 300, 210, 300, 240);
-    ctx.beginPath(); ctx.arc(300, 240, 4, 0, Math.PI * 2); ctx.fill();
-    drawLine(ctx, 300, 240, 220, 240);
-    drawLine(ctx, 220, 240, 220, 270);
+    ctx.beginPath(); ctx.arc(300, 240, 4, 0, Math.PI * 2); ctx.fillStyle = "black"; ctx.fill();
+    
+    // Parallel paths
+    drawLine(ctx, 300, 240, 220, 240); drawLine(ctx, 220, 240, 220, 270);
     drawComponent(ctx, 'fixed', 220, 295);
-    drawLine(ctx, 220, 320, 220, 340);
-    drawLine(ctx, 220, 340, 300, 340);
-    drawLine(ctx, 300, 240, 380, 240);
-    drawLine(ctx, 380, 240, 380, 270);
+    drawLine(ctx, 220, 320, 220, 340); drawLine(ctx, 220, 340, 300, 340);
+
+    drawLine(ctx, 300, 240, 380, 240); drawLine(ctx, 380, 240, 380, 270);
     drawComponent(ctx, 'fixed', 380, 295);
-    drawLine(ctx, 380, 320, 380, 340);
-    drawLine(ctx, 380, 340, 300, 340);
+    drawLine(ctx, 380, 320, 380, 340); drawLine(ctx, 380, 340, 300, 340);
+
     ctx.beginPath(); ctx.arc(300, 340, 4, 0, Math.PI * 2); ctx.fill();
     drawLine(ctx, 300, 340, 300, 360);
 
     // Labels
-    ctx.font = "16px Arial"; 
-    ctx.fillStyle = brandBlack;
-    ctx.fillText("+Vsupply = " + Vin_val + " " + vUnit, 230, 45); 
-    ctx.fillText("R\u2081 = " + R1_val + " " + rUnitVisual, 340, 130);
-    ctx.fillText("R\u2082 = " + R2_val + " " + rUnitVisual, 130, 300);
-    ctx.fillText("R\u2083 = " + R3_val + " " + rUnitVisual, 420, 300);
+    ctx.font = "16px Arial"; ctx.fillStyle = brandBlack;
+    ctx.fillText(`+Vsupply = ${Vin_val} ${vUnit}`, 230, 45); 
+    ctx.fillText(`R₁ = ${R1_val} ${rUnitVisual}`, 340, 130);
+    ctx.fillText(`R₂ = ${R2_val} ${rUnitVisual}`, 130, 300);
+    ctx.fillText(`R₃ = ${R3_val} ${rUnitVisual}`, 420, 300);
 
-    // Vout indicator
-    ctx.fillStyle = brandPink;
-    ctx.font = "bold 18px Arial";
-    ctx.fillText("V", 430, 216);
-    ctx.font = "bold 11px Arial";
-    ctx.fillText("OUT", 443, 222);
-    ctx.font = "bold 16px Arial";
+    ctx.fillStyle = brandPink; ctx.font = "bold 18px Arial";
+    ctx.fillText("V", 430, 216); ctx.font = "bold 11px Arial";
+    ctx.fillText("OUT", 443, 222); ctx.font = "bold 16px Arial";
     ctx.fillText("= ?", 475, 216);
 
-    // 3. SOLUTION TEXT
+    // Solution Logic
     const solText = document.getElementById('solText');
     if (solText) {
-        let logicHTML = "<strong>🏆 Grade 9 Solution: V<sub>OUT</sub> = " + Vout_val + " " + vUnit + "</strong><br><br>";
-        logicHTML += "<em>Step 1:</em> Find R<sub>p</sub>: (R\u2082 &times; R\u2083) / (R\u2082 + R\u2083) = <strong>" + Rp_rounded + " " + rUnitVisual + "</strong><br>";
-        logicHTML += "<em>Step 2:</em> Total Resistance = R\u2081 + R<sub>p</sub> = <strong>" + Rtotal_rounded + " " + rUnitVisual + "</strong><br>";
-        logicHTML += "<em>Step 3:</em> V<sub>OUT</sub> = V<sub>supply</sub> &times; (R<sub>p</sub> / R<sub>TOTAL</sub>) = <strong>" + Vout_val + " " + vUnit + "</strong>";
-        solText.innerHTML = logicHTML;
+        solText.innerHTML = `
+            <strong>🏆 Grade 9 Solution: V<sub>OUT</sub> = ${Vout_val} ${vUnit}</strong><br><br>
+            <em>Step 1:</em> Find Rₚ: (R₂ × R₃) / (R₂ + R₃) = <strong>${Rp_rounded} ${rUnitVisual}</strong><br>
+            <em>Step 2:</em> Total Resistance = R₁ + Rₚ = <strong>${Rtotal_rounded} ${rUnitVisual}</strong><br>
+            <em>Step 3:</em> V<sub>OUT</sub> = V<sub>supply</sub> × (Rₚ / R<sub>TOTAL</sub>) = <strong>${Vout_val} ${vUnit}</strong>
+        `;
     }
 }
-function generateAnalysisProblem(ctx, canvas) {
-    // 0. RESET UI & STATE
+// =========================================================================================================
+// FUNCTION 2C. CIRCUIT ANALYSIS & OSCILLOSCOPE GENERATORS
+// =========================================================================================================
+
+/**
+ * Generates complex DC circuit analysis problems involving series/parallel combinations.
+ * Randomizes between a Series-then-Parallel or Parallel-then-Series layout.
+ */
+function generateAnalysisProblem() {
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 1. UI & State Reset
     resetAnswerBox(); 
     currentMode = 'analysis';
     const inputV = document.getElementById('inputV');
@@ -1108,17 +1133,15 @@ function generateAnalysisProblem(ctx, canvas) {
     if (inputV) inputV.value = ""; 
     if (inputI) inputI.value = "";
 
-    // Determine units visually
+    // Determine visual units
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
     const iUnit = Math.random() < 0.5 ? 'A' : 'mA';
-    
-    // Standardize units for the checker (must be lowercase)
     const expectedVUnit = vUnit.toLowerCase();
     const expectedIUnit = iUnit.toLowerCase();
 
-    // 1. GENERATE MATH LOGIC
+    // 2. MATH LOGIC (Integer-based setup)
     const v1 = Math.floor(Math.random() * 10) + 1; 
-    const v2 = v1; 
+    const v2 = v1; // Parallel voltages are equal
     const v3 = Math.floor(Math.random() * 10) + 1; 
     const vTotal = v1 + v3; 
 
@@ -1127,22 +1150,22 @@ function generateAnalysisProblem(ctx, canvas) {
     const i3 = i1 + i2; 
 
     const voltages = [
-        { display: 'V\u2081', html: 'V<sub>1</sub>', val: v1, logic: 'V\u2081 = V\u2082 (Parallel components share voltage)' },
-        { display: 'V\u2082', html: 'V<sub>2</sub>', val: v2, logic: 'V\u2082 = V\u2081 (Parallel components share voltage)' },
-        { display: 'V\u2083', html: 'V<sub>3</sub>', val: v3, logic: "V\u2083 = +Vsupply - V\u2081 (" + vTotal + vUnit + " - " + v1 + vUnit + ")" },
-        { display: '+Vsupply', html: '+Vsupply', val: vTotal, logic: "+Vsupply = V\u2081 + V\u2083 (" + v1 + vUnit + " + " + v3 + vUnit + ")" }
+        { display: 'V₁', html: 'V<sub>1</sub>', val: v1, logic: `V₁ = V₂ (Parallel components share voltage)` },
+        { display: 'V₂', html: 'V<sub>2</sub>', val: v2, logic: `V₂ = V₁ (Parallel components share voltage)` },
+        { display: 'V₃', html: 'V<sub>3</sub>', val: v3, logic: `V₃ = +Vsupply - V₁ (${vTotal}${vUnit} - ${v1}${vUnit})` },
+        { display: '+Vsupply', html: '+Vsupply', val: vTotal, logic: `+Vsupply = V₁ + V₃ (${v1}${vUnit} + ${v3}${vUnit})` }
     ];
     
     const currents = [
-        { display: 'I\u2081', html: 'I<sub>1</sub>', val: i1, logic: "I\u2081 = I\u2083 - I\u2082 (" + i3 + iUnit + " - " + i2 + iUnit + ")" },
-        { display: 'I\u2082', html: 'I<sub>2</sub>', val: i2, logic: "I\u2082 = I\u2083 - I\u2081 (" + i3 + iUnit + " - " + i1 + iUnit + ")" },
-        { display: 'I\u2083', html: 'I<sub>3</sub>', val: i3, logic: "I\u2083 = I\u2081 + I\u2082 (" + i1 + iUnit + " + " + i2 + iUnit + ")" }
+        { display: 'I₁', html: 'I<sub>1</sub>', val: i1, logic: `I₁ = I₃ - I₂ (${i3}${iUnit} - ${i2}${iUnit})` },
+        { display: 'I₂', html: 'I<sub>2</sub>', val: i2, logic: `I₂ = I₃ - I₁ (${i3}${iUnit} - ${i1}${iUnit})` },
+        { display: 'I₃', html: 'I<sub>3</sub>', val: i3, logic: `I₃ = I₁ + I₂ (${i1}${iUnit} + ${i2}${iUnit})` }
     ];
 
     const unknownVIndex = Math.floor(Math.random() * 4);
     const unknownIIndex = Math.floor(Math.random() * 3);
 
-    // Set the normalized answers for the checker
+    // Save state for checker
     currentAnswers.vNameHTML = voltages[unknownVIndex].html;
     currentAnswers.vValue = voltages[unknownVIndex].val;
     currentAnswers.vUnit = expectedVUnit; 
@@ -1150,31 +1173,18 @@ function generateAnalysisProblem(ctx, canvas) {
     currentAnswers.iValue = currents[unknownIIndex].val;
     currentAnswers.iUnit = expectedIUnit;
 
-    // Update Input Labels and Placeholders
-    document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
-    document.getElementById('labelI').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.iNameHTML + "</span> = ";
-    if (inputV) inputV.placeholder = "e.g. 5 " + vUnit;
-    if (inputI) inputI.placeholder = "e.g. 2 " + iUnit;
+    // Update Input UI
+    document.getElementById('labelV').innerHTML = `<span style="color:${brandPink}">${currentAnswers.vNameHTML}</span> = `;
+    document.getElementById('labelI').innerHTML = `<span style="color:${brandPink}">${currentAnswers.iNameHTML}</span> = `;
+    if (inputV) inputV.placeholder = `e.g. 5 ${vUnit}`;
+    if (inputI) inputI.placeholder = `e.g. 2 ${iUnit}`;
 
-    // Drawing Prep
-    const vLabels = voltages.map(function(v, index) { return index === unknownVIndex ? v.display + " = ?" : v.display + " = " + v.val + " " + vUnit; });
-    const iLabels = currents.map(function(c, index) { return index === unknownIIndex ? c.display + " = ?" : c.display + " = " + c.val + " " + iUnit; });
-    let topRailText = unknownVIndex === 3 ? "+Vsupply = ?" : "+Vsupply = " + vTotal + " " + vUnit;
+    // Drawing Preparation
+    const vLabels = voltages.map((v, i) => i === unknownVIndex ? `${v.display} = ?` : `${v.display} = ${v.val} ${vUnit}`);
+    const iLabels = currents.map((c, i) => i === unknownIIndex ? `${c.display} = ?` : `${c.display} = ${c.val} ${iUnit}`);
+    let topRailLabel = (unknownVIndex === 3) ? "+Vsupply = ?" : `+Vsupply = ${vTotal} ${vUnit}`;
 
-    // Logic adjustments for missing info
-    if (unknownVIndex === 2 || unknownVIndex === 3) {
-        if (Math.random() < 0.5) {
-            vLabels[0] = ""; 
-            voltages[2].logic = "V\u2083 = +Vsupply - V\u2082 (since V\u2081 = V\u2082, " + vTotal + vUnit + " - " + v2 + vUnit + ")";
-            voltages[3].logic = "+Vsupply = V\u2082 + V\u2083 (since V\u2081 = V\u2082, " + v2 + vUnit + " + " + v3 + vUnit + ")";
-        } else { vLabels[1] = ""; }
-    } else if (unknownVIndex === 0) {
-        if (Math.random() < 0.5) { vLabels[1] = ""; voltages[0].logic = "V\u2081 = +Vsupply - V\u2083 (" + vTotal + vUnit + " - " + v3 + vUnit + ")"; } else { topRailText = ""; }
-    } else if (unknownVIndex === 1) {
-        if (Math.random() < 0.5) { vLabels[0] = ""; voltages[1].logic = "V\u2082 = +Vsupply - V\u2083 (" + vTotal + vUnit + " - " + v3 + vUnit + ")"; } else { topRailText = ""; }
-    }
-
-    // 2. DRAWING
+    // 3. CIRCUIT DRAWING
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = brandBlack;
     ctx.lineWidth = 2;
@@ -1183,83 +1193,96 @@ function generateAnalysisProblem(ctx, canvas) {
     drawLine(ctx, 100, 60, 500, 60); 
     drawLine(ctx, 100, 360, 500, 360); 
 
-    ctx.fillStyle = unknownVIndex === 3 ? brandPink : brandBlack; ctx.fillText(topRailText, 250, 45);
-    ctx.fillStyle = brandBlack; ctx.fillText("0V (GND)", 260, 390);
+    ctx.fillStyle = (unknownVIndex === 3) ? brandPink : brandBlack; 
+    ctx.fillText(topRailLabel, 250, 45);
+    ctx.fillStyle = brandBlack; 
+    ctx.fillText("0V (GND)", 260, 390);
 
     ctx.font = "16px Arial";
-    if (Math.random() < 0.5) {
-        // Parallel-then-Series Layout
+    const layout = Math.random() < 0.5 ? 'ParallelSeries' : 'SeriesParallel';
+
+    if (layout === 'ParallelSeries') {
+        // Parallel Part (R1, R2) then Series (R3)
         drawLine(ctx, 200, 60, 200, 120); drawLine(ctx, 400, 60, 400, 120); 
         drawResistor(ctx, 200, 145); drawResistor(ctx, 400, 145); 
         drawLine(ctx, 200, 170, 200, 230); drawLine(ctx, 400, 170, 400, 230); 
-        drawLine(ctx, 200, 230, 400, 230); drawLine(ctx, 300, 230, 300, 270); 
-        drawResistor(ctx, 300, 295); drawLine(ctx, 300, 320, 300, 360); 
+        drawLine(ctx, 200, 230, 400, 230); 
+        drawLine(ctx, 300, 230, 300, 270); 
+        drawResistor(ctx, 300, 295); 
+        drawLine(ctx, 300, 320, 300, 360); 
 
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 150);
-        ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 150); 
-        ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 100);
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 150); 
-        ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 150); 
-        ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 100);
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2083", 260, 300);
-        ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 300); 
-        ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 260);
+        // Annotations
+        ctx.fillStyle = brandBlack; ctx.fillText("R₁", 160, 150);
+        ctx.fillStyle = (unknownVIndex === 0) ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 150); 
+        ctx.fillStyle = (unknownIIndex === 0) ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 100);
+        
+        ctx.fillStyle = brandBlack; ctx.fillText("R₂", 365, 150); 
+        ctx.fillStyle = (unknownVIndex === 1) ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 150); 
+        ctx.fillStyle = (unknownIIndex === 1) ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 100);
+        
+        ctx.fillStyle = brandBlack; ctx.fillText("R₃", 260, 300);
+        ctx.fillStyle = (unknownVIndex === 2) ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 300); 
+        ctx.fillStyle = (unknownIIndex === 2) ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 260);
     } else {
-        // Series-then-Parallel Layout
-        drawLine(ctx, 300, 60, 300, 100); drawResistor(ctx, 300, 125); drawLine(ctx, 300, 150, 300, 190);
-        drawLine(ctx, 200, 190, 400, 190); drawLine(ctx, 200, 190, 200, 250); drawLine(ctx, 400, 190, 400, 250);
-        drawResistor(ctx, 200, 275); drawResistor(ctx, 400, 275); drawLine(ctx, 200, 300, 200, 360); drawLine(ctx, 400, 300, 400, 360);
+        // Series (R3) then Parallel Part (R1, R2)
+        drawLine(ctx, 300, 60, 300, 100); 
+        drawResistor(ctx, 300, 125); 
+        drawLine(ctx, 300, 150, 300, 190);
+        drawLine(ctx, 200, 190, 400, 190); 
+        drawLine(ctx, 200, 190, 200, 250); drawLine(ctx, 400, 190, 400, 250);
+        drawResistor(ctx, 200, 275); drawResistor(ctx, 400, 275); 
+        drawLine(ctx, 200, 300, 200, 360); drawLine(ctx, 400, 300, 400, 360);
 
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2083", 260, 130);
-        ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 130); 
-        ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 90);
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 280);
-        ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 280); 
-        ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 230);
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 280); 
-        ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 280); 
-        ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 230);
+        // Annotations
+        ctx.fillStyle = brandBlack; ctx.fillText("R₃", 260, 130);
+        ctx.fillStyle = (unknownVIndex === 2) ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 130); 
+        ctx.fillStyle = (unknownIIndex === 2) ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 90);
+        
+        ctx.fillStyle = brandBlack; ctx.fillText("R₁", 160, 280);
+        ctx.fillStyle = (unknownVIndex === 0) ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 280); 
+        ctx.fillStyle = (unknownIIndex === 0) ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 230);
+        
+        ctx.fillStyle = brandBlack; ctx.fillText("R₂", 365, 280); 
+        ctx.fillStyle = (unknownVIndex === 1) ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 280); 
+        ctx.fillStyle = (unknownIIndex === 1) ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 230);
     }
 
-    // 3. SOLUTION PANEL
+    // 4. SOLUTION PANEL
     const solText = document.getElementById('solText');
     if (solText) {
-        solText.innerHTML = 
-            "<strong>" + voltages[unknownVIndex].html + " = " + voltages[unknownVIndex].val + " " + vUnit + "</strong> <br>" +
-            "<em>Logic:</em> " + voltages[unknownVIndex].logic + " <br><br>" +
-            "<strong>" + currents[unknownIIndex].html + " = " + currents[unknownIIndex].val + " " + iUnit + "</strong> <br>" +
-            "<em>Logic:</em> " + currents[unknownIIndex].logic;
+        solText.innerHTML = `
+            <strong>${voltages[unknownVIndex].html} = ${voltages[unknownVIndex].val} ${vUnit}</strong><br>
+            <em>Logic:</em> ${voltages[unknownVIndex].logic}<br><br>
+            <strong>${currents[unknownIIndex].html} = ${currents[unknownIIndex].val} ${iUnit}</strong><br>
+            <em>Logic:</em> ${currents[unknownIIndex].logic}
+        `;
     }
-}   
-            
+}
+
+/**
+ * Oscilloscope Screen Interpretation
+ */
 function generateOscilloscopeProblem() {
-    // 1. SELF-INITIALIZE CANVAS
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // 2. FULL UI RESET
+    // 1. UI Reset
     hideAllInputGroups(); 
-    if (typeof resetAnswerBox === "function") resetAnswerBox();
+    resetAnswerBox();
     currentMode = 'oscilloscope';
 
-    // REMOVED: The qText.style.display and qText.innerHTML lines that were here.
-    // This ensures the instruction text never appears.
-
-    // Clear and reset the specific oscilloscope input fields
     const ids = ['inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
     ids.forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-            el.value = "";
-            el.placeholder = ""; 
-        }
+        if (el) { el.value = ""; el.placeholder = ""; }
     });
 
-    // 3. DRAW BACKGROUND & GRID (OSCILLOSCOPE SCREEN)
+    // 2. DRAW SCOPE SCREEN
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#e0e5e7"; ctx.strokeStyle = "#888"; ctx.lineWidth = 2; 
     
+    // Outer Frame
+    ctx.fillStyle = "#e0e5e7"; ctx.strokeStyle = "#888"; ctx.lineWidth = 2; 
     const drawRoundRect = (ctx, x, y, w, h, r) => {
         ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r);
         ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r);
@@ -1267,28 +1290,36 @@ function generateOscilloscopeProblem() {
     };
     drawRoundRect(ctx, 20, 20, 400, 320, 25);
     
-    ctx.strokeStyle = "#555"; ctx.lineWidth = 1;
-    for(let i=0; i<=8; i++) { let y = 20 + i*40; ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(420, y); ctx.stroke(); }
-    for(let i=0; i<=10; i++) { let x = 20 + i*40; ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, 340); ctx.stroke(); }
+    // Grid (40px = 1 division)
+    ctx.strokeStyle = "#bbb"; ctx.lineWidth = 1;
+    for(let i=0; i<=8; i++) { 
+        let y = 20 + i*40; ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(420, y); ctx.stroke(); 
+    }
+    for(let i=0; i<=10; i++) { 
+        let x = 20 + i*40; ctx.beginPath(); ctx.moveTo(x, 20); ctx.lineTo(x, 340); ctx.stroke(); 
+    }
     
-    ctx.strokeStyle = "#222"; ctx.lineWidth = 2;
+    // Axes
+    ctx.strokeStyle = "#555"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(20, 180); ctx.lineTo(420, 180); ctx.stroke(); 
     ctx.beginPath(); ctx.moveTo(220, 20); ctx.lineTo(220, 340); ctx.stroke(); 
 
-    // 4. SETUP VARIABLES & MATH
-    let vGainUnit = Math.random() < 0.5 ? 'V' : 'mV';
-    let tBaseUnit = Math.random() < 0.5 ? 'ms' : 's';
-    let ampDivs = Math.floor(Math.random() * 3) + 1; 
-    let vGain = [1, 2, 5][Math.floor(Math.random() * 3)];
-    let amplitude = ampDivs * vGain;
-    let markDivs = Math.floor(Math.random() * 4) + 1; 
-    let spaceDivs = Math.floor(Math.random() * 4) + 1; 
-    let tBase = [1, 2, 5, 10, 20, 50][Math.floor(Math.random() * 6)];
-    let periodTime = (markDivs + spaceDivs) * tBase;
-    let frequency = (tBaseUnit === 'ms') ? (1000 / periodTime) : (1 / periodTime);
-    let freq_rounded = parseFloat(frequency.toFixed(1));
+    // 3. MATH & VARIABLES
+    const vGainUnit = Math.random() < 0.5 ? 'V' : 'mV';
+    const tBaseUnit = Math.random() < 0.5 ? 'ms' : 's';
+    const ampDivs = Math.floor(Math.random() * 3) + 1; 
+    const vGain = [1, 2, 5][Math.floor(Math.random() * 3)];
+    const amplitude = ampDivs * vGain;
+    
+    const markDivs = Math.floor(Math.random() * 4) + 1; 
+    const spaceDivs = Math.floor(Math.random() * 4) + 1; 
+    const tBase = [1, 2, 5, 10, 20, 50][Math.floor(Math.random() * 6)];
+    const periodTime = (markDivs + spaceDivs) * tBase;
+    
+    const frequency = (tBaseUnit === 'ms') ? (1000 / periodTime) : (1 / periodTime);
+    const freq_rounded = parseFloat(frequency.toFixed(1));
 
-    // Store answers for the checker
+    // Save answers
     currentAnswers.oscAmpValue = amplitude; 
     currentAnswers.oscAmpUnit = vGainUnit.toLowerCase();
     currentAnswers.oscMarkValue = markDivs * tBase; 
@@ -1299,58 +1330,59 @@ function generateOscilloscopeProblem() {
     currentAnswers.oscPeriodUnit = tBaseUnit.toLowerCase();
     currentAnswers.oscFreqValue = freq_rounded; 
     currentAnswers.oscFreqUnit = 'hz';
-    currentAnswers.oscRatioValue = markDivs + "/" + spaceDivs;
+    currentAnswers.oscRatioValue = `${markDivs}/${spaceDivs}`;
 
-    // 5. DRAW SETTINGS & WAVEFORM
+    // 4. DRAW SETTINGS & PULSE WAVE
     ctx.fillStyle = "#000"; ctx.font = "bold 15px Arial"; ctx.textAlign = "left";
-    ctx.fillText("Settings:", 430, 80);
+    ctx.fillText("Scope Settings:", 430, 80);
     ctx.font = "14px Arial";
-    ctx.fillText("Time Base:", 430, 110);
-    ctx.fillText(tBase + " " + tBaseUnit + " / div", 430, 130);
-    ctx.fillText("Voltage Gain:", 430, 170);
-    ctx.fillText(vGain + " " + vGainUnit + " / div", 430, 190);
+    ctx.fillText(`Time Base:`, 430, 110);
+    ctx.fillText(`${tBase} ${tBaseUnit} / div`, 430, 130);
+    ctx.fillText(`Voltage Gain:`, 430, 170);
+    ctx.fillText(`${vGain} ${vGainUnit} / div`, 430, 190);
 
-    ctx.strokeStyle = "#000"; ctx.lineWidth = 3;
-    let phaseDivs = Math.floor(Math.random() * (markDivs + spaceDivs)); 
+    ctx.strokeStyle = "#d63384"; ctx.lineWidth = 3; // Use brand pink for the trace
+    const phaseOffset = Math.floor(Math.random() * (markDivs + spaceDivs)); 
+    
     ctx.beginPath();
     for(let px = 20; px <= 420; px++) {
         let divOffset = (px - 20) / 40;
-        let currentCycleTime = (divOffset + phaseDivs) % (markDivs + spaceDivs);
-        let y = (currentCycleTime < markDivs) ? 180 - (ampDivs * 40) : 180; 
+        let cyclePos = (divOffset + phaseOffset) % (markDivs + spaceDivs);
+        let y = (cyclePos < markDivs) ? 180 - (ampDivs * 40) : 180; 
         if (px === 20) ctx.moveTo(px, y);
         else ctx.lineTo(px, y);
     }
     ctx.stroke();
 
-    // 6. SHOW RELEVANT INPUTS & TURN ON WRAPPER
+    // 5. RENDER INPUT GROUPS
     const oscWrapper = document.getElementById('oscilloscopeInputs');
     if (oscWrapper) oscWrapper.style.display = "block";
 
-    const qType = Math.floor(Math.random() * 3) + 1;
+    const qType = Math.floor(Math.random() * 3) + 1; // 1: M/S values, 2: Period/Freq, 3: Ratio
     currentAnswers.oscQType = qType;
 
-    // Always show Amplitude input
+    // Amplitude is always asked
     document.getElementById('inputGroupOscAmp').style.display = "inline-block";
-    document.getElementById('inputOscAmp').placeholder = "e.g. " + amplitude + vGainUnit;
+    document.getElementById('inputOscAmp').placeholder = `${amplitude}${vGainUnit}`;
 
-    let solTextStr = "<strong>Amplitude = " + amplitude + " " + vGainUnit + "</strong><br>Logic: " + ampDivs + " divs &times; " + vGain + " " + vGainUnit + "/div<br><br>";
+    let solTextStr = `<strong>Amplitude:</strong> ${amplitude} ${vGainUnit}<br>(${ampDivs} divs × ${vGain} ${vGainUnit}/div)<br><br>`;
 
     if (qType === 1) {
         document.getElementById('inputGroupOscMark').style.display = "inline-block";
         document.getElementById('inputGroupOscSpace').style.display = "inline-block";
-        document.getElementById('inputOscMark').placeholder = (markDivs * tBase) + tBaseUnit;
-        document.getElementById('inputOscSpace').placeholder = (spaceDivs * tBase) + tBaseUnit;
-        solTextStr += "<strong>Mark:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit;
+        document.getElementById('inputOscMark').placeholder = `${markDivs * tBase}${tBaseUnit}`;
+        document.getElementById('inputOscSpace').placeholder = `${spaceDivs * tBase}${tBaseUnit}`;
+        solTextStr += `<strong>Mark:</strong> ${markDivs * tBase}${tBaseUnit}<br><strong>Space:</strong> ${spaceDivs * tBase}${tBaseUnit}`;
     } else if (qType === 2) {
         document.getElementById('inputGroupOscPeriod').style.display = "inline-block";
         document.getElementById('inputGroupOscFreq').style.display = "inline-block";
-        document.getElementById('inputOscPeriod').placeholder = periodTime + tBaseUnit;
-        document.getElementById('inputOscFreq').placeholder = freq_rounded + "Hz";
-        solTextStr += "<strong>Period:</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit;
+        document.getElementById('inputOscPeriod').placeholder = `${periodTime}${tBaseUnit}`;
+        document.getElementById('inputOscFreq').placeholder = `${freq_rounded}Hz`;
+        solTextStr += `<strong>Period:</strong> ${periodTime}${tBaseUnit}<br><strong>Frequency:</strong> ${freq_rounded}Hz`;
     } else {
         document.getElementById('inputGroupOscRatio').style.display = "block";
-        document.getElementById('inputOscRatio').placeholder = "e.g. 1/2"; 
-        solTextStr += "<strong>M/S Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = <strong>" + currentAnswers.oscRatioValue + "</strong>";
+        document.getElementById('inputOscRatio').placeholder = "e.g. 1/1"; 
+        solTextStr += `<strong>Ratio (M/S):</strong> ${markDivs} divs / ${spaceDivs} divs = <strong>${currentAnswers.oscRatioValue}</strong>`;
     }
 
     const solText = document.getElementById('solText');
