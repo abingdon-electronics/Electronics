@@ -1293,12 +1293,12 @@ function generateAnalysisProblem(ctx, canvas) {
 }   
 
 function generateColorCodeProblem() {
-    // 1. Get the canvas and context inside the function
+    // 1. Get the canvas and context
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // 2. Clear the slate: Hide other inputs and reset UI
+    // 2. UI Cleanup: Hide other inputs and reset UI
     if (typeof hideAllInputGroups === "function") hideAllInputGroups();
     
     canvas.style.display = 'block';
@@ -1321,7 +1321,7 @@ function generateColorCodeProblem() {
     const resistanceValue = (b1 * 10 + b2) * Math.pow(10, b3);
     const toleranceValue = tolColors[tolKey];
 
-    // 4. Store answers for grading (Matches global currentAnswers)
+    // 4. Store answers globally for the Check button
     currentAnswers = {}; 
     currentAnswers.resVal = resistanceValue;
     currentAnswers.resTol = toleranceValue;
@@ -1343,7 +1343,7 @@ function generateColorCodeProblem() {
     let solTextStr = "";
 
     if (qType === 0) {
-        // TYPE 0: Visual Resistor -> Student enters Resistance and Tolerance NUMBER
+        // TYPE 0: Visual Resistor -> Student enters Numbers
         const drawBand = (x, color) => {
             ctx.fillStyle = (color === 'gold') ? '#FFD700' : (color === 'silver') ? '#C0C0C0' : color;
             ctx.fillRect(x, 170, 20, 80); ctx.strokeRect(x, 170, 20, 80);
@@ -1353,10 +1353,10 @@ function generateColorCodeProblem() {
         drawBand(280, resColors[b3]);
         drawBand(360, tolKey);
 
-        const group = document.getElementById('inputGroupColorVal');
+        // MATCHED TO YOUR HTML ID: colorCodeInputs
+        const group = document.getElementById('colorCodeInputs');
         if (group) group.style.display = 'block';
 
-        // Solution Logic using formatNum
         solTextStr = "<strong>Solution: " + formatNum(resistanceValue) + "Ω &plusmn; " + toleranceValue + "%</strong><br><br>";
         solTextStr += "<em>Logic:</em><br>";
         solTextStr += "Band 1 (" + resColors[b1].toUpperCase() + ") = " + b1 + "<br>";
@@ -1384,7 +1384,8 @@ function generateColorCodeProblem() {
         ctx.textAlign = 'center';
         ctx.fillText(`${formatted}Ω ± ${toleranceValue}%`, 300, 310);
 
-        const group = document.getElementById('inputGroupColorNames');
+        // MATCHED TO YOUR HTML ID: colorNameInputs
+        const group = document.getElementById('colorNameInputs');
         if (group) group.style.display = 'block';
 
         solTextStr = "<strong>Required Colours:</strong><br><br>";
@@ -1394,7 +1395,6 @@ function generateColorCodeProblem() {
         solTextStr += "4. " + tolKey.toUpperCase() + " (for &plusmn;" + toleranceValue + "%)";
     }
 
-    // Push the solution text to the hidden div
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = solTextStr;
 }
