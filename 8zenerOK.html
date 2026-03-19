@@ -1274,21 +1274,24 @@ function generateAnalysisProblem(ctx, canvas) {
 }   
 
 function generateColorCodeProblem() {
-    // 1. Get the canvas and context
+    console.log("Drawing the resistor..."); 
+    
+    // 1. DEFINE VARIABLES FIRST (This fixes your error!)
+    const resColors = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'grey', 'white'];
+    const tolColors = { 'gold': 5, 'silver': 10 };
+
+    // 2. Get the canvas and context
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // EXCLUSIVE HELPER FUNCTION (Renamed to guarantee it works)
     const formatResistorNumber = (n) => {
         if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
         if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + "k";
         return n.toString();
     };
 
-    // 2. UI Cleanup: Hide other inputs and reset UI
-    if (typeof hideAllInputGroups === "function") hideAllInputGroups();
-    
+    // 3. UI Cleanup
     canvas.style.display = 'block';
     const qText = document.getElementById('questionText');
     if (qText) {
@@ -1296,12 +1299,10 @@ function generateColorCodeProblem() {
         qText.innerHTML = "Identify the resistance values or required colors below:";
     }
 
-    // 3. Clear the canvas drawing
+    // 4. Clear the canvas drawing
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    const resColors = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'grey', 'white'];
-    const tolColors = { 'gold': 5, 'silver': 10 };
-
+    // 5. Generate Random Math Values
     const b1 = Math.floor(Math.random() * 9) + 1; 
     const b2 = Math.floor(Math.random() * 10);    
     const b3 = Math.floor(Math.random() * 7);     
@@ -1309,7 +1310,7 @@ function generateColorCodeProblem() {
     const resistanceValue = (b1 * 10 + b2) * Math.pow(10, b3);
     const toleranceValue = tolColors[tolKey];
 
-    // 4. Store answers globally for the Check button
+    // 6. Store answers globally for the Check button
     if (typeof currentAnswers === 'undefined') window.currentAnswers = {};
     
     currentAnswers.resVal = resistanceValue;
@@ -1319,7 +1320,7 @@ function generateColorCodeProblem() {
     currentAnswers.b3 = resColors[b3];
     currentAnswers.tol = tolKey;
 
-    // 5. Draw Resistor Body
+    // 7. Draw Resistor Body
     ctx.lineWidth = 4; ctx.strokeStyle = '#000';
     // Leads
     ctx.beginPath(); ctx.moveTo(100, 210); ctx.lineTo(500, 210); ctx.stroke(); 
@@ -1345,7 +1346,6 @@ function generateColorCodeProblem() {
         const group = document.getElementById('inputGroupColorVal');
         if (group) group.style.display = 'block';
 
-        // USING THE NEW UNIQUE HELPER NAME
         solTextStr = "<strong>Solution: " + formatResistorNumber(resistanceValue) + "Ω &plusmn; " + toleranceValue + "%</strong><br><br>";
         solTextStr += "<em>Logic:</em><br>";
         solTextStr += "Band 1 (" + resColors[b1].toUpperCase() + ") = " + b1 + "<br>";
@@ -1367,7 +1367,6 @@ function generateColorCodeProblem() {
         drawHiddenBand(280, "3");
         drawHiddenBand(360, "4");
 
-        // USING THE NEW UNIQUE HELPER NAME
         const formatted = formatResistorNumber(resistanceValue);
         ctx.fillStyle = '#000';
         ctx.font = 'bold 28px Arial';
