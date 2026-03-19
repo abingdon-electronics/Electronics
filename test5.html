@@ -2058,6 +2058,15 @@ function switchTab(mode) {
         if (el) el.style.display = 'none';
     });
 
+    // --- FIX FOR SCROLLING/GHOST ELEMENTS ---
+    // Specifically hide the Zener Canvas and the Open/Closed button container
+    const zenerCanvas = document.getElementById('circuitCanvas');
+    if (zenerCanvas) zenerCanvas.style.display = 'none';
+    
+    const zenerChoices = document.getElementById('zenerChoiceContainer'); // Ensure this ID matches your HTML
+    if (zenerChoices) zenerChoices.style.display = 'none';
+    // ----------------------------------------
+
     // 3. Update the Subtitle based on the module
     const subtitle = document.getElementById('moduleSubtitle');
     if (subtitle) {
@@ -2108,6 +2117,11 @@ function switchTab(mode) {
     } else if (mode === 'zener') {
         const zGroup = document.getElementById('inputGroupZener');
         if (zGroup) zGroup.style.display = 'inline-block';
+        
+        // Re-enable visibility for zener specifics when in zener mode
+        if (zenerCanvas) zenerCanvas.style.display = 'block';
+        if (zenerChoices) zenerChoices.style.display = 'flex'; 
+        
         if (typeof generateZenerProblem === "function") generateZenerProblem();
     } else if (mode === 'silicon') {
         const sGroup = document.getElementById('inputGroupSilicon');
