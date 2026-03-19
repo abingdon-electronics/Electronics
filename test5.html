@@ -23,7 +23,6 @@
             line-height: 1.6; 
             color: #333; 
             background-color: var(--light-bg); 
-            /* Blueprint Grid Effect */
             background-image: 
                 radial-gradient(#d1d9e0 1px, transparent 1px), 
                 linear-gradient(#e2e8f0 1.5px, transparent 1.5px), 
@@ -50,7 +49,6 @@
             margin: 40px auto; 
         }
 
-        /* General Button/Tab Styling */
         .tab { 
             padding: 12px 25px; 
             font-size: 16px; 
@@ -132,7 +130,6 @@
             color: var(--abingdon-pink); 
         }
 
-        /* Zener State Selector Styling */
         #zenerChoiceContainer {
             display: none; 
             flex-direction: column;
@@ -157,7 +154,6 @@
         }
         .action-btn:hover { background-color: #2980b9; transform: scale(1.02); }
 
-        /* --- Input Fields --- */
         .input-group { margin: 15px 0; display: block; }
         .input-group label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 15px; color: #444; }
         
@@ -180,18 +176,16 @@
 
         /* --- Modals --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000; }
-        .modal-content { background: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; border-top: 8px solid var(--abingdon-pink); }
+        .modal-content { background: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; border-top: 8px solid var(--abingdon-pink); text-align: center; }
 
-        /* --- Helpers --- */
         .feedback { min-height: 28px; font-weight: bold; text-align: center; margin: 15px 0; font-size: 18px; }
         .hidden { display: none !important; }
         
-        /* Transition for section showing */
         #contentArea { transition: opacity 0.3s ease-in; }
     </style>
 </head>
-
-<body>     
+    
+<body>
 
 <!-- 1. NAVIGATION HEADERS -->
 <div class="header">
@@ -213,22 +207,17 @@
 
 <!-- 3. SUB-MENUS -->
 <div id="menuBasics" class="tabs hidden">
-    <button class="tab" id="tab-analysis" onclick="switchTab('analysis')">Circuit Analysis</button>
     <button class="tab" id="tab-divider" onclick="switchTab('divider')">Potential Divider</button>
     <button class="tab" id="tab-resistance" onclick="switchTab('resistance')">Total Resistance</button>
-    <button class="tab" id="tab-colorcode" onclick="switchTab('colorcode')">Colour Codes</button>
     <button class="tab tab-home" onclick="goHome()">🏠 Home</button>
 </div>
 
 <div id="menuTiming" class="tabs hidden">
-    <button class="tab" id="tab-oscilloscope" onclick="switchTab('oscilloscope')">Oscilloscope</button>
     <button class="tab" id="tab-astable" onclick="switchTab('astable')">Astable 555</button>
-    <button class="tab" id="tab-monostable" onclick="switchTab('monostable')">Monostable 555</button>
     <button class="tab tab-home" onclick="goHome()">🏠 Home</button>
 </div>
 
 <div id="menuDiodes" class="tabs hidden">
-    <button class="tab" id="tab-silicon" onclick="switchTab('silicon')">Silicon Diodes</button>
     <button class="tab" id="tab-zener" onclick="switchTab('zener')">Zener Diodes</button>
     <button class="tab tab-home" onclick="goHome()">🏠 Home</button>
 </div>
@@ -236,11 +225,10 @@
 <div id="menuPlaceholder" class="tabs hidden">
     <button class="tab tab-home" onclick="goHome()">🏠 Module Under Construction - Return Home</button>
 </div>
- 
+
 <!-- 4. MAIN WORK AREA -->
 <div id="contentArea" class="hidden">
     <div class="main-layout">
-        
         <!-- LEFT SIDE: DRAWING -->
         <div class="left-panel">
             <div class="circuit-container">
@@ -251,14 +239,13 @@
         <!-- RIGHT SIDE: QUIZ -->
         <div class="right-panel">
             <div class="quiz-section">
-                
                 <div class="quiz-header">
                     <div id="questionText" style="font-weight: bold; color: #333; font-size: 1.1em;">Prepare for calculation...</div>
                     <div class="scoreboard" id="scoreDisplay">Score: 0</div>
                 </div>
 
                 <!-- ZENER INITIAL CHOICE (Step 1) -->
-                <div id="zenerChoiceContainer">
+                <div id="zenerChoiceContainer" class="hidden">
                     <p style="font-weight: bold; font-size: 0.95em; margin-bottom: 12px; color: var(--abingdon-pink);">Step 1: Determine the Zener state</p>
                     <button id="zenerOpenBtn" class="action-btn" onclick="checkZenerState('open')" style="margin-bottom: 8px;">Zener is OPEN (Not Conducting)</button>
                     <button id="zenerClosedBtn" class="action-btn" onclick="checkZenerState('closed')">Zener is CLOSED (Conducting)</button>
@@ -281,21 +268,21 @@
                         <div id="zenerClosedQuestions" class="hidden">
                             <div class="input-group">
                                 <label>1. Max Load Current (I<sub>L</sub>) mA:</label>
-                                <input type="text" id="zenerQ_IL" class="zener-input" placeholder="mA">
+                                <input type="text" id="zenerQ_IL" placeholder="mA">
                             </div>
                             <div class="input-group">
                                 <label>2. Load Voltage (V<sub>L</sub>) V:</label>
-                                <input type="text" id="zenerQ_VL" class="zener-input" placeholder="V">
+                                <input type="text" id="zenerQ_VL" placeholder="V">
                             </div>
                         </div>
                         <div id="zenerOpenQuestions" class="hidden">
                             <div class="input-group">
                                 <label>1. Zener Current (I<sub>Z</sub>) mA:</label>
-                                <input type="text" id="zenerQ_IZ" class="zener-input" placeholder="mA">
+                                <input type="text" id="zenerQ_IZ" placeholder="mA">
                             </div>
                             <div class="input-group">
                                 <label>2. Zener Power (P<sub>Z</sub>) mW:</label>
-                                <input type="text" id="zenerQ_PZ" class="zener-input" placeholder="mW">
+                                <input type="text" id="zenerQ_PZ" placeholder="mW">
                             </div>
                         </div>
                     </div>
@@ -314,7 +301,7 @@
             <!-- SOLUTIONS PANEL -->
             <div id="solutions" class="quiz-section hidden" style="background: #fff; border-left: 6px solid var(--abingdon-pink); margin-top: 10px;">
                 <h3 style="margin-top:0; color: var(--abingdon-pink); font-size: 1.1em;">Step-by-Step Logic</h3>
-                <p id="solText" style="font-size: 0.95em; color: #444;"></p>
+                <p id="solText" style="font-size: 0.95em; color: #444; white-space: pre-line;"></p>
             </div>
         </div>
     </div>
@@ -327,109 +314,140 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 1em; padding: 10px; background: #f9f9f9; border-radius: 8px;">
             <div><strong>V = I × R</strong></div>
             <div><strong>P = I × V</strong></div>
-            <div><strong>Series:</strong> R1 + R2</div>
-            <div><strong>Parallel:</strong> (R1×R2)/(R1+R2)</div>
+            <div><strong>PD:</strong> Vout = Vin * (R2/(R1+R2))</div>
+            <div><strong>Power:</strong> P = V²/R</div>
         </div>
         <button class="tab" style="width: 100%; margin-top: 25px;" onclick="closeDataSheet()">Close</button>
     </div>
 </div>
-// SCRIPT STARTS NOW============================================================================      
-// GLOBAL VARIABLES
+// ================================================================================================  
+// 1. GLOBAL VARIABLES & STATE
 // ================================================================================================  
 const brandPink = "#E64097";
 const brandBlack = "#000000";
 
-let currentZenerProb = {};
-let currentMode = 'analysis'; 
+// Problem State
+let currentProb = null;         // Central object for ALL active problem data
+let currentMode = 'analysis';   // 'zener', 'astable', 'analysis', etc.
+let currentStep = 1;            // Specifically for Zener/Multi-step problems
+let zenerStateVerified = false; // Prevents math entry until state is correct
+
+// Scoring
+let score = 0;
 let problemsAttempted = 0;
 let problemsCorrect = 0;
+
+// UI State
 let hasCheckedCurrentProblem = false; 
 let isCurrentProblemSolved = false;
 let viewedSolution = false; 
-let unitErrorMade = false; 
 
-let currentAnswers = { 
-    vNameHTML: '', vValue: 0, vUnit: '', 
-    iNameHTML: '', iValue: 0, iUnit: '', 
-    rValue: 0, rUnit: '', 
-    osc1Value: 0, osc1Unit: '', 
-    osc2Value: 0, osc2Unit: '',
-    astableRatio: '' // Added for 555 logic
-};
-
-/* --- 2. MAIN CONTROLLER --- */
+/**
+ * 2. MAIN CONTROLLER
+ * Routes the "Generate" button click to the correct module
+ */
 function handleGenerateClick() {
-    if (currentMode === 'zener') {
-        generateZenerProblem();
-    } else if (currentMode === 'astable') {
-        generateAstableProblem();
-    } else if (currentMode === 'monostable') {
-        generateMonostableProblem();
-    } else if (currentMode === 'oscilloscope') {
-        generateOscilloscopeProblem();
-    } else if (currentMode === 'colorcode') {
-        generateColorCodeProblem();
-    } else {
-        generateProblem(); // Default for basics
+    // Reset universal UI elements before generating new
+    resetAnswerBox();
+    
+    switch(currentMode) {
+        case 'zener':
+            generateZenerProblem(); // This will be your Step 1/2 function
+            break;
+        case 'astable':
+            generateAstableProblem();
+            break;
+        case 'monostable':
+            generateMonostableProblem();
+            break;
+        case 'oscilloscope':
+            generateOscilloscopeProblem();
+            break;
+        case 'colorcode':
+            generateColorCodeProblem();
+            break;
+        default:
+            generateProblem(); // Basic potential dividers
     }
 }
 
-// ==================================================================================================================
-// FUNCTION 0: SMALL UTILITIES (HELPERS)   
-// ==================================================================================================================
-    function formatResValue(val) {
-    if (val >= 1000000) return (val / 1000000) + " MΩ";
-    if (val >= 1000) return (val / 1000) + " kΩ";
+// ==================================================================================================
+// 3. UTILITIES (HELPERS)   
+// ==================================================================================================
+
+/**
+ * Formats Ohms into k or M for cleaner display
+ */
+function formatResValue(val) {
+    if (val >= 1000000) return (val / 1000000).toFixed(1) + " MΩ";
+    if (val >= 1000) return (val / 1000).toFixed(1) + " kΩ";
     return val + " Ω";
 }   
-   function resetAnswerBox() {
-    const box = document.getElementById('inputV');
-    if (box) {
-        box.value = "";             // Wipes any stuck "2 d.p." text
-        box.defaultValue = "";      // Ensures browser memory is cleared
-        box.placeholder = "";       // Clears the old hint
-    }
-    // Also clear feedback and hide old solutions
+
+/**
+ * Wipes inputs, feedback, and solutions across all modes
+ */
+function resetAnswerBox() {
+    // 1. Clear Generic Inputs
+    const genericInput = document.getElementById('inputV');
+    if (genericInput) genericInput.value = "";
+
+    // 2. Clear Zener Specific Inputs
+    const zenerIds = ['zenerQ_IL', 'zenerQ_VL', 'zenerQ_IZ', 'zenerQ_PZ'];
+    zenerIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            el.style.backgroundColor = ''; // Reset error/success colors
+        }
+    });
+
+    // 3. Clear Feedback & Solutions
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "";
     
     const solutions = document.getElementById('solutions');
     if (solutions) solutions.style.display = "none";
+    
+    // 4. Reset logic flags
+    zenerStateVerified = false;
+    currentStep = 1;
+    hasCheckedCurrentProblem = false;
 } 
 
 // =======================================================================================================
-// FUNCTION 1: DRAWING Helpers
+// 4. DRAWING HELPERS (WJEC Standard Symbols)
 // =======================================================================================================
+
 function drawResistor(ctx, x, y) {
-            ctx.beginPath();
-            ctx.rect(x - 12, y - 25, 24, 50); 
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.stroke();
-            ctx.closePath();
+    ctx.beginPath();
+    ctx.rect(x - 12, y - 25, 24, 50); 
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
 }
 
-//Draws specific components over the standard resistor box
-// (Make sure this is pasted ABOVE generateDividerProblem)
-    function drawComponent(ctx, type, x, y) {
-    drawResistor(ctx, x, y); // Always draw the base resistor rectangle first
+/**
+ * Adds specific overlays to the base resistor box for LDRs, Thermistors, etc.
+ */
+function drawComponent(ctx, type, x, y) {
+    drawResistor(ctx, x, y); // Base
     
     ctx.strokeStyle = "#000";
     ctx.fillStyle = "#000";
     ctx.lineWidth = 2;
     
-    // Exact center of the resistor
     let cx = x; 
     let cy = y;
 
     if (type === 'variable') {
-        // Extended diagonal line for Variable Resistor
         ctx.beginPath();
         ctx.moveTo(cx - 25, cy + 25);
         ctx.lineTo(cx + 25, cy - 25);
         ctx.stroke();
         
-        // Clean, un-filled arrowhead at the top right
+        // Arrowhead
         ctx.beginPath();
         ctx.moveTo(cx + 25, cy - 25);
         ctx.lineTo(cx + 15, cy - 25);
@@ -438,33 +456,23 @@ function drawResistor(ctx, x, y) {
         ctx.stroke();
         
     } else if (type === 'thermistor') {
-        // WJEC thermistor line 
         ctx.beginPath();
-        // Start further out at the bottom right corner to give more space
         ctx.moveTo(cx + 22, cy + 30);
-        // Go straight up parallel to the side of the resistor
         ctx.lineTo(cx + 22, cy + 10);
-        // Cut diagonally across to the top left corner
         ctx.lineTo(cx - 22, cy - 30); 
         ctx.stroke();
         
     } else if (type === 'ldr') {
-        // WJEC LDR: 2 inward arrows
-        ctx.beginPath();
-        ctx.moveTo(cx - 40, cy - 15);
-        ctx.lineTo(cx - 24, cy - 5);
-        ctx.lineTo(cx - 30, cy - 5);
-        ctx.moveTo(cx - 24, cy - 5);
-        ctx.lineTo(cx - 24, cy - 11);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.moveTo(cx - 40, cy + 5);
-        ctx.lineTo(cx - 24, cy + 15);
-        ctx.lineTo(cx - 30, cy + 15);
-        ctx.moveTo(cx - 24, cy + 15);
-        ctx.lineTo(cx - 24, cy + 9);
-        ctx.stroke();
+        // Two inward arrows
+        for (let offset of [-10, 10]) {
+            ctx.beginPath();
+            ctx.moveTo(cx - 40, cy + offset - 5);
+            ctx.lineTo(cx - 24, cy + offset + 5);
+            ctx.lineTo(cx - 30, cy + offset + 5);
+            ctx.moveTo(cx - 24, cy + offset + 5);
+            ctx.lineTo(cx - 24, cy + offset - 1);
+            ctx.stroke();
+        }
     }
 }
 
