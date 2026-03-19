@@ -1822,7 +1822,7 @@ function generateZenerProblem() {
     // --- 0. CONSISTENCY FIX: DEEP CLEAN CANVAS ---
     ctx.setTransform(1, 0, 0, 1, 0, 0); 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath(); // Reset path memory
+    ctx.beginPath(); 
     
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'zener';
@@ -1830,40 +1830,33 @@ function generateZenerProblem() {
     if (solBox) solBox.style.display = "none";
 
     // 1. RANDOM VARIABLES
-    const Vin = Math.floor(Math.random() * 10) + 12; // Adjusted Vin for better regulation scenarios
+    const Vin = Math.floor(Math.random() * 10) + 12; 
     const Vz = (Math.floor(Math.random() * 41) + 40) / 10; // 4.0V - 8.0V
     const Iz_min = Math.floor(Math.random() * 6) + 5; 
     
-    // Values for potential regulation calculation
-    const R1 = (Math.floor(Math.random() * 10) + 10) * 10; // 100-200Ω
-    const RL = (Math.floor(Math.random() * 20) + 10) * 10; // 100-300Ω
+    // Internal values for math (hidden from user display)
+    const R1 = (Math.floor(Math.random() * 10) + 10) * 10; 
+    const RL = (Math.floor(Math.random() * 20) + 10) * 10; 
 
     const switchClosed = Math.random() > 0.5;
     currentZenerState = switchClosed ? "closed" : "open"; 
 
-    // 2. MATH CALCULATIONS (The "Regulation Test" Logic)
+    // 2. MATH CALCULATIONS
     if (typeof currentAnswers === "undefined") currentAnswers = {};
     
-    // Calculate what the voltage WOULD be without the Zener (Potential Divider)
     const V_unregulated = Vin * (RL / (R1 + RL));
     const isRegulating = V_unregulated > Vz;
     
-    // Final Circuit values based on regulation state
     const finalVL = isRegulating ? Vz : V_unregulated;
-    const finalIL = (finalVL / RL) * 1000; // in mA
+    const finalIL = (finalVL / RL) * 1000; 
     const totalCurrent_mA = ((Vin - finalVL) / R1) * 1000;
     const finalIZ = totalCurrent_mA - finalIL;
 
-    // STORE EVERYTHING in currentAnswers for the checker and the Data Sheet
     currentAnswers.Vin = Vin;
     currentAnswers.Vz = Vz;
     currentAnswers.R1 = R1;
     currentAnswers.RL = RL;
-    currentAnswers.V_unregulated = parseFloat(V_unregulated.toFixed(2));
     currentAnswers.isRegulating = isRegulating;
-    currentAnswers.Iz_min = Iz_min;
-    
-    // Target answers for validation
     currentAnswers.targetIL = parseFloat(finalIL.toFixed(1));
     currentAnswers.targetVL = parseFloat(finalVL.toFixed(1));
     currentAnswers.targetIZ = parseFloat(finalIZ.toFixed(1));
@@ -1873,12 +1866,8 @@ function generateZenerProblem() {
     const zenerMainGroup = document.getElementById('inputGroupZener');
     if(zenerMainGroup) zenerMainGroup.style.display = "block";
 
-    if (document.getElementById('zenerClosedQuestions')) document.getElementById('zenerClosedQuestions').style.display = "none";
-    if (document.getElementById('zenerOpenQuestions')) document.getElementById('zenerOpenQuestions').style.display = "none";
-    
     const closedGroup = document.getElementById('zenerClosedQuestions');
     const openGroup = document.getElementById('zenerOpenQuestions');
-    
     if (closedGroup && openGroup) {
         closedGroup.style.display = switchClosed ? "block" : "none";
         openGroup.style.display = switchClosed ? "none" : "block";
@@ -1900,22 +1889,30 @@ function generateZenerProblem() {
     const xLoad = 380;
     const yJunc = 220; 
 
-    // --- LEFT BRANCH (Series Resistor) ---
-    // Label with the R1 value so students can do the math
-    ctx.fillText(R1 + " Ω", xReg - 25, 135); 
+    // --- SERIES SECTION (Replaced Resistance with Current Arrow) ---
     drawLine(ctx, xReg, 60, xReg, 110); 
-    drawComponent(ctx, 'fixed', xReg, 135); 
+    drawComponent(ctx, 'fixed', xReg, 135); // The box stays, but the text is changed
     drawLine(ctx, xReg, 160, xReg, 360); 
+
+    // Current Arrow indicating total current entering from Vin
+    ctx.beginPath();
+    ctx.moveTo(70, 50);
+    ctx.lineTo(120, 50);
+    ctx.stroke();
+    // Arrow head
+    ctx.beginPath();
+    ctx.moveTo(120, 50); ctx.lineTo(112, 45); ctx.lineTo(112, 55); ctx.fill();
+    ctx.fillText(totalCurrent_mA.toFixed(1) + " mA", 70, 40);
 
     // Zener
     drawHollowZenerUp(ctx, xReg, 290); 
     ctx.fillText(Vz.toFixed(1) + " V", xReg - 65, 295);
 
-    // --- RIGHT BRANCH (LOAD & SWITCH) ---
+    // --- LOAD BRANCH ---
     const switchStartX = 240;      
     const switchEndX = 290;        
     const loadX = 380;             
-    const pink = "#E64097"; // Abingdon Pink
+    const pink = "#E64097"; 
 
     ctx.strokeStyle = "black";
     ctx.fillStyle = "black";
@@ -1960,8 +1957,14 @@ function generateZenerProblem() {
     
     ctx.strokeStyle = "black";
     ctx.fillStyle = "black";
-    drawComponent(ctx, 'fixed', loadX, yJunc + 55); // Use actual resistor drawing
-    ctx.fillText(RL + " Ω", loadX + 35, yJunc + 40);
+    // Draw Resistor Box
+    drawComponent(ctx, 'fixed', loadX, yJunc + 55); 
+    // Write "LOAD" inside/next to the resistor box instead of RL value
+    ctx.font = "bold 12px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("LOAD", loadX, yJunc + 60);
+    ctx.textAlign = "left";
+
     drawLine(ctx, loadX, yJunc, loadX, yJunc + 30);
     drawLine(ctx, loadX, yJunc + 80, loadX, 360);
     drawNode(ctx, loadX, 360);
@@ -1969,7 +1972,6 @@ function generateZenerProblem() {
     ctx.font = "bold 16px Arial";
     ctx.fillText("Minimum Zener holding current = " + Iz_min + " mA", 70, 390);
 
-    // Reset Data Sheet area if it exists
     const steps = document.getElementById('solutionSteps');
     if (steps) steps.innerHTML = `<p class="text-gray-400 italic">Complete the problem to unlock the breakdown.</p>`;
 }
