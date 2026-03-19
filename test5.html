@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +15,8 @@
             --light-bg: #f0f4f7;
             --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
             --border-radius: 12px;
+            --success-green: #22c55e;
+            --error-red: #ef4444;
         }
 
         body { 
@@ -38,150 +42,101 @@
         .header p { margin-top: 5px; font-size: 18px; color: #555; font-weight: 500; }
         
         /* --- Navigation & Menus --- */
-        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-        
+        .view-container { display: none; }
+        .active-view { display: block !important; }
+
         #mainMenu {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            justify-items: center; 
-            gap: 20px; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 25px; 
             max-width: 1000px; 
             margin: 40px auto; 
         }
 
-        .tab { 
-            padding: 12px 25px; 
-            font-size: 16px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            background-color: var(--abingdon-pink); 
-            border: 2px solid #c5307d; 
-            border-radius: var(--border-radius); 
-            color: white; 
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            min-width: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .menu-card {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
         }
 
-        #mainMenu .tab {
-            width: 100%;
-            min-height: 90px;
-            font-size: 20px;
-            border-radius: 14px;
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--abingdon-pink);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
 
-        .tab:hover {
-            background-color: var(--abingdon-pink-hover);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        .menu-card h2 { color: var(--abingdon-pink); margin-top: 0; }
+        .menu-card p { color: #666; font-size: 0.95rem; }
+
+        /* --- Quiz Layout --- */
+        .quiz-wrapper {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
         }
 
-        .tab.active {
-            background-color: #000;
-            border-color: #000;
-        }
-
-        .tab-home { background-color: #6c757d !important; border-color: #5a6268 !important; }
-
-        /* --- Layout Structures --- */
-        .main-layout { display: flex; gap: 25px; align-items: flex-start; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
         .left-panel { flex: 1 1 550px; max-width: 700px; }
         .right-panel { flex: 1 1 350px; display: flex; flex-direction: column; gap: 20px; }
 
-        .circuit-container { 
-            border: 2px solid #eaeaea; 
+        .card { 
+            background: white; 
             padding: 25px; 
-            background-color: #fff; 
             border-radius: var(--border-radius); 
             box-shadow: var(--card-shadow); 
-            text-align: center;
         }
 
-        canvas { background-color: white; border-radius: 6px; max-width: 100%; height: auto; }
+        canvas { border: 1px solid #eee; border-radius: 8px; max-width: 100%; height: auto; display: block; margin: 0 auto; }
 
-        /* --- Quiz UI Elements --- */
-        .quiz-section { 
-            background-color: #fdf4f8; 
-            padding: 25px; 
-            border-radius: var(--border-radius); 
-            border: 1px solid #f2c7db; 
-            box-shadow: var(--card-shadow);
-        }
-
-        .quiz-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 2px solid #f2c7db; 
-            padding-bottom: 15px; 
-            margin-bottom: 15px; 
-        }
-
-        .scoreboard { 
-            background-color: #fff; 
-            padding: 8px 18px; 
-            border: 2px solid var(--abingdon-pink); 
-            border-radius: 8px; 
-            font-weight: 800; 
-            color: var(--abingdon-pink); 
-        }
-
-        #zenerChoiceContainer {
-            display: none; 
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-            background: rgba(255,255,255,0.5);
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .action-btn {
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            background-color: #3498db;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .action-btn:hover { background-color: #2980b9; transform: scale(1.02); }
-
-        .input-group { margin: 15px 0; display: block; }
-        .input-group label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 15px; color: #444; }
+        /* --- UI Components --- */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
         
-        input[type="text"] { 
-            font-size: 18px; 
+        input[type="number"] { 
+            width: 100%; 
             padding: 12px; 
-            width: 100%;
-            max-width: 200px;
-            text-align: center;
             border: 2px solid #ddd; 
             border-radius: 8px; 
-            transition: border-color 0.2s;
+            font-size: 18px;
+            box-sizing: border-box;
         }
-
-        input[type="text"]:focus {
-            border-color: var(--abingdon-pink);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(230, 64, 151, 0.1);
-        }
-
-        /* --- Modals --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000; }
-        .modal-content { background: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; border-top: 8px solid var(--abingdon-pink); text-align: center; }
-
-        .feedback { min-height: 28px; font-weight: bold; text-align: center; margin: 15px 0; font-size: 18px; }
-        .hidden { display: none !important; }
         
-        #contentArea { transition: opacity 0.3s ease-in; }
+        input.correct { border-color: var(--success-green); background: #f0fdf4; }
+        input.incorrect { border-color: var(--error-red); background: #fef2f2; }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .btn-pink { background: var(--abingdon-pink); color: white; width: 100%; }
+        .btn-pink:hover { background: var(--abingdon-pink-hover); }
+        
+        .btn-outline { background: white; border: 2px solid #ddd; color: #666; }
+        .btn-outline:hover { background: #f8fafc; border-color: #ccc; }
+
+        .working-box {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-left: 4px solid var(--abingdon-pink);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
     </style>
 </head>
     
