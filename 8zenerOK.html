@@ -1787,7 +1787,7 @@ function generateMonostableProblem() {
         document.getElementById('inputGroupColorVal').style.display = 'block';
 
         // Generate Solution Logic for Help Button
-        solTextStr = "<strong>Solution: " + formatResValue(resistanceValue) + " &plusmn; " + toleranceValue + "%</strong><br><br>";
+        solTextStr = "<strong>Solution: " + formatNum(resistanceValue) + " &plusmn; " + toleranceValue + "%</strong><br><br>";
         solTextStr += "<em>Logic:</em><br>";
         solTextStr += "Band 1 (" + resColors[b1].toUpperCase() + ") = " + b1 + "<br>";
         solTextStr += "Band 2 (" + resColors[b2].toUpperCase() + ") = " + b2 + "<br>";
@@ -1808,7 +1808,7 @@ function generateMonostableProblem() {
         drawHiddenBand(280, "3");
         drawHiddenBand(360, "4");
 
-        const formatted = formatResValue(resistanceValue);
+        const formatted = formatNum(resistanceValue);
         ctx.fillStyle = '#000';
         ctx.font = 'bold 28px Arial';
         ctx.textAlign = 'center';
