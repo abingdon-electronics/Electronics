@@ -495,14 +495,20 @@ function drawNode(ctx, x, y) {
 }
 
 function drawRoundRect(ctx, x, y, width, height, radius) {
-            ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); 
+    ctx.moveTo(x + radius, y); 
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius); 
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); 
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius); 
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y); 
+    ctx.closePath(); 
+    ctx.fill(); 
+    ctx.stroke();
 }
-
-
 
  // GCSE Style Zener - Pointed UP
 function drawHollowZenerUp(ctx, x, y) {
@@ -518,13 +524,13 @@ function drawHollowZenerUp(ctx, x, y) {
     ctx.closePath();
     ctx.stroke();
 
-    // 2. Cathode Bar (At the top point)
+    // 2. Cathode Bar (Straight line for GCSE)
     ctx.beginPath();
     ctx.moveTo(x - size, y - size); 
     ctx.lineTo(x + size, y - size); 
-    ctx.lineTo(x + size, y - size + 8); // Hook points BACKWARD/DOWN
     ctx.stroke();
 }
+
 
 /**
  * Arrowhead on wire helper
