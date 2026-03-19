@@ -1739,7 +1739,12 @@ function generateMonostableProblem() {
     }
 }
     
-function generateColorCodeProblem(ctx, canvas) {
+// 1. Grab the canvas and ctx yourself inside the function
+    const canvas = document.getElementById('circuitCanvas');
+    if (!canvas) return; // Safety check
+    const ctx = canvas.getContext('2d');
+    
+    // 2. Now you can safely clear it
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     const resColors = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'grey', 'white'];
