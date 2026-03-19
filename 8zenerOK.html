@@ -2139,6 +2139,19 @@ function switchTab(mode) {
         if (sGroup) sGroup.style.display = 'inline-block';
         if (typeof generateSiliconProblem === "function") generateSiliconProblem();
     } else if (mode === 'colorcode') {
+        // 1. Un-hide the specific Colour Code input boxes
+        const cGroup = document.getElementById('inputGroupColorVal'); // Check your HTML for the exact ID
+        if (cGroup) cGroup.style.display = 'inline-block'; // or 'flex' depending on your layout
+
+        // 2. Un-hide the Canvas so the resistor actually appears
+        const canvas = document.getElementById('circuitCanvas');
+        if (canvas) canvas.style.display = 'block';
+
+        // 3. Un-hide the Question Text
+        const qText = document.getElementById('questionText');
+        if (qText) qText.style.display = 'block';
+
+        // 4. Finally, generate the problem
         if (typeof generateColorCodeProblem === "function") generateColorCodeProblem();
     } else {
         generateProblem();
