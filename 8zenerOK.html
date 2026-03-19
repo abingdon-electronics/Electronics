@@ -1274,14 +1274,14 @@ function generateAnalysisProblem(ctx, canvas) {
 }   
 
 function generateColorCodeProblem() {
+    function generateColorCodeProblem() {
     // 1. Get the canvas and context
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // Internal Helper: Formats numbers to k and M (e.g. 4700 -> 4.7k)
-    // We define it here to prevent "ReferenceError: formatNum is not defined"
-    const formatNum = (n) => {
+    // EXCLUSIVE HELPER FUNCTION (Renamed to guarantee it works)
+    const formatResistorNumber = (n) => {
         if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
         if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + "k";
         return n.toString();
@@ -1311,7 +1311,6 @@ function generateColorCodeProblem() {
     const toleranceValue = tolColors[tolKey];
 
     // 4. Store answers globally for the Check button
-    // Ensure the global object exists
     if (typeof currentAnswers === 'undefined') window.currentAnswers = {};
     
     currentAnswers.resVal = resistanceValue;
@@ -1344,11 +1343,11 @@ function generateColorCodeProblem() {
         drawBand(280, resColors[b3]);
         drawBand(360, tolKey);
 
-        // Shows the numeric input fields
         const group = document.getElementById('inputGroupColorVal');
         if (group) group.style.display = 'block';
 
-        solTextStr = "<strong>Solution: " + formatNum(resistanceValue) + "Ω &plusmn; " + toleranceValue + "%</strong><br><br>";
+        // USING THE NEW UNIQUE HELPER NAME
+        solTextStr = "<strong>Solution: " + formatResistorNumber(resistanceValue) + "Ω &plusmn; " + toleranceValue + "%</strong><br><br>";
         solTextStr += "<em>Logic:</em><br>";
         solTextStr += "Band 1 (" + resColors[b1].toUpperCase() + ") = " + b1 + "<br>";
         solTextStr += "Band 2 (" + resColors[b2].toUpperCase() + ") = " + b2 + "<br>";
@@ -1369,13 +1368,13 @@ function generateColorCodeProblem() {
         drawHiddenBand(280, "3");
         drawHiddenBand(360, "4");
 
-        const formatted = formatNum(resistanceValue);
+        // USING THE NEW UNIQUE HELPER NAME
+        const formatted = formatResistorNumber(resistanceValue);
         ctx.fillStyle = '#000';
         ctx.font = 'bold 28px Arial';
         ctx.textAlign = 'center';
         ctx.fillText(`${formatted}Ω ± ${toleranceValue}%`, 300, 310);
 
-        // Shows the color name input fields
         const group = document.getElementById('inputGroupColorNames');
         if (group) group.style.display = 'block';
 
