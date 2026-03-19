@@ -2706,7 +2706,8 @@ function hideAllInputGroups() {
         'inputGroupMonostable', 'inputGroupAstable', 'inputGroupMarkSpace',
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
         'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
-        'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener'
+        'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener',
+        'zenerOpenQuestions', 'zenerClosedQuestions' // Added these to the main hide list
     ];
 
     // 1. Hide the main input wrappers
@@ -2738,14 +2739,16 @@ function hideAllInputGroups() {
         if (p) p.innerHTML = "";
     });
 
-    // 5. Specifically hide Zener sub-sections
+    // 5. Specifically hide Zener sub-sections (Redundant safeguard)
     const zOpen = document.getElementById('zenerOpenQuestions');
     const zClosed = document.getElementById('zenerClosedQuestions');
     if (zOpen) zOpen.style.display = 'none';
     if (zClosed) zClosed.style.display = 'none';
 
     // 6. IMPORTANT: Always call the data clearer as well
-    clearZenerInputs();
+    if (typeof clearZenerInputs === "function") {
+        clearZenerInputs();
+    }
 }
 
 /**
