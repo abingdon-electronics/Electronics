@@ -2166,25 +2166,39 @@ function generateProblem() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // 1. Force Canvas Resolution
+    // 1. Force Canvas Resolution (Matches your current setup)
     canvas.width = 600;
     canvas.height = 420;
 
     // 2. Full UI Reset
-    // This clears all input groups, hides the solution box, 
-    // and hides the questionText container completely.
-    hideAllInputGroups(); 
+    // Uses your helper to clear existing UI states
+    if (typeof hideAllInputGroups === "function") {
+        hideAllInputGroups();
+    } else {
+        // Fallback manual hide if helper isn't loaded
+        const allGroups = ['inputGroupV', 'inputGroupI', 'inputGroupR', 'inputGroupOscAmp', 
+                           'inputGroupOscMark', 'inputGroupOscSpace', 'inputGroupAstable', 
+                           'inputGroupMonostable', 'inputGroupZener', 'inputGroupSilicon'];
+        allGroups.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+    }
     
+    // Reset global flags from your existing code
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
     viewedSolution = false; 
     unitErrorMade = false; 
 
-    // 3. Clear the question text content just in case
+    // Clear question text container
     const qText = document.getElementById('questionText');
-    if (qText) qText.innerHTML = '';
+    if (qText) {
+        qText.innerHTML = '';
+        qText.style.display = 'none'; // Ensure it's hidden until generator fills it
+    }
 
-    // 4. ROUTER: Open module inputs silently (No text instructions)
+    // 3. ROUTER: Open module inputs and call generators
     if (currentMode === 'analysis') {
         document.getElementById('inputGroupV').style.display = 'inline-block';
         document.getElementById('inputGroupI').style.display = 'inline-block';
@@ -2200,16 +2214,15 @@ function generateProblem() {
         document.getElementById('inputGroupR').style.display = 'inline-block';
         const g9 = document.getElementById('grade9ResistorBtn');
         if (g9) g9.style.display = 'inline-block';
+        // Keeps your existing timeout for drawing consistency
         setTimeout(() => { generateResistanceProblem(ctx, canvas); }, 20);
 
     } else if (currentMode === 'oscilloscope') {
-        // Show the wrapper so the oscilloscope inputs appear, but no text
         const oscWrapper = document.getElementById('oscilloscopeInputs');
         if (oscWrapper) oscWrapper.style.display = 'block';
         generateOscilloscopeProblem(ctx, canvas);
 
     } else if (currentMode === 'astable') {
-        // Astable generator handles its own specific inputs
         generateAstableProblem(ctx, canvas);
 
     } else if (currentMode === 'monostable') {
@@ -2218,6 +2231,20 @@ function generateProblem() {
 
     } else if (currentMode === 'colorcode') {
         generateColorCodeProblem(ctx, canvas);
+
+    } else if (currentMode === 'zener') {
+        const zGroup = document.getElementById('inputGroupZener');
+        if (zGroup) zGroup.style.display = 'inline-block';
+        if (typeof generateZenerProblem === "function") {
+            generateZenerProblem(ctx, canvas);
+        }
+
+    } else if (currentMode === 'silicon') {
+        const sGroup = document.getElementById('inputGroupSilicon');
+        if (sGroup) sGroup.style.display = 'inline-block';
+        if (typeof generateSiliconProblem === "function") {
+            generateSiliconProblem(ctx, canvas);
+        }
     }
 }
 // =======================================================================================================  
