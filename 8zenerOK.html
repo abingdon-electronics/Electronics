@@ -467,18 +467,39 @@ let currentAnswers = {};
 
 /* --- 2. MAIN CONTROLLER --- */
 function handleGenerateClick() {
+    // 1. Get the canvas and context first so we can pass them to generators
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+
+    // 2. Clear previous feedback before generating a new one
+    const feedback = document.getElementById('feedback');
+    if (feedback) feedback.innerHTML = '';
+
+    // 3. Route to the correct generator based on the active mode
     if (currentMode === 'zener') {
-        generateZenerProblem();
+        if (typeof generateZenerProblem === "function") generateZenerProblem();
     } else if (currentMode === 'astable') {
-        generateAstableProblem();
+        if (typeof generateAstableProblem === "function") generateAstableProblem();
     } else if (currentMode === 'monostable') {
-        generateMonostableProblem();
+        if (typeof generateMonostableProblem === "function") generateMonostableProblem();
     } else if (currentMode === 'oscilloscope') {
-        generateOscilloscopeProblem();
+        if (typeof generateOscilloscopeProblem === "function") generateOscilloscopeProblem();
     } else if (currentMode === 'colorcode') {
-        generateColorCodeProblem();
+        // FIX: Pass ctx and canvas to prevent the "null/undefined" crash
+        if (typeof generateColorCodeProblem === "function" && ctx && canvas) {
+            generateColorCodeProblem(ctx, canvas);
+        } else {
+            console.error("Color Code generator or Canvas context is missing.");
+        }
+    } else if (currentMode === 'silicon') {
+        if (typeof generateSiliconProblem === "function") generateSiliconProblem();
     } else {
-        generateProblem(); // Default for basics
+        // Default for Module 1 (Analysis / Divider / Resistance)
+        if (typeof generateAnalysisProblem === "function") {
+            generateAnalysisProblem();
+        } else if (typeof generateProblem === "function") {
+            generateProblem();
+        }
     }
 }
 
