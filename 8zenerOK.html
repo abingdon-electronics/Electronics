@@ -2128,7 +2128,7 @@ function switchTab(mode) {
         activeTab.style.color = "#fff";             
     }
 
-    // 2. Hide ALL specialized UI elements (Prevents UI Bleed)
+   // 2. Hide ALL specialized UI elements safely
     const elementsToHide = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
@@ -2142,7 +2142,9 @@ function switchTab(mode) {
 
     elementsToHide.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
+        if (el) { // <--- This 'if' check prevents the null error
+            el.style.display = 'none';
+        }
     });
 
     // 3. Reset Subtitle
