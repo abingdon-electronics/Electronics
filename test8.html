@@ -2249,10 +2249,6 @@ function closeModal() {
 // ===============================================================================================================      
     
 function hubController(ctx, canvas) {
-    const canvas = document.getElementById('circuitCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
     // 1. Force Canvas Resolution
     canvas.width = 600;
     canvas.height = 420;
