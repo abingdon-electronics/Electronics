@@ -2131,7 +2131,7 @@ function switchTab(mode) {
         activeTab.style.color = "#fff";             
     }
 
-   // 2. Hide ALL specialized UI elements safely
+    // 2. SAFE HIDE: Loop through elements and only hide them if they exist
     const elementsToHide = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
@@ -2145,8 +2145,9 @@ function switchTab(mode) {
 
     elementsToHide.forEach(id => {
         const el = document.getElementById(id);
-        if (el) { // <--- This 'if' check prevents the null error
-            el.style.display = 'none';
+        if (el) { 
+            // This 'if' check is what stops the "null" console error
+            el.style.display = 'none'; 
         }
     });
 
@@ -2164,7 +2165,7 @@ function switchTab(mode) {
         }
     }
 
-    // 4. Global Input Cleanup
+    // 4. Global Cleanup
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = '';
     const solutions = document.getElementById('solutions');
@@ -2176,13 +2177,13 @@ function switchTab(mode) {
         if(i.type === 'radio') i.checked = false;
     });
 
-    // 5. THE HOME FIX: Clear canvas and EXIT early
+    // 5. Canvas and Question Text Reset
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas ? canvas.getContext('2d') : null;
+    const qText = document.getElementById('questionText');
 
     if (mode === 'home') {
         if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const qText = document.getElementById('questionText');
         if (qText) {
             qText.innerHTML = "Select a module from the tabs above to begin.";
             qText.style.display = 'block';
@@ -2190,7 +2191,7 @@ function switchTab(mode) {
         return; 
     }
 
-    // 6. CALL GENERATORS SAFELY (Updated for compatibility)
+    // 6. Call the Generators
     if (mode === 'astable') {
         if (typeof generateAstableProblem === "function") generateAstableProblem();
     } else if (mode === 'monostable') {
@@ -2201,18 +2202,19 @@ function switchTab(mode) {
         const zGroup = document.getElementById('inputGroupZener');
         if (zGroup) zGroup.style.display = 'inline-block';
         if (typeof generateZenerProblem === "function") generateZenerProblem();
+    } else if (mode === 'colorcode') {
+        // Fix: Pass the ctx and canvas so it can draw immediately
+        if (typeof generateColorCodeProblem === "function" && ctx && canvas) {
+            generateColorCodeProblem(ctx, canvas);
+        }
     } else if (mode === 'silicon') {
         const sGroup = document.getElementById('inputGroupSilicon');
         if (sGroup) sGroup.style.display = 'inline-block';
         if (typeof generateSiliconProblem === "function") generateSiliconProblem();
-    } else if (mode === 'colorcode') {
-        // PASS CTX AND CANVAS HERE TO PREVENT ERRORS
-        if (typeof generateColorCodeProblem === "function" && ctx && canvas) {
-            generateColorCodeProblem(ctx, canvas);
-        }
     } else {
+        // This handles Module 1 tabs (Analysis, Divider, etc)
         if (mode === 'analysis') {
-            generateAnalysisProblem();
+             if (typeof generateAnalysisProblem === "function") generateAnalysisProblem();
         } else if (typeof generateProblem === "function") {
             generateProblem();
         }
