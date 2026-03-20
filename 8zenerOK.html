@@ -2203,7 +2203,7 @@ function switchTab(mode) {
         activeTab.style.color = "#fff";            
     }
 
-    // 2. Hide ALL potential input groups and Zener sub-sections
+    // 2. Hide UI Elements (The "Clean Slate")
     const elementsToHide = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
@@ -2219,7 +2219,7 @@ function switchTab(mode) {
         if (el) el.style.display = 'none';
     });
 
-    // 3. Update Subtitle
+    // 3. Subtitle Logic
     const subtitle = document.getElementById('moduleSubtitle');
     if (subtitle) {
         if (mode === 'home') {
@@ -2233,7 +2233,7 @@ function switchTab(mode) {
         }
     }
 
-    // 4. Reset ALL Inputs (including Zener boxes) manually and safely
+    // 4. Reset Inputs Safely
     const allInputs = document.querySelectorAll('input');
     allInputs.forEach(input => {
         input.value = '';
@@ -2241,41 +2241,46 @@ function switchTab(mode) {
         if(input.type === 'radio') input.checked = false;
     });
 
-    // 5. Reset UI text areas
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = '';
-    
     const solutions = document.getElementById('solutions');
     if (solutions) solutions.style.display = 'none';
-    
-    const solText = document.getElementById('solText');
-    if (solText) solText.innerHTML = '';
 
-    // 6. Main work area visibility
-    const content = document.getElementById('contentArea');
-    if (content) content.style.display = 'block';
-
-    // 7. CALL THE CORRECT GENERATOR
-    if (mode === 'astable') {
-        if (typeof generateAstableProblem === "function") generateAstableProblem();
-    } else if (mode === 'monostable') {
-        if (typeof generateMonostableProblem === "function") generateMonostableProblem();
-    } else if (mode === 'oscilloscope') {
-        if (typeof generateOscilloscopeProblem === "function") generateOscilloscopeProblem();
-    } else if (mode === 'zener') {
-        const zGroup = document.getElementById('inputGroupZener');
-        if (zGroup) zGroup.style.display = 'inline-block';
+    // 5. CALL GENERATORS (With Safety Checks)
+    if (mode === 'home') {
+        // Clear the canvas for the home screen
+        const canvas = document.getElementById('circuitCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        const qText = document.getElementById('questionText');
+        if (qText) qText.innerHTML = "Select a module from the tabs above to begin.";
+    } 
+    else if (mode === 'astable' && typeof generateAstableProblem === "function") {
+        generateAstableProblem();
+    } 
+    else if (mode === 'monostable' && typeof generateMonostableProblem === "function") {
+        generateMonostableProblem();
+    } 
+    else if (mode === 'oscilloscope' && typeof generateOscilloscopeProblem === "function") {
+        generateOscilloscopeProblem();
+    } 
+    else if (mode === 'zener') {
+        document.getElementById('inputGroupZener').style.display = 'inline-block';
         if (typeof generateZenerProblem === "function") generateZenerProblem();
-    } else if (mode === 'silicon') {
-        const sGroup = document.getElementById('inputGroupSilicon');
-        if (sGroup) sGroup.style.display = 'inline-block';
-        if (typeof generateSiliconProblem === "function") generateSiliconProblem();
-    } else if (mode === 'colorcode') {
+    } 
+    else if (mode === 'colorcode') {
         if (typeof generateColorCodeProblem === "function") generateColorCodeProblem();
-    } else if (mode === 'home') {
-        // Do nothing special for home, just let the clear happen
-    } else {
-        if (typeof generateProblem === "function") generateProblem();
+    }
+    else {
+        // This is the fallback for Ohm's Law / Divider / Resistance
+        // We use a safety check to ensure generateProblem exists
+        if (typeof generateProblem === "function") {
+            generateProblem();
+        } else {
+            console.warn("generateProblem function not found. Check if it was renamed.");
+        }
     }
 }
 
