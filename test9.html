@@ -647,24 +647,21 @@ function drawArrowOnWire(ctx, fromx, fromy, tox, toy) {
 // =========================================================================================================     
 
 // this function deals with adding resistances in series and parallel
+// this function deals with adding resistances in series and parallel
 function generateResistanceProblem(ctx, canvas) {
-    resetAnswerBox();
+    resetAnswerBox(); // This now safely clears values and colors without killing placeholders
+    
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
-    const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
-
+    
     // --- UI CLEANUP ---
-    const inputBox = document.getElementById('inputR');
-    if (inputBox) {
-        inputBox.value = ""; //FORCE CLEAR AGAIN
-        inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
-    }
+    // OMITTED: Manual placeholder assignment and manual value clearing 
+    // (handled by resetAnswerBox and HTML defaults)
     
     const labelV = document.getElementById('labelV');
     if (labelV) {
         labelV.innerHTML = "<span style='color:" + brandPink + "'>Total Resistance</span> = ";
     }
 
-    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = brandBlack; 
     ctx.lineWidth = 2; 
@@ -702,7 +699,7 @@ function generateResistanceProblem(ctx, canvas) {
         ctx.fillText("R\u2082 = " + r2 + " " + rUnitVisual, 330, 260);
 
     } else if (scenario === 1) {
-        // --- SCENARIO 1: PARALLEL (Centered) ---
+        // --- SCENARIO 1: PARALLEL ---
         const pairs = [
             {r1: 10, r2: 10, req: 5}, {r1: 30, r2: 60, req: 20}, 
             {r1: 12, r2: 24, req: 8}, {r1: 40, r2: 40, req: 20},
@@ -737,7 +734,7 @@ function generateResistanceProblem(ctx, canvas) {
         logicHTML += "R<sub>Total</sub> = " + (pair.r1 * pair.r2) + " / " + (pair.r1 + pair.r2) + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
 
     } else {
-        // --- SCENARIO 2: SERIES-PARALLEL COMBINATION ---
+        // --- SCENARIO 2: SERIES-PARALLEL ---
         const sp = [
             {r1: 10, r2: 20, r3: 20, rp: 10, req: 20}, 
             {r1: 15, r2: 30, r3: 60, rp: 20, req: 35}, 
@@ -772,22 +769,13 @@ function generateResistanceProblem(ctx, canvas) {
         logicHTML += "R<sub>Total</sub> = R\u2081 + R<sub>p</sub> = " + s.r1 + " + " + s.rp + " = <strong>" + s.req + " " + rUnitVisual + "</strong>";
     }
 
-    // This matches the "normalized" units in our new parseInput
+    // Storage for the checker
     currentAnswers.rUnit = (rUnitVisual === 'k\u03A9') ? 'kohms' : 'ohms';
-    currentAnswers.rValue = rTotal; // e.g., 10
-    
+    currentAnswers.rValue = rTotal; 
     
     const solText = document.getElementById('solText');
-    if (solText) {
-        solText.innerHTML = logicHTML;
-
-    // This ensures that even after all the math is done, the box is 100% reset to an integer style.
-    if (inputBox) {
-        inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
-    }
-    }
+    if (solText) solText.innerHTML = logicHTML;
 }
-
 function generateGrade9Resistance() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
@@ -1705,9 +1693,9 @@ function generateMonostableProblem() {
     const ctx = canvas.getContext('2d');
     
     // 0. RESET UI & STATE
+    // resetAnswerBox now safely handles input.value = "" and style resets
     if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'monostable';
-    document.getElementById('solText').style.display = "none"; // Hide old answer
 
     // 1. SETUP VARIABLES
     const R1_k = Math.floor(Math.random() * 173) + 47; 
@@ -1733,33 +1721,32 @@ function generateMonostableProblem() {
     if (monoGroup) monoGroup.style.display = "inline-block";
     
     const monoLabel = document.getElementById('labelMonostable');
-    const monoPrompt = document.getElementById('monostableInstruction');
     const inputMono = document.getElementById('inputMonostable');
 
-    if (monoPrompt) monoPrompt.innerHTML = "(Give answer to 1 d.p.)";
-    if (inputMono) inputMono.value = "";
+    // OMITTED: inputMono.value = "" (Handled by resetAnswerBox)
+    // OMITTED: Manual placeholder assignments (We can rely on a generic HTML placeholder 
+    // or keep them if you like the "dynamic" hint, but they aren't 'required' for the bug fix anymore)
 
-    // Coordination with checkAnswers()
     if (qType === 1) { // Calculating Time
         if (monoLabel) monoLabel.innerHTML = "T = ";
-        inputMono.placeholder = "e.g. " + roundedTime + " s";
+        inputMono.placeholder = "e.g. " + roundedTime + "s";
         currentAnswers.expectedT = roundedTime;
         currentAnswers.expectedUnit = "s";
     } else if (qType === 2) { // Calculating Resistance
         if (monoLabel) monoLabel.innerHTML = "R = ";
-        inputMono.placeholder = "e.g. " + R1_k + " k\u03a9";
+        inputMono.placeholder = "e.g. " + R1_k + "k\u03a9";
         currentAnswers.expectedT = R1_k;
         currentAnswers.expectedUnit = "k";
         rLabel = "R = ?";
     } else if (qType === 3) { // Calculating Capacitance
         if (monoLabel) monoLabel.innerHTML = "C = ";
-        inputMono.placeholder = "e.g. " + C_uF + " \u03bcF";
+        inputMono.placeholder = "e.g. " + C_uF + "\u03bcF";
         currentAnswers.expectedT = C_uF;
         currentAnswers.expectedUnit = "uf";
         cLabel = "C = ?";
     }
 
-    // 4. DRAWING HELPERS
+    // 4. DRAWING HELPERS (Kept for logic)
     const line = (x1, y1, x2, y2) => {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     };
@@ -1774,7 +1761,7 @@ function generateMonostableProblem() {
         ctx.fillStyle = color; 
         ctx.font = "bold 14px Arial"; ctx.textAlign = "right";
         ctx.fillText(val, x - 20, y + 5);
-        ctx.fillStyle = "#000"; // Reset for next draw
+        ctx.fillStyle = "#000"; 
     };
     const drawCapacitor = (x, y, val, align="right", color="#000") => {
         ctx.strokeStyle = "#000";
@@ -1801,18 +1788,12 @@ function generateMonostableProblem() {
     // Timing Components
     const bX = 160;
     line(bX, 40, bX, 85); drawNode(bX, 40); 
-    
-    // Highlight R if it's the question
     drawResistorBox(bX, 110, rLabel, (qType === 2 ? "#E64097" : "#000"));
-
     line(bX, 135, bX, 285); drawNode(bX, 180); 
-    
-    // Highlight C if it's the question
     drawCapacitor(bX, 290, cLabel, "right", (qType === 3 ? "#E64097" : "#000"));
-
     line(bX, 295, bX, 360); drawNode(bX, 360); 
 
-    // Internal Pin Connections
+    // Pin Connections
     line(bX, 180, 220, 180); drawNode(220, 180); 
     line(220, 140, 220, 210); 
     line(220, 140, 260, 140); 
@@ -1821,12 +1802,11 @@ function generateMonostableProblem() {
     ctx.font = "14px Arial"; ctx.textAlign = "left";
     ctx.fillText("7", 265, 145);
     ctx.fillText("6", 265, 215);
-
     line(100, 240, 260, 240);
     ctx.fillText("2", 265, 245);
     ctx.textAlign = "center"; ctx.fillText("Trigger", 130, 235);
 
-    // Pins 4, 8, 1, 5
+    // Other Pins
     line(330, 40, 330, 80); drawNode(330, 40); drawNode(330, 80); line(300, 80, 360, 80);
     line(300, 80, 300, 120); ctx.fillText("4", 300, 135); 
     line(360, 80, 360, 120); ctx.fillText("8", 360, 135); 
@@ -1834,25 +1814,26 @@ function generateMonostableProblem() {
     line(360, 260, 360, 305); ctx.fillText("5", 360, 255);
     drawCapacitor(360, 310, "10 nF", "left");
     line(360, 315, 360, 360); drawNode(360, 360);
-
     line(400, 190, 460, 190); ctx.textAlign = "right"; ctx.fillText("3", 395, 195);
     ctx.textAlign = "left"; ctx.fillText("Output", 465, 195);
 
-    // 6. Pulse Length label (Highlight if T is the question)
+    // 6. Pulse Length label
     ctx.font = "bold 18px Arial"; ctx.textAlign = "center";
     ctx.fillStyle = (qType === 1 ? "#E64097" : "#333");
     ctx.fillText(tLabel, 300, 410);
 
-    // 7. SOLUTION TEXT
+    // 7. PRE-CALCULATE SOLUTION (Displayed via toggle)
     const solElement = document.getElementById('solText');
     if (solElement) {
+        let solHTML = "";
         if (qType === 1) {
-            solElement.innerHTML = "<strong>Find T:</strong> T = 1.1 &times; R &times; C = 1.1 &times; " + R1_k + "k &times; " + C_uF + "&mu;F = <strong>" + roundedTime + " s</strong>";
+            solHTML = `<strong>Find T:</strong> T = 1.1 × R × C = 1.1 × ${R1_k}k × ${C_uF}μF = <strong>${roundedTime}s</strong>`;
         } else if (qType === 2) {
-            solElement.innerHTML = "<strong>Find R:</strong> R = T / (1.1 &times; C) = " + roundedTime + " / (1.1 &times; " + C_uF + "&mu;F) = <strong>" + R1_k + " k&Omega;</strong>";
+            solHTML = `<strong>Find R:</strong> R = T / (1.1 × C) = ${roundedTime} / (1.1 × ${C_uF}μF) = <strong>${R1_k}kΩ</strong>`;
         } else {
-            solElement.innerHTML = "<strong>Find C:</strong> C = T / (1.1 &times; R) = " + roundedTime + " / (1.1 &times; " + R1_k + "k) = <strong>" + C_uF + " &mu;F</strong>";
+            solHTML = `<strong>Find C:</strong> C = T / (1.1 × R) = ${roundedTime} / (1.1 × ${R1_k}k) = <strong>${C_uF}μF</strong>`;
         }
+        solElement.innerHTML = solHTML;
     }
 }
 
@@ -2749,51 +2730,28 @@ function updateZenerSolution(isClosed) {
  * This hides the containers and resets the UI layout.
  */
 function hideAllInputGroups() {
-    const groups = [
-        'inputGroupV', 'inputGroupI', 'inputGroupR', 'oscilloscopeInputs',
-        'inputGroupMonostable', 'inputGroupAstable', 'inputGroupMarkSpace',
-        'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
-        'inputGroupOscPeriod', 'inputGroupOscFreq', 'inputGroupOscRatio',
-        'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener'
-    ];
+    // 1. Hide every div that has the 'input-group' class
+    document.querySelectorAll('.input-group').forEach(el => el.style.display = 'none');
 
-    // 1. Hide the main input wrappers
-    groups.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
+    // 2. Clear common UI elements
+    // We use optional chaining (?.) to say "if this exists, do this" - it's very clean!
+    document.getElementById('feedback')?.replaceChildren();
+    document.getElementById('solutions') && (document.getElementById('solutions').style.display = 'none');
+    document.getElementById('solText')?.replaceChildren();
 
-    // 2. Clear Feedback and Solution areas
-    const feedback = document.getElementById('feedback');
-    if (feedback) feedback.innerHTML = "";
-
-    const solutions = document.getElementById('solutions');
-    const solText = document.getElementById('solText');
-    if (solutions) solutions.style.display = 'none';
-    if (solText) solText.innerHTML = "";
-
-    // 3. Wipe and hide the Question Text
+    // 3. Hide and wipe Question Text
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML = "";      
-        qText.style.display = 'none'; 
+        qText.style.display = 'none';
+        qText.replaceChildren();
     }
 
-    // 4. Clear instruction prompts
-    const prompts = ['instructionPrompt', 'astableInstruction', 'ratioInstruction', 'zenerInstruction'];
-    prompts.forEach(id => {
-        const p = document.getElementById(id);
-        if (p) p.innerHTML = "";
-    });
+    // 4. Clear all instruction prompts in one go using a class
+    // (Add class="instruction-text" to your prompts in HTML)
+    document.querySelectorAll('.instruction-text').forEach(p => p.replaceChildren());
 
-    // 5. Specifically hide Zener sub-sections
-    const zOpen = document.getElementById('zenerOpenQuestions');
-    const zClosed = document.getElementById('zenerClosedQuestions');
-    if (zOpen) zOpen.style.display = 'none';
-    if (zClosed) zClosed.style.display = 'none';
-
-    // 6. IMPORTANT: Always call the data clearer as well
-    clearZenerInputs();
+    // 5. Run the global input wiper
+    resetAnswerBox(); 
 }
 
 /**
