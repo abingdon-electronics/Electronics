@@ -519,20 +519,27 @@ function handleGenerateClick() {
     if (num >= 1000) return (num / 1000).toFixed(2).replace(/\.00$/, '') + 'k';
     return num.toString();
 }
-   function resetAnswerBox() {
-    const box = document.getElementById('inputV');
-    if (box) {
-        box.value = "";             // Wipes any stuck "2 d.p." text
-        box.defaultValue = "";      // Ensures browser memory is cleared
-        box.placeholder = "";       // Clears the old hint
-    }
-    // Also clear feedback and hide old solutions
+  function resetAnswerBox() {
+    // 1. Universal Clear: Find EVERY input box on the page and wipe it
+    document.querySelectorAll('input').forEach(box => {
+        box.value = "";             // Wipes the text
+        box.defaultValue = "";      // Clears browser memory
+        box.placeholder = "";       // Clears the hint
+        box.style.backgroundColor = ""; // Removes any red/green "Correct/Wrong" colors
+    });
+
+    // 2. Clear feedback text
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "";
     
+    // 3. Hide the solutions panel
     const solutions = document.getElementById('solutions');
     if (solutions) solutions.style.display = "none";
-} 
+
+    // 4. Clear the solution text inside the help panel
+    const solText = document.getElementById('solText');
+    if (solText) solText.innerHTML = "";
+}
 
 
 // =======================================================================================================
