@@ -123,6 +123,15 @@
         border-color: #E64097 !important; /* Turns pink again when they start typing a new answer */
         outline: none;
 }
+        /* FORCE PLACEHOLDERS TO BE VISIBLE GREY */
+    input::placeholder {
+        color: #6c757d !important;
+        opacity: 1 !important;
+    }
+    input::-webkit-input-placeholder {
+        color: #6c757d !important;
+        opacity: 1 !important;
+    }
         b.feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
         
         .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; }
@@ -1259,10 +1268,17 @@ function generateColorCodeProblem(ctx, canvas) {
     const tolColors = { 'gold': 5, 'silver': 10 };
 
     // 2. UI Safety Checks
+    
     const valGroup = document.getElementById('inputGroupColorVal');
     const namesGroup = document.getElementById('inputGroupColorNames');
     const qText = document.getElementById('questionText');
     const feedback = document.getElementById('feedback');
+
+    // FORCE CLEAR ALL COLOR CODE INPUTS SO PLACEHOLDERS SHOW
+    const colorInputs = ['inputResValue', 'inputResTol', 'inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'];
+    colorInputs.forEach(id => {
+        if (document.getElementById(id)) document.getElementById(id).value = '';
+    });
 
     // THE RESET: Hide groups and clear text to prevent the "flip" from sticking
     if (valGroup) valGroup.style.display = 'none';
