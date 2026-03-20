@@ -472,14 +472,15 @@ function handleGenerateClick() {
     if (num >= 1000) return (num / 1000).toFixed(2).replace(/\.00$/, '') + 'k';
     return num.toString();
 }
-  function resetAnswerBox() {
+
+function resetAnswerBox() {
     // 1. Universal Clear: Find EVERY input box on the page and wipe it
     document.querySelectorAll('input').forEach(box => {
         box.value = "";             // Wipes the student's typing
         box.defaultValue = "";      // Clears browser "memory"
-        box.placeholder = "";       // Clears any placeholder hints
         box.style.backgroundColor = ""; // Removes the Red/Green "Correct/Wrong" colors
     });
+      
 
     // 2. Clear all feedback and solution text areas
     const feedback = document.getElementById('feedback');
