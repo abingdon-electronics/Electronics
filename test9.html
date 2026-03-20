@@ -123,6 +123,15 @@
         border-color: #E64097 !important; /* Turns pink again when they start typing a new answer */
         outline: none;
 }
+        /* FORCE PLACEHOLDERS TO BE VISIBLE GREY */
+    input::placeholder {
+        color: #6c757d !important;
+        opacity: 1 !important;
+    }
+    input::-webkit-input-placeholder {
+        color: #6c757d !important;
+        opacity: 1 !important;
+    }
         b.feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
         
         .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; }
@@ -152,13 +161,11 @@
 </head>
 
 <body>     
-<!-- 1. NAVIGATION HEADERS (THE TITLE BOX)-->
 <div class="header">
     <h1><span>Abingdon</span> Electronics</h1>
     <p id="moduleSubtitle">Mastering the GCSE Course</p>
 </div>
 
-<!--2. MAIN CATEGORY MENU  These are the "Navigation Folders." They hold your buttons and keep the menu looking consistent.-->
 <div id="mainMenu" class="tabs">
     <button class="tab" onclick="openModule('basics')">1. Circuit Basics</button>
     <button class="tab" onclick="openModule('transistors')">5. Transistors</button>
@@ -170,8 +177,6 @@
     <button class="tab" onclick="openModule('diodes')">8. Diodes</button>
 </div>
 
-<!--3. SUB-MENUS (APPEAR AFTER CLICKING A MAIN CATEGORY) This is the main "Stage." When you click a module, we show this whole area; when you go "Home," we hide it.-->
-<!--BASICS PAGE -->
 <div id="menuBasics" class="tabs" style="display:none;">
     <button class="tab" id="tab-analysis" onclick="switchTab('analysis')">Circuit Analysis</button>
     <button class="tab" id="tab-divider" onclick="switchTab('divider')">Potential Divider</button>
@@ -180,7 +185,6 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
 </div>
 
-<!--TIMINGPAGE -->
 <div id="menuTiming" class="tabs" style="display:none;">
     <button class="tab" id="tab-oscilloscope" onclick="switchTab('oscilloscope')">Oscilloscope</button>
     <button class="tab" id="tab-astable" onclick="switchTab('astable')">Astable 555</button>
@@ -188,7 +192,6 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
 </div>
 
-<!--DIODESPAGE -->
 <div id="menuDiodes" class="tabs" style="display:none;">
     <button class="tab" id="tab-silicon" onclick="switchTab('silicon')">Silicon Diodes</button>
     <button class="tab" id="tab-zener" onclick="switchTab('zener')">Zener Diodes</button>
@@ -199,27 +202,20 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Module Under Construction - Return Home</button>
 </div>
 
-
-    
-<!--4. THE MAIN WORK AREA (CANVAS + QUIZ) This is an "Input Envelope." We keep the label, the text box, and the instruction together so they move as one unit.-->
 <div id="contentArea" style="display:none;">
     <div class="main-layout">
         
-        <!--LEFT SIDE: THE DRAWING AREA-->
         <div class="left-panel">
             <div class="circuit-container">
                 <canvas id="circuitCanvas" width="600" height="450"></canvas>
             </div>  
         </div>
 
-        <!--RIGHT SIDE: THE QUESTION AND ANSWER AREA-->
         <div class="right-panel">
             <div class="quiz-section">
                 
-                <!--BOX FOR THE MAIN QUESTION TEXT-->
                 <div id="questionText" style="font-weight: bold; margin-bottom: 15px; color: #333; min-height: 45px; border-bottom: 1px solid #f2c7db; padding-bottom: 10px;"></div>
                 
-                <!--SCORE AND DOWNLOAD SECTION-->
                 <div class="quiz-header">
                     <div class="score-container">
                         <div class="scoreboard" id="scoreDisplay">Score: 0 / 0</div>
@@ -227,172 +223,143 @@
                     </div>
                 </div>
                 
-        <!--5. THE INPUT AREA (ALL POSSIBLE ANSWER BOXES) Iincuding the placeholder divs for the grey text ("Give answer to 1 d.p.") -->
-        <div class="input-area">
+                <div class="input-area">
 
-                <!--OHM'S LAW / DIVIDER INPUTS-->
-                <div class="input-group" id="inputGroupV" style="display:none;">
-                    <label id="labelV" for="inputV">V = </label>
-                    <input type="text" id="inputV" placeholder="e.g. 10 mV">
-                </div>
-                <div class="input-group" id="inputGroupI" style="display:none;">
-                       <label id="labelI" for="inputI">I = </label>
-                    <input type="text" id="inputI" placeholder="e.g. 5 mA">
-                </div>
+                    <div class="input-group" id="inputGroupV" style="display:none;">
+                        <label id="labelV" for="inputV">V = </label>
+                        <input type="text" id="inputV" placeholder="e.g. 10 mV">
+                    </div>
+                    <div class="input-group" id="inputGroupI" style="display:none;">
+                           <label id="labelI" for="inputI">I = </label>
+                        <input type="text" id="inputI" placeholder="e.g. 5 mA">
+                    </div>
 
-                <!--TOTAL RESISTANCE INPUTS-->
-                <div class="input-group" id="inputGroupR" style="display:none;">
-                    <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
-                    <input type="text" id="inputR" placeholder="e.g. 10 ohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
-                </div>
+                    <div class="input-group" id="inputGroupR" style="display:none;">
+                        <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
+                        <input type="text" id="inputR" placeholder="e.g. 10 ohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
+                    </div>
 
-                <div class="input-group" id="inputGroupMonostable" style="display:none;">
-                    <label id="labelMonostable" for="inputMonostable">T = </label>
-                    <input type="text" id="inputMonostable" style="width: 140px;">
-                 <!--GREY INSTRUCTION SUB-LABEL-->
-                    <div id="monostableInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;"></div>
-                </div>
-                    
-                <!--555 ASTABLE: FREQUENCY AND PERIOD INPUTS-->
-                <div class="input-group" id="inputGroupAstable" style="display:none; text-align: center; width: 100%;">
-                    <div style="margin-bottom: 10px;">
-                        <label id="labelAstable" for="inputAstable">Frequency = </label>
-                        <input type="text" id="inputAstable" placeholder="e.g. 50 Hz">
-                    </div>
-                    <div>
-                        <label id="labelAstableT" for="inputAstableT">Time Period = </label>
-                        <input type="text" id="inputAstableT" placeholder="e.g. 20 ms">
-                    </div>
-                    <!--GREY INSTRUCTION SUB-LABEL-->
-                    <div id="astableInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px;"></div>
-                </div>
-
-                <div class="input-group" id="inputGroupMarkSpace" style="display:none; text-align: center; width: 100%;">
-                    <div style="height: 55px; visibility: hidden;"></div> 
-                    <div style="margin-bottom: 10px;">
-                        <label for="inputMarkSpace" style="font-weight: bold;">Mark-Space Ratio = </label>
-                        <input type="text" id="inputMarkSpace" placeholder="e.g. 2/1" style="height: 45px; width: 120px; font-size: 18px; text-align: center;">
-                    </div>
-                    <!--GREY INSTRUCTION SUB-LABEL-->
-                    <div id="ratioInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px;"></div>
-                </div>
-                    
-                <!--OSCILLOSCOPE INPUTS (KEPT IN ONE BLOCK)-->
-                <div id="oscilloscopeInputs" style="display:none;">
-                    <div class="input-group" id="inputGroupOscAmp" style="display:none;">
-                        <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label><input type="text" id="inputOscAmp">
-                    </div>
-                    <div class="input-group" id="inputGroupOscMark" style="display:none;">
-                        <label id="labelOscMark" for="inputOscMark">Mark Time = </label><input type="text" id="inputOscMark">
-                    </div>
-                    <div class="input-group" id="inputGroupOscSpace" style="display:none;">
-                        <label id="labelOscSpace" for="inputOscSpace">Space Time = </label><input type="text" id="inputOscSpace">
-                    </div>
-                    <div class="input-group" id="inputGroupOscPeriod" style="display:none;">
-                        <label id="labelOscPeriod" for="inputOscPeriod">Time Period = </label><input type="text" id="inputOscPeriod">
-                    </div>
-                    <div class="input-group" id="inputGroupOscFreq" style="display:none;">
-                        <label id="labelOscFreq" for="inputOscFreq">Frequency = </label><input type="text" id="inputOscFreq">
-                    </div>
-                    <div class="input-group" id="inputGroupOscRatio" style="display:none;">
-                    <div class="input-spacer"></div> <label>Mark/Space Ratio = </label>
-                        <input type="text" id="inputOscRatio" placeholder="e.g. 1/2">
+                    <div class="input-group" id="inputGroupMonostable" style="display:none;">
+                        <label id="labelMonostable" for="inputMonostable">T = </label>
+                        <input type="text" id="inputMonostable" style="width: 140px;">
+                        <div id="monostableInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;"></div>
                     </div>
                         
-                </div>
+                    <div class="input-group" id="inputGroupAstable" style="display:none; text-align: center; width: 100%;">
+                        <div style="margin-bottom: 10px;">
+                            <label id="labelAstable" for="inputAstable">Frequency = </label>
+                            <input type="text" id="inputAstable" placeholder="e.g. 50 Hz">
+                        </div>
+                        <div>
+                            <label id="labelAstableT" for="inputAstableT">Time Period = </label>
+                            <input type="text" id="inputAstableT" placeholder="e.g. 20 ms">
+                        </div>
+                        <div id="astableInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px;"></div>
+                    </div>
 
-<!-- ZENER DIODE SECTION -->
-<div id="inputGroupZener" style="display:none; text-align: left; width: 100%;">
-    
-    <!-- Case 1: Switch CLOSED -->
-    <div id="zenerClosedQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
-        <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is CLOSED. Calculate:</p>
-        
-        <div style="margin-bottom: 15px;">
-            <label for="zenerQ_IL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Max Load Current (I<sub>L</sub>):</label>
-            <input type="text" id="zenerQ_IL" placeholder="e.g. 15.2 mA" class="standard-input" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-        </div>
+                    <div class="input-group" id="inputGroupMarkSpace" style="display:none; text-align: center; width: 100%;">
+                        <div style="height: 55px; visibility: hidden;"></div> 
+                        <div style="margin-bottom: 10px;">
+                            <label for="inputMarkSpace" style="font-weight: bold;">Mark-Space Ratio = </label>
+                            <input type="text" id="inputMarkSpace" placeholder="e.g. 2/1" style="height: 45px; width: 120px; font-size: 18px; text-align: center;">
+                        </div>
+                        <div id="ratioInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px;"></div>
+                    </div>
+                        
+                    <div id="oscilloscopeInputs" style="display:none;">
+                        <div class="input-group" id="inputGroupOscAmp" style="display:none;">
+                            <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label><input type="text" id="inputOscAmp">
+                        </div>
+                        <div class="input-group" id="inputGroupOscMark" style="display:none;">
+                            <label id="labelOscMark" for="inputOscMark">Mark Time = </label><input type="text" id="inputOscMark">
+                        </div>
+                        <div class="input-group" id="inputGroupOscSpace" style="display:none;">
+                            <label id="labelOscSpace" for="inputOscSpace">Space Time = </label><input type="text" id="inputOscSpace">
+                        </div>
+                        <div class="input-group" id="inputGroupOscPeriod" style="display:none;">
+                            <label id="labelOscPeriod" for="inputOscPeriod">Time Period = </label><input type="text" id="inputOscPeriod">
+                        </div>
+                        <div class="input-group" id="inputGroupOscFreq" style="display:none;">
+                            <label id="labelOscFreq" for="inputOscFreq">Frequency = </label><input type="text" id="inputOscFreq">
+                        </div>
+                        <div class="input-group" id="inputGroupOscRatio" style="display:none;">
+                        <div class="input-spacer"></div> <label>Mark/Space Ratio = </label>
+                            <input type="text" id="inputOscRatio" placeholder="e.g. 1/2">
+                        </div>
+                    </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="zenerQ_VL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Load Voltage (V<sub>L</sub>):</label>
-            <input type="text" id="zenerQ_VL" placeholder="e.g. 12.0 V" class="standard-input" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-        </div>
-    </div>
+                    <div id="inputGroupZener" style="display:none; text-align: left; width: 100%;">
+                        <div id="zenerClosedQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
+                            <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is CLOSED. Calculate:</p>
+                            <div style="margin-bottom: 15px;">
+                                <label for="zenerQ_IL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Max Load Current (I<sub>L</sub>):</label>
+                                <input type="text" id="zenerQ_IL" placeholder="e.g. 15.2 mA" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="zenerQ_VL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Load Voltage (V<sub>L</sub>):</label>
+                                <input type="text" id="zenerQ_VL" placeholder="e.g. 12.0 V" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            </div>
+                        </div>
 
-    <!-- Case 2: Switch OPEN -->
-    <div id="zenerOpenQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
-        <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is OPEN. Calculate:</p>
-        
-        <div style="margin-bottom: 15px;">
-            <label for="zenerQ_IZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Zener Current (I<sub>Z</sub>):</label>
-            <input type="text" id="zenerQ_IZ" placeholder="e.g. 24.5 mA" class="standard-input" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-        </div>
+                        <div id="zenerOpenQuestions" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
+                            <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is OPEN. Calculate:</p>
+                            <div style="margin-bottom: 15px;">
+                                <label for="zenerQ_IZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Zener Current (I<sub>Z</sub>):</label>
+                                <input type="text" id="zenerQ_IZ" placeholder="e.g. 24.5 mA" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="zenerQ_PZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Zener Power (P<sub>Z</sub>):</label>
+                                <input type="text" id="zenerQ_PZ" placeholder="e.g. 150.0 mW" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            </div>
+                        </div>
+                    </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="zenerQ_PZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Zener Power (P<sub>Z</sub>):</label>
-            <input type="text" id="zenerQ_PZ" placeholder="e.g. 150.0 mW" class="standard-input" style="width: 100%; max-width: 200px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-        </div>
-    </div>
-</div>
 <div class="input-group" id="inputGroupColorVal" style="display:none; text-align: center; width: 100%; margin-top: 15px;">
     <label for="inputResValue" style="font-weight: bold; font-size: 16px;">Resistance = </label>
-    <input type="text" id="inputResValue" placeholder="e.g. 4700" style="height: 45px; width: 135px; font-size: 16px; padding: 10px; border: 2px solid #ccc; border-radius: 6px; text-align: center; outline-color: #E64097; box-sizing: border-box; margin-right: 5px;">
+    <input type="text" id="inputResValue" placeholder="e.g. 4700">
     <span style="font-size: 18px; font-weight: bold;">Ω &plusmn;</span>
-    <input type="text" id="inputResTol" placeholder="e.g. 5" style="height: 45px; width: 90px; font-size: 16px; padding: 10px; border: 2px solid #ccc; border-radius: 6px; text-align: center; outline-color: #E64097; box-sizing: border-box; margin-left: 5px;">
+    <input type="text" id="inputResTol" placeholder="e.g. 5" style="width: 90px;">
     <span style="font-size: 18px; font-weight: bold;">%</span>
 </div>          
         
 <div id="inputGroupColorNames" style="display:none; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 15px; margin-top: 15px;">
-    
     <div class="input-group" style="margin: 0; text-align: center;">
         <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 15px;">Band 1:</label>
-        <input type="text" id="inputBand1" placeholder="e.g. blue" style="height: 45px; width: 135px; font-size: 16px; padding: 10px; border: 2px solid #ccc; border-radius: 6px; text-align: center; outline-color: #E64097; box-sizing: border-box;">
+        <input type="text" id="inputBand1" placeholder="e.g. blue">
     </div>
-
     <div class="input-group" style="margin: 0; text-align: center;">
         <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 15px;">Band 2:</label>
-        <input type="text" id="inputBand2" placeholder="e.g. red" style="height: 45px; width: 135px; font-size: 16px; padding: 10px; border: 2px solid #ccc; border-radius: 6px; text-align: center; outline-color: #E64097; box-sizing: border-box;">
+        <input type="text" id="inputBand2" placeholder="e.g. red">
     </div>
-
     <div class="input-group" style="margin: 0; text-align: center;">
         <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 15px;">Band 3:</label>
-        <input type="text" id="inputBand3" placeholder="e.g. grey" style="height: 45px; width: 135px; font-size: 16px; padding: 10px; border: 2px solid #ccc; border-radius: 6px; text-align: center; outline-color: #E64097; box-sizing: border-box;">
+        <input type="text" id="inputBand3" placeholder="e.g. grey">
     </div>
-
     <div class="input-group" style="margin: 0; text-align: center;">
         <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 15px;">Band 4:</label>
-        <input type="text" id="inputBandTol" placeholder="e.g. gold" style="height: 45px; width: 135px; font-size: 16px; padding: 10px; border: 2px solid #ccc; border-radius: 6px; text-align: center; outline-color: #E64097; box-sizing: border-box;">
-    </div>
-
-</div>
-            
-<!-- Controls shared by all modes -->
-<div style="margin-top: 20px;">
-    <button class="btn-check" onclick="checkAnswers()" style="padding: 10px 20px; background-color: #E64097; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Check Answer(s)</button>
-    <div id="feedback" class="feedback" style="margin-top: 15px; font-weight: bold; min-height: 1.2em;"></div>
-</div>
-            
-<!--6. ACTION CONTROLS (THE BUTTONS AT THE VERY BOTTOM)-->
-            <div class="controls">
-                <button class="btn-black" onclick="handleGenerateClick()">Generate New Problem</button>
-                <button id="grade9DividerBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge (Divider)</button>
-                <button id="grade9ResistorBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge (Resistance)</button>
-                <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solution)</button>
-                <button id="dataSheetBtn" class="btn-check" style="background-color: #6c757d; color: white;" onclick="openDataSheet()">📖 Data Sheet</button>
-            </div>
-
-            <!--7. SOLUTIONS PANEL (SHOWN ONLY WHEN HELP IS CLICKED)-->
-            <div id="solutions" class="solutions" style="display:none;">
-                <h3>Step-by-Step Logic</h3>
-                <p id="solText"></p>
-            </div>
-        </div>
+        <input type="text" id="inputBandTol" placeholder="e.g. gold">
     </div>
 </div>
 
-<!--8. POP-UP MODALS (HIDDEN BY DEFAULT) They are coded at the bottom of the file so they don't get in the way of the main layout, but they "pop" to the front when needed.-->
-<!--STUDENT SUBMISSION MODAL-->
-<div id="submissionModal" class="modal-overlay" style="display: none;">
+                </div> <div style="margin-top: 20px;">
+                    <button class="btn-check" onclick="checkAnswers()" style="padding: 10px 20px; background-color: #E64097; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Check Answer(s)</button>
+                    <div id="feedback" class="feedback" style="margin-top: 15px; font-weight: bold; min-height: 1.2em;"></div>
+                </div>
+                    
+                <div class="controls">
+                    <button class="btn-black" onclick="handleGenerateClick()">Generate New Problem</button>
+                    <button id="grade9DividerBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge (Divider)</button>
+                    <button id="grade9ResistorBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge (Resistance)</button>
+                    <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none;">Need Help? (Show Solution)</button>
+                    <button id="dataSheetBtn" class="btn-check" style="background-color: #6c757d; color: white;" onclick="openDataSheet()">📖 Data Sheet</button>
+                </div>
+
+                <div id="solutions" class="solutions" style="display:none;">
+                    <h3>Step-by-Step Logic</h3>
+                    <p id="solText"></p>
+                </div>
+
+            </div> </div> </div> </div> <div id="submissionModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <h3>Submit Your Score</h3>
         <div class="form-group">
@@ -416,7 +383,6 @@
     </div>
 </div>
 
-<!--ELECTRONICS DATA SHEET MODAL-->
 <div id="dataSheetModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center;">
     <div style="background-color: white; padding: 20px; border-radius: 15px; max-width: 600px; width: 90%; position: relative; margin: 10% auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
         <span onclick="closeDataSheet()" style="position: absolute; right: 15px; top: 10px; font-size: 28px; cursor: pointer; color: #E64097; font-weight: bold;">&times;</span>
@@ -506,14 +472,15 @@ function handleGenerateClick() {
     if (num >= 1000) return (num / 1000).toFixed(2).replace(/\.00$/, '') + 'k';
     return num.toString();
 }
-  function resetAnswerBox() {
+
+function resetAnswerBox() {
     // 1. Universal Clear: Find EVERY input box on the page and wipe it
     document.querySelectorAll('input').forEach(box => {
         box.value = "";             // Wipes the student's typing
         box.defaultValue = "";      // Clears browser "memory"
-        box.placeholder = "";       // Clears any placeholder hints
         box.style.backgroundColor = ""; // Removes the Red/Green "Correct/Wrong" colors
     });
+      
 
     // 2. Clear all feedback and solution text areas
     const feedback = document.getElementById('feedback');
@@ -1301,21 +1268,20 @@ function generateColorCodeProblem(ctx, canvas) {
     const resColors = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'grey', 'white'];
     const tolColors = { 'gold': 5, 'silver': 10 };
 
-    // 2. UI Safety Checks
+    // 2. UI Reset & Safety Checks
     const valGroup = document.getElementById('inputGroupColorVal');
     const namesGroup = document.getElementById('inputGroupColorNames');
-    const qText = document.getElementById('questionText');
-    const feedback = document.getElementById('feedback');
-
-    // THE RESET: Hide groups and clear text to prevent the "flip" from sticking
+    
+    // Hide both groups to prevent overlap
     if (valGroup) valGroup.style.display = 'none';
     if (namesGroup) namesGroup.style.display = 'none';
-    if (feedback) feedback.innerHTML = "";
-    
-    if (qText) {
-        qText.style.display = 'block';
-        qText.innerHTML = "Identify the resistance values or required colors below:";
-    }
+
+    // Clear old student answers so placeholders can show up!
+    const inputsToClear = ['inputResValue', 'inputResTol', 'inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'];
+    inputsToClear.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = ''; 
+    });
 
     // Clear Canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1323,12 +1289,12 @@ function generateColorCodeProblem(ctx, canvas) {
     // 3. Generate Random Values
     const b1 = Math.floor(Math.random() * 9) + 1; 
     const b2 = Math.floor(Math.random() * 10);    
-    const b3 = Math.floor(Math.random() * 7);     
+    const b3 = Math.floor(Math.random() * 7);      
     const tolKey = Math.random() > 0.5 ? 'gold' : 'silver';
     const resistanceValue = (b1 * 10 + b2) * Math.pow(10, b3);
     const toleranceValue = tolColors[tolKey];
 
-    // 4. Store answers for the grader
+    // 4. Store answers for grading
     if (typeof window.currentAnswers === 'undefined') window.currentAnswers = {};
     currentAnswers.resVal = resistanceValue;
     currentAnswers.resTol = toleranceValue;
@@ -1344,9 +1310,12 @@ function generateColorCodeProblem(ctx, canvas) {
 
     const qType = Math.floor(Math.random() * 2);
     let solTextStr = "";
+    
+    // Safely format the resistance value (e.g., 4700 -> 4.7k)
+    const formattedVal = (typeof formatResValue === "function") ? formatResValue(resistanceValue) : resistanceValue.toLocaleString();
 
     if (qType === 0) {
-        // TYPE 0: Visual Resistor -> Student enters Numbers
+        // TYPE 0: Visual Resistor -> Student enters Resistance and Tolerance NUMBER
         const drawBand = (x, color) => {
             ctx.fillStyle = (color === 'gold') ? '#FFD700' : (color === 'silver') ? '#C0C0C0' : color;
             ctx.fillRect(x, 170, 20, 80); ctx.strokeRect(x, 170, 20, 80);
@@ -1358,7 +1327,8 @@ function generateColorCodeProblem(ctx, canvas) {
 
         if (valGroup) valGroup.style.display = 'block';
 
-        solTextStr = "<strong>Solution: " + resistanceValue.toLocaleString() + " Ω &plusmn; " + toleranceValue + "%</strong><br><br>";
+        // Generate Solution Logic for Help Button
+        solTextStr = "<strong>Solution: " + formattedVal + " Ω &plusmn; " + toleranceValue + "%</strong><br><br>";
         solTextStr += "<em>Logic:</em><br>";
         solTextStr += "Band 1 (" + resColors[b1].toUpperCase() + ") = " + b1 + "<br>";
         solTextStr += "Band 2 (" + resColors[b2].toUpperCase() + ") = " + b2 + "<br>";
@@ -1382,10 +1352,12 @@ function generateColorCodeProblem(ctx, canvas) {
         ctx.fillStyle = '#000';
         ctx.font = 'bold 28px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(resistanceValue.toLocaleString() + " Ω ± " + toleranceValue + "%", 300, 310);
+        ctx.fillText(`${formattedVal} Ω ± ${toleranceValue}%`, 300, 310);
 
-        if (namesGroup) namesGroup.style.display = 'flex';
+        // Uses 'flex' to keep the 2x2 grid looking perfect
+        if (namesGroup) namesGroup.style.display = 'flex'; 
 
+        // Generate Solution Logic for Help Button
         solTextStr = "<strong>Required Colours:</strong><br><br>";
         solTextStr += "1. " + resColors[b1].toUpperCase() + " (for digit " + b1 + ")<br>";
         solTextStr += "2. " + resColors[b2].toUpperCase() + " (for digit " + b2 + ")<br>";
@@ -1393,13 +1365,17 @@ function generateColorCodeProblem(ctx, canvas) {
         solTextStr += "4. " + tolKey.toUpperCase() + " (for &plusmn;" + toleranceValue + "%)";
     }
 
-    // 6. THE CRITICAL MISSING PIECE: Update the Solution Box
+    // 6. Push the solution text to the hidden div
     const solText = document.getElementById('solText');
-    if (solText) {
-        solText.innerHTML = solTextStr;
+    if (solText) solText.innerHTML = solTextStr;
+    
+    // 7. Ensure the main instruction text appears
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = "Identify the resistance values or required colors below:";
     }
 }
-
 
 function generateOscilloscopeProblem() {
     // 1. SELF-INITIALIZE CANVAS
