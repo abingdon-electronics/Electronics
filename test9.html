@@ -1341,11 +1341,27 @@ function generateColorCodeProblem(ctx, canvas) {
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = solTextStr;
     
-    // 7. Instruction text
+    // 7. Dynamic Instruction Text
+    
+    // Clear and hide the top question text to keep the buttons aligned
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.style.display = 'block';
-        qText.innerHTML = "Identify the resistance values or required colors below:";
+        qText.innerHTML = "";
+        qText.style.display = 'none';
+    }
+
+    // Use the instruction prompt (which sits just above the input boxes)
+    const instruction = document.getElementById('instructionPrompt');
+    if (instruction) {
+        instruction.style.display = 'block'; // Make sure it's visible
+        
+        if (qType === 0) {
+            // They are calculating the value from the bands
+            instruction.innerHTML = "<strong>State the value of the resistor.</strong>";
+        } else {
+            // They are entering the colors based on the value
+            instruction.innerHTML = "<strong>Identify the resistor colour codes.</strong>";
+        }
     }
 }
 
