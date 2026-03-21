@@ -1125,13 +1125,19 @@ function generateGrade9DividerProblem() {
     }
 }
 function generateAnalysisProblem(ctx, canvas) {
-    // 0. RESET UI & STATE
-    resetAnswerBox(); 
+    // 0. RESET UI & STATE (Using the new Ultimate Wiper!)
+    hideAllInputGroups(); 
     currentMode = 'analysis';
+    
+    // IMPORTANT: Make sure to un-hide the specific container for the Circuit Analysis inputs!
+    // (Replace 'inputGroupAnalysis' with whatever ID holds your V and I input boxes)
+    const analysisGroup = document.getElementById('inputGroupAnalysis'); 
+    if (analysisGroup) {
+        analysisGroup.style.display = 'flex'; // or 'block' depending on your layout
+    }
+
     const inputV = document.getElementById('inputV');
     const inputI = document.getElementById('inputI');
-    if (inputV) inputV.value = ""; 
-    if (inputI) inputI.value = "";
 
     // Determine units visually
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
