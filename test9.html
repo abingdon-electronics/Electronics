@@ -655,13 +655,13 @@ function drawArrowOnWire(ctx, fromx, fromy, tox, toy) {
 // this function deals with adding resistances in series and parallel
 // this function deals with adding resistances in series and parallel
 function generateResistanceProblem(ctx, canvas) {
-    resetAnswerBox(); // This now safely clears values and colors without killing placeholders
+    hideAllInputGroups(); // This now safely clears values and colors without killing placeholders
     
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     
     // --- UI CLEANUP ---
     // OMITTED: Manual placeholder assignment and manual value clearing 
-    // (handled by resetAnswerBox and HTML defaults)
+    // (handled by hideAllInputGroups() and HTML defaults)
     
     const labelV = document.getElementById('labelV');
     if (labelV) {
@@ -787,7 +787,7 @@ function generateGrade9Resistance() {
     const ctx = canvas.getContext('2d');
     
     // 0. RESET UI & STATE
-    resetAnswerBox(); // Standardizes UI cleanup
+    hideAllInputGroups(); // Standardizes UI cleanup
     const inputR = document.getElementById('inputR');
     if (inputR) inputR.value = '';
 
@@ -866,7 +866,7 @@ function generateGrade9Resistance() {
 // =======================================================
 function generateDividerProblem(ctx, canvas) {
     // 0. RESET UI & STATE
-    resetAnswerBox(); 
+    hideAllInputGroups(); 
     currentMode = 'divider';
     const inputBox = document.getElementById('inputV');
     if (inputBox) inputBox.value = ""; // Force clear old input
@@ -1008,7 +1008,7 @@ function generateGrade9DividerProblem() {
     const ctx = canvas.getContext('2d');
 
     // 0. RESET UI & STATE
-    resetAnswerBox(); // Clears feedback/solutions
+    hideAllInputGroups(); // Clears feedback/solutions
     currentMode = 'divider'; 
     const inputBox = document.getElementById('inputV');
     if (inputBox) {
@@ -1265,7 +1265,7 @@ function generateAnalysisProblem(ctx, canvas) {
 
 function generateColorCodeProblem(ctx, canvas) {
     // 1. UI Reset & Safety (The Heavy Lifting is done here now)
-    hideAllInputGroups(); // This hides EVERYTHING and calls resetAnswerBox() to clear values
+    hideAllInputGroups(); // This hides EVERYTHING and calls hideAllInputGroups() to clear values
     currentMode = 'colorcode';
 
     // 2. Core Data Setup
@@ -1386,7 +1386,6 @@ function generateOscilloscopeProblem() {
 
     // 2. FULL UI RESET
     hideAllInputGroups(); 
-    if (typeof resetAnswerBox === "function") resetAnswerBox();
     currentMode = 'oscilloscope';
 
     // REMOVED: The qText.style.display and qText.innerHTML lines that were here.
@@ -1508,7 +1507,7 @@ function generateAstableProblem() {
     hideAllInputGroups();
     const solBox = document.getElementById('solText');
     if (solBox) solBox.style.display = "none"; // Hide previous answer
-    if (typeof resetAnswerBox === "function") resetAnswerBox();
+    if (typeof resetAnswerBox === "function") hideAllInputGroups();
     
     // 2. SELF-INITIALIZE CANVAS
     const canvas = document.getElementById('circuitCanvas');
@@ -1707,7 +1706,7 @@ function generateMonostableProblem() {
     
     // 0. RESET UI & STATE
     // resetAnswerBox now safely handles input.value = "" and style resets
-    if (typeof resetAnswerBox === "function") resetAnswerBox();
+    if (typeof resetAnswerBox === "function") hideAllInputGroups();
     currentMode = 'monostable';
 
     // 1. SETUP VARIABLES
@@ -1871,7 +1870,7 @@ function generateZenerProblem() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath(); // Reset path memory
     
-    if (typeof resetAnswerBox === "function") resetAnswerBox();
+    if (typeof resetAnswerBox === "function") hideAllInputGroups();
     currentMode = 'zener';
     const solBox = document.getElementById('solText');
     if (solBox) solBox.style.display = "none";
