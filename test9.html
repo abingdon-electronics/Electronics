@@ -1030,13 +1030,17 @@ function generateGrade9DividerProblem() {
     const ctx = canvas.getContext('2d');
 
     // 0. RESET UI & STATE
-    hideAllInputGroups(); // Clears feedback/solutions
+    hideAllInputGroups(); // Clears feedback/solutions/borders
     currentMode = 'divider'; 
-    const inputBox = document.getElementById('inputV');
-    if (inputBox) {
-        inputBox.value = ""; // Clear old text
+    
+    // BRING BACK THE V INPUT BOX
+    const groupV = document.getElementById('inputGroupV');
+    if (groupV) {
+        groupV.style.display = 'flex'; // Unhides the box!
     }
 
+    const inputBox = document.getElementById('inputV');
+    
     // Update Question Text
     const qText = document.getElementById('questionText');
     if (qText) {
