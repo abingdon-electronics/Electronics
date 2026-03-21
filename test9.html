@@ -2372,12 +2372,12 @@ function checkAnswers() {
             const b2 = document.getElementById('inputBand2').value.toLowerCase().trim();
             const b3 = document.getElementById('inputBand3').value.toLowerCase().trim();
             const b4 = document.getElementById('inputBandTol').value.toLowerCase().trim();
-            if (b1 === currentAnswers.b1 && b2 === currentAnswers.b2 && 
-                b3 === currentAnswers.b3 && b4 === currentAnswers.tol) {
-                results.push('correct');
-            } else {
-                results.push('wrong');
-            }
+            
+            // Push a result for EACH box individually so the array has exactly 4 items
+            results.push(b1 === currentAnswers.b1 ? 'correct' : 'wrong');
+            results.push(b2 === currentAnswers.b2 ? 'correct' : 'wrong');
+            results.push(b3 === currentAnswers.b3 ? 'correct' : 'wrong');
+            results.push(b4 === currentAnswers.tol ? 'correct' : 'wrong');
         }
     } 
     else if (currentMode === 'analysis') {
