@@ -157,8 +157,6 @@
     
     .quiz-header h3 { margin: 0; font-size: 1.2rem; }
     
-    .score-container { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-    
     .scoreboard { 
         background-color: #fff; 
         padding: 6px 15px; 
@@ -170,23 +168,7 @@
         box-shadow: 0 2px 4px rgba(230, 64, 151, 0.1); 
     }
     
-    .btn-download { 
-        background-color: #198754; 
-        font-size: 13px; 
-        padding: 8px 12px; 
-        margin: 0; 
-        border: none; 
-        border-radius: 4px; 
-        color: white; 
-        cursor: pointer; 
-        font-weight: bold; 
-        transition: background-color 0.2s; 
-    }
-    
-    .btn-download:hover { background-color: #157347; }
-    .btn-download:disabled { background-color: #6c757d; cursor: wait; }
-    
-    /* INPUT AREA - ALIGNED WITHOUT DUPLICATE EQUALS */
+    /* INPUT AREA - FORCES SIDE-BY-SIDE */
     .input-area { 
         flex-grow: 1;
         display: flex;
@@ -198,15 +180,16 @@
 
     .input-group {
         display: flex;
+        flex-direction: row; /* Force horizontal layout */
         align-items: center;
         justify-content: center;
         width: 100%;
+        flex-wrap: nowrap; /* Prevent wrapping boxes under labels */
     }
 
-    /* Labels: Fixed width for alignment, right-justified */
     .input-group label, 
     .input-group > span:first-child {
-        width: 125px; /* Slightly wider to fit label + manual = sign */
+        width: 135px; /* Fixed width to align all boxes vertically */
         display: flex;
         justify-content: flex-end; 
         align-items: center;
@@ -215,14 +198,10 @@
         color: #E64097;
         margin-right: 15px;
         white-space: nowrap;
+        text-align: right;
     }
 
-    /* REMOVED the ::after content to stop triple equals signs */
-    .input-group label::after, 
-    .input-group span:first-child::after {
-        content: ""; 
-    }
-
+    /* Standardized height and sizing for all inputs/selects */
     .quiz-section input[type="text"], 
     .quiz-section input[type="number"],
     .quiz-section select { 
@@ -235,6 +214,7 @@
         text-align: center;
         outline: none;
         width: 130px;
+        flex-shrink: 0; /* Stop browser from squashing boxes */
     }
 
     .quiz-section select {
@@ -268,24 +248,9 @@
     .btn-check { background-color: #E64097; width: 100%; margin-top: 10px; }
     .btn-check:hover { background-color: #cc2b81; }
     .btn-black { background-color: #000000; }
-    .btn-black:hover { background-color: #333333; }
-    .btn-secondary { background-color: #6c757d; }
-    .btn-secondary:hover { background-color: #5c636a; }
     
-    .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .solutions h3 { margin-top: 0; color: #E64097; font-size: 1.1rem; }
-    .solutions p { margin-bottom: 0; font-size: 0.95rem; }
+    .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; }
 
-    /* MODALS */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 420px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-top: 6px solid #E64097; }
-    .modal-content h3 { margin-top: 0; color: #E64097; text-align: center; font-size: 1.4rem; margin-bottom: 20px;}
-    .form-group { margin-bottom: 15px; text-align: left; }
-    .form-group label { display: block; font-weight: bold; margin-bottom: 6px; color: #333; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; border: 2px solid #eaeaea; border-radius: 6px; font-size: 16px; outline-color: #E64097; }
-    .modal-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 25px; }
-    .modal-actions button { flex: 1; margin: 0; }
-    
     /* MOBILE COMPATIBILITY */
     @media (max-width: 1050px) {
         .main-layout { flex-direction: column; align-items: center; width: 100%; }
