@@ -2576,8 +2576,16 @@ function checkAnswers() {
             activeInputs = ['zenerQ_IZ', 'zenerQ_PZ'];
         }
     }
+    // --- GRADE 9 ZENER INPUT IDENTIFICATION ---
+    else if (currentMode === 'grade9zener') {
+        if (currentZenerState === "closed") {
+            activeInputs = ['g9IL', 'g9IZ'];
+        } else {
+            activeInputs = ['g9PZ', 'g9Rating'];
+        }
+    }
 
-    // Check for empty boxes
+    // 2. Check for empty boxes
     let hasEmptyBox = false;
     activeInputs.forEach(id => {
         const el = document.getElementById(id);
@@ -2613,6 +2621,20 @@ function checkAnswers() {
             results.push(Math.abs(valPZ - currentAnswers.targetPZ) <= 0.5 ? 'correct' : 'wrong');
         }
     } 
+    // --- GRADE 9 ZENER MATH ---
+    else if (currentMode === 'grade9zener') {
+        if (currentZenerState === "closed") {
+            const valIL = parseFloat(document.getElementById('g9IL').value);
+            const valIZ = parseFloat(document.getElementById('g9IZ').value);
+            results.push(Math.abs(valIL - currentAnswers.targetIL) <= tolerance ? 'correct' : 'wrong');
+            results.push(Math.abs(valIZ - currentAnswers.targetIZ) <= tolerance ? 'correct' : 'wrong');
+        } else {
+            const valPZ = parseFloat(document.getElementById('g9PZ').value);
+            const valRating = parseFloat(document.getElementById('g9Rating').value);
+            results.push(Math.abs(valPZ - currentAnswers.targetPZ) <= 0.5 ? 'correct' : 'wrong');
+            results.push(valRating === currentAnswers.targetRating ? 'correct' : 'wrong');
+        }
+    }
     else if (currentMode === 'colorcode') {
         const valGroup = document.getElementById('inputGroupColorVal');
         if (valGroup && valGroup.style.display !== 'none') {
@@ -2630,7 +2652,6 @@ function checkAnswers() {
             const b3 = document.getElementById('inputBand3').value.toLowerCase().trim();
             const b4 = document.getElementById('inputBandTol').value.toLowerCase().trim();
             
-            // Push a result for EACH box individually so the array has exactly 4 items
             results.push(b1 === currentAnswers.b1 ? 'correct' : 'wrong');
             results.push(b2 === currentAnswers.b2 ? 'correct' : 'wrong');
             results.push(b3 === currentAnswers.b3 ? 'correct' : 'wrong');
