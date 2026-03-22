@@ -2656,17 +2656,18 @@ function hubController(ctx, canvas) {
 // FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
 // =======================================================================================================   
     
-function checkAnswers() {
-
-    alert("Button was clicked!"); 
-    // ... rest of your code
+// =======================================================================================================  
+// FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
+// =======================================================================================================   
     
+function checkAnswers() {
+    // 1. Prevent double-checking if already solved
     if (isCurrentProblemSolved) return; 
 
     const feedback = document.getElementById('feedback');
     const helpBtn = document.getElementById('helpBtn');
 
-    // 1. Identify which inputs are currently active
+    // 2. Identify which inputs are currently active for the current mode
     let activeInputs = [];
     if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
     else if (currentMode === 'divider') activeInputs = ['inputV'];
@@ -2707,7 +2708,7 @@ function checkAnswers() {
         }
     }
 
-    // 2. Check for empty boxes
+    // 3. Check for empty boxes
     let hasEmptyBox = false;
     activeInputs.forEach(id => {
         const el = document.getElementById(id);
@@ -2721,58 +2722,57 @@ function checkAnswers() {
         return; 
     }
     
+    // Increment attempts on the first click
     if (!hasCheckedCurrentProblem) { 
         problemsAttempted++; 
         hasCheckedCurrentProblem = true; 
     }
 
-    // 3. Grade the inputs
+    // 4. Grade the inputs using the Smart Matcher
     let results = [];
-    const generalTolerance = 0.2; 
     
-    if (currentMode === 'zener') {
-        if (currentZenerState === "closed") {
-            const valIL = parseFloat(document.getElementById('zenerQ_IL').value);
-            const valVL = parseFloat(document.getElementById('zenerQ_VL').value);
-            results.push(Math.abs(valIL - currentAnswers.targetIL) <= generalTolerance ? 'correct' : 'wrong');
-            results.push(Math.abs(valVL - currentAnswers.targetVL) <= generalTolerance ? 'correct' : 'wrong');
+    if (currentMode === 'analysis') {
+        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, 'v'));
+        results.push(validateMatch(parseInput(document.getElementById('inputI').value), currentAnswers.iValue, 'a'));
+
+    } else if (currentMode === 'divider') {
+        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, 'v'));
+
+    } else if (currentMode === 'resistance') {
+        // This now uses the 'ohms' target which accepts "100", "100 ohms", or "100Ω"
+        results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, 'ohms'));
+
+    } else if (currentMode === 'oscilloscope') {
+        results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
+        if (currentAnswers.oscQType === 1) {
+            results.push(validateMatch(parseInput(document.getElementById('inputOscMark').value), currentAnswers.oscMarkValue, currentAnswers.oscMarkUnit));
+            results.push(validateMatch(parseInput(document.getElementById('inputOscSpace').value), currentAnswers.oscSpaceValue, currentAnswers.oscSpaceUnit));
+        } else if (currentAnswers.oscQType === 2) {
+            results.push(validateMatch(parseInput(document.getElementById('inputOscPeriod').value), currentAnswers.oscPeriodValue, currentAnswers.oscPeriodUnit));
+            results.push(validateMatch(parseInput(document.getElementById('inputOscFreq').value), currentAnswers.oscFreqValue, currentAnswers.oscFreqUnit));
         } else {
-            const valIZ = parseFloat(document.getElementById('zenerQ_IZ').value);
-            const valPZ = parseFloat(document.getElementById('zenerQ_PZ').value);
-            results.push(Math.abs(valIZ - currentAnswers.targetIZ) <= generalTolerance ? 'correct' : 'wrong');
-            results.push(Math.abs(valPZ - currentAnswers.targetPZ) <= 0.5 ? 'correct' : 'wrong');
+            const userRatio = document.getElementById('inputOscRatio').value.trim();
+            results.push(userRatio === currentAnswers.oscRatioValue ? 'correct' : 'wrongval');
         }
-    } 
-    else if (currentMode === 'grade9zener') {
-        if (currentZenerState === "closed") {
-            const valIL = parseFloat(document.getElementById('g9IL').value);
-            const valIZ = parseFloat(document.getElementById('g9IZ').value);
-            results.push(Math.abs(valIL - currentAnswers.targetIL) <= generalTolerance ? 'correct' : 'wrong');
-            results.push(Math.abs(valIZ - currentAnswers.targetIZ) <= generalTolerance ? 'correct' : 'wrong');
+
+    } else if (currentMode === 'astable') {
+        if (currentAnswers.astableQType === 0) {
+            results.push(validateMatch(parseInput(document.getElementById('inputAstable').value), currentAnswers.astableValue, 'hz'));
+            results.push(validateMatch(parseInput(document.getElementById('inputAstableT').value), currentAnswers.astableTValue, 's'));
         } else {
-            const valPZ = parseFloat(document.getElementById('g9PZ').value);
-            const valRating = parseFloat(document.getElementById('g9Rating').value);
-            results.push(Math.abs(valPZ - currentAnswers.targetPZ) <= 0.5 ? 'correct' : 'wrong');
-            results.push(valRating === currentAnswers.targetRating ? 'correct' : 'wrong');
+            const userRatio = document.getElementById('inputMarkSpace').value.trim();
+            results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrongval');
         }
-    }
-    else if (currentMode === 'colorcode') {
+
+    } else if (currentMode === 'monostable') {
+        results.push(validateMatch(parseInput(document.getElementById('inputMonostable').value), currentAnswers.expectedT, 's'));
+
+    } else if (currentMode === 'colorcode') {
         const valGroup = document.getElementById('inputGroupColorVal');
         if (valGroup && valGroup.style.display !== 'none') {
-            const userResStr = document.getElementById('inputResValue').value.trim();
-            
-            // Check for units using the universal function (defaults to Ω)
-            const isCorrect = validateScientificValue(userResStr, currentAnswers.resVal, 0);
-            
-            // If the math is wrong, but also no unit was found, flag 'missingunit'
-            if (!/Ω|ohms?/i.test(userResStr)) {
-                results.push('missingunit');
-            } else {
-                results.push(isCorrect ? 'correct' : 'wrong');
-            }
-
+            results.push(validateMatch(parseInput(document.getElementById('inputResValue').value), currentAnswers.resVal, 'ohms'));
             const userTol = parseFloat(document.getElementById('inputResTol').value);
-            results.push(userTol === currentAnswers.resTol ? 'correct' : 'wrong');
+            results.push(userTol === currentAnswers.resTol ? 'correct' : 'wrongval');
         } else {
             const b1 = document.getElementById('inputBand1').value.toLowerCase().trim();
             const b2 = document.getElementById('inputBand2').value.toLowerCase().trim();
@@ -2783,68 +2783,38 @@ function checkAnswers() {
             results.push(b3 === currentAnswers.b3 ? 'correct' : 'wrong');
             results.push(b4 === currentAnswers.tol ? 'correct' : 'wrong');
         }
-    } 
-    else if (currentMode === 'analysis') {
-        const vInput = document.getElementById('inputV').value;
-        const iInput = document.getElementById('inputI').value;
-        
-        const vCorrect = validateScientificValue(vInput, currentAnswers.vValue, 0, 'v');
-        const iCorrect = validateScientificValue(iInput, currentAnswers.iValue, 0, 'a');
 
-        if (!/v|volts?/i.test(vInput) || !/a|amps?/i.test(iInput)) results.push('missingunit');
-        else {
-            results.push(vCorrect ? 'correct' : 'wrong');
-            results.push(iCorrect ? 'correct' : 'wrong');
-        }
-    } else if (currentMode === 'divider') {
-        const vInput = document.getElementById('inputV').value;
-        const vCorrect = validateScientificValue(vInput, currentAnswers.vValue, 0, 'v');
-        if (!/v|volts?/i.test(vInput)) results.push('missingunit');
-        else results.push(vCorrect ? 'correct' : 'wrong');
-    } else if (currentMode === 'resistance') {
-        const rInput = document.getElementById('inputR').value;
-        const rCorrect = validateScientificValue(rInput, currentAnswers.rValue, 0, 'Ω');
-        if (!/Ω|ohms?/i.test(rInput)) results.push('missingunit');
-        else results.push(rCorrect ? 'correct' : 'wrong');
-    } else if (currentMode === 'oscilloscope') {
-        // Keeping validateMatch for Osc as it usually handles specific display formatting
-        results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
-        if (currentAnswers.oscQType === 1) {
-            results.push(validateMatch(parseInput(document.getElementById('inputOscMark').value), currentAnswers.oscMarkValue, currentAnswers.oscMarkUnit));
-            results.push(validateMatch(parseInput(document.getElementById('inputOscSpace').value), currentAnswers.oscSpaceValue, currentAnswers.oscSpaceUnit));
-        } else if (currentAnswers.oscQType === 2) {
-            results.push(validateMatch(parseInput(document.getElementById('inputOscPeriod').value), currentAnswers.oscPeriodValue, currentAnswers.oscPeriodUnit));
-            results.push(validateMatch(parseInput(document.getElementById('inputOscFreq').value), currentAnswers.oscFreqValue, currentAnswers.oscFreqUnit));
-        } else {
-            const userRatio = document.getElementById('inputOscRatio').value.trim();
-            results.push(userRatio === currentAnswers.oscRatioValue ? 'correct' : 'wrong');
-        }
-    } else if (currentMode === 'astable') {
-        if (currentAnswers.astableQType === 0) {
-            const userFStr = document.getElementById('inputAstable').value;
-            const userTStr = document.getElementById('inputAstableT').value;
-            
-            const fCorrect = validateScientificValue(userFStr, currentAnswers.astableValue, 0.01, 'hz');
-            const tCorrect = validateScientificValue(userTStr, currentAnswers.astableTValue, 0.01, 's');
-
-            if (!/hz|hertz/i.test(userFStr) || !/s|seconds?/i.test(userTStr)) results.push('missingunit');
-            else {
-                results.push(fCorrect ? 'correct' : 'wrong');
-                results.push(tCorrect ? 'correct' : 'wrong');
+    } else if (currentMode === 'zener' || currentMode === 'grade9zener') {
+        // Zener modules use specialized logic - keeping standard parseFloat for these for now
+        const generalTolerance = 0.2;
+        if (currentMode === 'zener') {
+            if (currentZenerState === "closed") {
+                const valIL = parseFloat(document.getElementById('zenerQ_IL').value);
+                const valVL = parseFloat(document.getElementById('zenerQ_VL').value);
+                results.push(Math.abs(valIL - currentAnswers.targetIL) <= generalTolerance ? 'correct' : 'wrongval');
+                results.push(Math.abs(valVL - currentAnswers.targetVL) <= generalTolerance ? 'correct' : 'wrongval');
+            } else {
+                const valIZ = parseFloat(document.getElementById('zenerQ_IZ').value);
+                const valPZ = parseFloat(document.getElementById('zenerQ_PZ').value);
+                results.push(Math.abs(valIZ - currentAnswers.targetIZ) <= generalTolerance ? 'correct' : 'wrongval');
+                results.push(Math.abs(valPZ - currentAnswers.targetPZ) <= 0.5 ? 'correct' : 'wrongval');
             }
         } else {
-            const userRatio = document.getElementById('inputMarkSpace').value.trim();
-            results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrong');
+            if (currentZenerState === "closed") {
+                const valIL = parseFloat(document.getElementById('g9IL').value);
+                const valIZ = parseFloat(document.getElementById('g9IZ').value);
+                results.push(Math.abs(valIL - currentAnswers.targetIL) <= generalTolerance ? 'correct' : 'wrongval');
+                results.push(Math.abs(valIZ - currentAnswers.targetIZ) <= generalTolerance ? 'correct' : 'wrongval');
+            } else {
+                const valPZ = parseFloat(document.getElementById('g9PZ').value);
+                const valRating = parseFloat(document.getElementById('g9Rating').value);
+                results.push(Math.abs(valPZ - currentAnswers.targetPZ) <= 0.5 ? 'correct' : 'wrongval');
+                results.push(valRating === currentAnswers.targetRating ? 'correct' : 'wrongval');
+            }
         }
-    } 
-    else if (currentMode === 'monostable') {
-        const userMonoStr = document.getElementById('inputMonostable').value;
-        const monoCorrect = validateScientificValue(userMonoStr, currentAnswers.expectedT, 0.01, 's');
-        if (!/s|seconds?/i.test(userMonoStr)) results.push('missingunit');
-        else results.push(monoCorrect ? 'correct' : 'wrong');
     }
 
-    // 4. Final Scoring and Universal Border Feedback
+    // 5. Final Scoring and Universal Border Feedback
     activeInputs.forEach((id, index) => {
         const inputElement = document.getElementById(id);
         if (inputElement) {
@@ -2853,6 +2823,7 @@ function checkAnswers() {
         }
     });
 
+    // 6. Provide Text Feedback
     if (results.every(r => r === 'correct')) {
         isCurrentProblemSolved = true;
         if (!viewedSolution && !unitErrorMade) {
@@ -2871,23 +2842,17 @@ function checkAnswers() {
     } else {
         if (helpBtn) helpBtn.style.display = 'block';
         
-        if (results.includes('missingunit')) {
-            unitErrorMade = true;
-            feedback.innerHTML = "<span style='color: #fd7e14;'>You must include the unit (e.g., Ω, Volts, Amps, or Hz)!</span>";
-        } else if (results.includes('nounit')) {
-            unitErrorMade = true;
-            feedback.innerHTML = "<span style='color: #fd7e14;'>Don't forget your units! (Mark lost)</span>";
-        } else if (results.includes('wrongunit')) {
+        if (results.includes('wrongunit')) {
             unitErrorMade = true;
             feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost)</span>";
         } else if (results.some(r => r === 'correct')) {
             feedback.innerHTML = "<span style='color: #dc3545;'>One is right, one is wrong. Check logic!</span>";
         } else {
-            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Check your math!</span>";
+            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Check your math and units!</span>";
         }
     }
 
-    updateScoreboard();
+    if (typeof updateScoreboard === "function") updateScoreboard();
 }
     
 async function processSubmission() {
