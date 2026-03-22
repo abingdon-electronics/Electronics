@@ -1358,7 +1358,7 @@ function generateAnalysisProblem(ctx, canvas) {
         drawResistor(ctx, 300, 295); drawLine(ctx, 300, 320, 300, 360); 
 
         ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 150);
-        ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 80, 150); 
+        ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 150); 
         ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 100);
         ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 150); 
         ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 150); 
@@ -1376,7 +1376,7 @@ function generateAnalysisProblem(ctx, canvas) {
         ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 130); 
         ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 90);
         ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 280);
-        ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 120, 280); 
+        ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 280); 
         ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 230);
         ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 280); 
         ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 280); 
@@ -2991,18 +2991,21 @@ async function processSubmission() {
  
 function parseInput(str) {
     if (!str) return null;
+
     // 1. Lowercase and remove all spaces
+    // This turns "100 Ohms" into "100ohms"
     let cleanStr = str.toLowerCase().replace(/\s+/g, '');
     
-    // 2. Handle Ratios (e.g., 1/3)
+    // 2. Handle Ratios (e.g., 1/3 for Oscilloscope)
     let strippedStr = cleanStr.replace(/[a-z]+$/, '');
     if (/^\d+\/\d+$/.test(strippedStr)) {
         let parts = strippedStr.split('/');
         return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio' };
     }
 
-   // 3. The "Smart" Unit Matcher
-    const match = cleanStr.match(/^(-?[\d\.]+)([a-z\u03a9\u03bc]+)$/);
+    // 3. The "Smart" Unit Matcher
+    // We updated the second bracket to include the literal Ω and μ symbols
+    const match = cleanStr.match(/^(-?[\d\.]+)([a-z\u03a9\u03bcΩμ]+)$/);
     
     if (match) {
         let val = parseFloat(match[1]);
@@ -3010,9 +3013,9 @@ function parseInput(str) {
         let normalizedUnit = "";
 
         // RESISTANCE: kΩ, kohm, kohms, k, Ω, ohm, ohms, r
-        if (rawUnit.match(/^(k\u03a9|kohm|kohms|k)$/)) {
+        if (rawUnit.match(/^(k\u03a9|kΩ|kohm|kohms|k)$/)) {
             normalizedUnit = "kohms";
-        } else if (rawUnit.match(/^(\u03a9|ohm|ohms|r)$/)) {
+        } else if (rawUnit.match(/^(\u03a9|Ω|ohm|ohms|r)$/)) {
             normalizedUnit = "ohms";
         } 
         
@@ -3031,7 +3034,7 @@ function parseInput(str) {
         }
         
         // TIME (For Oscilloscope/Astable): s, sec, seconds, ms, milliseconds
-        else if (rawUnit.match(/^(ms|milliseconds|ms|millisecond)$/)) {
+        else if (rawUnit.match(/^(ms|milliseconds|millisecond)$/)) {
             normalizedUnit = "ms";
         } else if (rawUnit.match(/^(s|sec|secs|seconds|second)$/)) {
             normalizedUnit = "s";
@@ -3044,30 +3047,52 @@ function parseInput(str) {
         return { val: val, unit: normalizedUnit };
     }
 
-    // 4. Fallback for numbers only
-    return { val: parseFloat(cleanStr), unit: '' }; 
+    // 4. Fallback for numbers only (e.g. user just types "100")
+    // This allows the checker to accept "100" as "100 ohms" if logic allows
+    let finalVal = parseFloat(cleanStr);
+    return { val: isNaN(finalVal) ? null : finalVal, unit: '' }; 
 }
 
 function validateMatch(parsedInput, expectedVal, expectedUnit) {
-    // If input is empty or not a number
+    // 1. BASIC VALIDATION
+    // If input is empty, non-existent, or the number couldn't be parsed
     if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
     
     const targetUnit = expectedUnit.toLowerCase();
+    const userUnit = parsedInput.unit.toLowerCase();
 
-    // KEEP THIS: For Oscilloscope Ratios (e.g. 1/3)
+    // 2. OSCILLOSCOPE RATIOS (e.g. 1/3)
+    // Ratios are unitless, so we only check the mathematical value
     if (targetUnit === 'ratio') {
+        // Higher precision check for fractions (0.01)
         return Math.abs(parsedInput.val - expectedVal) < 0.01 ? 'correct' : 'wrongval';
     }
     
-    // For everything else, check value and unit
+    // 3. VALUE MATCHING
+    // Check if the number is within 0.05 of the target (handles rounding)
     const valMatch = Math.abs(parsedInput.val - expectedVal) < 0.05;
-    const unitMatch = parsedInput.unit.toLowerCase() === targetUnit;
     
+    // 4. UNIT MATCHING (The "Smart" Check)
+    // Standard check: Does "kohms" match "kohms"?
+    let unitMatch = (userUnit === targetUnit);
+    
+    // NEW: OHM LENIENCY
+    // If the problem expects "ohms", we accept the answer even if the user 
+    // left the unit blank (userUnit === ""), because Ohms is the base unit.
+    if (targetUnit === "ohms" && userUnit === "") {
+        unitMatch = true;
+    }
+
+    // 5. FINAL DECISION
+    // Both value and unit must be correct
     if (valMatch && unitMatch) return 'correct';
+    
+    // Value is right, but the unit is missing or wrong (e.g. "10" instead of "10k")
     if (valMatch && !unitMatch) return 'wrongunit';
+    
+    // The number itself is just wrong
     return 'wrongval';
 }
-
 function updateScoreboard() {
     const scoreDisplay = document.getElementById('scoreDisplay');
     if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
