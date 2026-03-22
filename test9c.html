@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abingdon School - Electronics Quiz</title>
-   <style>
+<style>
     body { 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
         max-width: 1100px; 
@@ -90,7 +90,6 @@
         border-color: #000;
     }
     
-    /* LAYOUT SECTION - Standardized Panel Heights */
     .main-layout { 
         display: flex; 
         gap: 20px; 
@@ -187,15 +186,14 @@
     .btn-download:hover { background-color: #157347; }
     .btn-download:disabled { background-color: #6c757d; cursor: wait; }
     
-    /* INPUT AREA - FIXES TEXT OFFSET AND ALIGNMENT */
+    /* INPUT AREA - CENTERED AND ALIGNED */
     .input-area { 
         flex-grow: 1;
-        text-align: center; 
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 12px; /* Increased gap for better readability */
+        gap: 12px;
     }
 
     .input-group {
@@ -203,15 +201,15 @@
         align-items: center;
         justify-content: center;
         width: 100%;
-        min-height: 50px;
     }
 
-    /* Fixed width label prevents different text lengths from pushing inputs around */
+    /* Standardized labels: Fixed width + Flexbox for the "=" sign */
     .input-group label, 
     .input-group > span:first-child {
-        width: 100px; /* Standardized width for Vsupply, Vout, Rtotal etc. */
-        text-align: right;
-        display: inline-block;
+        width: 110px; /* Standard width for all labels */
+        display: flex;
+        justify-content: flex-end; /* Align text and = to the right */
+        align-items: center;
         font-size: 20px;
         font-weight: bold;
         color: #E64097;
@@ -219,7 +217,14 @@
         white-space: nowrap;
     }
 
-    /* Standardized styling for ALL input types (Text, Number, Select) */
+    /* This adds the = sign automatically to every label in the quiz section */
+    .input-group label::after, 
+    .input-group span:first-child::after {
+        content: " =";
+        margin-left: 5px;
+    }
+
+    /* Standardized styling for Inputs and Select boxes */
     .quiz-section input[type="text"], 
     .quiz-section input[type="number"],
     .quiz-section select { 
@@ -231,14 +236,13 @@
         box-sizing: border-box;
         text-align: center;
         outline: none;
-        width: 130px; /* Slightly wider to accommodate placeholder text comfortably */
+        width: 130px;
     }
 
     .quiz-section select {
         width: 85px;
         margin-left: 10px;
         background-color: white;
-        cursor: pointer;
     }
 
     .quiz-section input:focus, .quiz-section select:focus {
@@ -246,7 +250,7 @@
         box-shadow: 0 0 5px rgba(230, 64, 151, 0.2);
     }
 
-    /* Hide number arrows for a cleaner look */
+    /* Hide number arrows */
     .quiz-section input[type="number"]::-webkit-inner-spin-button, 
     .quiz-section input[type="number"]::-webkit-outer-spin-button { 
         -webkit-appearance: none; margin: 0; 
