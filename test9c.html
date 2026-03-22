@@ -128,10 +128,23 @@
     
     .input-spacer { height: 55px; visibility: hidden; display: none; /* Changed to none as flexbox handles spacing now */ }
     
+    /* 1. Make the input group a Flex container */
     .input-group { 
-        margin: 6px 0; /* Slightly tighter margin so stacked boxes fit nicely */
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Aligns contents to the left */
+        margin: 8px auto; 
         font-size: 18px; 
         font-weight: bold; 
+        width: 320px; /* Locks the total width so the whole column stays perfectly centered */
+    }
+    
+    /* 2. Target the label (the span or label text) to give it a fixed width */
+    .input-group > span:first-child,
+    .input-group > label {
+        width: 130px; /* Forces all text labels to take up the exact same amount of space */
+        text-align: left; /* Pushes the text (V =, I =) to the left edge */
+        display: inline-block;
     }
     
     .quiz-section input[type="text"] { 
