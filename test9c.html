@@ -2534,24 +2534,24 @@ function closeDataSheet() {
     if (modal) modal.style.display = 'none';
 }
 
-    function openSubmissionModal() {
-            if (problemsAttempted === 0) {
-                alert("Please attempt at least one question before downloading your score!");
-                return;
-            }
-            // Clear previous inputs
-            document.getElementById('studentNameInput').value = '';
-            document.getElementById('teacherSelect').value = '';
-            
-            // Show modal
-            document.getElementById('submissionModal').style.display = 'flex';
-        }
+function openSubmissionModal() {
+    if (problemsAttempted === 0) {
+        alert("Please attempt at least one question before downloading your score!");
+        return;
+    }
+    // Clear previous inputs
+    document.getElementById('studentNameInput').value = '';
+    document.getElementById('teacherSelect').value = '';
+    
+    // Show modal
+    document.getElementById('submissionModal').style.display = 'flex';
+}
 
 function closeModal() {
-            document.getElementById('submissionModal').style.display = 'none';
-        }
+    document.getElementById('submissionModal').style.display = 'none';
+}
 
-// ===============================================================================================================     
+// ===============================================================================================================      
 // MASTER PROBLEM GENERATOR (The "Traffic Cop")
 // This function runs whenever the user clicks "Generate New Problem".
 // It does two main things:
@@ -2627,7 +2627,7 @@ function hubController(ctx, canvas) {
         if (document.getElementById('inputGroupSilicon')) document.getElementById('inputGroupSilicon').style.display = 'inline-block';
         generateSiliconProblem();
     }
-} 
+}
     
 // =======================================================================================================  
 // FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
@@ -2862,8 +2862,6 @@ function checkAnswers() {
 
     updateScoreboard();
 }
-    updateScoreboard();
-}
     
 async function processSubmission() {
     const studentName = document.getElementById('studentNameInput').value.trim();
@@ -3048,8 +3046,8 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
 }
 
 function updateScoreboard() {
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
 }
 
 function provideHint() {
@@ -3098,11 +3096,11 @@ function provideHint() {
 }
 
 function toggleSolutions() {
-            const sol = document.getElementById('solutions');
-            if (!sol) return;
-            if (sol.style.display === 'none' || sol.style.display === '') {
-                sol.style.display = 'block'; viewedSolution = true;
-            } else { sol.style.display = 'none'; }
+    const sol = document.getElementById('solutions');
+    if (!sol) return;
+    if (sol.style.display === 'none' || sol.style.display === '') {
+        sol.style.display = 'block'; viewedSolution = true;
+    } else { sol.style.display = 'none'; }
 }
 
 // ==========================================
@@ -3130,7 +3128,7 @@ function updateZenerSolution(isClosed) {
                 <p>2. All current through Zener: <b>${currentAnswers.targetIZ} mA</b></p>
                 <p>3. P<sub>ZENER</sub> = I<sub>Z</sub> × V<sub>Z</sub><br>
                    ${currentAnswers.targetIZ} mA × ${currentAnswers.Vz} V = <b>${currentAnswers.targetPZ} mW</b></p>
-            </div>`;
+            </div>` ;
     }
 }
     
@@ -3181,6 +3179,10 @@ window.onload = function() {
         goHome(); 
     }
 };
+
 </script>
-</body>
+</body
 </html>
+
+
+
