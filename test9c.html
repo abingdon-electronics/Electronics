@@ -552,25 +552,27 @@ function getSafePowerRating(power_mW) {
     if (input.includes('K')) return false;
 
     // 2. Strict Prefix Check: Reject lowercase 'm' ONLY if it isn't part of the word "ohm"
-    // We check if 'm' exists, but "ohm" (case insensitive) does NOT exist.
     if (input.includes('m') && !input.toLowerCase().includes('ohm')) {
         return false; 
     }
 
-    // 3. MANDATORY UNIT CHECK: Must contain Ω or some version of "ohm/ohms"
+    // 3. MANDATORY UNIT CHECK: Must contain Ω or some version of "ohm/ohms" (Any case)
     const hasUnit = /Ω|ohms?/i.test(input);
     if (!hasUnit) return false; 
 
     // 4. Identify Multiplier
     let multiplier = 1;
-    // Use toLowerCase() here so 'k' or 'M' are caught regardless of what else is in the string
-    const lowerInput = input.toLowerCase();
-    if (lowerInput.includes('k')) multiplier = 1000;
-    if (input.includes('M')) multiplier = 1000000; // Keep Mega as capital M only per your rules
+    // We check lowercase for 'k' but strictly Capital 'M' for Mega per your rules
+    if (input.toLowerCase().includes('k')) multiplier = 1000;
+    if (input.includes('M')) multiplier = 1000000;
 
     // 5. Extract the Number
-    // The 'gi' flags strip k, M, Ω, and ohm/ohms globally and case-insensitively
-    let numericString = input.replace(/[kMΩ]|ohms?/gi, '').trim();
+    // FIX: Remove the word "ohms" FIRST, then remove symbols.
+    // This prevents the 'M' filter from accidentally breaking the word 'ohms'.
+    let numericString = input.replace(/ohms?/gi, '') // Removes OHMS, ohms, Ohm, etc.
+                             .replace(/[kMΩ]/g, '')  // Removes k, M, or Ω symbols
+                             .trim();
+                             
     let userNum = parseFloat(numericString);
 
     if (isNaN(userNum)) return false;
@@ -580,10 +582,12 @@ function getSafePowerRating(power_mW) {
 
     // 7. Tolerance Comparison
     if (tolerance === 0) {
-        // Small epsilon (0.1) handles floating point math errors (e.g. 1.2 * 1000 = 1200.000000002)
+        // 0.1 epsilon prevents "1200.00000002" math errors from failing
         return Math.abs(userTotal - correctValue) < 0.1;
     } else {
-        return Math.abs(userTotal - correctValue) <= (correctValue * tolerance);
+        let diff = Math.abs(userTotal - correctValue);
+        let allowedDiff = correctValue * tolerance;
+        return diff <= allowedDiff;
     }
 }
 
