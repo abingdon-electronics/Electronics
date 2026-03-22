@@ -796,41 +796,51 @@ function drawArrowOnWire(ctx, fromx, fromy, tox, toy) {
 
 // this function deals with adding resistances in series and parallel  
 function generateResistanceProblem(ctx, canvas) {
+    // 1. CLEAR PREVIOUS STATE
     hideAllInputGroups(); 
-    currentMode = 'resistance'; // Make sure the grader knows what page we are on!
-    
-    // BRING BACK THE RESISTANCE BOX
-    const groupR = document.getElementById('inputGroupR');
-    if (groupR) {
-        groupR.style.display = 'flex'; // Unhides the box so you can see it!
-    }
-    
-    // Static placeholder so it doesn't leak the answer
-    const inputR = document.getElementById('inputR');
-    if (inputR) {
-        inputR.placeholder = "e.g. 47";
-        inputR.value = ""; // Clear old answer
-    }
-    
-    const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
-    
-    const labelV = document.getElementById('labelV');
-    if (labelV) {
-        labelV.innerHTML = "<span style='color:" + brandPink + "'>Total Resistance</span> = ";
+    currentMode = 'resistance'; // Flags the grader to use the resistance logic
+
+    // 2. SET THE CONCISE INSTRUCTION TEXT
+    // This updates the bold text above the input area to our new agreed version.
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.innerText = "Calculate the total resistance and select the correct unit.";
     }
 
+    // 3. SHOW AND RESET THE INPUT BOX
+    const groupR = document.getElementById('inputGroupR');
+    if (groupR) {
+        groupR.style.display = 'flex'; // Unhides the flex container for R input
+    }
+    
+    const inputR = document.getElementById('inputR');
+    if (inputR) {
+        inputR.placeholder = "Value"; // Generic placeholder
+        inputR.value = "";             // Clear old answer from previous round
+    }
+    
+    // 4. SET THE PINK LABEL
+    // Shortened to "Total R =" so it doesn't wrap inside the 65px CSS label box.
+    const labelV = document.getElementById('labelV');
+    if (labelV) {
+        labelV.innerHTML = "Total R ="; 
+    }
+
+    // 5. PREPARE CANVAS AND RANDOMIZE UNIT
+    const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = brandBlack; 
     ctx.lineWidth = 2; 
     ctx.font = "bold 18px Arial";
 
-    // Draw Rails
+    // Draw Voltage Rails
     drawLine(ctx, 150, 60, 450, 60); 
     drawLine(ctx, 150, 360, 450, 360); 
     ctx.fillStyle = brandBlack; 
     ctx.fillText("+Vsupply", 260, 45); 
     ctx.fillText("0V (GND)", 260, 390);
 
+    // 6. SELECT SCENARIO (0: Series, 1: Parallel, 2: Mixed)
     const scenario = Math.floor(Math.random() * 3);
     let rTotal, logicHTML;
 
@@ -845,6 +855,7 @@ function generateResistanceProblem(ctx, canvas) {
         logicHTML += "R<sub>Total</sub> = R\u2081 + R\u2082<br>";
         logicHTML += "R<sub>Total</sub> = " + r1 + " + " + r2 + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
 
+        // Draw Series Layout
         drawLine(ctx, 300, 60, 300, 120); 
         drawResistor(ctx, 300, 145); 
         drawLine(ctx, 300, 170, 300, 230);
@@ -869,6 +880,7 @@ function generateResistanceProblem(ctx, canvas) {
         const topRailY = 110;
         const bottomRailY = 310;
 
+        // Draw Parallel Circuit
         drawLine(ctx, 300, 60, 300, topRailY);
         drawLine(ctx, 220, topRailY, 380, topRailY);
         drawLine(ctx, 220, topRailY, 220, midY - 25);
@@ -891,7 +903,7 @@ function generateResistanceProblem(ctx, canvas) {
         logicHTML += "R<sub>Total</sub> = " + (pair.r1 * pair.r2) + " / " + (pair.r1 + pair.r2) + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
 
     } else {
-        // --- SCENARIO 2: SERIES-PARALLEL ---
+        // --- SCENARIO 2: SERIES-PARALLEL (MIXED) ---
         const sp = [
             {r1: 10, r2: 20, r3: 20, rp: 10, req: 20}, 
             {r1: 15, r2: 30, r3: 60, rp: 20, req: 35}, 
@@ -900,6 +912,7 @@ function generateResistanceProblem(ctx, canvas) {
         const s = sp[Math.floor(Math.random() * sp.length)];
         rTotal = s.req;
 
+        // Draw Mixed Layout
         drawLine(ctx, 300, 60, 300, 90); 
         drawResistor(ctx, 300, 115); 
         drawLine(ctx, 300, 140, 300, 180);
@@ -926,10 +939,11 @@ function generateResistanceProblem(ctx, canvas) {
         logicHTML += "R<sub>Total</sub> = R\u2081 + R<sub>p</sub> = " + s.r1 + " + " + s.rp + " = <strong>" + s.req + " " + rUnitVisual + "</strong>";
     }
 
-    // Storage for the checker (UPDATED for Dropdown Support)
+    // 7. STORE CORRECT ANSWERS FOR GRADER
     currentAnswers.rValue = rTotal; 
-    currentAnswers.rTargetUnit = rUnitVisual; // Stores exact symbol ('kΩ' or 'Ω') for validateMatch
+    currentAnswers.rTargetUnit = rUnitVisual; // Stores 'kΩ' or 'Ω' for exact validation
     
+    // 8. UPDATE SOLUTION DRAWER
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = logicHTML;
 }
