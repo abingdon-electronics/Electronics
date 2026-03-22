@@ -130,6 +130,7 @@
     
     /* 1. Make the input group a Flex container */
    /* This shrinks the main row and shifts it towards the left */
+/* 1. Widen the container slightly to fit the Dropdown Menus */
     .input-group { 
         display: flex;
         align-items: center;
@@ -137,35 +138,62 @@
         margin: 8px auto; 
         font-size: 18px; 
         font-weight: bold; 
-        width: 250px; /* Tightens the total width so it doesn't float in the middle */
+        width: 290px; /* Widened to fit Label + Input + Dropdown perfectly */
     }
     
-    /* 2. Target the label (the span or label text) to give it a fixed width */
-    /* This restricts the label (e.g. "V =") so it doesn't push the box miles away */
+    /* 2. Fix the stacking label by forcing it onto one line */
     .input-group > span:first-child,
     .input-group > label {
-        width: 65px; /* Just wide enough for the text and equals sign */
+        width: 85px; /* Increased to comfortably fit "RTOTAL =" */
+        white-space: nowrap; /* FORCES it to never wrap to a second line */
         text-align: left; 
         display: inline-block;
-        margin-right: 5px; /* Tiny 5px gap before the text box starts */
+        margin-right: 5px; 
     }
     
-    .quiz-section input[type="text"] { 
+    /* 3. Apply the beautiful rounded styling to BOTH text and number inputs */
+    .quiz-section input[type="text"], 
+    .quiz-section input[type="number"] { 
         font-size: 18px; 
         padding: 10px;  
         height: 45px;   
-        width: 140px;   
+        width: 120px; /* Slightly narrower to leave room for the dropdown */
         text-align: center;
-        margin: 0 5px; 
+        margin: 0; 
         border: 2px solid #ccc; 
         border-radius: 6px; 
-        outline: none; /* Changed from outline-color */
+        outline: none; 
         box-sizing: border-box; 
     }
     
-    /* FIX: Added higher specificity to remove the need for !important */
-    .quiz-section input[type="text"]:focus {
+    .quiz-section input[type="text"]:focus,
+    .quiz-section input[type="number"]:focus {
         border-color: #E64097; 
+    }
+
+    /* 4. Hide the clunky up/down arrows inside number inputs */
+    .quiz-section input[type="number"]::-webkit-inner-spin-button, 
+    .quiz-section input[type="number"]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; margin: 0; 
+    }
+    .quiz-section input[type="number"] { -moz-appearance: textfield; }
+
+    /* 5. Style the unit Dropdown so it perfectly matches the input box! */
+    .quiz-section select {
+        font-size: 18px;
+        padding: 0 10px;
+        height: 45px;
+        margin-left: 8px; /* Gap between number box and dropdown */
+        border: 2px solid #ccc;
+        border-radius: 6px;
+        outline: none;
+        box-sizing: border-box;
+        background-color: white;
+        cursor: pointer;
+    }
+
+    .quiz-section select:focus {
+        border-color: #E64097;
     }
     
     /* FIX: Added Mozilla and MS prefixes for cross-browser placeholder support */
