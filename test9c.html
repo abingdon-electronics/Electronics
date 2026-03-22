@@ -123,16 +123,16 @@
         font-weight: bold; font-size: 16px; color: #E64097; box-shadow: 0 2px 4px rgba(230, 64, 151, 0.1); 
     }
     
-    /* ============================================================
-       4. QUIZ INPUT GROUPS - SHRUNK & LEFT-ALIGNED
+/* ============================================================
+       4. QUIZ INPUT GROUPS - SHRUNK & TIGHTLY LEFT-ALIGNED
        ============================================================ */
     .input-area { 
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start; /* Pushes items up closer to the instructions */
-        align-items: flex-start;     /* CRITICAL: Left-justifies the entire block of questions */
-        gap: 10px;                   /* Tighter spacing between questions */
+        justify-content: flex-start; 
+        align-items: flex-start;     
+        gap: 10px;                   
         margin-top: 15px;
     }
 
@@ -140,7 +140,7 @@
         display: flex; 
         flex-direction: row !important; 
         align-items: center !important;
-        justify-content: flex-start !important; /* Keeps boxes pulled to the left */
+        justify-content: flex-start !important; 
         width: 100% !important;
         flex-wrap: nowrap !important;
         margin: 4px 0;
@@ -151,26 +151,27 @@
         display: flex !important;
     }
 
-    /* Smaller, left-justified labels */
+    /* Tighter labels to pull boxes left, right-aligned to hug the boxes */
     .input-group label, 
     .input-group > span:first-child {
-        width: 80px !important;        /* Tighter width to keep boxes close to text */
-        min-width: 80px !important;   
-        text-align: left !important;   /* LEFT-justifies the text itself */
-        font-size: 16px !important;    /* SHRUNK from 18px (and originally 24px) */
+        width: 65px !important;        /* SHRUNK from 80px to pull the boxes further left */
+        min-width: 65px !important;   
+        text-align: right !important;  /* RIGHT-aligns the text so the "=" sign hugs the box */
+        font-size: 16px !important;    
         font-weight: 800 !important;
         color: #E64097 !important;
-        margin: 0 10px 0 0 !important; 
+        margin: 0 8px 0 0 !important;  /* Smaller gap between text and box */
         display: flex !important;
-        justify-content: flex-start !important; /* Aligns label contents left */
+        justify-content: flex-end !important; /* Pushes text against the box */
         align-items: center !important;
-        flex-shrink: 0 !important;     
+        flex-shrink: 0 !important;
+        white-space: nowrap !important; /* Prevents text from breaking onto two lines */
     }
 
-    /* Complex Overrides */
+    /* Complex Overrides (Zener, Colors, etc.) */
     #inputGroupZener, #zenerClosedQuestions, #zenerOpenQuestions, #inputGroupGrade9Zener, #inputGroupColorNames {
         flex-direction: column !important;
-        align-items: flex-start !important; /* Ensures complex groups also left-align */
+        align-items: flex-start !important; 
     }
 
     #inputGroupZener label, 
@@ -181,17 +182,17 @@
         min-width: 0 !important;
         text-align: left !important;
         color: #333 !important;
-        font-size: 14px !important; /* Standardized small font for complex text */
+        font-size: 14px !important; 
         margin-bottom: 4px !important;
         display: block !important;
     }
 
-    /* Shrunk input boxes for a sleeker look */
+    /* Shrunk input boxes */
     .quiz-section input[type="text"], 
     .quiz-section input[type="number"] { 
-        height: 36px !important;       /* SHRUNK from 40px */
-        width: 95px !important;        /* SHRUNK from 110px */
-        font-size: 15px !important;    /* SHRUNK from 16px */
+        height: 36px !important;       
+        width: 95px !important;        
+        font-size: 15px !important;    
         border: 2px solid #ccc !important;
         border-radius: 6px !important;
         padding: 4px 8px !important;
@@ -204,8 +205,8 @@
 
     /* Shrunk Dropdowns */
     .quiz-section select {
-        height: 36px !important;       /* SHRUNK from 40px */
-        width: 65px !important;        /* SHRUNK from 75px */
+        height: 36px !important;       
+        width: 65px !important;        
         margin-left: 8px !important;
         background-color: white !important;
         border: 2px solid #ccc !important;
