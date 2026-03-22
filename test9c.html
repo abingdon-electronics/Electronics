@@ -551,26 +551,29 @@ function getSafePowerRating(power_mW) {
     // 1. Strict Prefix Check (Reject K and m)
     if (input.includes('K') || input.includes('m')) return false;
 
-    // 2. Identify Multiplier
+    // 2. FORCE UNIT CHECK: 
+    // This regex checks if the string contains k, M, Ω, or any version of "ohm"
+    const hasUnit = /[kMΩ]|ohms?/i.test(input);
+    if (!hasUnit) return false; // Reject if no unit or prefix is present
+
+    // 3. Identify Multiplier
     let multiplier = 1;
     if (input.includes('k')) multiplier = 1000;
     if (input.includes('M')) multiplier = 1000000;
 
-    // 3. Extract the Number (Remove units: ohm, Ω, k, M)
+    // 4. Extract the Number (Remove units to calculate)
     let numericString = input.replace(/[kM]|ohms?|Ω/gi, '').trim();
     let userNum = parseFloat(numericString);
 
     if (isNaN(userNum)) return false;
 
-    // 4. Calculate Absolute Value
+    // 5. Calculate Absolute Value
     let userTotal = userNum * multiplier;
 
-    // 5. Apply Tolerance Logic
+    // 6. Apply Tolerance Logic
     if (tolerance === 0) {
-        // Zero Tolerance: Must be exactly the same
         return userTotal === correctValue;
     } else {
-        // Sig Fig / Percentage Tolerance: Check if within range
         let diff = Math.abs(userTotal - correctValue);
         let allowedDiff = correctValue * tolerance;
         return diff <= allowedDiff;
@@ -2680,7 +2683,7 @@ function checkAnswers() {
 
     // 3. Grade the inputs
     let results = [];
-    const generalTolerance = 0.2; // For basic voltage/current math
+    const generalTolerance = 0.2; 
     
     if (currentMode === 'zener') {
         if (currentZenerState === "closed") {
@@ -2711,16 +2714,20 @@ function checkAnswers() {
     else if (currentMode === 'colorcode') {
         const valGroup = document.getElementById('inputGroupColorVal');
         if (valGroup && valGroup.style.display !== 'none') {
-            // NEW: Use validateScientificValue for Resistance with ZERO tolerance
             const userResStr = document.getElementById('inputResValue').value;
-            const isResCorrect = validateScientificValue(userResStr, currentAnswers.resVal, 0);
-            results.push(isResCorrect ? 'correct' : 'wrong');
+            
+            // Check if they forgot the unit entirely
+            const hasUnit = /[kMΩ]|ohms?/i.test(userResStr);
+            if (!hasUnit) {
+                results.push('missingunit');
+            } else {
+                const isResCorrect = validateScientificValue(userResStr, currentAnswers.resVal, 0);
+                results.push(isResCorrect ? 'correct' : 'wrong');
+            }
 
-            // Tolerance check (Percentage number)
             const userTol = parseFloat(document.getElementById('inputResTol').value);
             results.push(userTol === currentAnswers.resTol ? 'correct' : 'wrong');
         } else {
-            // Band Names check
             const b1 = document.getElementById('inputBand1').value.toLowerCase().trim();
             const b2 = document.getElementById('inputBand2').value.toLowerCase().trim();
             const b3 = document.getElementById('inputBand3').value.toLowerCase().trim();
@@ -2752,7 +2759,6 @@ function checkAnswers() {
         }
     } else if (currentMode === 'astable') {
         if (currentAnswers.astableQType === 0) {
-            // NEW: Use validateScientificValue for calculations (1% tolerance)
             const userFStr = document.getElementById('inputAstable').value;
             const userTStr = document.getElementById('inputAstableT').value;
             results.push(validateScientificValue(userFStr, currentAnswers.astableValue, 0.01) ? 'correct' : 'wrong');
@@ -2763,7 +2769,6 @@ function checkAnswers() {
         }
     } 
     else if (currentMode === 'monostable') {
-        // NEW: Use validateScientificValue for calculated monostable (1% tolerance)
         const userMonoStr = document.getElementById('inputMonostable').value;
         results.push(validateScientificValue(userMonoStr, currentAnswers.expectedT, 0.01) ? 'correct' : 'wrong');
     }
@@ -2794,9 +2799,10 @@ function checkAnswers() {
 
     } else {
         if (helpBtn) helpBtn.style.display = 'block';
-        // Note: 'nounit' and 'wrongunit' originate from your older validateMatch function. 
-        // validateScientificValue returns false (wrong) for prefix errors.
-        if (results.includes('nounit')) {
+        
+        if (results.includes('missingunit')) {
+            feedback.innerHTML = "<span style='color: #fd7e14;'>You must include the unit (e.g., Ω or Ohms)!</span>";
+        } else if (results.includes('nounit')) {
             unitErrorMade = true;
             feedback.innerHTML = "<span style='color: #fd7e14;'>Don't forget your units! (Mark lost)</span>";
         } else if (results.includes('wrongunit')) {
