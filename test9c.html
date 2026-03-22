@@ -129,22 +129,25 @@
     .input-spacer { height: 55px; visibility: hidden; display: none; /* Changed to none as flexbox handles spacing now */ }
     
     /* 1. Make the input group a Flex container */
+   /* This shrinks the main row and shifts it towards the left */
     .input-group { 
         display: flex;
         align-items: center;
-        justify-content: flex-start; /* Aligns contents to the left */
+        justify-content: flex-start; 
         margin: 8px auto; 
         font-size: 18px; 
         font-weight: bold; 
-        width: 320px; /* Locks the total width so the whole column stays perfectly centered */
+        width: 250px; /* Tightens the total width so it doesn't float in the middle */
     }
     
     /* 2. Target the label (the span or label text) to give it a fixed width */
+    /* This restricts the label (e.g. "V =") so it doesn't push the box miles away */
     .input-group > span:first-child,
     .input-group > label {
-        width: 130px; /* Forces all text labels to take up the exact same amount of space */
-        text-align: left; /* Pushes the text (V =, I =) to the left edge */
+        width: 65px; /* Just wide enough for the text and equals sign */
+        text-align: left; 
         display: inline-block;
+        margin-right: 5px; /* Tiny 5px gap before the text box starts */
     }
     
     .quiz-section input[type="text"] { 
@@ -251,25 +254,25 @@
         </div>
 
         <div class="right-panel">
-            <div class="quiz-section">
-                
-                <div id="questionText" style="font-weight: bold; margin-bottom: 15px; color: #333; min-height: 45px; border-bottom: 1px solid #f2c7db; padding-bottom: 10px;"></div>
-                
-               <div class="quiz-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px;">
-    
-                    <div class="scoreboard" id="scoreDisplay" style="margin: 0;">Score: 0 / 0</div>
-
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-download" id="downloadBtn" onclick="openSubmissionModal()" style="margin: 0; padding: 8px 10px; font-size: 14px; width: 120px;">
-                            ⬇️ Download
-                        </button>
+    <div class="quiz-section">
         
-                        <button id="dataSheetBtn" class="btn-secondary" onclick="openDataSheet()" style="margin: 0; padding: 8px 10px; font-size: 14px; width: 120px;">
-                            📖 Data Sheet
-                        </button>
-                    </div>
-                </div>
-                  
+        <div class="quiz-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #f2c7db; padding-bottom: 15px; margin-bottom: 15px;">
+            
+            <div class="scoreboard" id="scoreDisplay" style="margin: 0;">Score: 0 / 0</div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-download" id="downloadBtn" onclick="openSubmissionModal()" style="margin: 0; padding: 8px 10px; font-size: 14px; width: 120px;">
+                    ⬇️ Download
+                </button>
+        
+                <button id="dataSheetBtn" class="btn-secondary" onclick="openDataSheet()" style="margin: 0; padding: 8px 10px; font-size: 14px; width: 120px;">
+                    📖 Data Sheet
+                </button>
+            </div>
+            
+        </div>
+        
+        <div id="questionText" style="font-weight: bold; margin-bottom: 20px; color: #333; text-align: left; min-height: 24px;"></div>
                 <div class="input-area">
 
                     <div class="input-group" id="inputGroupV" style="display:none;">
