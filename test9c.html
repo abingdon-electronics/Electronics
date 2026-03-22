@@ -1705,13 +1705,22 @@ function generateAstableProblem() {
     line(400, 190, 460, 190); ctx.textAlign = "right"; ctx.fillText("3", 395, 195);
     ctx.textAlign = "left"; ctx.fillText("Output", 465, 195);
 
-    // 8. Update Solution Text
+    // 8. Update Solution Text with Formula and Working
     if (solBox) {
-        solBox.innerHTML = qType === 0 ? 
-            "<strong>f</strong> = " + freq.toFixed(1) + " Hz, <strong>T</strong> = " + period_ms.toFixed(1) + " ms" :
-            "<strong>Ratio</strong> = (R1 + R2) / R2 = <strong>" + ratioString + "</strong>";
+        let solHTML = "";
+        if (qType === 0) {
+            // Working for Frequency and Period
+            solHTML = `<strong>Formula:</strong> f = 1.44 / ((R1 + 2R2) × C)<br>`;
+            solHTML += `<strong>Working:</strong> f = 1.44 / ((${R1/1000}k + 2×${R2/1000}k) × ${C_uF}μF)<br>`;
+            solHTML += `<strong>Results:</strong> f = <strong>${freq.toFixed(1)} Hz</strong>, T = <strong>${period_ms.toFixed(1)} ms</strong>`;
+        } else {
+            // Working for Mark-Space Ratio
+            solHTML = `<strong>Formula:</strong> Ratio = (R1 + R2) : R2<br>`;
+            solHTML += `<strong>Working:</strong> (${R1/1000}k + ${R2/1000}k) : ${R2/1000}k = ${num/1000}k : ${den/1000}k<br>`;
+            solHTML += `<strong>Simplified Ratio:</strong> <strong>${ratioString}</strong>`;
+        }
+        solBox.innerHTML = solHTML;
     }
-}
     
 function drawMonostable(ctx, R, C, rUnit, cUnit) {
     ctx.clearRect(0, 0, 600, 420);
