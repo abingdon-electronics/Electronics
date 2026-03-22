@@ -161,7 +161,7 @@
     </style>
 </head>
 
-<body>     
+<body>      
 <div class="header">
     <h1><span>Abingdon</span> Electronics</h1>
     <p id="moduleSubtitle">Mastering the GCSE Course</p>
@@ -223,15 +223,14 @@
 
                     <div style="display: flex; gap: 10px;">
                         <button class="btn-download" id="downloadBtn" onclick="openSubmissionModal()" style="margin: 0; padding: 8px 10px; font-size: 14px; width: 120px;">
-                            &#11015; Download
+                            ⬇️ Download
                         </button>
         
-        <button id="dataSheetBtn" class="btn-secondary" onclick="openDataSheet()" style="margin: 0; padding: 8px 10px; font-size: 14px; width: 120px;">
-            📖 Data Sheet
-        </button>
-    </div>
-    
-</div>
+                        <button id="dataSheetBtn" class="btn-secondary" onclick="openDataSheet()" style="margin: 0; padding: 8px 10px; font-size: 14px; width: 120px;">
+                            📖 Data Sheet
+                        </button>
+                    </div>
+                </div>
                   
                 <div class="input-area">
 
@@ -239,19 +238,25 @@
                         <label id="labelV" for="inputV">V = </label>
                         <input type="text" id="inputV" placeholder="e.g. 10 mV">
                     </div>
+
                     <div class="input-group" id="inputGroupI" style="display:none;">
-                           <label id="labelI" for="inputI">I = </label>
+                        <label id="labelI" for="inputI">I = </label>
                         <input type="text" id="inputI" placeholder="e.g. 5 mA">
                     </div>
 
-                    <div class="input-group" id="inputGroupR" style="display:none;">
+                    <div class="input-group" id="inputGroupR" style="display:none; align-items: center; gap: 5px;">
                         <label id="labelR" for="inputR">R<sub>TOTAL</sub> = </label>
-                        <input type="text" id="inputR" placeholder="e.g. 10 ohms" style="height: 45px; width: 160px; font-size: 18px; padding: 10px;">
+                        <input type="number" id="inputR" placeholder="Value" style="height: 45px; width: 100px; font-size: 18px; padding: 10px;">
+                        <select id="unitR" style="height: 45px; font-size: 18px; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="Ω">Ω</option>
+                            <option value="kΩ">kΩ</option>
+                            <option value="MΩ">MΩ</option>
+                        </select>
                     </div>
 
                     <div class="input-group" id="inputGroupMonostable" style="display:none;">
                         <label id="labelMonostable" for="inputMonostable">T = </label>
-                        <input type="text" id="inputMonostable" style="width: 140px;">
+                        <input type="text" id="inputMonostable" style="width: 140px;" placeholder="e.g. 1.5 s">
                         <div id="monostableInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px; font-style: italic;"></div>
                     </div>
                         
@@ -300,125 +305,123 @@
 
                     <div id="inputGroupZener" class="input-group" style="display:none; text-align: left; width: 100%;">
     
-    <div id="zenerClosedQuestions" class="input-group" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
-        <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is CLOSED. Calculate:</p>
-        <div style="margin-bottom: 15px;">
-            <label for="zenerQ_IL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Max Load Current (I<sub>L</sub>):</label>
-            <input type="text" id="zenerQ_IL" placeholder="e.g. 15.2 mA">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label for="zenerQ_VL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Load Voltage (V<sub>L</sub>):</label>
-            <input type="text" id="zenerQ_VL" placeholder="e.g. 12.0 V">
-        </div>
-    </div>
+                        <div id="zenerClosedQuestions" class="input-group" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
+                            <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is CLOSED. Calculate:</p>
+                            <div style="margin-bottom: 15px;">
+                                <label for="zenerQ_IL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Max Load Current (I<sub>L</sub>):</label>
+                                <input type="text" id="zenerQ_IL" placeholder="e.g. 15.2 mA">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="zenerQ_VL" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Load Voltage (V<sub>L</sub>):</label>
+                                <input type="text" id="zenerQ_VL" placeholder="e.g. 12.0 V">
+                            </div>
+                        </div>
 
-    <div id="zenerOpenQuestions" class="input-group" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
-        <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is OPEN. Calculate:</p>
-        <div style="margin-bottom: 15px;">
-            <label for="zenerQ_IZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Zener Current (I<sub>Z</sub>):</label>
-            <input type="text" id="zenerQ_IZ" placeholder="e.g. 24.5 mA">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label for="zenerQ_PZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Zener Power (P<sub>Z</sub>):</label>
-            <input type="text" id="zenerQ_PZ" placeholder="e.g. 150.0 mW">
-        </div>
-    </div>
-    
-</div>
+                        <div id="zenerOpenQuestions" class="input-group" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
+                            <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is OPEN. Calculate:</p>
+                            <div style="margin-bottom: 15px;">
+                                <label for="zenerQ_IZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">1. Zener Current (I<sub>Z</sub>):</label>
+                                <input type="text" id="zenerQ_IZ" placeholder="e.g. 24.5 mA">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="zenerQ_PZ" style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">2. Zener Power (P<sub>Z</sub>):</label>
+                                <input type="text" id="zenerQ_PZ" placeholder="e.g. 150.0 mW">
+                            </div>
+                        </div>
+                    </div>
 
-
-
-    <div id="inputGroupGrade9Zener" class="input-group" style="display: none; margin-top: 15px;">
-    
-    <div id="g9ZenerClosed" style="display: none;">
-        <div style="margin-bottom: 15px;">
-            <label>Max Load Current (I<sub>L</sub>): </label>
-            <input type="text" id="g9IL" placeholder="e.g. 15.2 mA">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label>Zener Current (I<sub>Z</sub>): </label>
-            <input type="text" id="g9IZ" placeholder="e.g. 24.5 mA">
-        </div>
-    </div>
-
-   <div id="g9ZenerOpen" style="display: none;">
-        <div style="margin-bottom: 15px;">
-            <label>Max Zener Power (P<sub>Z</sub>): </label>
-            <input type="text" id="g9PZ" placeholder="e.g. 150.0 mW">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label>Minimum P<sub>Z</sub> Rating (1 s.f.): </label>
-            <input type="text" id="g9Rating" placeholder="e.g. 200 mW">
-        </div>
-    </div>
-
-</div>
-
+                    <div id="inputGroupGrade9Zener" class="input-group" style="display: none; margin-top: 15px;">
                     
-<div id="instructionPrompt" class="instruction-text" style="text-align: center; margin-bottom: 10px; font-size: 18px; display: none;"></div>
-                    
-<div class="input-group" id="inputGroupColorVal" style="display:none; text-align: center; width: 100%; margin-top: 15px; display: flex; align-items: center; justify-content: center;">
-    <input type="text" id="inputResValue" placeholder="e.g. 520 Ohms" style="width: 180px; padding: 8px; font-size: 16px;">
-    
-    <span style="font-size: 20px; font-weight: bold; margin: 0 10px;">&plusmn;</span>
-    
-    <input type="text" id="inputResTol" placeholder="e.g. 5" style="width: 70px; padding: 8px; font-size: 16px;">
-    
-    <span style="font-size: 20px; font-weight: bold; margin-left: 5px;">%</span>
-</div>
-<div id="inputGroupColorNames" class="input-group" style="display:none; flex-direction: column; gap: 15px; margin-top: 15px; align-items: center;">
-    
-    <div style="display: flex; gap: 25px; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <label for="inputBand1" style="font-weight: bold; font-size: 16px; margin: 0;">Band 1:</label>
-            <input type="text" id="inputBand1" placeholder="e.g. red" style="width: 93px;">
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <label for="inputBand2" style="font-weight: bold; font-size: 16px; margin: 0;">Band 2:</label>
-            <input type="text" id="inputBand2" placeholder="e.g. grey" style="width: 93px;">
-        </div>
-    </div>
+                        <div id="g9ZenerClosed" style="display: none;">
+                            <div style="margin-bottom: 15px;">
+                                <label>Max Load Current (I<sub>L</sub>): </label>
+                                <input type="text" id="g9IL" placeholder="e.g. 15.2 mA">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label>Zener Current (I<sub>Z</sub>): </label>
+                                <input type="text" id="g9IZ" placeholder="e.g. 24.5 mA">
+                            </div>
+                        </div>
 
-    <div style="display: flex; gap: 25px; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <label for="inputBand3" style="font-weight: bold; font-size: 16px; margin: 0;">Band 3:</label>
-            <input type="text" id="inputBand3" placeholder="e.g. blue" style="width: 93px;">
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <label for="inputBandTol" style="font-weight: bold; font-size: 16px; margin: 0;">Band 4:</label>
-            <input type="text" id="inputBandTol" placeholder="e.g. gold" style="width: 93px;">
-        </div>
-    </div>
+                        <div id="g9ZenerOpen" style="display: none;">
+                            <div style="margin-bottom: 15px;">
+                                <label>Max Zener Power (P<sub>Z</sub>): </label>
+                                <input type="text" id="g9PZ" placeholder="e.g. 150.0 mW">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label>Minimum P<sub>Z</sub> Rating (1 s.f.): </label>
+                                <input type="text" id="g9Rating" placeholder="e.g. 200 mW">
+                            </div>
+                        </div>
+                    </div>
 
-</div>
-                </div> <div style="margin-top: 20px;">
+                    <div id="instructionPrompt" class="instruction-text" style="text-align: center; margin-bottom: 10px; font-size: 18px; display: none;"></div>
+                        
+                    <div class="input-group" id="inputGroupColorVal" style="display:none; text-align: center; width: 100%; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        <input type="number" id="inputResValue" placeholder="Value" style="width: 100px; padding: 8px; font-size: 16px;">
+                        <select id="unitResColor" style="padding: 8px; font-size: 16px; border-radius: 4px;">
+                            <option value="Ω">Ω</option>
+                            <option value="kΩ">kΩ</option>
+                            <option value="MΩ">MΩ</option>
+                        </select>
+                        
+                        <span style="font-size: 20px; font-weight: bold; margin: 0 5px;">±</span>
+                        
+                        <input type="text" id="inputResTol" placeholder="Tol" style="width: 60px; padding: 8px; font-size: 16px;">
+                        
+                        <span style="font-size: 20px; font-weight: bold; margin-left: 5px;">%</span>
+                    </div>
+
+                    <div id="inputGroupColorNames" class="input-group" style="display:none; flex-direction: column; gap: 15px; margin-top: 15px; align-items: center;">
+                        <div style="display: flex; gap: 25px; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="inputBand1" style="font-weight: bold; font-size: 16px; margin: 0;">Band 1:</label>
+                                <input type="text" id="inputBand1" placeholder="e.g. red" style="width: 93px;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="inputBand2" style="font-weight: bold; font-size: 16px; margin: 0;">Band 2:</label>
+                                <input type="text" id="inputBand2" placeholder="e.g. grey" style="width: 93px;">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 25px; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="inputBand3" style="font-weight: bold; font-size: 16px; margin: 0;">Band 3:</label>
+                                <input type="text" id="inputBand3" placeholder="e.g. blue" style="width: 93px;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="inputBandTol" style="font-weight: bold; font-size: 16px; margin: 0;">Band 4:</label>
+                                <input type="text" id="inputBandTol" placeholder="e.g. gold" style="width: 93px;">
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+
+                <div style="margin-top: 20px;">
                     <button class="btn-check" onclick="checkAnswers()" style="padding: 10px 20px; background-color: #E64097; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Check Answer(s)</button>
                     <div id="feedback" class="feedback" style="margin-top: 15px; font-weight: bold; min-height: 1.2em;"></div>
                 </div>
                     
                 <div class="controls">
                     <div style="display: flex; gap: 10px; width: 100%;">
-        
                         <button class="btn-black" onclick="handleGenerateClick()" style="flex: 1; margin: 0; padding: 10px 5px;">New Problem</button>
-        
                         <button id="grade9DividerBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge</button>
                         <button id="grade9ResistorBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge</button>
                         <button id="grade9ZenerBtn" class="btn-check" style="background-color: #FFD700; color: #000; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9ZenerProblem()">🏆 Grade 9 Challenge</button>
                     </div>
-    
-                <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none; width: 100%; margin-top: 5px;">Need Help? (Show Solution)</button>
-            </div>
+                    <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none; width: 100%; margin-top: 5px;">Need Help? (Show Solution)</button>
+                </div>
 
                 <div id="solutions" class="solutions" style="display:none;">
                     <h3>Step-by-Step Logic</h3>
                     <p id="solText"></p>
                 </div>
-
-            </div> </div> </div> </div> 
+            </div> 
+        </div> 
+    </div> 
+</div> 
     
-        <div id="submissionModal" class="modal-overlay" style="display: none;">
-    
-        <div class="modal-content">
+<div id="submissionModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
         <h3>Submit Your Score</h3>
         <div class="form-group">
             <label for="studentNameInput">Your Name:</label>
@@ -448,22 +451,22 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 10px; color: #333;">
             <div>
                 <h4 style="margin-bottom: 5px; color: #000;">Basic Laws</h4>
-                <p>V = I &times; R</p>
-                <p>P = I &times; V</p>
+                <p>V = I × R</p>
+                <p>P = I × V</p>
             </div>
             <div>
                 <h4 style="margin-bottom: 5px; color: #000;">Resistance</h4>
                 <p>Series: R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub></p>
-                <p>Parallel: R<sub>p</sub> = (R<sub>1</sub> &times; R<sub>2</sub>) / (R<sub>1</sub> + R<sub>2</sub>)</p>
+                <p>Parallel: R<sub>p</sub> = (R<sub>1</sub> × R<sub>2</sub>) / (R<sub>1</sub> + R<sub>2</sub>)</p>
             </div>
             <div>
                 <h4 style="margin-bottom: 5px; color: #000;">Potential Dividers</h4>
-                <p>V<sub>OUT</sub> = V<sub>IN</sub> &times; (R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>))</p>
+                <p>V<sub>OUT</sub> = V<sub>IN</sub> × (R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>))</p>
             </div>
             <div>
                 <h4 style="margin-bottom: 5px; color: #000;">555 Timing</h4>
-                <p>f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) &times; C)</p>
-                <p>T = 0.693 &times; (R<sub>1</sub> + 2R<sub>2</sub>) &times; C</p>
+                <p>f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) × C)</p>
+                <p>T = 0.693 × (R<sub>1</sub> + 2R<sub>2</sub>) × C</p>
                 <p style="margin-top: 10px; font-weight: bold;">T<sub>ON</sub> / T<sub>OFF</sub> = (R<sub>1</sub> + R<sub>2</sub>) / R<sub>2</sub></p>
             </div>
             <div>
@@ -477,6 +480,7 @@
         </div>
     </div>
 </div>
+</body>
 <script>
 // SCRIPT STARTS NOW============================================================================      
 // GLOBAL VARIABLES
@@ -541,67 +545,6 @@ function getSafePowerRating(power_mW) {
     return firstDigit * mag;
 }
 
-
-/**
- * @param {string} userInput - What the student typed (e.g. "520 Ohms")
- * @param {number} correctValue - The raw numerical answer (e.g. 520)
- * @param {number} tolerance - 0 for exact, or a decimal (e.g. 0.02 for 2%)
- */
-
-function validateScientificValue(userInput, correctValue, tolerance = 0, unitSymbol = 'Ω') {
-    let input = userInput.trim();
-    
-    // 1. Strict Prefix Check: Reject Capital 'K'
-    if (input.includes('K')) return false;
-
-    // 2. Map unit symbols to their full word counterparts
-    const unitNames = {
-        'Ω': 'ohms?',
-        'v': 'volts?',
-        'a': 'amps?',
-        'w': 'watts?',
-        'hz': 'hertz',
-        's': 'seconds?',
-        'f': 'farads?'
-    };
-    
-    const unitWord = unitNames[unitSymbol.toLowerCase()] || 'ohms?';
-
-    // 3. Strict Prefix Check: Reject lowercase 'm' ONLY if it isn't part of the unit word
-    // This allows "ohms" or "amps" but rejects "milli"
-    if (input.includes('m') && !input.toLowerCase().includes(unitWord.replace('?',''))) {
-        return false; 
-    }
-
-    // 4. MANDATORY UNIT CHECK: Must contain the symbol or the unit word
-    const unitRegex = new RegExp(`${unitSymbol}|${unitWord}`, 'i');
-    if (!unitRegex.test(input)) return false; 
-
-    // 5. Identify Multiplier
-    let multiplier = 1;
-    if (input.toLowerCase().includes('k')) multiplier = 1000;
-    if (input.includes('M')) multiplier = 1000000;
-
-    // 6. EXTRACT THE NUMBER
-    // Step A: Remove the long word first (e.g., "Ohms") to protect the 'm' or 's' inside it
-    let cleanString = input.replace(new RegExp(unitWord, 'gi'), '');
-    
-    // Step B: Remove the single symbols (k, M, V, A, Ω etc.)
-    // We escape the unitSymbol in case it's a special character
-    const escapedSymbol = unitSymbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    cleanString = cleanString.replace(new RegExp(`[kM${escapedSymbol}]`, 'g'), '').trim();
-                             
-    let userNum = parseFloat(cleanString);
-    if (isNaN(userNum)) return false;
-
-    // 7. Final Calculation & Tolerance
-    let userTotal = userNum * multiplier;
-    if (tolerance === 0) {
-        return Math.abs(userTotal - correctValue) < 0.1;
-    } else {
-        return Math.abs(userTotal - correctValue) <= (correctValue * tolerance);
-    }
-}
 // =======================================================================================================
 // FUNCTION 1: DRAWING Helpers
 // =======================================================================================================
@@ -2656,10 +2599,6 @@ function hubController(ctx, canvas) {
 // FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
 // =======================================================================================================   
     
-// =======================================================================================================  
-// FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
-// =======================================================================================================   
-    
 function checkAnswers() {
     // 1. Prevent double-checking if already solved
     if (isCurrentProblemSolved) return; 
@@ -2667,11 +2606,11 @@ function checkAnswers() {
     const feedback = document.getElementById('feedback');
     const helpBtn = document.getElementById('helpBtn');
 
-    // 2. Identify which inputs are currently active
+    // 2. Identify which inputs are currently active (Updated for Dropdowns)
     let activeInputs = [];
     if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
     else if (currentMode === 'divider') activeInputs = ['inputV'];
-    else if (currentMode === 'resistance') activeInputs = ['inputR']; 
+    else if (currentMode === 'resistance') activeInputs = ['inputR']; // unitR is handled in parsing
     else if (currentMode === 'oscilloscope') {
         activeInputs = ['inputOscAmp'];
         if (currentAnswers.oscQType === 1) activeInputs.push('inputOscMark', 'inputOscSpace');
@@ -2705,24 +2644,24 @@ function checkAnswers() {
         hasCheckedCurrentProblem = true; 
     }
 
-    // 4. Grade the inputs using the Smart Matcher
+    // 4. Grade the inputs using the Hybrid Parser
     let results = [];
     
     if (currentMode === 'analysis') {
-        // Corrected targets to match the standardized parser output (mV/mA)
         results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, 'mV'));
         results.push(validateMatch(parseInput(document.getElementById('inputI').value), currentAnswers.iValue, 'mA'));
 
     } else if (currentMode === 'divider') {
-        // Standardizing the target based on value size or specific unit property
         let targetUnit = currentAnswers.vValue < 1 ? 'mV' : 'V';
         if (currentAnswers.vUnit) targetUnit = currentAnswers.vUnit; 
-
         results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, targetUnit));
 
     } else if (currentMode === 'resistance') {
-        // Target updated to Ω symbol
-        results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, 'Ω'));
+        // HYBRID: Pull value from input + unit from dropdown
+        const rVal = document.getElementById('inputR').value;
+        const rUnit = document.getElementById('unitR').value;
+        // Target is determined by the generator (defaulting to Ω)
+        results.push(validateMatch(parseInput(rVal, rUnit), currentAnswers.rValue, currentAnswers.rTargetUnit || 'Ω'));
 
     } else if (currentMode === 'oscilloscope') {
         results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
@@ -2740,7 +2679,7 @@ function checkAnswers() {
     } else if (currentMode === 'astable') {
         if (currentAnswers.astableQType === 0) {
             results.push(validateMatch(parseInput(document.getElementById('inputAstable').value), currentAnswers.astableValue, 'Hz'));
-            results.push(validateMatch(parseInput(document.getElementById('inputAstableT').value), currentAnswers.astableTValue, 's'));
+            results.push(validateMatch(parseInput(document.getElementById('inputAstableT').value), currentAnswers.astableTValue, 'ms'));
         } else {
             const userRatio = document.getElementById('inputMarkSpace').value.trim();
             results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrongval');
@@ -2751,8 +2690,13 @@ function checkAnswers() {
 
     } else if (currentMode === 'colorcode') {
         if (document.getElementById('inputGroupColorVal').style.display !== 'none') {
-            results.push(validateMatch(parseInput(document.getElementById('inputResValue').value), currentAnswers.resVal, 'Ω'));
-            results.push(parseFloat(document.getElementById('inputResTol').value) === currentAnswers.resTol ? 'correct' : 'wrongval');
+            // HYBRID: Pull from value box + dropdown unit
+            const resVal = document.getElementById('inputResValue').value;
+            const resUnit = document.getElementById('unitResColor').value;
+            const resTol = document.getElementById('inputResTol').value;
+            
+            results.push(validateMatch(parseInput(resVal, resUnit), currentAnswers.resVal, currentAnswers.rTargetUnit || 'Ω'));
+            results.push(validateMatch(parseInput(resTol), currentAnswers.resTol, '%'));
         } else {
             ['inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'].forEach((id, i) => {
                 const ans = [currentAnswers.b1, currentAnswers.b2, currentAnswers.b3, currentAnswers.tol];
@@ -2760,10 +2704,27 @@ function checkAnswers() {
             });
         }
     } else if (currentMode === 'zener' || currentMode === 'grade9zener') {
-        // Specialized Zener matching logic remains here...
+         // Logic for Zener remains text-input based (mA / V / mW)
+         if (currentMode === 'zener') {
+            if (currentZenerState === "closed") {
+                results.push(validateMatch(parseInput(document.getElementById('zenerQ_IL').value), currentAnswers.iL, 'mA'));
+                results.push(validateMatch(parseInput(document.getElementById('zenerQ_VL').value), currentAnswers.vL, 'V'));
+            } else {
+                results.push(validateMatch(parseInput(document.getElementById('zenerQ_IZ').value), currentAnswers.iZ, 'mA'));
+                results.push(validateMatch(parseInput(document.getElementById('zenerQ_PZ').value), currentAnswers.pZ, 'mW'));
+            }
+         } else { // Grade 9 Zener
+            if (currentZenerState === "closed") {
+                results.push(validateMatch(parseInput(document.getElementById('g9IL').value), currentAnswers.iL, 'mA'));
+                results.push(validateMatch(parseInput(document.getElementById('g9IZ').value), currentAnswers.iZ, 'mA'));
+            } else {
+                results.push(validateMatch(parseInput(document.getElementById('g9PZ').value), currentAnswers.pZ, 'mW'));
+                results.push(validateMatch(parseInput(document.getElementById('g9Rating').value), currentAnswers.rating, 'mW'));
+            }
+         }
     }
 
-    // 5. Final Feedback and Scoring
+    // 5. Final Feedback and Scoring (No changes needed here, compatible with results array)
     activeInputs.forEach((id, index) => {
         const el = document.getElementById(id);
         if (el) {
@@ -2794,13 +2755,24 @@ function checkAnswers() {
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
     
-function parseInput(str) {
-    if (!str) return null;
+/**
+ * Upgraded Hybrid Parser
+ * @param {string} str - The raw text from the input box.
+ * @param {string} dropdownUnit - (Optional) The value from a unit <select> box.
+ */
+function parseInput(str, dropdownUnit = null) {
+    if (!str && str !== 0) return null;
 
     // 1. Remove all spaces, but KEEP casing for symbol validation
-    let cleanStr = str.trim().replace(/\s+/g, '');
+    let cleanStr = str.toString().trim().replace(/\s+/g, '');
     
-    // 2. Handle Ratios (e.g., 1/3 for Oscilloscope)
+    // 2. NEW HYBRID LOGIC: If a dropdown unit is provided, use it immediately
+    if (dropdownUnit !== null && dropdownUnit !== undefined) {
+        let val = parseFloat(cleanStr);
+        return { val: isNaN(val) ? null : val, unit: dropdownUnit };
+    }
+
+    // 3. Handle Ratios (e.g., 1/3 for Oscilloscope)
     // We lowercase only for this check to ensure stability
     let ratioCheck = cleanStr.toLowerCase().replace(/[a-z]+$/, '');
     if (/^\d+\/\d+$/.test(ratioCheck)) {
@@ -2808,8 +2780,7 @@ function parseInput(str) {
         return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio' };
     }
 
-    // 3. The "Smart" Unit Matcher
-    // Removed .toLowerCase() from the regex to capture strict casing (A vs a, V vs v)
+    // 4. The "Smart" Unit Matcher (For text boxes without dropdowns)
     const match = cleanStr.match(/^(-?[\d\.]+)([a-zA-Z\u03a9\u03bcΩμ]+)$/);
     
     if (match) {
@@ -2819,7 +2790,7 @@ function parseInput(str) {
         let normalizedUnit = "";
 
         // RESISTANCE: kΩ, kohm, kohms, k, Ω, ohm, ohms, r
-        // Words (ohms) match regardless of case. Symbols (k, Ω) match exactly.
+        // (Kept for backwards compatibility if they type in the box)
         if (rawUnit === 'k' || rawUnit === 'kΩ' || lowerUnit.match(/^(kohm|kohms)$/)) {
             normalizedUnit = "kΩ";
         } else if (rawUnit === 'Ω' || rawUnit === 'r' || lowerUnit.match(/^(ohm|ohms)$/)) {
@@ -2829,24 +2800,24 @@ function parseInput(str) {
         // VOLTAGE: V, volts, volt, mV, millivolts
         // Strict: Must be "V" (cap) or "mV" (cap V). Words are lenient.
         else if (lowerUnit.match(/^(millivolts|millivolt|mvolt|mvolts)$/)) {
-            normalizedUnit = "mV"; // Full words always normalize to correct symbol
+            normalizedUnit = "mV"; 
         } else if (rawUnit === 'mV') {
-            normalizedUnit = "mV"; // Exact symbol match
+            normalizedUnit = "mV"; 
         } else if (lowerUnit.match(/^(volts|volt)$/)) {
-            normalizedUnit = "V"; // Full words always normalize to correct symbol
+            normalizedUnit = "V"; 
         } else if (rawUnit === 'V') {
-            normalizedUnit = "V"; // Exact symbol match
+            normalizedUnit = "V"; 
         }
         
         // CURRENT: A, amps, amp, amperes, mA, milliamps, mAmp
         else if (lowerUnit.match(/^(milliamps|milliamp|mamp|mamps)$/)) {
-            normalizedUnit = "mA"; // Full words normalize
+            normalizedUnit = "mA"; 
         } else if (rawUnit === 'mA') {
-            normalizedUnit = "mA"; // Exact symbol match
+            normalizedUnit = "mA"; 
         } else if (lowerUnit.match(/^(amps|amp|amperes)$/)) {
-            normalizedUnit = "A"; // Full words normalize
+            normalizedUnit = "A"; 
         } else if (rawUnit === 'A') {
-            normalizedUnit = "A"; // Exact symbol match
+            normalizedUnit = "A"; 
         }
         
         // TIME (For Oscilloscope/Astable): s, sec, seconds, ms, milliseconds
@@ -2858,8 +2829,9 @@ function parseInput(str) {
 
         // FREQUENCY
         else if (lowerUnit.match(/^(hertz|hz)$/)) {
-            // If they type the word 'hertz' it passes, if they type symbol it must be 'Hz'
-            normalizedUnit = (rawUnit === 'hz' && lowerUnit.length === 2) ? 'hz' : 'Hz';
+            // Strict check: if they type 'hz' lowercase, we return 'hz' so validator flags it.
+            // If they type 'Hz' or 'hertz', we return 'Hz'.
+            normalizedUnit = (rawUnit === 'hz') ? 'hz' : 'Hz';
         }
         
         else {
@@ -2869,55 +2841,44 @@ function parseInput(str) {
         return { val: val, unit: normalizedUnit };
     }
 
-    // 4. Fallback for numbers only (e.g. user just types "100")
+    // 5. Fallback for numbers only (e.g. user just types "100")
     let finalVal = parseFloat(cleanStr);
     return { val: isNaN(finalVal) ? null : finalVal, unit: '' }; 
 }
 
 function validateMatch(parsedInput, expectedVal, expectedUnit) {
-    
     // 1. BASIC VALIDATION
-    // If input is empty, non-existent, or the number couldn't be parsed
     if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
     
-    // 2. OSCILLOSCOPE RATIOS (e.g. 1/3)
-    // Ratios are unitless, so we only check the mathematical value
+    // 2. RATIO CHECK (Unitless)
     if (expectedUnit === 'ratio') {
-        // Higher precision check for fractions (0.01)
         return Math.abs(parsedInput.val - expectedVal) < 0.01 ? 'correct' : 'wrongval';
     }
     
-    // 3. VALUE MATCHING
-    // Precision fix: Check within 1% of target OR 0.01 absolute
-    // This handles both large resistor values and tiny current values without rounding errors
+    // 3. VALUE MATCHING (With Floating Point Safety)
     const diff = Math.abs(parsedInput.val - expectedVal);
-    const valMatch = diff < (Math.abs(expectedVal) * 0.01) || diff < 0.01;
+    // Allow 1% margin OR a very tiny absolute margin for small values (mA/mV)
+    const valMatch = diff < (Math.abs(expectedVal) * 0.01) || diff < 0.000001;
     
-    // 4. UNIT MATCHING (Strict Casing)
-    // We no longer .toLowerCase() here because the parser already normalized "Good" word inputs.
-    // If the user typed 'mv', the parser passed 'mv' (lowercase). 
-    // If checkAnswers expects 'mV', this comparison will correctly fail.
+    // 4. UNIT MATCHING
     let userUnit = parsedInput.unit;
     let targetUnit = expectedUnit; 
 
+    // Logic for strict casing:
     let unitMatch = (userUnit === targetUnit);
     
-    // NEW: OHM LENIENCY / BASE UNIT LENIENCY
-    // If the problem expects a base unit (Ω, V, or A), we accept the answer 
-    // even if the user left the unit blank, treating it as the default.
+    // BASE UNIT LENIENCY:
+    // Accept blank units if the target is a base unit (Ω, V, or A)
     if ((targetUnit === "Ω" || targetUnit === "V" || targetUnit === "A") && userUnit === "") {
         unitMatch = true;
     }
 
     // 5. FINAL DECISION
-    // Both value and unit must match for a total success
     if (valMatch && unitMatch) return 'correct';
     
-    // Value is right, but unit/casing is wrong (e.g., "v" vs "V" or "ma" vs "mA")
-    // This triggers the specialized feedback: "Number is right, units are wrong!"
+    // Specialized feedback trigger
     if (valMatch && !unitMatch) return 'wrongunit';
     
-    // The number itself is mathematically incorrect
     return 'wrongval';
 }
     
