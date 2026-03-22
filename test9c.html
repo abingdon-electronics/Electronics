@@ -545,7 +545,7 @@ function getSafePowerRating(power_mW) {
  * @param {number} tolerance - 0 for exact, or a decimal (e.g. 0.02 for 2%)
  */
 
-    function validateScientificValue(userInput, correctValue, tolerance = 0) {
+function validateScientificValue(userInput, correctValue, tolerance = 0) {
     let input = userInput.trim();
     
     // 1. Strict Prefix Check: Reject Capital 'K'
