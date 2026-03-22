@@ -29,7 +29,7 @@
     
     .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
     
-    /* Home Page Grid */
+    /* Home Page Grid - Exactly as original */
     #mainMenu {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
@@ -172,7 +172,7 @@
         font-weight: bold; 
     }
     
-    /* --- THE FIX: FORCED SIDE-BY-SIDE LAYOUT --- */
+    /* --- THE FIX: ULTIMATE SIDE-BY-SIDE ALIGNMENT --- */
     .input-area { 
         flex-grow: 1;
         display: flex;
@@ -184,32 +184,36 @@
 
     .input-group {
         display: flex !important;
-        flex-direction: row !important; /* Force Horizontal */
+        flex-direction: row !important;
+        flex-wrap: nowrap !important; /* CRITICAL: Prevents stacking */
         align-items: center;
         justify-content: center;
         width: 100%;
         margin: 5px 0;
     }
 
+    /* Target both Label and Span as the text part */
     .input-group label, 
     .input-group > span:first-child {
-        min-width: 90px;
+        width: 100px; /* Fixed width ensures vertical alignment of '=' */
         text-align: right;
         font-size: 20px;
         font-weight: 800;
         color: #E64097;
-        margin-right: 15px;
-        white-space: nowrap; /* Prevents text from breaking */
+        margin-right: 12px;
+        white-space: nowrap; 
+        flex-shrink: 0; /* Prevents text from squishing */
     }
 
     .quiz-section input { 
         height: 45px; 
-        width: 120px;
+        width: 110px;
         font-size: 18px;
         border: 2px solid #ccc;
         border-radius: 6px;
         text-align: center;
         outline: none;
+        flex-shrink: 0;
     }
 
     .quiz-section select {
@@ -219,37 +223,10 @@
         border: 2px solid #ccc;
         border-radius: 6px;
         font-size: 18px;
+        flex-shrink: 0;
     }
-
     /* --- END OF FIX --- */
-
-    .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
     
-    .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
-    
-    button { padding: 12px 20px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 6px; font-weight: bold; transition: all 0.2s; }
-    
-    .btn-check { background-color: #E64097; width: 100%; }
-    .btn-black { background-color: #000000; }
-    .btn-secondary { background-color: #6c757d; }
-    
-    .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; }
-
-    /* Modal Styles */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 420px; border-top: 6px solid #E64097; }
-    .modal-content h3 { margin-top: 0; color: #E64097; text-align: center; font-size: 1.4rem; margin-bottom: 20px;}
-    .form-group { margin-bottom: 15px; text-align: left; }
-    .form-group label { display: block; font-weight: bold; margin-bottom: 6px; color: #333; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; border: 2px solid #eaeaea; border-radius: 6px; font-size: 16px; }
-    .modal-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 25px; }
-    
-    @media (max-width: 1050px) {
-        .main-layout { flex-direction: column; align-items: center; width: 100%; }
-        .left-panel, .right-panel { width: 100%; height: auto; }
-        .right-panel { margin-top: 20px; }
-    }
-    </style>
 </head>
 
 <body>      
