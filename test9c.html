@@ -1250,14 +1250,13 @@ function generateAnalysisProblem(ctx, canvas) {
     // TURN ON THE V AND I BOXES
     const groupV = document.getElementById('inputGroupV');
     const groupI = document.getElementById('inputGroupI');
-    if (groupV) groupV.style.display = 'block';
-    if (groupI) groupI.style.display = 'block';
+    if (groupV) groupV.style.display = 'inline-block';
+    if (groupI) groupI.style.display = 'inline-block';
 
-    
     const inputV = document.getElementById('inputV');
     const inputI = document.getElementById('inputI');
 
-    // Determine units visually
+    // Determine units visually (e.g., V or mV)
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
     const iUnit = Math.random() < 0.5 ? 'A' : 'mA';
     
@@ -1291,23 +1290,32 @@ function generateAnalysisProblem(ctx, canvas) {
     const unknownVIndex = Math.floor(Math.random() * 4);
     const unknownIIndex = Math.floor(Math.random() * 3);
 
-    // Set the normalized answers for the checker
+    // CRITICAL: Set the normalized answers for the checker
+    // We store the raw value and the specific unit string chosen for this problem
     currentAnswers.vNameHTML = voltages[unknownVIndex].html;
     currentAnswers.vValue = voltages[unknownVIndex].val;
     currentAnswers.vUnit = expectedVUnit; 
+    
     currentAnswers.iNameHTML = currents[unknownIIndex].html;
     currentAnswers.iValue = currents[unknownIIndex].val;
     currentAnswers.iUnit = expectedIUnit;
 
-    // Update Input Labels and Placeholders
-    document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
-    document.getElementById('labelI').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.iNameHTML + "</span> = ";
-    if (inputV) inputV.placeholder = "e.g. 5 " + vUnit;
-    if (inputI) inputI.placeholder = "e.g. 2 " + iUnit;
+    // Update Input Labels to match the "?" in the diagram
+    const labelV = document.getElementById('labelV');
+    const labelI = document.getElementById('labelI');
+    if (labelV) labelV.innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
+    if (labelI) labelI.innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.iNameHTML + "</span> = ";
+    
+    if (inputV) inputV.placeholder = "e.g. " + currentAnswers.vValue + " " + vUnit;
+    if (inputI) inputI.placeholder = "e.g. " + currentAnswers.iValue + " " + iUnit;
 
     // Drawing Prep
-    const vLabels = voltages.map(function(v, index) { return index === unknownVIndex ? v.display + " = ?" : v.display + " = " + v.val + " " + vUnit; });
-    const iLabels = currents.map(function(c, index) { return index === unknownIIndex ? c.display + " = ?" : c.display + " = " + c.val + " " + iUnit; });
+    const vLabels = voltages.map(function(v, index) { 
+        return index === unknownVIndex ? v.display + " = ?" : v.display + " = " + v.val + " " + vUnit; 
+    });
+    const iLabels = currents.map(function(c, index) { 
+        return index === unknownIIndex ? c.display + " = ?" : c.display + " = " + c.val + " " + iUnit; 
+    });
     let topRailText = unknownVIndex === 3 ? "+Vsupply = ?" : "+Vsupply = " + vTotal + " " + vUnit;
 
     // Logic adjustments for missing info
@@ -1332,8 +1340,10 @@ function generateAnalysisProblem(ctx, canvas) {
     drawLine(ctx, 100, 60, 500, 60); 
     drawLine(ctx, 100, 360, 500, 360); 
 
-    ctx.fillStyle = unknownVIndex === 3 ? brandPink : brandBlack; ctx.fillText(topRailText, 250, 45);
-    ctx.fillStyle = brandBlack; ctx.fillText("0V (GND)", 260, 390);
+    ctx.fillStyle = unknownVIndex === 3 ? brandPink : brandBlack; 
+    ctx.fillText(topRailText, 250, 45);
+    ctx.fillStyle = brandBlack; 
+    ctx.fillText("0V (GND)", 260, 390);
 
     ctx.font = "16px Arial";
     if (Math.random() < 0.5) {
@@ -1379,7 +1389,7 @@ function generateAnalysisProblem(ctx, canvas) {
             "<strong>" + currents[unknownIIndex].html + " = " + currents[unknownIIndex].val + " " + iUnit + "</strong> <br>" +
             "<em>Logic:</em> " + currents[unknownIIndex].logic;
     }
-}   
+}
 // ======================================================
 // Colour Code 
 // ======================================================
