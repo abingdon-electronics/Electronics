@@ -1172,7 +1172,9 @@ function generateGrade9DividerProblem() {
         solText.innerHTML = logicHTML;
     }
 }
-
+// ======================================================
+// Circuit Analysis Problem
+// ======================================================
 function generateAnalysisProblem(ctx, canvas) {
     // 0. RESET UI & STATE
     hideAllInputGroups(); 
@@ -1311,7 +1313,9 @@ function generateAnalysisProblem(ctx, canvas) {
             "<em>Logic:</em> " + currents[unknownIIndex].logic;
     }
 }   
-
+// ======================================================
+// Colour Code 
+// ======================================================
 function generateColorCodeProblem(ctx, canvas) {
     // 1. UI Reset & Safety (The Heavy Lifting is done here now)
     hideAllInputGroups(); // This hides EVERYTHING and calls hideAllInputGroups() to clear values
@@ -2297,7 +2301,8 @@ function openModule(module) {
         document.getElementById('contentArea').style.display = 'none';
     }
 }
-    
+
+//switchTab runs when you click the navigation menu at the very top of the page    
 function switchTab(mode) {
     currentMode = mode;
     
@@ -2429,8 +2434,14 @@ function closeModal() {
             document.getElementById('submissionModal').style.display = 'none';
         }
 
-// ===============================================================================================================      
-// FUNCTION 4. MAIN ROUTER
+// ===============================================================================================================     
+// MASTER PROBLEM GENERATOR (The "Traffic Cop")
+// This function runs whenever the user clicks "Generate New Problem".
+// It does two main things:
+// 1. Wipes the canvas, clears all text boxes, and resets grading locks.
+// 2. Looks at the 'currentMode' variable to figure out which tab the 
+//    user is currently on, and routes traffic to the correct math/drawing 
+//    function for that specific module (Divider, Astable, Zener, etc.).
 // ===============================================================================================================      
     
 function hubController(ctx, canvas) {
@@ -2486,8 +2497,21 @@ function hubController(ctx, canvas) {
 
     } else if (currentMode === 'colorcode') {
         generateColorCodeProblem(ctx, canvas);
+        
+    } else if (currentMode === 'zener') {
+        if (document.getElementById('inputGroupZener')) document.getElementById('inputGroupZener').style.display = 'inline-block';
+        if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'inline-block';
+        generateZenerProblem();
+
+    } else if (currentMode === 'grade9zener') {
+        generateGrade9ZenerProblem();
+
+    } else if (currentMode === 'silicon') {
+        if (document.getElementById('inputGroupSilicon')) document.getElementById('inputGroupSilicon').style.display = 'inline-block';
+        generateSiliconProblem();
     }
-}
+} 
+    
 // =======================================================================================================  
 // FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
 // =======================================================================================================   
