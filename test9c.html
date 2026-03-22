@@ -551,7 +551,7 @@ function getSafePowerRating(power_mW) {
     // 1. Strict Prefix Check: Reject Capital 'K'
     if (input.includes('K')) return false;
 
-    // 2. Strict Prefix Check: Reject lowercase 'm' ONLY if it isn't part of the word "ohm"
+    // 2. Strict Prefix Check: Reject lowercase 'm' ONLY if it isn't part of "ohm"
     if (input.includes('m') && !input.toLowerCase().includes('ohm')) {
         return false; 
     }
@@ -562,16 +562,18 @@ function getSafePowerRating(power_mW) {
 
     // 4. Identify Multiplier
     let multiplier = 1;
-    // We check lowercase for 'k' but strictly Capital 'M' for Mega per your rules
     if (input.toLowerCase().includes('k')) multiplier = 1000;
-    if (input.includes('M')) multiplier = 1000000;
+    if (input.includes('M')) multiplier = 1000000; // Mega stays strictly Capital M
 
     // 5. Extract the Number
-    // FIX: Remove the word "ohms" FIRST, then remove symbols.
-    // This prevents the 'M' filter from accidentally breaking the word 'ohms'.
-    let numericString = input.replace(/ohms?/gi, '') // Removes OHMS, ohms, Ohm, etc.
-                             .replace(/[kMΩ]/g, '')  // Removes k, M, or Ω symbols
-                             .trim();
+    // THE FIX: We remove the word "ohms" or "ohm" (case insensitive) FIRST.
+    // This prevents the 'm' or 'M' filters from breaking the word "ohms".
+    let numericString = input.replace(/ohms?/gi, ''); 
+    
+    // Now that the word "ohms" is gone, we safely remove k, M, or Ω symbols
+    // We do NOT use the 'i' flag here so that 'M' doesn't accidentally 
+    // try to match a lowercase 'm' that isn't there anymore.
+    numericString = numericString.replace(/[kMΩ]/g, '').trim();
                              
     let userNum = parseFloat(numericString);
 
@@ -582,15 +584,12 @@ function getSafePowerRating(power_mW) {
 
     // 7. Tolerance Comparison
     if (tolerance === 0) {
-        // 0.1 epsilon prevents "1200.00000002" math errors from failing
+        // 0.1 buffer prevents rounding errors (e.g., 1200.000000002)
         return Math.abs(userTotal - correctValue) < 0.1;
     } else {
-        let diff = Math.abs(userTotal - correctValue);
-        let allowedDiff = correctValue * tolerance;
-        return diff <= allowedDiff;
+        return Math.abs(userTotal - correctValue) <= (correctValue * tolerance);
     }
 }
-
 // =======================================================================================================
 // FUNCTION 1: DRAWING Helpers
 // =======================================================================================================
