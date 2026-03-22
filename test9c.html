@@ -6,10 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abingdon School - Electronics Quiz</title>
 <style>
-    /* ========================================
-    CORE STYLES
-    ========================================
-    */
+    /* ============================================================
+       MASTER STYLES (ORIGINAL 290-LINE STRUCTURE)
+       ============================================================ */
     body { 
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
         max-width: 1100px; 
@@ -26,43 +25,14 @@
         background-position: 0 0, -1px -1px, -1px -1px;
     }
    
-    .header { 
-        text-align: center; 
-        margin-bottom: 15px; 
-    }
+    .header { text-align: center; margin-bottom: 15px; }
+    .header h1 { color: #000; margin-bottom: 0px; text-transform: uppercase; letter-spacing: 1px; font-size: 28px; }
+    .header p { margin-top: 5px; font-size: 18px; color: #555; }
+    .header span { color: #E64097; font-weight: bold; }
     
-    .header h1 { 
-        color: #000; 
-        margin-bottom: 0px; 
-        text-transform: uppercase; 
-        letter-spacing: 1px; 
-        font-size: 28px; 
-    }
+    /* NAVIGATION & TABS */
+    .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
     
-    .header p { 
-        margin-top: 5px; 
-        font-size: 18px; 
-        color: #555; 
-    }
-    
-    .header span { 
-        color: #E64097; 
-        font-weight: bold; 
-    }
-    
-    /* ========================================
-    NAVIGATION & TABS
-    ========================================
-    */
-    .tabs { 
-        display: flex; 
-        justify-content: center; 
-        gap: 15px; 
-        margin-bottom: 25px; 
-        flex-wrap: wrap; 
-    }
-    
-    /* Home Page Grid */
     #mainMenu {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
@@ -112,11 +82,6 @@
         transform: translateY(-3px);
         box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
-    
-    .tab:focus-visible, button:focus-visible {
-        outline: 3px solid #000;
-        outline-offset: 3px;
-    }
 
     .tab.active {
         background-color: #000000;
@@ -124,115 +89,40 @@
         border-color: #000;
     }
     
-    /* ========================================
-    MAIN LAYOUT PANELS
-    ========================================
-    */
-    .main-layout { 
-        display: flex; 
-        gap: 20px; 
-        align-items: flex-start; 
-        flex-wrap: wrap; 
-        justify-content: center; 
-    }
-    
-    .left-panel { 
-        flex: 1 1 300px; 
-        max-width: 650px; 
-        width: 100%; 
-    } 
+    /* MAIN LAYOUT */
+    .main-layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+    .left-panel { flex: 1 1 300px; max-width: 650px; width: 100%; } 
     
     .circuit-container { 
-        border: 2px solid #eaeaea; 
-        padding: 15px; 
-        text-align: center; 
-        background-color: #fff; 
-        border-radius: 8px; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        height: 520px; 
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        border: 2px solid #eaeaea; padding: 15px; text-align: center; 
+        background-color: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        height: 520px; display: flex; flex-direction: column; justify-content: center;
     }
     
-    canvas { 
-        background-color: white; 
-        border-radius: 4px; 
-        max-width: 100%; 
-        height: auto; 
-    }
+    canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
     
     .right-panel { 
-        flex: 1 1 300px; 
-        display: flex; 
-        flex-direction: column; 
-        width: 100%; 
-        max-width: 500px; 
-        height: 520px;
+        flex: 1 1 300px; display: flex; flex-direction: column; width: 100%; 
+        max-width: 500px; height: 520px;
     }
     
-    /* ========================================
-    QUIZ SECTION & INPUTS
-    ========================================
-    */
+    /* QUIZ AREA */
     .quiz-section { 
-        background-color: #fdf4f8; 
-        padding: 15px 20px; 
-        border-radius: 8px; 
-        border: 1px solid #f2c7db; 
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        box-sizing: border-box;
+        background-color: #fdf4f8; padding: 15px 20px; border-radius: 8px; 
+        border: 1px solid #f2c7db; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;
     }
     
     .quiz-header { 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        border-bottom: 2px solid #f2c7db; 
-        padding-bottom: 10px; 
-        margin-bottom: 10px; 
-        width: 100%;
+        display: flex; justify-content: space-between; align-items: center; 
+        border-bottom: 2px solid #f2c7db; padding-bottom: 10px; margin-bottom: 10px; width: 100%;
     }
     
-    .score-container { 
-        display: flex; 
-        align-items: center; 
-        justify-content: flex-end; 
-        gap: 10px; 
-    }
+    .scoreboard { background-color: #fff; padding: 6px 15px; border: 2px solid #E64097; border-radius: 6px; font-weight: bold; color: #E64097; }
+    .btn-download { background-color: #198754; color: white; padding: 8px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; }
     
-    .scoreboard { 
-        background-color: #fff; 
-        padding: 6px 15px; 
-        border: 2px solid #E64097; 
-        border-radius: 6px; 
-        font-weight: bold; 
-        color: #E64097; 
-    }
-    
-    .btn-download { 
-        background-color: #198754; 
-        font-size: 13px; 
-        padding: 8px 12px; 
-        border: none; 
-        border-radius: 4px; 
-        color: white; 
-        cursor: pointer; 
-        font-weight: bold; 
-    }
-    
-    .input-area { 
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 15px;
-    }
+    /* SIDE-BY-SIDE INPUT AREA */
+    .input-area { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; }
 
-    /* THE FIX: SIDE-BY-SIDE ALIGNMENT */
     .input-group {
         display: flex !important;
         flex-direction: row !important;
@@ -240,86 +130,49 @@
         align-items: center;
         justify-content: center;
         width: 100%;
-        margin: 8px 0;
+        margin: 5px 0;
     }
 
-    .input-group label, 
-    .input-group > span:first-child {
-        min-width: 110px;
-        text-align: right;
-        font-size: 20px;
-        font-weight: 800;
-        color: #E64097;
-        margin-right: 15px;
-        white-space: nowrap; 
-        display: inline-block;
-        flex-shrink: 0;
+    .input-group label, .input-group > span:first-child {
+        min-width: 110px; text-align: right; font-size: 20px; font-weight: 800;
+        color: #E64097; margin-right: 15px; white-space: nowrap; flex-shrink: 0;
     }
 
     .quiz-section input { 
-        height: 48px; 
-        width: 125px;
-        font-size: 20px;
-        border: 2px solid #ccc;
-        border-radius: 6px;
-        text-align: center;
-        outline: none;
-        flex-shrink: 0;
-        background: white;
+        height: 45px; width: 120px; font-size: 18px; border: 2px solid #ccc; 
+        border-radius: 6px; text-align: center; outline: none; background: #fff;
     }
 
-    .quiz-section select {
-        height: 48px;
-        width: 85px;
-        margin-left: 10px;
-        border: 2px solid #ccc;
-        border-radius: 6px;
-        font-size: 18px;
-        flex-shrink: 0;
-        background: white;
-    }
+    .quiz-section select { height: 45px; width: 85px; margin-left: 10px; border: 2px solid #ccc; border-radius: 6px; font-size: 18px; }
 
-    .feedback { 
-        font-size: 16px; 
-        margin-top: 10px; 
-        min-height: 24px; 
-        text-align: center; 
-        font-weight: bold;
-    }
+    /* FEEDBACK & CONTROLS */
+    .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
+    .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
     
-    .controls { 
-        text-align: center; 
-        display: flex; 
-        flex-direction: column; 
-        gap: 10px; 
-        margin-top: auto; 
-    }
-    
-    button { 
-        padding: 12px 20px; 
-        font-size: 16px; 
-        cursor: pointer; 
-        color: white; 
-        border: none; 
-        border-radius: 6px; 
-        font-weight: bold; 
-        transition: all 0.2s; 
-    }
-    
+    button { padding: 12px 20px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 6px; font-weight: bold; transition: all 0.2s; }
     .btn-check { background-color: #E64097; width: 100%; }
     .btn-black { background-color: #000000; }
     .btn-secondary { background-color: #6c757d; }
     
-    .solutions { 
-        padding: 15px; 
-        background-color: #f8f9fa; 
-        border-left: 4px solid #E64097; 
-        border-radius: 0 5px 5px 0; 
-        display: none; 
-        text-align: left; 
-    }
+    .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; }
 
-</style>
+    /* MODALS */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 420px; border-top: 6px solid #E64097; }
+    .modal-content h3 { margin-top: 0; color: #E64097; text-align: center; font-size: 1.4rem; margin-bottom: 20px;}
+    .form-group { margin-bottom: 15px; text-align: left; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 6px; color: #333; text-align: left; width: auto; }
+    .form-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 2px solid #eaeaea; border-radius: 6px; }
+    .modal-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 25px; }
+    
+    /* RESPONSIVE */
+    @media (max-width: 1050px) {
+        .main-layout { flex-direction: column; align-items: center; width: 100%; }
+        .left-panel, .right-panel { width: 100%; height: auto; }
+        .right-panel { margin-top: 20px; }
+    }
+    </style>
+    
 </head>
 <body>      
 <div class="header">
