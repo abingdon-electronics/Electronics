@@ -2709,20 +2709,19 @@ function checkAnswers() {
     let results = [];
     
     if (currentMode === 'analysis') {
-        // Updated to use mV/mA to match the standardized parser output
+        // Corrected targets to match the standardized parser output (mV/mA)
         results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, 'mV'));
         results.push(validateMatch(parseInput(document.getElementById('inputI').value), currentAnswers.iValue, 'mA'));
 
     } else if (currentMode === 'divider') {
-        // Logic check: determine if the target for this specific problem is mV or V
-        // If the answer is small, we likely expect mV
+        // Standardizing the target based on value size or specific unit property
         let targetUnit = currentAnswers.vValue < 1 ? 'mV' : 'V';
-        // Alternatively, if your currentAnswers object has a unit property, use that:
         if (currentAnswers.vUnit) targetUnit = currentAnswers.vUnit; 
 
         results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, targetUnit));
 
     } else if (currentMode === 'resistance') {
+        // Target updated to Ω symbol
         results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, 'Ω'));
 
     } else if (currentMode === 'oscilloscope') {
@@ -2761,7 +2760,7 @@ function checkAnswers() {
             });
         }
     } else if (currentMode === 'zener' || currentMode === 'grade9zener') {
-        // ... Zener logic remains same as it uses specialized parseFloat checks ...
+        // Specialized Zener matching logic remains here...
     }
 
     // 5. Final Feedback and Scoring
@@ -2829,17 +2828,25 @@ function parseInput(str) {
         
         // VOLTAGE: V, volts, volt, mV, millivolts
         // Strict: Must be "V" (cap) or "mV" (cap V). Words are lenient.
-        else if (rawUnit === 'mV' || lowerUnit.match(/^(millivolts|millivolt|mvolt|mvolts)$/)) {
-            normalizedUnit = "mV";
-        } else if (rawUnit === 'V' || lowerUnit.match(/^(volts|volt)$/)) {
-            normalizedUnit = "V";
-        } 
+        else if (lowerUnit.match(/^(millivolts|millivolt|mvolt|mvolts)$/)) {
+            normalizedUnit = "mV"; // Full words always normalize to correct symbol
+        } else if (rawUnit === 'mV') {
+            normalizedUnit = "mV"; // Exact symbol match
+        } else if (lowerUnit.match(/^(volts|volt)$/)) {
+            normalizedUnit = "V"; // Full words always normalize to correct symbol
+        } else if (rawUnit === 'V') {
+            normalizedUnit = "V"; // Exact symbol match
+        }
         
         // CURRENT: A, amps, amp, amperes, mA, milliamps, mAmp
-        else if (rawUnit === 'mA' || lowerUnit.match(/^(milliamps|milliamp|mamp|mamps)$/)) {
-            normalizedUnit = "mA";
-        } else if (rawUnit === 'A' || lowerUnit.match(/^(amps|amp|amperes)$/)) {
-            normalizedUnit = "A";
+        else if (lowerUnit.match(/^(milliamps|milliamp|mamp|mamps)$/)) {
+            normalizedUnit = "mA"; // Full words normalize
+        } else if (rawUnit === 'mA') {
+            normalizedUnit = "mA"; // Exact symbol match
+        } else if (lowerUnit.match(/^(amps|amp|amperes)$/)) {
+            normalizedUnit = "A"; // Full words normalize
+        } else if (rawUnit === 'A') {
+            normalizedUnit = "A"; // Exact symbol match
         }
         
         // TIME (For Oscilloscope/Astable): s, sec, seconds, ms, milliseconds
@@ -2850,12 +2857,13 @@ function parseInput(str) {
         }
 
         // FREQUENCY
-        else if (rawUnit === 'Hz' || lowerUnit === 'hertz') {
-            normalizedUnit = "Hz";
+        else if (lowerUnit.match(/^(hertz|hz)$/)) {
+            // If they type the word 'hertz' it passes, if they type symbol it must be 'Hz'
+            normalizedUnit = (rawUnit === 'hz' && lowerUnit.length === 2) ? 'hz' : 'Hz';
         }
         
         else {
-            normalizedUnit = rawUnit; // Fallback to what they typed
+            normalizedUnit = rawUnit; // Fallback to what they typed (e.g. "mv" or "ma")
         }
 
         return { val: val, unit: normalizedUnit };
@@ -2869,39 +2877,50 @@ function parseInput(str) {
 function validateMatch(parsedInput, expectedVal, expectedUnit) {
     
     // 1. BASIC VALIDATION
+    // If input is empty, non-existent, or the number couldn't be parsed
     if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
     
     // 2. OSCILLOSCOPE RATIOS (e.g. 1/3)
+    // Ratios are unitless, so we only check the mathematical value
     if (expectedUnit === 'ratio') {
+        // Higher precision check for fractions (0.01)
         return Math.abs(parsedInput.val - expectedVal) < 0.01 ? 'correct' : 'wrongval';
     }
     
     // 3. VALUE MATCHING
     // Precision fix: Check within 1% of target OR 0.01 absolute
+    // This handles both large resistor values and tiny current values without rounding errors
     const diff = Math.abs(parsedInput.val - expectedVal);
     const valMatch = diff < (Math.abs(expectedVal) * 0.01) || diff < 0.01;
     
     // 4. UNIT MATCHING (Strict Casing)
-    // We no longer .toLowerCase() here because the parser already normalized the "Good" inputs
+    // We no longer .toLowerCase() here because the parser already normalized "Good" word inputs.
+    // If the user typed 'mv', the parser passed 'mv' (lowercase). 
+    // If checkAnswers expects 'mV', this comparison will correctly fail.
     let userUnit = parsedInput.unit;
     let targetUnit = expectedUnit; 
 
     let unitMatch = (userUnit === targetUnit);
     
     // NEW: OHM LENIENCY / BASE UNIT LENIENCY
-    // If problem expects Ω (or ohms), accept blank
+    // If the problem expects a base unit (Ω, V, or A), we accept the answer 
+    // even if the user left the unit blank, treating it as the default.
     if ((targetUnit === "Ω" || targetUnit === "V" || targetUnit === "A") && userUnit === "") {
         unitMatch = true;
     }
 
     // 5. FINAL DECISION
+    // Both value and unit must match for a total success
     if (valMatch && unitMatch) return 'correct';
     
     // Value is right, but unit/casing is wrong (e.g., "v" vs "V" or "ma" vs "mA")
+    // This triggers the specialized feedback: "Number is right, units are wrong!"
     if (valMatch && !unitMatch) return 'wrongunit';
     
+    // The number itself is mathematically incorrect
     return 'wrongval';
 }
+    
 function updateScoreboard() {
     const scoreDisplay = document.getElementById('scoreDisplay');
     if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
