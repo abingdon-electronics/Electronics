@@ -186,7 +186,7 @@
     .btn-download:hover { background-color: #157347; }
     .btn-download:disabled { background-color: #6c757d; cursor: wait; }
     
-    /* INPUT AREA - CENTERED AND ALIGNED */
+    /* INPUT AREA - ALIGNED WITHOUT DUPLICATE EQUALS */
     .input-area { 
         flex-grow: 1;
         display: flex;
@@ -203,12 +203,12 @@
         width: 100%;
     }
 
-    /* Standardized labels: Fixed width + Flexbox for the "=" sign */
+    /* Labels: Fixed width for alignment, right-justified */
     .input-group label, 
     .input-group > span:first-child {
-        width: 110px; /* Standard width for all labels */
+        width: 125px; /* Slightly wider to fit label + manual = sign */
         display: flex;
-        justify-content: flex-end; /* Align text and = to the right */
+        justify-content: flex-end; 
         align-items: center;
         font-size: 20px;
         font-weight: bold;
@@ -217,14 +217,12 @@
         white-space: nowrap;
     }
 
-    /* This adds the = sign automatically to every label in the quiz section */
+    /* REMOVED the ::after content to stop triple equals signs */
     .input-group label::after, 
     .input-group span:first-child::after {
-        content: " =";
-        margin-left: 5px;
+        content: ""; 
     }
 
-    /* Standardized styling for Inputs and Select boxes */
     .quiz-section input[type="text"], 
     .quiz-section input[type="number"],
     .quiz-section select { 
