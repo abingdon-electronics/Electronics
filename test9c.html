@@ -124,25 +124,26 @@
     }
     
     /* ============================================================
-       4. QUIZ INPUT GROUPS - REVERTED TO "NICE CSS BOX SIZE"
+       4. QUIZ INPUT GROUPS - SHRUNK & LEFT-ALIGNED
        ============================================================ */
     .input-area { 
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
+        justify-content: flex-start; /* Pushes items up closer to the instructions */
+        align-items: flex-start;     /* CRITICAL: Left-justifies the entire block of questions */
+        gap: 10px;                   /* Tighter spacing between questions */
+        margin-top: 15px;
     }
 
     .input-group {
         display: flex; 
         flex-direction: row !important; 
         align-items: center !important;
-        justify-content: center !important;
+        justify-content: flex-start !important; /* Keeps boxes pulled to the left */
         width: 100% !important;
         flex-wrap: nowrap !important;
-        margin: 5px 0;
+        margin: 4px 0;
     }
 
     div.input-group[style*="display: block"], 
@@ -150,18 +151,18 @@
         display: flex !important;
     }
 
-    /* Restored to elegant, smaller dimensions */
+    /* Smaller, left-justified labels */
     .input-group label, 
     .input-group > span:first-child {
-        width: 120px !important;       
-        min-width: 120px !important;   
-        text-align: right !important;  
-        font-size: 18px !important;    /* Shrunk back from 22px */
+        width: 80px !important;        /* Tighter width to keep boxes close to text */
+        min-width: 80px !important;   
+        text-align: left !important;   /* LEFT-justifies the text itself */
+        font-size: 16px !important;    /* SHRUNK from 18px (and originally 24px) */
         font-weight: 800 !important;
         color: #E64097 !important;
-        margin: 0 15px 0 0 !important; 
+        margin: 0 10px 0 0 !important; 
         display: flex !important;
-        justify-content: flex-end !important;
+        justify-content: flex-start !important; /* Aligns label contents left */
         align-items: center !important;
         flex-shrink: 0 !important;     
     }
@@ -169,7 +170,7 @@
     /* Complex Overrides */
     #inputGroupZener, #zenerClosedQuestions, #zenerOpenQuestions, #inputGroupGrade9Zener, #inputGroupColorNames {
         flex-direction: column !important;
-        align-items: center !important;
+        align-items: flex-start !important; /* Ensures complex groups also left-align */
     }
 
     #inputGroupZener label, 
@@ -180,20 +181,20 @@
         min-width: 0 !important;
         text-align: left !important;
         color: #333 !important;
-        font-size: 15px !important;
-        margin-bottom: 5px !important;
+        font-size: 14px !important; /* Standardized small font for complex text */
+        margin-bottom: 4px !important;
         display: block !important;
     }
 
-    /* Shrunk boxes back to 40px height */
+    /* Shrunk input boxes for a sleeker look */
     .quiz-section input[type="text"], 
     .quiz-section input[type="number"] { 
-        height: 40px !important;       /* Shrunk back from 48px */
-        width: 110px !important;       /* Shrunk back from 130px */
-        font-size: 16px !important;    /* Shrunk back from 18px */
+        height: 36px !important;       /* SHRUNK from 40px */
+        width: 95px !important;        /* SHRUNK from 110px */
+        font-size: 15px !important;    /* SHRUNK from 16px */
         border: 2px solid #ccc !important;
         border-radius: 6px !important;
-        padding: 5px 10px !important;
+        padding: 4px 8px !important;
         text-align: center !important;
         outline: none !important;
         background: #fff !important;
@@ -201,14 +202,15 @@
         color: #333 !important;
     }
 
+    /* Shrunk Dropdowns */
     .quiz-section select {
-        height: 40px !important;       /* Shrunk back from 48px */
-        width: 75px !important;        /* Shrunk back from 85px */
-        margin-left: 10px !important;
+        height: 36px !important;       /* SHRUNK from 40px */
+        width: 65px !important;        /* SHRUNK from 75px */
+        margin-left: 8px !important;
         background-color: white !important;
         border: 2px solid #ccc !important;
         border-radius: 6px !important;
-        font-size: 16px !important;
+        font-size: 15px !important;
         flex-shrink: 0 !important;
     }
 
