@@ -548,38 +548,44 @@ function getSafePowerRating(power_mW) {
     function validateScientificValue(userInput, correctValue, tolerance = 0) {
     let input = userInput.trim();
     
-    // 1. Strict Prefix Check (Reject Capital K and lowercase m for milli)
+    // 1. Strict Prefix Check: Reject Capital 'K'
     if (input.includes('K')) return false;
-    if (input.includes('m') && !input.toLowerCase().includes('ohm')) return false;
 
-    // 2. MANDATORY UNIT CHECK:
-    // This regex looks specifically for the symbol Ω or the word "ohm"
+    // 2. Strict Prefix Check: Reject lowercase 'm' ONLY if it isn't part of the word "ohm"
+    // We check if 'm' exists, but "ohm" (case insensitive) does NOT exist.
+    if (input.includes('m') && !input.toLowerCase().includes('ohm')) {
+        return false; 
+    }
+
+    // 3. MANDATORY UNIT CHECK: Must contain Ω or some version of "ohm/ohms"
     const hasUnit = /Ω|ohms?/i.test(input);
-    if (!hasUnit) return false; // Reject "1.2k" because it lacks Ω or Ohm
+    if (!hasUnit) return false; 
 
-    // 3. Identify Multiplier
+    // 4. Identify Multiplier
     let multiplier = 1;
-    if (input.includes('k')) multiplier = 1000;
-    if (input.includes('M')) multiplier = 1000000;
+    // Use toLowerCase() here so 'k' or 'M' are caught regardless of what else is in the string
+    const lowerInput = input.toLowerCase();
+    if (lowerInput.includes('k')) multiplier = 1000;
+    if (input.includes('M')) multiplier = 1000000; // Keep Mega as capital M only per your rules
 
-    // 4. Extract the Number
-    // Strip everything except numbers and decimal points
+    // 5. Extract the Number
+    // The 'gi' flags strip k, M, Ω, and ohm/ohms globally and case-insensitively
     let numericString = input.replace(/[kMΩ]|ohms?/gi, '').trim();
     let userNum = parseFloat(numericString);
 
     if (isNaN(userNum)) return false;
 
-    // 5. Final Calculation
+    // 6. Final Calculation
     let userTotal = userNum * multiplier;
 
-    // 6. Tolerance Comparison
+    // 7. Tolerance Comparison
     if (tolerance === 0) {
+        // Small epsilon (0.1) handles floating point math errors (e.g. 1.2 * 1000 = 1200.000000002)
         return Math.abs(userTotal - correctValue) < 0.1;
     } else {
         return Math.abs(userTotal - correctValue) <= (correctValue * tolerance);
     }
 }
-
 
 // =======================================================================================================
 // FUNCTION 1: DRAWING Helpers
@@ -2716,11 +2722,10 @@ function checkAnswers() {
         if (valGroup && valGroup.style.display !== 'none') {
             const userResStr = document.getElementById('inputResValue').value.trim();
             
-            // STRICT UNIT CHECK: Must contain Ω or some form of "ohm"
+            // STRICT UNIT CHECK: Now allows OHM, OHMS, ohm, Ω, etc.
             const hasActualUnit = /Ω|ohms?/i.test(userResStr);
             
             if (!hasActualUnit) {
-                // Fails if user typed "520" or "1.2k" without the Ω/Ohm unit
                 results.push('missingunit');
             } else {
                 const isResCorrect = validateScientificValue(userResStr, currentAnswers.resVal, 0);
