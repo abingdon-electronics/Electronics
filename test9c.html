@@ -2718,14 +2718,17 @@ function checkAnswers() {
     let results = [];
     
     if (currentMode === 'analysis') {
-        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, 'v'));
-        results.push(validateMatch(parseInput(document.getElementById('inputI').value), currentAnswers.iValue, 'a'));
+        // Updated to strict casing targets
+        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, 'V'));
+        results.push(validateMatch(parseInput(document.getElementById('inputI').value), currentAnswers.iValue, 'mA'));
 
     } else if (currentMode === 'divider') {
-        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, 'v'));
+        // Updated to strict casing targets
+        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, 'V'));
 
     } else if (currentMode === 'resistance') {
-        results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, 'ohms'));
+        // Updated to strict Ω symbol
+        results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, 'Ω'));
 
     } else if (currentMode === 'oscilloscope') {
         results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
@@ -2742,7 +2745,7 @@ function checkAnswers() {
 
     } else if (currentMode === 'astable') {
         if (currentAnswers.astableQType === 0) {
-            results.push(validateMatch(parseInput(document.getElementById('inputAstable').value), currentAnswers.astableValue, 'hz'));
+            results.push(validateMatch(parseInput(document.getElementById('inputAstable').value), currentAnswers.astableValue, 'Hz'));
             results.push(validateMatch(parseInput(document.getElementById('inputAstableT').value), currentAnswers.astableTValue, 's'));
         } else {
             const userRatio = document.getElementById('inputMarkSpace').value.trim();
@@ -2755,7 +2758,7 @@ function checkAnswers() {
     } else if (currentMode === 'colorcode') {
         const valGroup = document.getElementById('inputGroupColorVal');
         if (valGroup && valGroup.style.display !== 'none') {
-            results.push(validateMatch(parseInput(document.getElementById('inputResValue').value), currentAnswers.resVal, 'ohms'));
+            results.push(validateMatch(parseInput(document.getElementById('inputResValue').value), currentAnswers.resVal, 'Ω'));
             const userTol = parseFloat(document.getElementById('inputResTol').value);
             results.push(userTol === currentAnswers.resTol ? 'correct' : 'wrongval');
         } else {
