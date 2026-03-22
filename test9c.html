@@ -569,6 +569,13 @@ function getSafePowerRating(power_mW) {
     const firstDigit = Math.ceil(power_mW / mag);
     return firstDigit * mag;
 }
+function showUnitInstruction() {
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.innerHTML = "<em>Enter your value followed by a standard unit (e.g., 5 A, 12 mV).</em>";
+        qText.style.display = 'block';
+    }
+}
 
 // =======================================================================================================
 // FUNCTION 1: DRAWING Helpers
@@ -1087,6 +1094,7 @@ function generateDividerProblem(ctx, canvas) {
         }
         solText.innerHTML = logicHTML;
     }
+    showUnitInstruction();
 }
 
 // ======================================================
@@ -1377,6 +1385,7 @@ function generateAnalysisProblem(ctx, canvas) {
             "<strong>" + currents[unknownIIndex].html + " = " + currents[unknownIIndex].val + " " + iUnit + "</strong> <br>" +
             "<em>Logic:</em> " + currents[unknownIIndex].logic;
     }
+    showUnitInstruction();
 }
 
 // ======================================================
@@ -1637,6 +1646,8 @@ function generateOscilloscopeProblem() {
 
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = solTextStr;
+    
+    showUnitInstruction();
 }
  
 function generateAstableProblem() {
@@ -2217,6 +2228,7 @@ function generateZenerProblem() {
             `;
         }
     }
+    showUnitInstruction();
 }
 
 function generateGrade9ZenerProblem() {
@@ -2649,20 +2661,11 @@ function hubController(ctx, canvas) {
     viewedSolution = false; 
     unitErrorMade = false; 
 
-    // 3. Clear text containers and set default instructions
+   // 3. Clear text containers
     const qText = document.getElementById('questionText');
     if (qText) {
-        // Set Option 1 as the default instruction
-        qText.innerHTML = "<em>Enter your value followed by a standard unit (e.g., 5 A, 12 mV).</em>";
-        qText.style.display = 'block'; 
-        
-        // Hide it on pages that use Dropdowns or shouldn't have this specific prompt
-        if (currentMode === 'resistance' || currentMode === 'colorcode' || currentMode === 'astable' || currentMode === 'home') {
-            qText.style.display = 'none'; 
-        }
-        
-        // Note: The Grade 9 challenges will automatically overwrite this text 
-        // with their own "🏆 Grade 9 Challenge" prompts when their specific functions run!
+        qText.innerHTML = '';
+        qText.style.display = 'none'; // Keep hidden unless a module needs it
     }
 
     // 4. ROUTER: Setup the UI for the specific mode
