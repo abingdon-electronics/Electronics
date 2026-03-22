@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +13,7 @@
         margin: 0 auto; 
         padding: 10px 20px; 
         line-height: 1.6; 
-        color: #333; /* Dark grey text for better contrast on light backgrounds */
+        color: #333; 
         background-color: #f0f4f7; 
         background-image: 
             radial-gradient(#d1d9e0 1px, transparent 1px), 
@@ -24,140 +23,152 @@
         background-position: 0 0, -1px -1px, -1px -1px;
     }
    
-        .header { text-align: center; margin-bottom: 15px; }
-        .header h1 { color: #000; margin-bottom: 0px; text-transform: uppercase; letter-spacing: 1px; font-size: 28px; }
-        .header p { margin-top: 5px; font-size: 18px; color: #555; }
-        .header span { color: #E64097; font-weight: bold; }
-        
-        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-        /* Specific layout for the 8-button Home Page */
-
-/* Home Page Grid */
-#mainMenu {
-    display: grid;
-    grid-template-columns: 1fr 1fr; 
-    justify-items: center; 
-    column-gap: 40px; 
-    row-gap: 30px;    
-    max-width: 900px; 
-    margin: 60px auto; 
-}
-        
-/* Ensure the sub-menus stay as a single row */
-#menuBasics, #menuTiming, #menuPlaceholder {
-    display: none; /* Hidden by default */
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-        /* General Tab Styling - Updated for Pink branding and more height */
-/* 1. Updated Tab Styling: Fixed width to make them shorter */
-.tab { 
-    padding: 10px 25px; 
-    font-size: 16px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    background-color: #E64097; /* Keeping them pink */
-    border: 2px solid #c5307d; 
-    border-radius: 8px; 
-    color: white; 
-    transition: all 0.2s;
-    min-width: 120px;
-    height: auto;
-}
-
-#mainMenu .tab {
-    width: 320px;      /* Big width for Home Page only */
-    min-height: 90px;  /* Big height for Home Page only */
-    font-size: 19px;   /* Larger text for Home Page only */
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.tab:hover {
-    background-color: #cf3584;
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-
-.tab.active {
-    background-color: #000000;
-    color: white;
-    border-color: #000;
-}
-        .main-layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
-        
-        .left-panel { flex: 1 1 550px; max-width: 650px; }
-        .circuit-container { border: 2px solid #eaeaea; padding: 15px; text-align: center; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
-        
-        .right-panel { flex: 1 1 350px; display: flex; flex-direction: column; gap: 15px; }
-        .quiz-section { background-color: #fdf4f8; padding: 15px 20px; border-radius: 8px; border: 1px solid #f2c7db; }
-        .quiz-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2c7db; padding-bottom: 10px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
-        .quiz-header h3 { margin: 0; font-size: 1.2rem; }
-        
-        .score-container { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-        .scoreboard { background-color: #fff; padding: 6px 15px; border: 2px solid #E64097; border-radius: 6px; font-weight: bold; font-size: 16px; color: #E64097; box-shadow: 0 2px 4px rgba(230, 64, 151, 0.1); }
-        .btn-download { background-color: #198754; font-size: 13px; padding: 8px 12px; margin: 0; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
-        .btn-download:hover { background-color: #157347; }
-        .btn-download:disabled { background-color: #6c757d; cursor: wait; }
-        
-        .input-area { text-align: center; }
-        .input-spacer { height: 55px; visibility: hidden; display: block; }
-        .input-group { margin: 10px 0; font-size: 18px; font-weight: bold; display: inline-block; margin-right: 15px; }
-        input[type="text"] { 
-            font-size: 18px; /* Slightly larger text */
-            padding: 10px;  /* More 'breathing room' inside the box */
-            height: 45px;   /* Consistent height */
-            width: 140px;   /* Slightly wider for unit strings */
-            text-align: center;
-            margin: 0 5px; 
-            border: 2px solid #ccc; /* Thicker border to match brand style */
-            border-radius: 6px; 
-            outline-color: #E64097;
-            box-sizing: border-box; /* Ensures padding doesn't break the width */
-}
-        input[type="text"]:focus {
-            border-color: #E64097 !important; /* Turns pink again when they start typing a new answer */
-            outline: none;
-}
-        /* FORCE PLACEHOLDERS TO BE VISIBLE GREY */
-        input::placeholder {
-            color: #6c757d !important;
-            opacity: 1 !important;
+    .header { text-align: center; margin-bottom: 15px; }
+    .header h1 { color: #000; margin-bottom: 0px; text-transform: uppercase; letter-spacing: 1px; font-size: 28px; }
+    .header p { margin-top: 5px; font-size: 18px; color: #555; }
+    .header span { color: #E64097; font-weight: bold; }
+    
+    .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+    
+    /* Home Page Grid */
+    #mainMenu {
+        display: grid;
+        /* FIX: Made the grid responsive. It will auto-stack to 1 column on small screens */
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+        justify-items: center; 
+        column-gap: 40px; 
+        row-gap: 30px;    
+        max-width: 900px; 
+        margin: 60px auto; 
     }
-        input::-webkit-input-placeholder {
-            color: #6c757d !important;
-            opacity: 1 !important;
+        
+    /* Ensure the sub-menus stay as a single row */
+    #menuBasics, #menuTiming, #menuPlaceholder {
+        display: none; 
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap; /* FIX: Added flex-wrap so sub-menus don't overflow on mobile */
     }
-        .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
         
-        .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s, transform 0.1s;}
-        button:active { transform: scale(0.98); }
-        .btn-check { background-color: #E64097; width: 100%; margin-top: 10px; }
-        .btn-check:hover { background-color: #cc2b81; }
-        .btn-black { background-color: #000000; }
-        .btn-black:hover { background-color: #333333; }
-        .btn-secondary { background-color: #6c757d; }
-        .btn-secondary:hover { background-color: #5c636a; }
-        
-        .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .solutions h3 { margin-top: 0; color: #E64097; font-size: 1.1rem; }
-        .solutions p { margin-bottom: 0; font-size: 0.95rem; }
+    /* General Tab Styling */
+    .tab { 
+        padding: 10px 25px; 
+        font-size: 16px; 
+        font-weight: bold; 
+        cursor: pointer; 
+        background-color: #E64097; 
+        border: 2px solid #c5307d; 
+        border-radius: 8px; 
+        color: white; 
+        transition: all 0.2s;
+        min-width: 120px;
+        height: auto;
+    }
 
-        /* Modal Styles */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 420px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-top: 6px solid #E64097; }
-        .modal-content h3 { margin-top: 0; color: #E64097; text-align: center; font-size: 1.4rem; margin-bottom: 20px;}
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 6px; color: #333; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; border: 2px solid #eaeaea; border-radius: 6px; font-size: 16px; outline-color: #E64097; }
-        .modal-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 25px; }
-        .modal-actions button { flex: 1; margin: 0; }
+    #mainMenu .tab {
+        width: 100%;       /* FIX: Changed from hardcoded 320px */
+        max-width: 320px;  /* FIX: Caps the width but allows shrinking on mobile */
+        min-height: 90px;  
+        font-size: 19px;   
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .tab:hover {
+        background-color: #cf3584;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* FIX: Added Keyboard Accessibility Focus */
+    .tab:focus-visible, button:focus-visible {
+        outline: 3px solid #000;
+        outline-offset: 3px;
+    }
+
+    .tab.active {
+        background-color: #000000;
+        color: white;
+        border-color: #000;
+    }
+    
+    .main-layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+    
+    /* FIX: Changed flex-basis from 550px to 300px to prevent mobile overflow */
+    .left-panel { flex: 1 1 300px; max-width: 650px; width: 100%; } 
+    .circuit-container { border: 2px solid #eaeaea; padding: 15px; text-align: center; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
+    
+    /* FIX: Prevent right panel from overflowing on mobile */
+    .right-panel { flex: 1 1 300px; display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 500px; }
+    
+    .quiz-section { background-color: #fdf4f8; padding: 15px 20px; border-radius: 8px; border: 1px solid #f2c7db; }
+    .quiz-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2c7db; padding-bottom: 10px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+    .quiz-header h3 { margin: 0; font-size: 1.2rem; }
+    
+    .score-container { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+    .scoreboard { background-color: #fff; padding: 6px 15px; border: 2px solid #E64097; border-radius: 6px; font-weight: bold; font-size: 16px; color: #E64097; box-shadow: 0 2px 4px rgba(230, 64, 151, 0.1); }
+    .btn-download { background-color: #198754; font-size: 13px; padding: 8px 12px; margin: 0; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
+    .btn-download:hover { background-color: #157347; }
+    .btn-download:disabled { background-color: #6c757d; cursor: wait; }
+    
+    .input-area { text-align: center; }
+    .input-spacer { height: 55px; visibility: hidden; display: block; }
+    .input-group { margin: 10px 0; font-size: 18px; font-weight: bold; display: inline-block; margin-right: 15px; }
+    
+    .quiz-section input[type="text"] { 
+        font-size: 18px; 
+        padding: 10px;  
+        height: 45px;   
+        width: 140px;   
+        text-align: center;
+        margin: 0 5px; 
+        border: 2px solid #ccc; 
+        border-radius: 6px; 
+        outline: none; /* Changed from outline-color */
+        box-sizing: border-box; 
+    }
+    
+    /* FIX: Added higher specificity to remove the need for !important */
+    .quiz-section input[type="text"]:focus {
+        border-color: #E64097; 
+    }
+    
+    /* FIX: Added Mozilla and MS prefixes for cross-browser placeholder support */
+    input::placeholder { color: #6c757d; opacity: 1; }
+    input::-webkit-input-placeholder { color: #6c757d; opacity: 1; }
+    input::-moz-placeholder { color: #6c757d; opacity: 1; }
+    input:-ms-input-placeholder { color: #6c757d; opacity: 1; }
+    
+    .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
+    
+    .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; }
+    button { padding: 10px 20px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 4px; font-weight: bold; transition: background-color 0.2s, transform 0.1s;}
+    button:active { transform: scale(0.98); }
+    .btn-check { background-color: #E64097; width: 100%; margin-top: 10px; }
+    .btn-check:hover { background-color: #cc2b81; }
+    .btn-black { background-color: #000000; }
+    .btn-black:hover { background-color: #333333; }
+    .btn-secondary { background-color: #6c757d; }
+    .btn-secondary:hover { background-color: #5c636a; }
+    
+    .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .solutions h3 { margin-top: 0; color: #E64097; font-size: 1.1rem; }
+    .solutions p { margin-bottom: 0; font-size: 0.95rem; }
+
+    /* Modal Styles */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 420px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-top: 6px solid #E64097; }
+    .modal-content h3 { margin-top: 0; color: #E64097; text-align: center; font-size: 1.4rem; margin-bottom: 20px;}
+    .form-group { margin-bottom: 15px; text-align: left; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 6px; color: #333; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; box-sizing: border-box; border: 2px solid #eaeaea; border-radius: 6px; font-size: 16px; outline-color: #E64097; }
+    .modal-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 25px; }
+    .modal-actions button { flex: 1; margin: 0; }
     </style>
 </head>
 
@@ -687,9 +698,9 @@ function drawArrowOnWire(ctx, fromx, fromy, tox, toy) {
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
 // =========================================================================================================     
 
-// this function deals with adding resistances in series and parallel    
+// this function deals with adding resistances in series and parallel  
 function generateResistanceProblem(ctx, canvas) {
-       hideAllInputGroups(); 
+    hideAllInputGroups(); 
     currentMode = 'resistance'; // Make sure the grader knows what page we are on!
     
     // BRING BACK THE RESISTANCE BOX
@@ -698,11 +709,14 @@ function generateResistanceProblem(ctx, canvas) {
         groupR.style.display = 'flex'; // Unhides the box so you can see it!
     }
     
-    const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
+    // Static placeholder so it doesn't leak the answer
+    const inputR = document.getElementById('inputR');
+    if (inputR) {
+        inputR.placeholder = "e.g. 47";
+        inputR.value = ""; // Clear old answer
+    }
     
-    // --- UI CLEANUP ---
-    // OMITTED: Manual placeholder assignment and manual value clearing 
-    // (handled by hideAllInputGroups() and HTML defaults)
+    const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     
     const labelV = document.getElementById('labelV');
     if (labelV) {
@@ -816,22 +830,22 @@ function generateResistanceProblem(ctx, canvas) {
         logicHTML += "R<sub>Total</sub> = R\u2081 + R<sub>p</sub> = " + s.r1 + " + " + s.rp + " = <strong>" + s.req + " " + rUnitVisual + "</strong>";
     }
 
-    // Storage for the checker
-    currentAnswers.rUnit = (rUnitVisual === 'k\u03A9') ? 'kohms' : 'ohms';
+    // Storage for the checker (UPDATED for Dropdown Support)
     currentAnswers.rValue = rTotal; 
+    currentAnswers.rTargetUnit = rUnitVisual; // Stores exact symbol ('kΩ' or 'Ω') for validateMatch
     
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = logicHTML;
 }
 
     
-   function generateGrade9Resistance() {
+function generateGrade9Resistance() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
     
     // 0. RESET UI & STATE
     hideAllInputGroups(); 
-    currentMode = 'resistance'; // ADDED: Tells the grader what to do!
+    currentMode = 'resistance'; // Tells the grader what to do!
     
     // BRING BACK THE RESISTANCE BOX
     const groupR = document.getElementById('inputGroupR');
@@ -840,11 +854,13 @@ function generateResistanceProblem(ctx, canvas) {
     }
 
     const inputR = document.getElementById('inputR');
+    if (inputR) {
+        inputR.placeholder = "e.g. 47"; // Prevent leaking the answer!
+        inputR.value = "";
+    }
 
     // Randomize the unit for the problem
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
-    // Standardize for the checker (lowercase)
-    const expectedUnitStr = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -904,12 +920,9 @@ function generateResistanceProblem(ctx, canvas) {
         solText.innerHTML = logicHTML;
     }
 
-    // --- SAVE ANSWERS FOR VALIDATION ---
+    // --- SAVE ANSWERS FOR VALIDATION (UPDATED) ---
     currentAnswers.rValue = rTotal;
-    currentAnswers.rUnit = expectedUnitStr; // Matches 'ohms' or 'kohms' from parseInput
-    
-    // Placeholder hint
-    if (inputR) inputR.placeholder = "e.g. " + rTotal + " " + rUnitVisual;
+    currentAnswers.rTargetUnit = rUnitVisual; // Stores exact symbol ('kΩ' or 'Ω') for the new dropdown checker
 }
 // =======================================================
 //  Generates the Potential Divider Problem (4-Variables)
@@ -928,9 +941,10 @@ function generateDividerProblem(ctx, canvas) {
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     
-    // Standardize units for the checker (must be lowercase)
-    const expectedVUnit = vUnit.toLowerCase(); 
-    const expectedRUnit = rUnitVisual === 'k\u03A9' ? 'kohms' : 'ohms';
+    // Standardize units for the checker (STRICT CASING)
+    // Removed .toLowerCase() so 'mV' stays 'mV' and perfectly matches the parser
+    const expectedVUnit = vUnit; 
+    const expectedRUnit = rUnitVisual === 'k\u03A9' ? 'kΩ' : 'Ω';
 
     // 1. GENERATE THE 4-VARIABLE MATH LOGIC
     let R1_val = Math.floor(Math.random() * 10) + 1; 
@@ -964,17 +978,19 @@ function generateDividerProblem(ctx, canvas) {
         currentAnswers.vUnit = expectedRUnit; 
     }
 
-// Update Input Box Label and Placeholder
+    // Update Input Box Label and Placeholder
     document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
     
     // Define inputBox by grabbing it from the HTML!
     const inputBox = document.getElementById('inputV');
     
     if (inputBox) {
+        inputBox.value = ""; // Clear any previous answer
         if (targetVar === 0 || targetVar === 1) {
-            inputBox.placeholder = "e.g. 10 " + vUnit; 
+            inputBox.placeholder = "e.g. 4.5 " + vUnit; // Generic hint, doesn't leak answer
         } else {
-            inputBox.placeholder = "e.g. 10 " + rUnitVisual; 
+            // Use standard expectedRUnit ('Ω' or 'kΩ') instead of unicode for the placeholder
+            inputBox.placeholder = "e.g. 12 " + expectedRUnit; 
         }
     }
 
@@ -1057,6 +1073,7 @@ function generateDividerProblem(ctx, canvas) {
         solText.innerHTML = logicHTML;
     }
 }
+
 // ======================================================
 // Grade 9 Parallel Divider Problem (Calculator Required)
 // ======================================================
@@ -1086,8 +1103,9 @@ function generateGrade9DividerProblem() {
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
 
-    // Standardize units for the checker (lowercase)
-    const expectedVUnit = vUnit.toLowerCase();
+    // Standardize units for the checker (STRICT CASING)
+    // Removed .toLowerCase() to stay consistent with V/mV strict checks
+    const expectedVUnit = vUnit;
 
     // 1. GENERATE MATH (1 d.p. logic)
     let R1_val = Math.floor(Math.random() * 20) + 5; 
@@ -1110,12 +1128,13 @@ function generateGrade9DividerProblem() {
     // --- SAVE ANSWERS FOR VALIDATION ---
     currentAnswers.vNameHTML = 'V<sub>OUT</sub>';
     currentAnswers.vValue = Vout_val;
-    currentAnswers.vUnit = expectedVUnit; // Now 'v' or 'mv'
+    currentAnswers.vUnit = expectedVUnit; // Now strictly 'V' or 'mV'
 
     // Update UI Labels
     document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>V<sub>OUT</sub></span> = ";
     if (inputBox) {
-        inputBox.placeholder = "e.g. 1.2 " + vUnit;
+        inputBox.value = ""; // Clear old answer
+        inputBox.placeholder = "e.g. 3.2 " + vUnit; // Generic hint
     }
 
     // 2. DRAWING CODE
@@ -1206,9 +1225,9 @@ function generateAnalysisProblem(ctx, canvas) {
     const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
     const iUnit = Math.random() < 0.5 ? 'A' : 'mA';
     
-    // Standardize units for the checker (must be lowercase)
-    const expectedVUnit = vUnit.toLowerCase();
-    const expectedIUnit = iUnit.toLowerCase();
+    // STRICT CASING FIX: Removed .toLowerCase() to match the new parser exactly
+    const expectedVUnit = vUnit;
+    const expectedIUnit = iUnit;
 
     // 1. GENERATE MATH LOGIC
     const v1 = Math.floor(Math.random() * 10) + 1; 
@@ -1237,14 +1256,13 @@ function generateAnalysisProblem(ctx, canvas) {
     const unknownIIndex = Math.floor(Math.random() * 3);
 
     // CRITICAL: Set the normalized answers for the checker
-    // We store the raw value and the specific unit string chosen for this problem
     currentAnswers.vNameHTML = voltages[unknownVIndex].html;
     currentAnswers.vValue = voltages[unknownVIndex].val;
-    currentAnswers.vUnit = expectedVUnit; 
+    currentAnswers.vUnit = expectedVUnit; // Now strict 'V' or 'mV'
     
     currentAnswers.iNameHTML = currents[unknownIIndex].html;
     currentAnswers.iValue = currents[unknownIIndex].val;
-    currentAnswers.iUnit = expectedIUnit;
+    currentAnswers.iUnit = expectedIUnit; // Now strict 'A' or 'mA'
 
     // Update Input Labels to match the "?" in the diagram
     const labelV = document.getElementById('labelV');
@@ -1252,8 +1270,15 @@ function generateAnalysisProblem(ctx, canvas) {
     if (labelV) labelV.innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
     if (labelI) labelI.innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.iNameHTML + "</span> = ";
     
-    if (inputV) inputV.placeholder = "e.g. " + currentAnswers.vValue + " " + vUnit;
-    if (inputI) inputI.placeholder = "e.g. " + currentAnswers.iValue + " " + iUnit;
+    // FIX DEVELOPER TRAP: Generic placeholders, clear previous text
+    if (inputV) {
+        inputV.value = "";
+        inputV.placeholder = "e.g. 5.5 " + vUnit;
+    }
+    if (inputI) {
+        inputI.value = "";
+        inputI.placeholder = "e.g. 2.5 " + iUnit;
+    }
 
     // Drawing Prep
     const vLabels = voltages.map(function(v, index) { 
@@ -1336,6 +1361,7 @@ function generateAnalysisProblem(ctx, canvas) {
             "<em>Logic:</em> " + currents[unknownIIndex].logic;
     }
 }
+
 // ======================================================
 // Colour Code 
 // ======================================================
@@ -1355,17 +1381,40 @@ function generateColorCodeProblem(ctx, canvas) {
     const b2 = Math.floor(Math.random() * 10);    
     const b3 = Math.floor(Math.random() * 7);      
     const tolKey = Math.random() > 0.5 ? 'gold' : 'silver';
-    const resistanceValue = (b1 * 10 + b2) * Math.pow(10, b3);
+    const resistanceValueRaw = (b1 * 10 + b2) * Math.pow(10, b3);
     const toleranceValue = tolColors[tolKey];
 
-    // 4. Store answers for grading
+    // DROPDOWN FIX: Scale the resistance so it aligns perfectly with the unit dropdown
+    let targetVal = resistanceValueRaw;
+    let targetUnit = "Ω";
+    
+    if (resistanceValueRaw >= 1000000) {
+        targetVal = resistanceValueRaw / 1000000;
+        targetUnit = "MΩ";
+    } else if (resistanceValueRaw >= 1000) {
+        targetVal = resistanceValueRaw / 1000;
+        targetUnit = "kΩ";
+    }
+
+    // 4. Store answers for grading (using the scaled values!)
     if (typeof window.currentAnswers === 'undefined') window.currentAnswers = {};
-    currentAnswers.resVal = resistanceValue;
+    currentAnswers.resVal = targetVal;
+    currentAnswers.rTargetUnit = targetUnit; // Now dynamically sets 'Ω', 'kΩ', or 'MΩ'
     currentAnswers.resTol = toleranceValue;
     currentAnswers.b1 = resColors[b1];
     currentAnswers.b2 = resColors[b2];
     currentAnswers.b3 = resColors[b3];
     currentAnswers.tol = tolKey;
+
+    // Reset Box Values
+    const inputResValue = document.getElementById('inputResValue');
+    const inputResTol = document.getElementById('inputResTol');
+    if (inputResValue) { inputResValue.value = ""; inputResValue.placeholder = "e.g. 4.7"; }
+    if (inputResTol) { inputResTol.value = ""; inputResTol.placeholder = "e.g. 5"; }
+    ['inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.value = ""; el.placeholder = "colour"; }
+    });
 
     // 5. Drawing Setup
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1374,10 +1423,12 @@ function generateColorCodeProblem(ctx, canvas) {
     ctx.fillStyle = '#f4d3a6'; ctx.fillRect(200, 170, 200, 80); ctx.strokeRect(200, 170, 200, 80); 
 
     const qType = Math.floor(Math.random() * 2);
-    let solTextStr = "";
     
-    // formatResValue already includes the Ω symbol!
-    const formattedVal = (typeof formatResValue === "function") ? formatResValue(resistanceValue) : resistanceValue.toLocaleString() + " Ω";
+    // Crucial for checkAnswers to know which sub-mode to grade
+    window.colorCodeSubMode = (qType === 0) ? 'colorToValue' : 'valueToColor'; 
+    
+    let solTextStr = "";
+    const formattedVal = targetVal + " " + targetUnit;
 
     if (qType === 0) {
         // TYPE 0: Visual Resistor -> Student enters Resistance and Tolerance
@@ -1390,9 +1441,8 @@ function generateColorCodeProblem(ctx, canvas) {
         drawBand(280, resColors[b3]);
         drawBand(360, tolKey);
 
-        if (valGroup) valGroup.style.display = 'block';
+        if (valGroup) valGroup.style.display = 'flex'; // Changed to flex to support your new HTML layout
 
-        // FIXED: Removed the manual "Ω" here because formattedVal already has it.
         solTextStr = `<strong>Solution: ${formattedVal} &plusmn; ${toleranceValue}%</strong><br><br>
                       <em>Logic:</em><br>
                       Band 1 (${resColors[b1].toUpperCase()}) = ${b1}<br>
@@ -1416,7 +1466,6 @@ function generateColorCodeProblem(ctx, canvas) {
 
         ctx.fillStyle = '#000';
         ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center';        
-        // FIXED: Removed the manual "±" and formatting logic that might cause double symbols
         ctx.fillText(`${formattedVal} ± ${toleranceValue}%`, 300, 310);
 
         if (namesGroup) namesGroup.style.display = 'flex'; 
@@ -1443,13 +1492,13 @@ function generateColorCodeProblem(ctx, canvas) {
     if (instruction) {
         instruction.style.display = 'block'; 
         if (qType === 0) {
-            instruction.innerHTML = "<strong>State the value of the resistor (Include units e.g. Ω or Ohms).</strong>";
+            // Instruction updated to reflect dropdown UI
+            instruction.innerHTML = "<strong>State the value of the resistor (Select unit from the dropdown).</strong>";
         } else {
             instruction.innerHTML = "<strong>Identify the resistor colour codes.</strong>";
         }
     }
 }
-
 function generateOscilloscopeProblem() {
     // 1. SELF-INITIALIZE CANVAS
     const canvas = document.getElementById('circuitCanvas');
@@ -1460,15 +1509,12 @@ function generateOscilloscopeProblem() {
     hideAllInputGroups(); 
     currentMode = 'oscilloscope';
 
-    // REMOVED: The qText.style.display and qText.innerHTML lines that were here.
-    // This ensures the instruction text never appears.
-
     // Clear and reset the specific oscilloscope input fields
     const ids = ['inputOscAmp', 'inputOscMark', 'inputOscSpace', 'inputOscPeriod', 'inputOscFreq', 'inputOscRatio'];
     ids.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            el.value = "";
+            el.value = ""; // Clear old answers
             el.placeholder = ""; 
         }
     });
@@ -1505,17 +1551,17 @@ function generateOscilloscopeProblem() {
     let frequency = (tBaseUnit === 'ms') ? (1000 / periodTime) : (1 / periodTime);
     let freq_rounded = parseFloat(frequency.toFixed(1));
 
-    // Store answers for the checker
+    // Store answers for the checker (STRICT CASING FIX)
     currentAnswers.oscAmpValue = amplitude; 
-    currentAnswers.oscAmpUnit = vGainUnit.toLowerCase();
+    currentAnswers.oscAmpUnit = vGainUnit; // Removed .toLowerCase()
     currentAnswers.oscMarkValue = markDivs * tBase; 
-    currentAnswers.oscMarkUnit = tBaseUnit.toLowerCase();
+    currentAnswers.oscMarkUnit = tBaseUnit; // Removed .toLowerCase()
     currentAnswers.oscSpaceValue = spaceDivs * tBase; 
-    currentAnswers.oscSpaceUnit = tBaseUnit.toLowerCase();
+    currentAnswers.oscSpaceUnit = tBaseUnit; // Removed .toLowerCase()
     currentAnswers.oscPeriodValue = periodTime; 
-    currentAnswers.oscPeriodUnit = tBaseUnit.toLowerCase();
+    currentAnswers.oscPeriodUnit = tBaseUnit; // Removed .toLowerCase()
     currentAnswers.oscFreqValue = freq_rounded; 
-    currentAnswers.oscFreqUnit = 'hz';
+    currentAnswers.oscFreqUnit = 'Hz'; // Strict capital H, lowercase z
     currentAnswers.oscRatioValue = markDivs + "/" + spaceDivs;
 
     // 5. DRAW SETTINGS & WAVEFORM
@@ -1546,23 +1592,25 @@ function generateOscilloscopeProblem() {
     const qType = Math.floor(Math.random() * 3) + 1;
     currentAnswers.oscQType = qType;
 
-    // Always show Amplitude input
+    // Always show Amplitude input (DEVELOPER TRAP FIX)
     document.getElementById('inputGroupOscAmp').style.display = "inline-block";
-    document.getElementById('inputOscAmp').placeholder = "e.g. " + amplitude + vGainUnit;
+    document.getElementById('inputOscAmp').placeholder = "e.g. 5 " + vGainUnit;
 
     let solTextStr = "<strong>Amplitude = " + amplitude + " " + vGainUnit + "</strong><br>Logic: " + ampDivs + " divs &times; " + vGain + " " + vGainUnit + "/div<br><br>";
 
     if (qType === 1) {
         document.getElementById('inputGroupOscMark').style.display = "inline-block";
         document.getElementById('inputGroupOscSpace').style.display = "inline-block";
-        document.getElementById('inputOscMark').placeholder = (markDivs * tBase) + tBaseUnit;
-        document.getElementById('inputOscSpace').placeholder = (spaceDivs * tBase) + tBaseUnit;
+        // Developer Trap fix:
+        document.getElementById('inputOscMark').placeholder = "e.g. 10 " + tBaseUnit;
+        document.getElementById('inputOscSpace').placeholder = "e.g. 5 " + tBaseUnit;
         solTextStr += "<strong>Mark:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit;
     } else if (qType === 2) {
         document.getElementById('inputGroupOscPeriod').style.display = "inline-block";
         document.getElementById('inputGroupOscFreq').style.display = "inline-block";
-        document.getElementById('inputOscPeriod').placeholder = periodTime + tBaseUnit;
-        document.getElementById('inputOscFreq').placeholder = freq_rounded + "Hz";
+        // Developer Trap fix:
+        document.getElementById('inputOscPeriod').placeholder = "e.g. 20 " + tBaseUnit;
+        document.getElementById('inputOscFreq').placeholder = "e.g. 50 Hz";
         solTextStr += "<strong>Period:</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit;
     } else {
         document.getElementById('inputGroupOscRatio').style.display = "block";
@@ -1601,7 +1649,9 @@ function generateAstableProblem() {
     const astablePrompt = document.getElementById('astableInstruction');
     const ratioPrompt = document.getElementById('ratioInstruction');
     
-    [inputAstable, inputAstableT, inputMarkSpace].forEach(el => { if(el) el.value = ""; });
+    [inputAstable, inputAstableT, inputMarkSpace].forEach(el => { 
+        if(el) { el.value = ""; el.placeholder = ""; } // Cleared
+    });
     [astablePrompt, ratioPrompt].forEach(el => { if(el) el.innerHTML = ""; });
 
     // 4. MATH & VARIABLES
@@ -1634,14 +1684,21 @@ function generateAstableProblem() {
         
         currentAnswers.astableValue = parseFloat(freq.toFixed(1)); 
         currentAnswers.astableTValue = parseFloat(period_ms.toFixed(1)); 
-        currentAnswers.astableUnit = "hz";   
-        currentAnswers.astableTUnit = "ms";  
+        currentAnswers.astableUnit = "Hz";   // STRICT CASING FIX
+        currentAnswers.astableTUnit = "ms";  // STRICT CASING FIX
+
+        // Generic placeholders
+        if(inputAstable) inputAstable.placeholder = "e.g. 50 Hz";
+        if(inputAstableT) inputAstableT.placeholder = "e.g. 20 ms";
+
     } else {
         if(groupRatio) groupRatio.style.display = "inline-block";
         if(groupStd) groupStd.style.display = "none";
         if(ratioPrompt) ratioPrompt.innerHTML = "(Simplified fraction, e.g. 2/1)";
         
         currentAnswers.astableRatio = ratioString;
+
+        if(inputMarkSpace) inputMarkSpace.placeholder = "e.g. 2/1";
     }
 
     // 6. DRAWING HELPERS (Kept your logic)
@@ -1826,23 +1883,26 @@ function generateMonostableProblem() {
     
     const monoLabel = document.getElementById('labelMonostable');
     const inputMono = document.getElementById('inputMonostable');
+    
+    // Clear old answer
+    if (inputMono) inputMono.value = "";
 
     if (qType === 1) { // Calculating Time
         if (monoLabel) monoLabel.innerHTML = "T = ";
-        inputMono.placeholder = "e.g. " + roundedTime + "s";
+        if (inputMono) inputMono.placeholder = "e.g. 5.5 s"; // Generic Placeholder
         currentAnswers.expectedT = roundedTime;
-        currentAnswers.expectedUnit = "s";
+        currentAnswers.expectedUnit = "s"; // Strict casing
     } else if (qType === 2) { // Calculating Resistance
         if (monoLabel) monoLabel.innerHTML = "R = ";
-        inputMono.placeholder = "e.g. " + R1_k + "k\u03a9";
+        if (inputMono) inputMono.placeholder = "e.g. 100 kΩ"; // Generic Placeholder
         currentAnswers.expectedT = R1_k;
-        currentAnswers.expectedUnit = "k";
+        currentAnswers.expectedUnit = "kΩ"; // Strict casing
         rLabel = "R = ?";
     } else if (qType === 3) { // Calculating Capacitance
         if (monoLabel) monoLabel.innerHTML = "C = ";
-        inputMono.placeholder = "e.g. " + C_uF + "\u03bcF";
+        if (inputMono) inputMono.placeholder = "e.g. 47 μF"; // Generic Placeholder
         currentAnswers.expectedT = C_uF;
-        currentAnswers.expectedUnit = "uf";
+        currentAnswers.expectedUnit = "μF"; // Strict casing
         cLabel = "C = ?";
     }
 
@@ -1927,11 +1987,11 @@ function generateMonostableProblem() {
     if (solElement) {
         let solHTML = "";
         if (qType === 1) {
-            solHTML = `<strong>Find T:</strong> T = 1.1 × R × C = 1.1 × ${R1_k}k × ${C_uF}μF = <strong>${roundedTime}s</strong>`;
+            solHTML = `<strong>Find T:</strong> T = 1.1 × R × C = 1.1 × ${R1_k}k × ${C_uF}μF = <strong>${roundedTime} s</strong>`;
         } else if (qType === 2) {
-            solHTML = `<strong>Find R:</strong> R = T / (1.1 × C) = ${roundedTime} / (1.1 × ${C_uF}μF) = <strong>${R1_k}kΩ</strong>`;
+            solHTML = `<strong>Find R:</strong> R = T / (1.1 × C) = ${roundedTime} / (1.1 × ${C_uF}μF) = <strong>${R1_k} kΩ</strong>`;
         } else {
-            solHTML = `<strong>Find C:</strong> C = T / (1.1 × R) = ${roundedTime} / (1.1 × ${R1_k}k) = <strong>${C_uF}μF</strong>`;
+            solHTML = `<strong>Find C:</strong> C = T / (1.1 × R) = ${roundedTime} / (1.1 × ${R1_k}k) = <strong>${C_uF} μF</strong>`;
         }
         solElement.innerHTML = solHTML;
     }
@@ -1943,14 +2003,17 @@ function clearZenerInputs() {
         const el = document.getElementById(id);
         if (el) {
             el.value = '';
+            el.placeholder = ''; // Resets fully
             el.style.backgroundColor = '';
         }
     });
 }
+
 function generateZenerProblem() {
     // 0. RESET UI & STATE
     hideAllInputGroups();
     currentMode = 'zener';
+    clearZenerInputs(); // Ensure inputs are wiped
     
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
@@ -1982,11 +2045,11 @@ function generateZenerProblem() {
     const VL_at_max = Vz;
     const Pz_open_mW = Ir_mA * Vz; // When open, all current flows through Zener
 
-    // Save for the grader!
-    currentAnswers.targetIL = parseFloat(IL_max.toFixed(1));
-    currentAnswers.targetVL = parseFloat(VL_at_max.toFixed(1));
-    currentAnswers.targetIZ = parseFloat(Ir_mA.toFixed(1));
-    currentAnswers.targetPZ = parseFloat(Pz_open_mW.toFixed(1));
+    // SAVE FIX: Names updated to strictly match checkAnswers (iL, vL, iZ, pZ)
+    currentAnswers.iL = parseFloat(IL_max.toFixed(1));
+    currentAnswers.vL = parseFloat(VL_at_max.toFixed(1));
+    currentAnswers.iZ = parseFloat(Ir_mA.toFixed(1));
+    currentAnswers.pZ = parseFloat(Pz_open_mW.toFixed(1));
 
     // 2. UI SETUP (Unhide the specific Zener Questions)
     const zenerMainGroup = document.getElementById('inputGroupZener');
@@ -1994,9 +2057,19 @@ function generateZenerProblem() {
 
     const closedGroup = document.getElementById('zenerClosedQuestions');
     const openGroup = document.getElementById('zenerOpenQuestions');
+    
     if (closedGroup && openGroup) {
         closedGroup.style.display = switchClosed ? "block" : "none";
         openGroup.style.display = switchClosed ? "none" : "block";
+        
+        // Developer Trap Fix: Generic Placeholders
+        if (switchClosed) {
+            document.getElementById('zenerQ_IL').placeholder = "e.g. 15.5 mA";
+            document.getElementById('zenerQ_VL').placeholder = "e.g. 4.5 V";
+        } else {
+            document.getElementById('zenerQ_IZ').placeholder = "e.g. 200 mA";
+            document.getElementById('zenerQ_PZ').placeholder = "e.g. 50 mW";
+        }
     }
 
     // 3. DRAWING 
@@ -2109,21 +2182,21 @@ function generateZenerProblem() {
             solBox.innerHTML = `
                 <strong>1. Max Load Current (I<sub>L</sub>):</strong><br>
                 Subtract minimum Zener holding current from the total supply current.<br>
-                I<sub>L</sub> = ${Ir_mA} mA - ${Iz_min} mA = <strong>${currentAnswers.targetIL} mA</strong><br><br>
+                I<sub>L</sub> = ${Ir_mA} mA - ${Iz_min} mA = <strong>${currentAnswers.iL} mA</strong><br><br>
                 
                 <strong>2. Load Voltage (V<sub>L</sub>):</strong><br>
                 The Zener diode locks the voltage in parallel.<br>
-                V<sub>L</sub> = V<sub>Z</sub> = <strong>${currentAnswers.targetVL} V</strong>
+                V<sub>L</sub> = V<sub>Z</sub> = <strong>${currentAnswers.vL} V</strong>
             `;
         } else {
             solBox.innerHTML = `
                 <strong>1. Zener Current (I<sub>Z</sub>):</strong><br>
                 With the switch open, all supply current goes through the Zener.<br>
-                I<sub>Z</sub> = I<sub>TOTAL</sub> = <strong>${currentAnswers.targetIZ} mA</strong><br><br>
+                I<sub>Z</sub> = I<sub>TOTAL</sub> = <strong>${currentAnswers.iZ} mA</strong><br><br>
                 
                 <strong>2. Zener Power (P<sub>Z</sub>):</strong><br>
                 Power = Current &times; Voltage.<br>
-                P<sub>Z</sub> = ${currentAnswers.targetIZ} mA &times; ${currentAnswers.targetVL} V = <strong>${currentAnswers.targetPZ} mW</strong>
+                P<sub>Z</sub> = ${currentAnswers.iZ} mA &times; ${currentAnswers.vL} V = <strong>${currentAnswers.pZ} mW</strong>
             `;
         }
     }
@@ -2133,6 +2206,17 @@ function generateGrade9ZenerProblem() {
     // 0. RESET UI & STATE
     hideAllInputGroups();
     currentMode = 'grade9zener';
+    
+    // Clear Grade 9 Inputs
+    const ids = ['g9IL', 'g9IZ', 'g9PZ', 'g9Rating'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            el.placeholder = ''; 
+            el.style.backgroundColor = '';
+        }
+    });
     
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
@@ -2180,7 +2264,12 @@ function generateGrade9ZenerProblem() {
         IL_mA = (Vz / RL) * 1000;
         IZ_mA = IT_mA - IL_mA;
         
-        if (g9Closed) g9Closed.style.display = "block";
+        if (g9Closed) {
+            g9Closed.style.display = "block";
+            // Developer Trap Fix: Add generic placeholders
+            document.getElementById('g9IL').placeholder = "e.g. 15.2 mA";
+            document.getElementById('g9IZ').placeholder = "e.g. 24.5 mA";
+        }
         if (g9Open) g9Open.style.display = "none";
         
         if (qText) {
@@ -2196,10 +2285,10 @@ function generateGrade9ZenerProblem() {
         logicHTML += "<em>Step 3:</em> Find Zener Current (I<sub>Z</sub>) using Kirchhoff's Law.<br>";
         logicHTML += "I<sub>Z</sub> = I<sub>TOTAL</sub> - I<sub>L</sub> = " + IT_mA.toFixed(1) + " - " + IL_mA.toFixed(1) + " = <strong>" + IZ_mA.toFixed(1) + " mA</strong>";
         
-        // Save answers for grader
+        // SAVE FIX: Matches checkAnswers exact expectations
         if (typeof currentAnswers === "undefined") currentAnswers = {};
-        currentAnswers.targetIL = parseFloat(IL_mA.toFixed(1));
-        currentAnswers.targetIZ = parseFloat(IZ_mA.toFixed(1));
+        currentAnswers.iL = parseFloat(IL_mA.toFixed(1));
+        currentAnswers.iZ = parseFloat(IZ_mA.toFixed(1));
 
     } else {
         IZ_mA = IT_mA; 
@@ -2212,7 +2301,12 @@ function generateGrade9ZenerProblem() {
         }
 
         if (g9Closed) g9Closed.style.display = "none";
-        if (g9Open) g9Open.style.display = "block";
+        if (g9Open) {
+            g9Open.style.display = "block";
+            // Developer Trap Fix: Add generic placeholders
+            document.getElementById('g9PZ').placeholder = "e.g. 150.0 mW";
+            document.getElementById('g9Rating').placeholder = "e.g. 200 mW";
+        }
 
         if (qText) {
             qText.innerHTML = "<strong>🏆 Grade 9 Challenge:</strong> The switch S is <strong>OPEN</strong>. Calculate the maximum Zener Power (P<sub>Z</sub>) to 1 d.p., and determine the minimum safe power rating to 1 significant figure.";
@@ -2228,10 +2322,10 @@ function generateGrade9ZenerProblem() {
         logicHTML += "To avoid blowing the component, we round the power <em>up</em> to 1 significant figure.<br>";
         logicHTML += "Minimum P<sub>Z</sub> Rating (1 s.f.) = <strong>" + safeRating + " mW</strong>";
 
-        // Save answers for grader
+        // SAVE FIX: Matches checkAnswers exact expectations
         if (typeof currentAnswers === "undefined") currentAnswers = {};
-        currentAnswers.targetPZ = parseFloat(PZ_mW.toFixed(1));
-        currentAnswers.targetRating = safeRating;
+        currentAnswers.pZ = parseFloat(PZ_mW.toFixed(1));
+        currentAnswers.rating = safeRating;
     }
 
     if (solText) solText.innerHTML = logicHTML;
@@ -2339,7 +2433,7 @@ function generateGrade9ZenerProblem() {
     if (zenerClosed) zenerClosed.style.display = 'none';
     
     // Also clear any values left in the boxes
-    clearZenerInputs(); 
+    if (typeof clearZenerInputs === "function") clearZenerInputs(); 
     // --- FIX ENDS HERE ---
 
     // Reset subtitles/branding if needed
@@ -2396,6 +2490,7 @@ function switchTab(mode) {
     }
 
     // 2. SAFE HIDE: Loop through elements and only hide them if they exist
+    // FIX: Added g9ZenerClosed and g9ZenerOpen to prevent UI ghosting
     const elementsToHide = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
@@ -2404,7 +2499,8 @@ function switchTab(mode) {
         'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener',
         'inputGroupSilicon', 'zenerOpenQuestions', 'zenerClosedQuestions', 
         'instructionPrompt', 'astableInstruction', 'ratioInstruction', 'zenerInstruction',
-        'grade9DividerBtn', 'grade9ResistorBtn', 'helpBtn', 'grade9ZenerBtn', 'inputGroupGrade9Zener'
+        'grade9DividerBtn', 'grade9ResistorBtn', 'helpBtn', 'grade9ZenerBtn', 
+        'inputGroupGrade9Zener', 'g9ZenerClosed', 'g9ZenerOpen'
     ];
 
     elementsToHide.forEach(id => {
@@ -2427,10 +2523,19 @@ function switchTab(mode) {
     if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = '';
     if (document.getElementById('solutions')) document.getElementById('solutions').style.display = 'none';
     
+    // Reset all text boxes
     document.querySelectorAll('input').forEach(i => {
         i.value = '';
         i.style.backgroundColor = ''; 
         if(i.type === 'radio') i.checked = false;
+    });
+
+    // FIX: Reset all dropdown menus to their default (first) option
+    document.querySelectorAll('select').forEach(s => {
+        // Prevent clearing the teacher selection modal
+        if (s.id !== 'teacherSelect') {
+            s.selectedIndex = 0; 
+        }
     });
 
     // SAFE ZENER CLEANUP FIX ADDED HERE
@@ -2509,12 +2614,6 @@ function closeModal() {
 
 // ===============================================================================================================      
 // MASTER PROBLEM GENERATOR (The "Traffic Cop")
-// This function runs whenever the user clicks "Generate New Problem".
-// It does two main things:
-// 1. Wipes the canvas, clears all text boxes, and resets grading locks.
-// 2. Looks at the 'currentMode' variable to figure out which tab the 
-//    user is currently on, and routes traffic to the correct math/drawing 
-//    function for that specific module (Divider, Astable, Zener, etc.).
 // ===============================================================================================================      
     
 function hubController(ctx, canvas) {
@@ -2542,13 +2641,11 @@ function hubController(ctx, canvas) {
 
     // 4. ROUTER: Setup the UI for the specific mode
     if (currentMode === 'analysis') {
-        // Show the groups here
         const groupV = document.getElementById('inputGroupV');
         const groupI = document.getElementById('inputGroupI');
         if (groupV) groupV.style.display = 'inline-block';
         if (groupI) groupI.style.display = 'inline-block';
         
-        // Call generator (Make sure to remove hideAllInputGroups() from inside this function!)
         generateAnalysisProblem(ctx, canvas);
 
     } else if (currentMode === 'divider') {
@@ -2568,7 +2665,6 @@ function hubController(ctx, canvas) {
         generateOscilloscopeProblem(ctx, canvas);
 
     } else if (currentMode === 'astable') {
-        // This module usually manages its own complex inputs
         generateAstableProblem(ctx, canvas);
 
     } else if (currentMode === 'monostable') {
@@ -2581,7 +2677,7 @@ function hubController(ctx, canvas) {
     } else if (currentMode === 'zener') {
         if (document.getElementById('inputGroupZener')) document.getElementById('inputGroupZener').style.display = 'inline-block';
         if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'inline-block';
-        generateZenerProblem(ctx, canvas); // Pass ctx/canvas for consistency
+        generateZenerProblem(ctx, canvas); 
 
     } else if (currentMode === 'grade9zener') {
         generateGrade9ZenerProblem(ctx, canvas);
@@ -2606,11 +2702,11 @@ function checkAnswers() {
     const feedback = document.getElementById('feedback');
     const helpBtn = document.getElementById('helpBtn');
 
-    // 2. Identify which inputs are currently active (Updated for Dropdowns)
+    // 2. Identify which inputs are currently active
     let activeInputs = [];
     if (currentMode === 'analysis') activeInputs = ['inputV', 'inputI'];
     else if (currentMode === 'divider') activeInputs = ['inputV'];
-    else if (currentMode === 'resistance') activeInputs = ['inputR']; // unitR is handled in parsing
+    else if (currentMode === 'resistance') activeInputs = ['inputR']; 
     else if (currentMode === 'oscilloscope') {
         activeInputs = ['inputOscAmp'];
         if (currentAnswers.oscQType === 1) activeInputs.push('inputOscMark', 'inputOscSpace');
@@ -2660,7 +2756,6 @@ function checkAnswers() {
         // HYBRID: Pull value from input + unit from dropdown
         const rVal = document.getElementById('inputR').value;
         const rUnit = document.getElementById('unitR').value;
-        // Target is determined by the generator (defaulting to Ω)
         results.push(validateMatch(parseInput(rVal, rUnit), currentAnswers.rValue, currentAnswers.rTargetUnit || 'Ω'));
 
     } else if (currentMode === 'oscilloscope') {
@@ -2678,19 +2773,20 @@ function checkAnswers() {
 
     } else if (currentMode === 'astable') {
         if (currentAnswers.astableQType === 0) {
-            results.push(validateMatch(parseInput(document.getElementById('inputAstable').value), currentAnswers.astableValue, 'Hz'));
-            results.push(validateMatch(parseInput(document.getElementById('inputAstableT').value), currentAnswers.astableTValue, 'ms'));
+            // FIX: Use dynamically generated units from the ASTABLE generator for complete safety
+            results.push(validateMatch(parseInput(document.getElementById('inputAstable').value), currentAnswers.astableValue, currentAnswers.astableUnit || 'Hz'));
+            results.push(validateMatch(parseInput(document.getElementById('inputAstableT').value), currentAnswers.astableTValue, currentAnswers.astableTUnit || 'ms'));
         } else {
             const userRatio = document.getElementById('inputMarkSpace').value.trim();
             results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrongval');
         }
 
     } else if (currentMode === 'monostable') {
-        results.push(validateMatch(parseInput(document.getElementById('inputMonostable').value), currentAnswers.expectedT, 's'));
+        // CRITICAL FIX: Monostable can ask for 's', 'kΩ', or 'μF'. Using the dynamic unit fixes the bug!
+        results.push(validateMatch(parseInput(document.getElementById('inputMonostable').value), currentAnswers.expectedT, currentAnswers.expectedUnit));
 
     } else if (currentMode === 'colorcode') {
         if (document.getElementById('inputGroupColorVal').style.display !== 'none') {
-            // HYBRID: Pull from value box + dropdown unit
             const resVal = document.getElementById('inputResValue').value;
             const resUnit = document.getElementById('unitResColor').value;
             const resTol = document.getElementById('inputResTol').value;
@@ -2704,7 +2800,6 @@ function checkAnswers() {
             });
         }
     } else if (currentMode === 'zener' || currentMode === 'grade9zener') {
-         // Logic for Zener remains text-input based (mA / V / mW)
          if (currentMode === 'zener') {
             if (currentZenerState === "closed") {
                 results.push(validateMatch(parseInput(document.getElementById('zenerQ_IL').value), currentAnswers.iL, 'mA'));
@@ -2724,7 +2819,7 @@ function checkAnswers() {
          }
     }
 
-    // 5. Final Feedback and Scoring (No changes needed here, compatible with results array)
+    // 5. Final Feedback and Scoring
     activeInputs.forEach((id, index) => {
         const el = document.getElementById(id);
         if (el) {
@@ -2790,7 +2885,6 @@ function parseInput(str, dropdownUnit = null) {
         let normalizedUnit = "";
 
         // RESISTANCE: kΩ, kohm, kohms, k, Ω, ohm, ohms, r
-        // (Kept for backwards compatibility if they type in the box)
         if (rawUnit === 'k' || rawUnit === 'kΩ' || lowerUnit.match(/^(kohm|kohms)$/)) {
             normalizedUnit = "kΩ";
         } else if (rawUnit === 'Ω' || rawUnit === 'r' || lowerUnit.match(/^(ohm|ohms)$/)) {
@@ -2798,7 +2892,6 @@ function parseInput(str, dropdownUnit = null) {
         } 
         
         // VOLTAGE: V, volts, volt, mV, millivolts
-        // Strict: Must be "V" (cap) or "mV" (cap V). Words are lenient.
         else if (lowerUnit.match(/^(millivolts|millivolt|mvolt|mvolts)$/)) {
             normalizedUnit = "mV"; 
         } else if (rawUnit === 'mV') {
@@ -2820,7 +2913,7 @@ function parseInput(str, dropdownUnit = null) {
             normalizedUnit = "A"; 
         }
         
-        // TIME (For Oscilloscope/Astable): s, sec, seconds, ms, milliseconds
+        // TIME: s, sec, seconds, ms, milliseconds
         else if (rawUnit === 'ms' || lowerUnit.match(/^(milliseconds|millisecond)$/)) {
             normalizedUnit = "ms";
         } else if (lowerUnit.match(/^(s|sec|secs|seconds|second)$/)) {
@@ -2829,13 +2922,10 @@ function parseInput(str, dropdownUnit = null) {
 
         // FREQUENCY
         else if (lowerUnit.match(/^(hertz|hz)$/)) {
-            // Strict check: if they type 'hz' lowercase, we return 'hz' so validator flags it.
-            // If they type 'Hz' or 'hertz', we return 'Hz'.
             normalizedUnit = (rawUnit === 'hz') ? 'hz' : 'Hz';
         }
-        
         else {
-            normalizedUnit = rawUnit; // Fallback to what they typed (e.g. "mv" or "ma")
+            normalizedUnit = rawUnit; 
         }
 
         return { val: val, unit: normalizedUnit };
@@ -2860,9 +2950,9 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     // Allow 1% margin OR a very tiny absolute margin for small values (mA/mV)
     const valMatch = diff < (Math.abs(expectedVal) * 0.01) || diff < 0.000001;
     
-    // 4. UNIT MATCHING
-    let userUnit = parsedInput.unit;
-    let targetUnit = expectedUnit; 
+    // 4. UNIT MATCHING 
+    let userUnit = (parsedInput.unit || "").trim();
+    let targetUnit = (expectedUnit || "").trim(); 
 
     // Logic for strict casing:
     let unitMatch = (userUnit === targetUnit);
@@ -2876,7 +2966,7 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     // 5. FINAL DECISION
     if (valMatch && unitMatch) return 'correct';
     
-    // Specialized feedback trigger
+    // Specialized feedback trigger: Number is right, units are wrong!
     if (valMatch && !unitMatch) return 'wrongunit';
     
     return 'wrongval';
@@ -2907,9 +2997,11 @@ function provideHint() {
         } 
         // If they are looking at a number and need to name the colors
         else {
+            // FIX: Uses the dynamically scaled values matching the dropdown UI
+            const displayVal = currentAnswers.resVal + " " + (currentAnswers.rTargetUnit || "Ω");
             helpText = `
                 <div style="text-align:left; background:#fff3cd; padding:10px; border:1px solid #ffeeba; border-radius:5px;">
-                    <b>Colour Guide for ${formatResValue(currentAnswers.resVal)}:</b><br>
+                    <b>Colour Guide for ${displayVal}:</b><br>
                     • 1st & 2nd Digit: Match the numbers to colours.<br>
                     • 3rd Digit (Multiplier): How many zeros follow the first two numbers?<br>
                     • 4th Digit: Gold is 5%, Silver is 10%.<br>
@@ -2935,11 +3027,18 @@ function provideHint() {
 function toggleSolutions() {
     const sol = document.getElementById('solutions');
     if (!sol) return;
+    
     if (sol.style.display === 'none' || sol.style.display === '') {
-        sol.style.display = 'block'; viewedSolution = true;
-    } else { sol.style.display = 'none'; }
+        sol.style.display = 'block'; 
+        viewedSolution = true;
+        
+        // FIX: Hide the help button once the solution is showing
+        const helpBtn = document.getElementById('helpBtn');
+        if (helpBtn) helpBtn.style.display = 'none';
+    } else { 
+        sol.style.display = 'none'; 
+    }
 }
-
 // ==========================================
 // FINAL INITIALIZATION (Place at the end of your .js file)
 // ==========================================
@@ -2948,31 +3047,37 @@ function updateZenerSolution(isClosed) {
     const solElement = document.getElementById('solText');
     if (!solElement) return;
 
+    // FIX: Calculate the base variables from our standardized currentAnswers.
+    // In our new generator: iZ is total supply current, vL is Zener voltage.
+    // Minimum Zener Current is Total Current (iZ) - Max Load Current (iL).
+    const totalCurrent = currentAnswers.iZ;
+    const zenerVolts = currentAnswers.vL;
+    const minZenerCurrent = (currentAnswers.iZ - currentAnswers.iL).toFixed(1);
+
     if (isClosed) {
         solElement.innerHTML = `
             <div class="solution-card">
                 <p><strong>Solution (Switch Closed):</strong></p>
-                <p>1. Zener takes minimum current: <b>${currentAnswers.Iz_min} mA</b></p>
+                <p>1. Zener takes minimum current: <b>${minZenerCurrent} mA</b></p>
                 <p>2. I<sub>LOAD</sub> = I<sub>TOTAL</sub> - I<sub>ZENER</sub><br>
-                   ${currentAnswers.Ir_mA} mA - ${currentAnswers.Iz_min} mA = <b>${currentAnswers.targetIL} mA</b></p>
-                <p>3. V<sub>LOAD</sub> is clamped to V<sub>Z</sub>: <b>${currentAnswers.targetVL} V</b></p>
+                   ${totalCurrent} mA - ${minZenerCurrent} mA = <b>${currentAnswers.iL} mA</b></p>
+                <p>3. V<sub>LOAD</sub> is clamped to V<sub>Z</sub>: <b>${currentAnswers.vL} V</b></p>
             </div>`;
     } else {
         solElement.innerHTML = `
             <div class="solution-card">
                 <p><strong>Solution (Switch Open):</strong></p>
                 <p>1. No Load connected: <b>I<sub>L</sub> = 0 mA</b></p>
-                <p>2. All current through Zener: <b>${currentAnswers.targetIZ} mA</b></p>
+                <p>2. All current through Zener: <b>${currentAnswers.iZ} mA</b></p>
                 <p>3. P<sub>ZENER</sub> = I<sub>Z</sub> × V<sub>Z</sub><br>
-                   ${currentAnswers.targetIZ} mA × ${currentAnswers.Vz} V = <b>${currentAnswers.targetPZ} mW</b></p>
+                   ${currentAnswers.iZ} mA × ${zenerVolts} V = <b>${currentAnswers.pZ} mW</b></p>
             </div>` ;
     }
 }
     
-//The Master Reset. This hides the containers and resets the UI layout.
-
+// The Master Reset. This hides the containers and resets the UI layout.
 function hideAllInputGroups() {
-    // 1. Reset all the grading locks (from our last fix!)
+    // 1. Reset all the grading locks
     isCurrentProblemSolved = false;
     hasCheckedCurrentProblem = false;
     viewedSolution = false;
@@ -2982,19 +3087,19 @@ function hideAllInputGroups() {
     document.querySelectorAll('.input-group').forEach(el => el.style.display = 'none');
 
     // 3. Clear common UI elements
-    document.getElementById('feedback')?.replaceChildren();
-    document.getElementById('solutions') && (document.getElementById('solutions').style.display = 'none');
-    document.getElementById('solText')?.replaceChildren();
+    if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = "";
+    if (document.getElementById('solutions')) document.getElementById('solutions').style.display = 'none';
+    if (document.getElementById('solText')) document.getElementById('solText').innerHTML = "";
 
     // 4. Hide and wipe Question Text
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.style.display = 'none';
-        qText.replaceChildren();
+        qText.innerHTML = "";
     }
 
     // 5. Clear all instruction prompts in one go
-    document.querySelectorAll('.instruction-text').forEach(p => p.replaceChildren());
+    document.querySelectorAll('.instruction-text').forEach(p => p.innerHTML = "");
 
     // 6. THE ULTIMATE WIPER (Replaces clearZenerInputs and resetAnswerBox)
     // This grabs EVERY text/number input on the entire page and resets it
@@ -3004,11 +3109,19 @@ function hideAllInputGroups() {
             input.style.borderColor = "#ccc";     // Resets border color
             input.style.borderWidth = "1px";      // Resets border thickness
             input.style.backgroundColor = "";     // Resets background color (covers Zener!)
+            input.placeholder = "";               // FIX: Clear developer trap placeholders
+        }
+    });
+
+    // 7. NEW HYBRID UI FIX: Reset all Dropdowns (<select> elements)
+    document.querySelectorAll('select').forEach(select => {
+        // Prevent clearing the teacher selection modal if you have one
+        if (select.id !== 'teacherSelect') {
+            select.selectedIndex = 0; // Resets back to the first option (e.g. 'Ω' or 'V')
         }
     });
 }
 
-    
 // Master Switch on Load
 window.onload = function() {
     hideAllInputGroups(); 
@@ -3016,7 +3129,6 @@ window.onload = function() {
         goHome(); 
     }
 };
-
 </script>
 </body
 </html>
