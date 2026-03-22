@@ -956,7 +956,6 @@ function generateDividerProblem(ctx, canvas) {
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     
     // Standardize units for the checker (STRICT CASING)
-    // Removed .toLowerCase() so 'mV' stays 'mV' and perfectly matches the parser
     const expectedVUnit = vUnit; 
     const expectedRUnit = rUnitVisual === 'k\u03A9' ? 'kΩ' : 'Ω';
 
@@ -965,7 +964,7 @@ function generateDividerProblem(ctx, canvas) {
     let R2_val = Math.floor(Math.random() * 10) + 1;
     let current = Math.floor(Math.random() * 5) + 1; 
     let Vin_val = (R1_val + R2_val) * current;
-    let Vout_val = Vin_val * (R2_val / (R1_val + R2_val));
+    let Vout_val = Vin_val * (R2_val / (R1_val + R2_val)); // This is guaranteed to be an integer
 
     // 0: Find Vout, 1: Find Vin, 2: Find R1, 3: Find R2
     let targetVar = Math.floor(Math.random() * 4); 
@@ -974,21 +973,22 @@ function generateDividerProblem(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Set the correct answer logic standardized to our "Smart Parser"
+    // COMPLETELY REMOVED .toFixed(1) and parseFloat()
     if (targetVar === 0) {
         currentAnswers.vNameHTML = 'V<sub>OUT</sub>';
-        currentAnswers.vValue = parseFloat(Vout_val.toFixed(1)); 
+        currentAnswers.vValue = Vout_val; 
         currentAnswers.vUnit = expectedVUnit;
     } else if (targetVar === 1) {
         currentAnswers.vNameHTML = 'V<sub>supply</sub>';
-        currentAnswers.vValue = parseFloat(Vin_val.toFixed(1)); 
+        currentAnswers.vValue = Vin_val; 
         currentAnswers.vUnit = expectedVUnit;
     } else if (targetVar === 2) {
         currentAnswers.vNameHTML = 'R<sub>1</sub>';
-        currentAnswers.vValue = parseFloat(R1_val.toFixed(1)); 
+        currentAnswers.vValue = R1_val; 
         currentAnswers.vUnit = expectedRUnit; 
     } else if (targetVar === 3) {
         currentAnswers.vNameHTML = 'R<sub>2</sub>';
-        currentAnswers.vValue = parseFloat(R2_val.toFixed(1)); 
+        currentAnswers.vValue = R2_val; 
         currentAnswers.vUnit = expectedRUnit; 
     }
 
@@ -1001,18 +1001,18 @@ function generateDividerProblem(ctx, canvas) {
     if (inputBox) {
         inputBox.value = ""; // Clear any previous answer
         if (targetVar === 0 || targetVar === 1) {
-            inputBox.placeholder = "e.g. 4.5 " + vUnit; // Generic hint, doesn't leak answer
+            inputBox.placeholder = "e.g. 5 " + vUnit; // INTEGER HINT
         } else {
-            // Use standard expectedRUnit ('Ω' or 'kΩ') instead of unicode for the placeholder
             inputBox.placeholder = "e.g. 12 " + expectedRUnit; 
         }
     }
 
     // Prepare labels for the drawing
+    // REMOVED .toFixed(1) from Vout
     let labelR1   = (targetVar === 2) ? "?" : R1_val + " " + rUnitVisual;
     let labelR2   = (targetVar === 3) ? "?" : R2_val + " " + rUnitVisual;
     let labelVin  = (targetVar === 1) ? "?" : Vin_val + " " + vUnit;
-    let labelVout = (targetVar === 0) ? "?" : Vout_val.toFixed(1) + " " + vUnit;
+    let labelVout = (targetVar === 0) ? "?" : Vout_val + " " + vUnit;
 
     // Random Component Selection
     let compTop, compBottom;
@@ -1064,6 +1064,7 @@ function generateDividerProblem(ctx, canvas) {
     ctx.font = "bold 16px Arial"; ctx.fillText("= " + labelVout, 445, 216);
 
     // 4. SOLUTION LOGIC PANEL
+    // REMOVED ALL .toFixed(1) FROM THE STRINGS BELOW
     const solText = document.getElementById('solText');
     if (solText) {
         let logicHTML = "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + " " + (targetVar < 2 ? vUnit : rUnitVisual) + "</strong><br><br>";
@@ -1071,18 +1072,18 @@ function generateDividerProblem(ctx, canvas) {
         
         if (targetVar === 0) {
             logicHTML += "<em>Step 1:</em> Find R<sub>TOTAL</sub> = " + R1_val + " + " + R2_val + " = " + (R1_val+R2_val) + "<br>";
-            logicHTML += "<em>Step 2:</em> V<sub>OUT</sub> = " + Vin_val + " &times; (" + R2_val + " / " + (R1_val+R2_val) + ") = <strong>" + Vout_val.toFixed(1) + " " + vUnit + "</strong>";
+            logicHTML += "<em>Step 2:</em> V<sub>OUT</sub> = " + Vin_val + " &times; (" + R2_val + " / " + (R1_val+R2_val) + ") = <strong>" + Vout_val + " " + vUnit + "</strong>";
         } else if (targetVar === 1) {
             logicHTML += "<em>Step 1:</em> Rearrange for V<sub>supply</sub> = V<sub>OUT</sub> / (R\u2082 / R<sub>TOTAL</sub>)<br>";
-            logicHTML += "<em>Step 2:</em> V<sub>supply</sub> = " + Vout_val.toFixed(1) + " / (" + R2_val + " / " + (R1_val+R2_val) + ") = <strong>" + Vin_val.toFixed(1) + " " + vUnit + "</strong>";
+            logicHTML += "<em>Step 2:</em> V<sub>supply</sub> = " + Vout_val + " / (" + R2_val + " / " + (R1_val+R2_val) + ") = <strong>" + Vin_val + " " + vUnit + "</strong>";
         } else if (targetVar === 2) {
-            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> is " + Vout_val.toFixed(1) + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val.toFixed(1) + ") = " + (Vin_val-Vout_val).toFixed(1) + "V.<br>";
+            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> is " + Vout_val + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val + ") = " + (Vin_val-Vout_val) + "V.<br>";
             logicHTML += "<em>Step 2:</em> Since voltage shares in ratio: R\u2081 = R\u2082 &times; (V<sub>R1</sub> / V<sub>R2</sub>)<br>";
-            logicHTML += "<em>Step 3:</em> R\u2081 = " + R2_val + " &times; (" + (Vin_val-Vout_val).toFixed(1) + " / " + Vout_val.toFixed(1) + ") = <strong>" + R1_val.toFixed(1) + " " + rUnitVisual + "</strong>";
+            logicHTML += "<em>Step 3:</em> R\u2081 = " + R2_val + " &times; (" + (Vin_val-Vout_val) + " / " + Vout_val + ") = <strong>" + R1_val + " " + rUnitVisual + "</strong>";
         } else if (targetVar === 3) {
-            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> is " + Vout_val.toFixed(1) + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val.toFixed(1) + ") = " + (Vin_val-Vout_val).toFixed(1) + "V.<br>";
+            logicHTML += "<em>Step 1:</em> If V<sub>OUT</sub> is " + Vout_val + "V, the voltage across R\u2081 is (" + Vin_val + " - " + Vout_val + ") = " + (Vin_val-Vout_val) + "V.<br>";
             logicHTML += "<em>Step 2:</em> Since voltage shares in ratio: R\u2082 = R\u2081 &times; (V<sub>R2</sub> / V<sub>R1</sub>)<br>";
-            logicHTML += "<em>Step 3:</em> R\u2082 = " + R1_val + " &times; (" + Vout_val.toFixed(1) + " / " + (Vin_val-Vout_val).toFixed(1) + ") = <strong>" + R2_val.toFixed(1) + " " + rUnitVisual + "</strong>";
+            logicHTML += "<em>Step 3:</em> R\u2082 = " + R1_val + " &times; (" + Vout_val + " / " + (Vin_val-Vout_val) + ") = <strong>" + R2_val + " " + rUnitVisual + "</strong>";
         }
         solText.innerHTML = logicHTML;
     }
