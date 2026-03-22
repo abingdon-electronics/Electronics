@@ -2734,14 +2734,14 @@ function checkAnswers() {
         if (valGroup && valGroup.style.display !== 'none') {
             const userResStr = document.getElementById('inputResValue').value.trim();
             
-            // STRICT UNIT CHECK: Now allows OHM, OHMS, ohm, Ω, etc.
-            const hasActualUnit = /Ω|ohms?/i.test(userResStr);
+            // Check for units using the universal function (defaults to Ω)
+            const isCorrect = validateScientificValue(userResStr, currentAnswers.resVal, 0);
             
-            if (!hasActualUnit) {
+            // If the math is wrong, but also no unit was found, flag 'missingunit'
+            if (!/Ω|ohms?/i.test(userResStr)) {
                 results.push('missingunit');
             } else {
-                const isResCorrect = validateScientificValue(userResStr, currentAnswers.resVal, 0);
-                results.push(isResCorrect ? 'correct' : 'wrong');
+                results.push(isCorrect ? 'correct' : 'wrong');
             }
 
             const userTol = parseFloat(document.getElementById('inputResTol').value);
@@ -2758,13 +2758,29 @@ function checkAnswers() {
         }
     } 
     else if (currentMode === 'analysis') {
-        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, currentAnswers.vUnit));
-        results.push(validateMatch(parseInput(document.getElementById('inputI').value), currentAnswers.iValue, currentAnswers.iUnit));
+        const vInput = document.getElementById('inputV').value;
+        const iInput = document.getElementById('inputI').value;
+        
+        const vCorrect = validateScientificValue(vInput, currentAnswers.vValue, 0, 'v');
+        const iCorrect = validateScientificValue(iInput, currentAnswers.iValue, 0, 'a');
+
+        if (!/v|volts?/i.test(vInput) || !/a|amps?/i.test(iInput)) results.push('missingunit');
+        else {
+            results.push(vCorrect ? 'correct' : 'wrong');
+            results.push(iCorrect ? 'correct' : 'wrong');
+        }
     } else if (currentMode === 'divider') {
-        results.push(validateMatch(parseInput(document.getElementById('inputV').value), currentAnswers.vValue, currentAnswers.vUnit));
+        const vInput = document.getElementById('inputV').value;
+        const vCorrect = validateScientificValue(vInput, currentAnswers.vValue, 0, 'v');
+        if (!/v|volts?/i.test(vInput)) results.push('missingunit');
+        else results.push(vCorrect ? 'correct' : 'wrong');
     } else if (currentMode === 'resistance') {
-        results.push(validateMatch(parseInput(document.getElementById('inputR').value), currentAnswers.rValue, currentAnswers.rUnit));
+        const rInput = document.getElementById('inputR').value;
+        const rCorrect = validateScientificValue(rInput, currentAnswers.rValue, 0, 'Ω');
+        if (!/Ω|ohms?/i.test(rInput)) results.push('missingunit');
+        else results.push(rCorrect ? 'correct' : 'wrong');
     } else if (currentMode === 'oscilloscope') {
+        // Keeping validateMatch for Osc as it usually handles specific display formatting
         results.push(validateMatch(parseInput(document.getElementById('inputOscAmp').value), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
         if (currentAnswers.oscQType === 1) {
             results.push(validateMatch(parseInput(document.getElementById('inputOscMark').value), currentAnswers.oscMarkValue, currentAnswers.oscMarkUnit));
@@ -2780,8 +2796,15 @@ function checkAnswers() {
         if (currentAnswers.astableQType === 0) {
             const userFStr = document.getElementById('inputAstable').value;
             const userTStr = document.getElementById('inputAstableT').value;
-            results.push(validateScientificValue(userFStr, currentAnswers.astableValue, 0.01) ? 'correct' : 'wrong');
-            results.push(validateScientificValue(userTStr, currentAnswers.astableTValue, 0.01) ? 'correct' : 'wrong');
+            
+            const fCorrect = validateScientificValue(userFStr, currentAnswers.astableValue, 0.01, 'hz');
+            const tCorrect = validateScientificValue(userTStr, currentAnswers.astableTValue, 0.01, 's');
+
+            if (!/hz|hertz/i.test(userFStr) || !/s|seconds?/i.test(userTStr)) results.push('missingunit');
+            else {
+                results.push(fCorrect ? 'correct' : 'wrong');
+                results.push(tCorrect ? 'correct' : 'wrong');
+            }
         } else {
             const userRatio = document.getElementById('inputMarkSpace').value.trim();
             results.push(userRatio === currentAnswers.astableRatio ? 'correct' : 'wrong');
@@ -2789,7 +2812,9 @@ function checkAnswers() {
     } 
     else if (currentMode === 'monostable') {
         const userMonoStr = document.getElementById('inputMonostable').value;
-        results.push(validateScientificValue(userMonoStr, currentAnswers.expectedT, 0.01) ? 'correct' : 'wrong');
+        const monoCorrect = validateScientificValue(userMonoStr, currentAnswers.expectedT, 0.01, 's');
+        if (!/s|seconds?/i.test(userMonoStr)) results.push('missingunit');
+        else results.push(monoCorrect ? 'correct' : 'wrong');
     }
 
     // 4. Final Scoring and Universal Border Feedback
@@ -2821,7 +2846,7 @@ function checkAnswers() {
         
         if (results.includes('missingunit')) {
             unitErrorMade = true;
-            feedback.innerHTML = "<span style='color: #fd7e14;'>You must include the unit (e.g., Ω or Ohms)!</span>";
+            feedback.innerHTML = "<span style='color: #fd7e14;'>You must include the unit (e.g., Ω, Volts, Amps, or Hz)!</span>";
         } else if (results.includes('nounit')) {
             unitErrorMade = true;
             feedback.innerHTML = "<span style='color: #fd7e14;'>Don't forget your units! (Mark lost)</span>";
@@ -2835,6 +2860,8 @@ function checkAnswers() {
         }
     }
 
+    updateScoreboard();
+}
     updateScoreboard();
 }
     
@@ -3004,28 +3031,19 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     // If input is empty or not a number
     if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
     
-    // Normalize the expected unit to lowercase for a fair comparison
     const targetUnit = expectedUnit.toLowerCase();
 
-    // 1. Handle Ratio/Fractions (e.g. 1/3)
+    // KEEP THIS: For Oscilloscope Ratios (e.g. 1/3)
     if (targetUnit === 'ratio') {
-        // We check if the value is close enough (within 0.01)
-        const isCorrectNum = Math.abs(parsedInput.val - expectedVal) < 0.01;
-        if (isCorrectNum) return 'correct';
-        return 'wrongval';
+        return Math.abs(parsedInput.val - expectedVal) < 0.01 ? 'correct' : 'wrongval';
     }
     
-    // 2. Check for missing units
-    if (parsedInput.unit === '') return 'nounit';
-    
-    // 3. Main Logic: Value and Unit matching
-    // Use 0.05 tolerance to account for 1 d.p. rounding differences
+    // For everything else, check value and unit
     const valMatch = Math.abs(parsedInput.val - expectedVal) < 0.05;
-    const unitMatch = parsedInput.unit === targetUnit;
+    const unitMatch = parsedInput.unit.toLowerCase() === targetUnit;
     
     if (valMatch && unitMatch) return 'correct';
     if (valMatch && !unitMatch) return 'wrongunit';
-    
     return 'wrongval';
 }
 
