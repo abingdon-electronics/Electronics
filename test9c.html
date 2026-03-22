@@ -588,7 +588,8 @@ function getSafePowerRating(power_mW) {
 function showUnitInstruction() {
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML = "Enter your value followed by a standard unit<br><em>(e.g., 5 A, 12 mV).</em>";
+        // Boosted font size to 18px and added a slightly smaller, softer look for the example text
+        qText.innerHTML = "<span style='font-size: 18px; font-weight: normal;'>Enter your value followed by a standard unit<br><em style='font-size: 16px; color: #555;'>(e.g., 5 A, 12 mV).</em></span>";
         qText.style.display = 'block';
     }
 }
