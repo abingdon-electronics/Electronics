@@ -262,8 +262,14 @@
         .left-panel, .right-panel { height: auto; width: 95vw; max-width: 600px; }
         .right-panel { margin-top: 20px; }
         .quiz-section { min-height: 400px; padding-bottom: 25px; }
+        .right-panel { height: auto;      /* On phones, the box wraps tight to the buttons */
+        margin-top: 20px; 
     }
-    </style>
+       .controls {
+        margin-top: 20px;  /* On phones, use a standard gap instead of 'auto' */
+    }  
+}
+</style>
 </head>
 
 <body>      
