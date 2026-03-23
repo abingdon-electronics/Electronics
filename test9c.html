@@ -105,27 +105,25 @@
     canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
     
     .right-panel { 
-        flex: 1 1 300px; 
-        display: flex; 
-        flex-direction: column; 
-        width: 100%; 
-        max-width: 500px; 
-        height: 550px !important; /* Increased to 550px to fit Grade 9/Zener content */
-        overflow: hidden;         /* Prevents scrollbar-pop flicker */
-    }
-    
-    .quiz-section { 
-        background-color: #fdf4f8; 
-        padding: 15px 20px; 
-        border-radius: 8px; 
-        border: 1px solid #f2c7db; 
-        display: flex; 
-        flex-direction: column; 
-        height: 100%; 
-        box-sizing: border-box;
-        backface-visibility: hidden; /* Flicker reduction */
-        transform: translateZ(0);     /* Flicker reduction */
-    }
+    flex: 1 1 300px; 
+    display: flex; 
+    flex-direction: column; 
+    width: 100%; 
+    max-width: 500px; 
+    height: 520px !important; /* Locked to match the circuit diagram height exactly */
+}
+
+.quiz-section { 
+    background-color: #fdf4f8; 
+    padding: 15px 20px; 
+    border-radius: 8px; 
+    border: 1px solid #f2c7db; 
+    display: flex; 
+    flex-direction: column; 
+    height: 100%; 
+    box-sizing: border-box;
+    overflow: hidden; /* This is the outer 'frame' that must not move */
+}
     
     .quiz-header { 
         display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2c7db; 
@@ -147,15 +145,19 @@
         margin-bottom: 10px;
     }
 
-    .input-area { 
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start; 
-        align-items: flex-start;     
-        gap: 8px;                   
-        margin-top: 5px;
-        min-height: 140px; /* Reserves space for standard questions */
-    }
+    /* This is the magic fix: It lets extra Zener text scroll while buttons stay put */
+.input-area { 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
+    align-items: flex-start;     
+    gap: 10px;                   
+    margin-top: 5px;
+    flex: 1;                /* Takes up all available space between header and buttons */
+    overflow-y: auto;       /* Adds a scrollbar ONLY if the Zener questions are too long */
+    padding-right: 5px;     /* Space for the scrollbar */
+    min-height: 180px;      /* Reserved space so buttons stay down on simple questions */
+}
 
     .input-group {
         display: flex; 
@@ -256,22 +258,25 @@
     /* ============================================================
        5. BUTTONS & CONTROLS
        ============================================================ */
-    .feedback { 
-        font-size: 16px; 
-        margin: 5px 0; 
-        min-height: 24px; 
-        text-align: center; 
-        font-weight: bold;
-    }
+    /* --- Updated Section 5: Fixed Bottom Controls --- */
+.feedback { 
+    font-size: 16px; 
+    margin: 8px 0; 
+    min-height: 24px; 
+    text-align: center; 
+    font-weight: bold;
+}
 
-    .controls { 
-        text-align: center; 
-        display: flex; 
-        flex-direction: column; 
-        gap: 8px; 
-        margin-top: auto; /* Pushes buttons to the bottom floor */
-        padding-bottom: 5px;
-    }
+.controls { 
+    text-align: center; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+    margin-top: 0;          /* Removed 'auto' to keep it locked to the bottom of the scroll area */
+    padding-top: 10px;
+    border-top: 1px solid #f2c7db; /* Adds a nice divider between questions and buttons */
+    background-color: #fdf4f8;     /* Matches background so buttons look 'anchored' */
+}
     
     button { padding: 12px 20px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 6px; font-weight: bold; transition: all 0.2s; }
     button:active { transform: scale(0.98); }
