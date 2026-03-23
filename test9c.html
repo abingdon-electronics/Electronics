@@ -104,7 +104,7 @@
     
     canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
     
-    .right-panel { flex: 1 1 300px; display: flex; flex-direction: column; width: 100%; max-width: 500px; height: 520px; }
+    .right-panel { flex: 1 1 300px; display: flex; flex-direction: column; width: 100%; max-width: 500px; height: 380px; }
     
     .quiz-section { 
         background-color: #fdf4f8; padding: 15px 20px; border-radius: 8px; border: 1px solid #f2c7db; 
@@ -127,7 +127,6 @@
        4. QUIZ INPUT GROUPS - SHRUNK & TIGHTLY LEFT-ALIGNED
        ============================================================ */
     .input-area { 
-        flex-grow: 1;
         display: flex;
         flex-direction: column;
         justify-content: flex-start; 
@@ -230,7 +229,7 @@
        5. BUTTONS & CONTROLS
        ============================================================ */
     .feedback { font-size: 16px; margin-top: 10px; min-height: 24px; text-align: center; font-weight: bold;}
-    .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
+    .controls { text-align: center; display: flex; flex-direction: column; gap: 10px; margin-top: auto; } /* This keeps buttons at the bottom of the 380px box */
     
     button { padding: 12px 20px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 6px; font-weight: bold; transition: all 0.2s; }
     button:active { transform: scale(0.98); }
