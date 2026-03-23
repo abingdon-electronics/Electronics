@@ -105,24 +105,27 @@
     canvas { background-color: white; border-radius: 4px; max-width: 100%; height: auto; }
     
     .right-panel { 
-    flex: 1 1 300px; 
-    display: flex; 
-    flex-direction: column; 
-    width: 100%; 
-    max-width: 500px; 
-    height: 500px !important; /* Increased to 500px to fit all buttons */
-}
+        flex: 1 1 300px; 
+        display: flex; 
+        flex-direction: column; 
+        width: 100%; 
+        max-width: 500px; 
+        height: 550px !important; /* Increased to 550px to fit Grade 9/Zener content */
+        overflow: hidden;         /* Prevents scrollbar-pop flicker */
+    }
     
     .quiz-section { 
-    background-color: #fdf4f8; 
-    padding: 15px 20px; 
-    border-radius: 8px; 
-    border: 1px solid #f2c7db; 
-    display: flex; 
-    flex-direction: column; 
-    height: 100%; 
-    box-sizing: border-box;
-}
+        background-color: #fdf4f8; 
+        padding: 15px 20px; 
+        border-radius: 8px; 
+        border: 1px solid #f2c7db; 
+        display: flex; 
+        flex-direction: column; 
+        height: 100%; 
+        box-sizing: border-box;
+        backface-visibility: hidden; /* Flicker reduction */
+        transform: translateZ(0);     /* Flicker reduction */
+    }
     
     .quiz-header { 
         display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2c7db; 
@@ -136,19 +139,23 @@
         font-weight: bold; font-size: 16px; color: #E64097; box-shadow: 0 2px 4px rgba(230, 64, 151, 0.1); 
     }
     
-/* ============================================================
-       4. QUIZ INPUT GROUPS - SHRUNK & TIGHTLY LEFT-ALIGNED
+    /* ============================================================
+       4. QUIZ INPUT GROUPS & STABILITY LOCKS
        ============================================================ */
+    .quiz-section p {
+        min-height: 48px; /* Stabilizes the instruction sentence area */
+        margin-bottom: 10px;
+    }
+
     .input-area { 
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; 
-    align-items: flex-start;     
-    gap: 8px;                   
-    margin-top: 5px;
-    /* This reserves space for up to 3 rows so buttons stay fixed */
-    min-height: 140px; 
-}
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start; 
+        align-items: flex-start;     
+        gap: 8px;                   
+        margin-top: 5px;
+        min-height: 140px; /* Reserves space for standard questions */
+    }
 
     .input-group {
         display: flex; 
@@ -165,37 +172,36 @@
         display: flex !important;
     }
 
-    /* Tighter labels to pull boxes left, right-aligned to hug the boxes */
+    /* Tighter labels for alignment */
     .input-group label, 
     .input-group > span:first-child {
-        width: 65px !important;        /* SHRUNK from 80px to pull the boxes further left */
+        width: 65px !important;
         min-width: 65px !important;   
-        text-align: right !important;  /* RIGHT-aligns the text so the "=" sign hugs the box */
+        text-align: right !important; 
         font-size: 16px !important;    
         font-weight: 800 !important;
         color: #E64097 !important;
-        margin: 0 8px 0 0 !important;  /* Smaller gap between text and box */
+        margin: 0 8px 0 0 !important; 
         display: flex !important;
-        justify-content: flex-end !important; /* Pushes text against the box */
+        justify-content: flex-end !important;
         align-items: center !important;
         flex-shrink: 0 !important;
-        white-space: nowrap !important; /* Prevents text from breaking onto two lines */
+        white-space: nowrap !important;
     }
 
-   /* Complex Overrides (Zener, Colors, etc.) */
-#inputGroupZener, 
-#zenerClosedQuestions, 
-#zenerOpenQuestions, 
-#inputGroupGrade9Zener, 
-#inputGroupColorNames {
-    display: flex !important;           /* Ensure flex is active */
-    flex-direction: column !important;
-    align-items: flex-start !important; 
-    
-    /* THE FIX: Reserve the same amount of space as the other questions */
-    min-height: 140px !important;       
-    width: 100% !important;
-}
+    /* Complex Overrides (Zener, Colors, Grade 9) */
+    #inputGroupZener, 
+    #zenerClosedQuestions, 
+    #zenerOpenQuestions, 
+    #inputGroupGrade9Zener, 
+    #inputGroupColorNames {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important; 
+        min-height: 180px !important; /* Larger reserved space for taller questions */
+        width: 100% !important;
+    }
+
     #inputGroupZener label, 
     #inputGroupGrade9Zener label,
     #inputGroupColorNames label,
@@ -208,12 +214,8 @@
         margin-bottom: 4px !important;
         display: block !important;
     }
-/* Stabilize the instruction sentence height */
-.quiz-section p {
-    min-height: 45px; 
-    margin-bottom: 10px;
-}
-    /* Shrunk input boxes */
+
+    /* Input and Select Styles */
     .quiz-section input[type="text"], 
     .quiz-section input[type="number"] { 
         height: 36px !important;       
@@ -229,7 +231,6 @@
         color: #333 !important;
     }
 
-    /* Shrunk Dropdowns */
     .quiz-section select {
         height: 36px !important;       
         width: 65px !important;        
@@ -256,36 +257,59 @@
        5. BUTTONS & CONTROLS
        ============================================================ */
     .feedback { 
-    font-size: 16px; 
-    margin: 5px 0; 
-    min-height: 24px; /* Space for the "Correct/Incorrect" text */
-    text-align: center; 
-    font-weight: bold;
-}
+        font-size: 16px; 
+        margin: 5px 0; 
+        min-height: 24px; 
+        text-align: center; 
+        font-weight: bold;
+    }
+
     .controls { 
-    text-align: center; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 8px; 
-    margin-top: auto; /* Pushes buttons to the floor of the 500px box */
-    padding-bottom: 5px;
-}
+        text-align: center; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 8px; 
+        margin-top: auto; /* Pushes buttons to the bottom floor */
+        padding-bottom: 5px;
+    }
     
     button { padding: 12px 20px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 6px; font-weight: bold; transition: all 0.2s; }
     button:active { transform: scale(0.98); }
     
     .btn-download { background-color: #198754 !important; color: #ffffff !important; opacity: 1 !important; }
     .btn-secondary { background-color: #6c757d !important; color: #ffffff !important; opacity: 1 !important; }
+    
     .btn-check { 
-    background-color: #E64097 !important; 
-    color: #ffffff !important; 
-    opacity: 1 !important; 
-    width: 100%; 
-    /* Change 10px to 0px to save vertical space */
-    margin-top: 0px !important; 
-}
+        background-color: #E64097 !important; 
+        color: #ffffff !important; 
+        opacity: 1 !important; 
+        width: 100%; 
+        margin-top: 0px !important; 
+    }
     .btn-check:hover { background-color: #cc2b81 !important; }
-    .btn-black { background-color: #000000 !important; color: #ffffff !important; opacity: 1 !important; }
+    
+    .btn-black { 
+        background-color: #000000 !important; 
+        color: #ffffff !important; 
+        opacity: 1 !important; 
+        flex: 1; /* Allow sharing space with Grade 9 button */
+    }
+
+    .btn-grade9 {
+        background-color: #FFD700 !important;
+        color: #000 !important;
+        flex: 1;
+        height: 45px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    /* Container for New Problem + Grade 9 button */
+    .action-row {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
     
     .solutions { padding: 15px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 0 5px 5px 0; display: none; text-align: left; }
 
@@ -300,26 +324,26 @@
     .form-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 2px solid #eaeaea; border-radius: 6px; }
     .modal-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 25px; }
     
-/* ============================================================
+    /* ============================================================
        7. MOBILE RESPONSIVENESS
        ============================================================ */
     @media (max-width: 740px) {
-    .main-layout { flex-direction: column; align-items: center; width: 100%; }
-    
-    .left-panel, .right-panel { 
-        width: 95vw; 
-        max-width: 600px; 
-        height: auto !important; /* Let it be flexible ONLY on phones */
+        .main-layout { flex-direction: column; align-items: center; width: 100%; }
+        
+        .left-panel, .right-panel { 
+            width: 95vw; 
+            max-width: 600px; 
+            height: auto !important; 
+        }
+        .quiz-section { 
+            height: auto !important; 
+        }
+        .input-area, #inputGroupColorNames, #inputGroupGrade9Zener {
+            min-height: 0 !important; 
+        }
+        .right-panel { margin-top: 20px; }
+        .controls { margin-top: 20px; }  
     }
-    .quiz-section { 
-        height: auto !important; 
-    }
-    .input-area {
-        min-height: 0; /* Remove the reserved space on small phones to save screen room */
-    }
-    .right-panel { margin-top: 20px; }
-    .controls { margin-top: 20px; }  
-}
 </style>
 </head>
 
