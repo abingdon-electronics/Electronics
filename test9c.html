@@ -3022,6 +3022,14 @@ function checkAnswers() {
         if (helpBtn) helpBtn.style.display = 'none';
     }
     
+    // ==========================================
+    // THE MISSING FIX: HIDE THE CHECK BUTTON
+    // ==========================================
+    const checkBtn = document.getElementById('checkBtn');
+    if (checkBtn) {
+        checkBtn.style.display = 'none';
+    }
+    
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
     
