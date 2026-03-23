@@ -3,7 +3,7 @@
 <head>
     <link rel="icon" href="data:,">
     <meta charset="UTF-8">
-    <meta name="vcheckiewport" content="width=device-width, initial-scale=1.0">
+    <meta name="vcheckiewporft" content="width=device-width, initial-scale=1.0">
     <title>Abingdon School - Electronics Quiz</title>
 <!DOCTYPE html>
 <html lang="en">
@@ -541,40 +541,69 @@
     </div>
 </div>
 
-<div id="dataSheetModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center;">
-    <div style="background-color: white; padding: 20px; border-radius: 15px; max-width: 600px; width: 90%; position: relative; margin: 10% auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-        <span onclick="closeDataSheet()" style="position: absolute; right: 15px; top: 10px; font-size: 28px; cursor: pointer; color: #E64097; font-weight: bold;">&times;</span>
-        <h2 style="color: #E64097; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">Electronics Data Sheet</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 10px; color: #333;">
-            <div>
-                <h4 style="margin-bottom: 5px; color: #000;">Basic Laws</h4>
-                <p>V = I × R</p>
-                <p>P = I × V</p>
-            </div>
-            <div>
-                <h4 style="margin-bottom: 5px; color: #000;">Resistance</h4>
-                <p>Series: R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub></p>
-                <p>Parallel: R<sub>p</sub> = (R<sub>1</sub> × R<sub>2</sub>) / (R<sub>1</sub> + R<sub>2</sub>)</p>
-            </div>
-            <div>
-                <h4 style="margin-bottom: 5px; color: #000;">Potential Dividers</h4>
-                <p>V<sub>OUT</sub> = V<sub>IN</sub> × (R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>))</p>
-            </div>
-            <div>
-                <h4 style="margin-bottom: 5px; color: #000;">555 Timing</h4>
-                <p>f = 1.44 / ((R<sub>1</sub> + 2R<sub>2</sub>) × C)</p>
-                <p>T = 0.693 × (R<sub>1</sub> + 2R<sub>2</sub>) × C</p>
-                <p style="margin-top: 10px; font-weight: bold;">T<sub>ON</sub> / T<sub>OFF</sub> = (R<sub>1</sub> + R<sub>2</sub>) / R<sub>2</sub></p>
-            </div>
-            <div>
-                <h4 style="margin-bottom: 5px; color: #000;">Zener Regulators</h4>
-                <p>I<sub>Total</sub> = (V<sub>S</sub> - V<sub>Z</sub>) / R</p>
-                <p>I<sub>L(max)</sub> = I<sub>Total</sub> - I<sub>Z(min)</sub></p>
-            </div>
+<div id="dataSheetModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(3px); font-family: Arial, sans-serif;">
+    
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 30px; border-radius: 12px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.4); color: #333; line-height: 1.6;">
+        
+        <button onclick="closeDataSheet()" aria-label="Close" style="position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: #E64097; font-weight: bold; background: none; border: none; padding: 0; line-height: 1;">&times;</button>
+
+        <h2 style="text-align: center; color: #E64097; margin-top: 0;">Information Sheet</h2>
+        <p style="text-align: center; font-style: italic;">This information may be of use in answering the questions.</p>
+
+        <h3 style="border-bottom: 2px solid #E64097; padding-bottom: 5px;">Resistor Colour Codes</h3>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+            <table style="width: 45%; border-collapse: collapse; text-align: left; min-width: 200px;">
+                <tr><th style="padding: 4px; border-bottom: 1px solid #ccc;">Colour</th><th style="padding: 4px; border-bottom: 1px solid #ccc;">Value</th></tr>
+                <tr><td style="padding: 4px;">Black</td><td style="padding: 4px;">0</td></tr>
+                <tr><td style="padding: 4px;">Brown</td><td style="padding: 4px;">1</td></tr>
+                <tr><td style="padding: 4px;">Red</td><td style="padding: 4px;">2</td></tr>
+                <tr><td style="padding: 4px;">Orange</td><td style="padding: 4px;">3</td></tr>
+                <tr><td style="padding: 4px;">Yellow</td><td style="padding: 4px;">4</td></tr>
+            </table>
+            <table style="width: 45%; border-collapse: collapse; text-align: left; min-width: 200px;">
+                <tr><th style="padding: 4px; border-bottom: 1px solid #ccc;">Colour</th><th style="padding: 4px; border-bottom: 1px solid #ccc;">Value</th></tr>
+                <tr><td style="padding: 4px;">Green</td><td style="padding: 4px;">5</td></tr>
+                <tr><td style="padding: 4px;">Blue</td><td style="padding: 4px;">6</td></tr>
+                <tr><td style="padding: 4px;">Violet</td><td style="padding: 4px;">7</td></tr>
+                <tr><td style="padding: 4px;">Grey</td><td style="padding: 4px;">8</td></tr>
+                <tr><td style="padding: 4px;">White</td><td style="padding: 4px;">9</td></tr>
+            </table>
         </div>
-        <div style="text-align: center; margin-top: 20px;">
-            <button class="btn-check" onclick="closeDataSheet()">Close Sheet</button>
+
+        <p style="margin-top: 15px;"><strong>The fourth band colour gives the tolerance as follows:</strong></p>
+        <ul style="margin-top: 5px;">
+            <li><strong>GOLD:</strong> &plusmn; 5%</li>
+            <li><strong>SILVER:</strong> &plusmn; 10%</li>
+        </ul>
+
+        <h3 style="border-bottom: 2px solid #E64097; padding-bottom: 5px; margin-top: 25px;">Resistors E24 Series Values</h3>
+        <p>10, 11, 12, 13, 15, 16, 18, 20, 22, 24, 27, 30, 33, 36, 39, 43, 47, 51, 56, 62, 68, 75, 82, 91.</p>
+
+        <h3 style="border-bottom: 2px solid #E64097; padding-bottom: 5px; margin-top: 25px;">Useful Equations</h3>
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; font-size: 18px;">
+            <ul style="list-style-type: none; padding: 0; width: 45%; min-width: 250px;">
+                <li style="margin-bottom: 15px;">P = V<sup>2</sup> / R</li>
+                <li style="margin-bottom: 15px;">V<sub>OUT</sub> = [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)] V<sub>IN</sub></li>
+                <li style="margin-bottom: 15px;">I<sub>D</sub> = g<sub>M</sub>(V<sub>GS</sub> - 3)</li>
+                <li style="margin-bottom: 15px;">I<sub>C</sub> = h<sub>FE</sub>I<sub>B</sub></li>
+                <li style="margin-bottom: 15px;"><span style="text-decoration: overline;">A + B</span> = <span style="text-decoration: overline;">A</span> . <span style="text-decoration: overline;">B</span></li>
+                <li style="margin-bottom: 15px;"><span style="text-decoration: overline;">A . B</span> = <span style="text-decoration: overline;">A</span> + <span style="text-decoration: overline;">B</span></li>
+                <li style="margin-bottom: 15px;">G = V<sub>OUT</sub> / V<sub>IN</sub></li>
+            </ul>
+            <ul style="list-style-type: none; padding: 0; width: 45%; min-width: 250px;">
+                <li style="margin-bottom: 15px;">G = 1 + (R<sub>F</sub> / R<sub>1</sub>)</li>
+                <li style="margin-bottom: 15px;">G = -(R<sub>F</sub> / R<sub>IN</sub>)</li>
+                <li style="margin-bottom: 15px;">V<sub>OUT</sub> = -R<sub>F</sub>(V<sub>1</sub>/R<sub>1</sub> + V<sub>2</sub>/R<sub>2</sub> + ...)</li>
+                <li style="margin-bottom: 15px;">T = 1.1RC</li>
+                <li style="margin-bottom: 15px;">f = 1 / T</li>
+                <li style="margin-bottom: 15px;">f = 1.44 / [(R<sub>1</sub> + 2R<sub>2</sub>)C]</li>
+                <li style="margin-bottom: 15px;">T<sub>ON</sub> / T<sub>OFF</sub> = (R<sub>1</sub> + R<sub>2</sub>) / R<sub>2</sub></li>
+            </ul>
         </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="closeDataSheet()" style="padding: 10px 25px; background-color: #E64097; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">Close Sheet</button>
+        </div>
+        
     </div>
 </div>
 </body>
