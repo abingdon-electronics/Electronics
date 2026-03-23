@@ -780,33 +780,34 @@ function drawRoundRect(ctx, x, y, width, height, radius) {
             ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath(); ctx.fill(); ctx.stroke();
 }
 
-// Smart Label Helper: Automatically makes numbers into large subscripts!
-function drawLabel(ctx, text, x, y, baseSize = 18) {
-    ctx.fillStyle = "#000000";
+// Smart Label Helper: Automatically formats things like "R1 = 10 Ω" with big subscripts!
+function drawLabel(ctx, text, x, y, baseSize = 16, color = "#000000") {
+    ctx.fillStyle = color;
     
-    // This splits the text into letters and numbers (e.g. "R1" becomes "R" and "1")
-    const match = text.match(/^([a-zA-Z]+)(.*)$/);
+    // Splits text into 3 parts: Letters ("R"), Numbers ("1"), and Rest (" = 10 Ω")
+    const match = text.match(/^([a-zA-Z]+)(\d+)?(.*)$/);
 
-    if (match && match[2] !== "") {
-        const letters = match[1]; // e.g., "R"
-        const subscript = match[2]; // e.g., "1"
+    if (match) {
+        const letters = match[1]; 
+        const subscript = match[2] || ""; 
+        const rest = match[3] || ""; 
 
-        // 1. Draw the main letter
         ctx.font = `bold ${baseSize}px Arial`;
         ctx.fillText(letters, x, y);
+        let currentX = x + ctx.measureText(letters).width;
 
-        // 2. Measure how wide the letter is so we know where to put the subscript
-        const letterWidth = ctx.measureText(letters).width;
+        if (subscript !== "") {
+            const subSize = Math.floor(baseSize * 0.8); // 80% size for readability
+            ctx.font = `bold ${subSize}px Arial`;
+            ctx.fillText(subscript, currentX + 1, y + (baseSize * 0.3));
+            currentX += ctx.measureText(subscript).width + 2;
+        }
 
-        // 3. Draw the subscript at 80% of the normal size (much bigger than default!)
-        const subSize = Math.floor(baseSize * 0.8);
-        ctx.font = `bold ${subSize}px Arial`;
-        
-        // Push it to the right of the letter, and drop it down slightly
-        ctx.fillText(subscript, x + letterWidth + 1, y + (baseSize * 0.3));
-        
+        if (rest !== "") {
+            ctx.font = `${baseSize}px Arial`; // Normal font for the "= 10 Ω" part
+            ctx.fillText(rest, currentX, y);
+        }
     } else {
-        // If it's just normal text (like "V"), draw it normally
         ctx.font = `bold ${baseSize}px Arial`;
         ctx.fillText(text, x, y);
     }
@@ -856,13 +857,13 @@ function drawArrowOnWire(ctx, fromx, fromy, tox, toy) {
 // =========================================================================================================     
 
 // this function deals with adding resistances in series and parallel  
+// this function deals with adding resistances in series and parallel  
 function generateResistanceProblem(ctx, canvas) {
     // 1. CLEAR PREVIOUS STATE
     hideAllInputGroups(); 
     currentMode = 'resistance'; // Flags the grader to use the resistance logic
 
     // 2. SET THE CONCISE INSTRUCTION TEXT
-    // This updates the bold text above the input area to our new agreed version.
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.innerText = "Calculate the total resistance and select the correct unit.";
@@ -871,17 +872,16 @@ function generateResistanceProblem(ctx, canvas) {
     // 3. SHOW AND RESET THE INPUT BOX
     const groupR = document.getElementById('inputGroupR');
     if (groupR) {
-        groupR.style.display = 'flex'; // Unhides the flex container for R input
+        groupR.style.display = 'flex'; 
     }
     
     const inputR = document.getElementById('inputR');
     if (inputR) {
-        inputR.placeholder = "Value"; // Generic placeholder
-        inputR.value = "";             // Clear old answer from previous round
+        inputR.placeholder = "Value"; 
+        inputR.value = "";             
     }
     
     // 4. SET THE PINK LABEL
-    // Shortened to "Total R =" so it doesn't wrap inside the 65px CSS label box.
     const labelV = document.getElementById('labelV');
     if (labelV) {
         labelV.innerHTML = "Total R ="; 
@@ -923,9 +923,9 @@ function generateResistanceProblem(ctx, canvas) {
         drawResistor(ctx, 300, 255); 
         drawLine(ctx, 300, 280, 300, 360);
         
-        ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-        ctx.fillText("R\u2081 = " + r1 + " " + rUnitVisual, 330, 150); 
-        ctx.fillText("R\u2082 = " + r2 + " " + rUnitVisual, 330, 260);
+        // UPGRADED SUBSCRIPT LABELS:
+        drawLabel(ctx, "R1 = " + r1 + " " + rUnitVisual, 330, 150, 16, brandBlack);
+        drawLabel(ctx, "R2 = " + r2 + " " + rUnitVisual, 330, 260, 16, brandBlack);
 
     } else if (scenario === 1) {
         // --- SCENARIO 1: PARALLEL ---
@@ -953,9 +953,9 @@ function generateResistanceProblem(ctx, canvas) {
         drawLine(ctx, 220, bottomRailY, 380, bottomRailY);
         drawLine(ctx, 300, bottomRailY, 300, 360);
 
-        ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-        ctx.fillText("R\u2081 = " + pair.r1 + " " + rUnitVisual, 120, midY + 5); 
-        ctx.fillText("R\u2082 = " + pair.r2 + " " + rUnitVisual, 405, midY + 5);
+        // UPGRADED SUBSCRIPT LABELS:
+        drawLabel(ctx, "R1 = " + pair.r1 + " " + rUnitVisual, 120, midY + 5, 16, brandBlack);
+        drawLabel(ctx, "R2 = " + pair.r2 + " " + rUnitVisual, 405, midY + 5, 16, brandBlack);
 
         logicHTML = "<strong>Solution: R<sub>Total</sub> = " + rTotal + " " + rUnitVisual + "</strong><br><br>";
         logicHTML += "<em>Step 1:</em> Find the total resistance using <strong>Product &divide; Sum</strong>.<br>";
@@ -987,10 +987,10 @@ function generateResistanceProblem(ctx, canvas) {
         drawLine(ctx, 220, 320, 380, 320); 
         drawLine(ctx, 300, 320, 300, 360);
 
-        ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-        ctx.fillText("R\u2081 = " + s.r1 + " " + rUnitVisual, 335, 120);
-        ctx.fillText("R\u2082 = " + s.r2 + " " + rUnitVisual, 120, 250); 
-        ctx.fillText("R\u2083 = " + s.r3 + " " + rUnitVisual, 405, 250);
+        // UPGRADED SUBSCRIPT LABELS:
+        drawLabel(ctx, "R1 = " + s.r1 + " " + rUnitVisual, 335, 120, 16, brandBlack);
+        drawLabel(ctx, "R2 = " + s.r2 + " " + rUnitVisual, 120, 250, 16, brandBlack);
+        drawLabel(ctx, "R3 = " + s.r3 + " " + rUnitVisual, 405, 250, 16, brandBlack);
 
         logicHTML = "<strong>Solution: R<sub>Total</sub> = " + rTotal + " " + rUnitVisual + "</strong><br><br>";
         logicHTML += "<em>Step 1:</em> Find the parallel part (R<sub>p</sub>) using <strong>Product &divide; Sum</strong>.<br>";
@@ -1002,7 +1002,7 @@ function generateResistanceProblem(ctx, canvas) {
 
     // 7. STORE CORRECT ANSWERS FOR GRADER
     currentAnswers.rValue = rTotal; 
-    currentAnswers.rTargetUnit = rUnitVisual; // Stores 'kΩ' or 'Ω' for exact validation
+    currentAnswers.rTargetUnit = rUnitVisual; 
     
     // 8. UPDATE SOLUTION DRAWER
     const solText = document.getElementById('solText');
@@ -1016,7 +1016,7 @@ function generateGrade9Resistance() {
     
     // 0. RESET UI & STATE
     hideAllInputGroups(); 
-    currentMode = 'resistance'; // Tells the grader what to do!
+    currentMode = 'resistance'; 
     
     // BRING BACK THE RESISTANCE BOX
     const groupR = document.getElementById('inputGroupR');
@@ -1026,7 +1026,7 @@ function generateGrade9Resistance() {
 
     const inputR = document.getElementById('inputR');
     if (inputR) {
-        inputR.placeholder = "e.g. 47"; // Prevent leaking the answer!
+        inputR.placeholder = "e.g. 47"; 
         inputR.value = "";
     }
 
@@ -1074,11 +1074,10 @@ function generateGrade9Resistance() {
     drawLine(ctx, 220, 320, 380, 320); 
     drawLine(ctx, 300, 320, 300, 360); 
 
-    // Labels
-    ctx.fillStyle = brandBlack; ctx.font = "16px Arial";
-    ctx.fillText("R\u2081 = " + r1 + " " + rUnitVisual, 335, 110);
-    ctx.fillText("R\u2082 = " + r2 + " " + rUnitVisual, 115, 240); 
-    ctx.fillText("R\u2083 = " + r3 + " " + rUnitVisual, 405, 240);
+    // UPGRADED SUBSCRIPT LABELS
+    drawLabel(ctx, "R1 = " + r1 + " " + rUnitVisual, 335, 110, 16, brandBlack);
+    drawLabel(ctx, "R2 = " + r2 + " " + rUnitVisual, 115, 240, 16, brandBlack);
+    drawLabel(ctx, "R3 = " + r3 + " " + rUnitVisual, 405, 240, 16, brandBlack);
 
     // --- SOLUTION TEXT ---
     const solText = document.getElementById('solText');
@@ -1093,8 +1092,10 @@ function generateGrade9Resistance() {
 
     // --- SAVE ANSWERS FOR VALIDATION (UPDATED) ---
     currentAnswers.rValue = rTotal;
-    currentAnswers.rTargetUnit = rUnitVisual; // Stores exact symbol ('kΩ' or 'Ω') for the new dropdown checker
+    currentAnswers.rTargetUnit = rUnitVisual; 
 }
+
+
 // =======================================================
 //  Generates the Potential Divider Problem (4-Variables)
 // =======================================================
@@ -1121,7 +1122,7 @@ function generateDividerProblem(ctx, canvas) {
     let R2_val = Math.floor(Math.random() * 10) + 1;
     let current = Math.floor(Math.random() * 5) + 1; 
     let Vin_val = (R1_val + R2_val) * current;
-    let Vout_val = Vin_val * (R2_val / (R1_val + R2_val)); // This is guaranteed to be an integer
+    let Vout_val = Vin_val * (R2_val / (R1_val + R2_val)); 
 
     // 0: Find Vout, 1: Find Vin, 2: Find R1, 3: Find R2
     let targetVar = Math.floor(Math.random() * 4); 
@@ -1129,8 +1130,6 @@ function generateDividerProblem(ctx, canvas) {
     // Clear Canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Set the correct answer logic standardized to our "Smart Parser"
-    // COMPLETELY REMOVED .toFixed(1) and parseFloat()
     if (targetVar === 0) {
         currentAnswers.vNameHTML = 'V<sub>OUT</sub>';
         currentAnswers.vValue = Vout_val; 
@@ -1152,20 +1151,17 @@ function generateDividerProblem(ctx, canvas) {
     // Update Input Box Label and Placeholder
     document.getElementById('labelV').innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
     
-    // Define inputBox by grabbing it from the HTML!
     const inputBox = document.getElementById('inputV');
-    
     if (inputBox) {
-        inputBox.value = ""; // Clear any previous answer
+        inputBox.value = ""; 
         if (targetVar === 0 || targetVar === 1) {
-            inputBox.placeholder = "e.g. 5 " + vUnit; // INTEGER HINT
+            inputBox.placeholder = "e.g. 5 " + vUnit; 
         } else {
             inputBox.placeholder = "e.g. 12 " + expectedRUnit; 
         }
     }
 
     // Prepare labels for the drawing
-    // REMOVED .toFixed(1) from Vout
     let labelR1   = (targetVar === 2) ? "?" : R1_val + " " + rUnitVisual;
     let labelR2   = (targetVar === 3) ? "?" : R2_val + " " + rUnitVisual;
     let labelVin  = (targetVar === 1) ? "?" : Vin_val + " " + vUnit;
@@ -1206,22 +1202,24 @@ function generateDividerProblem(ctx, canvas) {
     ctx.beginPath(); ctx.moveTo(300, 210); ctx.lineTo(380, 210); ctx.stroke();
     ctx.beginPath(); ctx.arc(384, 210, 4, 0, Math.PI * 2); ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
 
-    // 3. DRAW TEXT LABELS
+    // 3. DRAW TEXT LABELS (UPGRADED)
     const colorVout = (targetVar === 0) ? brandPink : brandBlack;
     const colorVin  = (targetVar === 1) ? brandPink : brandBlack;
     const colorR1   = (targetVar === 2) ? brandPink : brandBlack;
     const colorR2   = (targetVar === 3) ? brandPink : brandBlack;
     
-    ctx.font = "16px Arial"; 
-    ctx.fillStyle = colorR1; ctx.fillText("R\u2081 = " + labelR1, 350, 130);
-    ctx.fillStyle = colorR2; ctx.fillText("R\u2082 = " + labelR2, 350, 300);
-    ctx.fillStyle = colorVin; ctx.fillText("+Vsupply = " + labelVin, 230, 45); 
+    // We use our new smart label here, passing the specific pink or black color!
+    drawLabel(ctx, "R1 = " + labelR1, 350, 130, 16, colorR1);
+    drawLabel(ctx, "R2 = " + labelR2, 350, 300, 16, colorR2);
+    
+    ctx.fillStyle = colorVin; ctx.font = "16px Arial"; ctx.fillText("+Vsupply = " + labelVin, 230, 45); 
+    
+    // Vout has custom positioning anyway, so we keep it exactly as it was:
     ctx.fillStyle = colorVout; ctx.font = "bold 18px Arial"; ctx.fillText("V", 400, 216);
     ctx.font = "bold 11px Arial"; ctx.fillText("OUT", 413, 222);
     ctx.font = "bold 16px Arial"; ctx.fillText("= " + labelVout, 445, 216);
 
     // 4. SOLUTION LOGIC PANEL
-    // REMOVED ALL .toFixed(1) FROM THE STRINGS BELOW
     const solText = document.getElementById('solText');
     if (solText) {
         let logicHTML = "<strong>" + currentAnswers.vNameHTML + " = " + currentAnswers.vValue + " " + (targetVar < 2 ? vUnit : rUnitVisual) + "</strong><br><br>";
@@ -1277,7 +1275,6 @@ function generateGrade9DividerProblem() {
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
 
     // Standardize units for the checker (STRICT CASING)
-    // Removed .toLowerCase() to stay consistent with V/mV strict checks
     const expectedVUnit = vUnit;
 
     // 1. GENERATE MATH (1 d.p. logic)
@@ -1350,15 +1347,17 @@ function generateGrade9DividerProblem() {
     ctx.beginPath(); ctx.arc(300, 340, 4, 0, Math.PI * 2); ctx.fill();
     drawLine(ctx, 300, 340, 300, 360);
 
-    // Labels
+    // UPGRADED LABELS:
     ctx.font = "16px Arial"; 
     ctx.fillStyle = brandBlack;
     ctx.fillText("+Vsupply = " + Vin_val + " " + vUnit, 230, 45); 
-    ctx.fillText("R\u2081 = " + R1_val + " " + rUnitVisual, 340, 130);
-    ctx.fillText("R\u2082 = " + R2_val + " " + rUnitVisual, 130, 300);
-    ctx.fillText("R\u2083 = " + R3_val + " " + rUnitVisual, 420, 300);
+    
+    // Smart Labels for R1, R2, R3
+    drawLabel(ctx, "R1 = " + R1_val + " " + rUnitVisual, 340, 130, 16, brandBlack);
+    drawLabel(ctx, "R2 = " + R2_val + " " + rUnitVisual, 130, 300, 16, brandBlack);
+    drawLabel(ctx, "R3 = " + R3_val + " " + rUnitVisual, 420, 300, 16, brandBlack);
 
-    // Vout indicator
+    // Vout indicator (left as custom due to tricky multi-line layout)
     ctx.fillStyle = brandPink;
     ctx.font = "bold 18px Arial";
     ctx.fillText("V", 430, 216);
@@ -1377,6 +1376,8 @@ function generateGrade9DividerProblem() {
         solText.innerHTML = logicHTML;
     }
 }
+
+
 // ======================================================
 // Circuit Analysis Problem
 // ======================================================
@@ -1414,17 +1415,18 @@ function generateAnalysisProblem(ctx, canvas) {
     const i2 = Math.floor(Math.random() * 10) + 1; 
     const i3 = i1 + i2; 
 
+    // UPGRADED: Changed display from unicode (V\u2081) to standard "V1" so the smart printer can process them
     const voltages = [
-        { display: 'V\u2081', html: 'V<sub>1</sub>', val: v1, logic: 'V\u2081 = V\u2082 (Parallel components share voltage)' },
-        { display: 'V\u2082', html: 'V<sub>2</sub>', val: v2, logic: 'V\u2082 = V\u2081 (Parallel components share voltage)' },
-        { display: 'V\u2083', html: 'V<sub>3</sub>', val: v3, logic: "V\u2083 = +Vsupply - V\u2081 (" + vTotal + vUnit + " - " + v1 + vUnit + ")" },
+        { display: 'V1', html: 'V<sub>1</sub>', val: v1, logic: 'V\u2081 = V\u2082 (Parallel components share voltage)' },
+        { display: 'V2', html: 'V<sub>2</sub>', val: v2, logic: 'V\u2082 = V\u2081 (Parallel components share voltage)' },
+        { display: 'V3', html: 'V<sub>3</sub>', val: v3, logic: "V\u2083 = +Vsupply - V\u2081 (" + vTotal + vUnit + " - " + v1 + vUnit + ")" },
         { display: '+Vsupply', html: '+Vsupply', val: vTotal, logic: "+Vsupply = V\u2081 + V\u2083 (" + v1 + vUnit + " + " + v3 + vUnit + ")" }
     ];
     
     const currents = [
-        { display: 'I\u2081', html: 'I<sub>1</sub>', val: i1, logic: "I\u2081 = I\u2083 - I\u2082 (" + i3 + iUnit + " - " + i2 + iUnit + ")" },
-        { display: 'I\u2082', html: 'I<sub>2</sub>', val: i2, logic: "I\u2082 = I\u2083 - I\u2081 (" + i3 + iUnit + " - " + i1 + iUnit + ")" },
-        { display: 'I\u2083', html: 'I<sub>3</sub>', val: i3, logic: "I\u2083 = I\u2081 + I\u2082 (" + i1 + iUnit + " + " + i2 + iUnit + ")" }
+        { display: 'I1', html: 'I<sub>1</sub>', val: i1, logic: "I\u2081 = I\u2083 - I\u2082 (" + i3 + iUnit + " - " + i2 + iUnit + ")" },
+        { display: 'I2', html: 'I<sub>2</sub>', val: i2, logic: "I\u2082 = I\u2083 - I\u2081 (" + i3 + iUnit + " - " + i1 + iUnit + ")" },
+        { display: 'I3', html: 'I<sub>3</sub>', val: i3, logic: "I\u2083 = I\u2081 + I\u2082 (" + i1 + iUnit + " + " + i2 + iUnit + ")" }
     ];
 
     const unknownVIndex = Math.floor(Math.random() * 4);
@@ -1487,7 +1489,7 @@ function generateAnalysisProblem(ctx, canvas) {
     drawLine(ctx, 100, 360, 500, 360); 
 
     ctx.fillStyle = unknownVIndex === 3 ? brandPink : brandBlack; 
-    ctx.fillText(topRailText, 250, 45);
+    ctx.fillText(topRailText, 250, 45); // Left as fillText since it requires no subscripts
     ctx.fillStyle = brandBlack; 
     ctx.fillText("0V (GND)", 260, 390);
 
@@ -1500,30 +1502,37 @@ function generateAnalysisProblem(ctx, canvas) {
         drawLine(ctx, 200, 230, 400, 230); drawLine(ctx, 300, 230, 300, 270); 
         drawResistor(ctx, 300, 295); drawLine(ctx, 300, 320, 300, 360); 
 
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 150);
-        ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 150); 
-        ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 100);
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 150); 
-        ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 150); 
-        ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 100);
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2083", 260, 300);
-        ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 300); 
-        ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 260);
+        // UPGRADED LABELS (Using smart drawLabel tool for perfectly aligned subscripts)
+        drawLabel(ctx, "R1", 160, 150, 16, brandBlack);
+        if (vLabels[0] !== "") drawLabel(ctx, vLabels[0], 70, 150, 16, unknownVIndex === 0 ? brandPink : brandBlack); 
+        if (iLabels[0] !== "") drawLabel(ctx, iLabels[0], 215, 100, 16, unknownIIndex === 0 ? brandPink : brandBlack);
+        
+        drawLabel(ctx, "R2", 365, 150, 16, brandBlack); 
+        if (vLabels[1] !== "") drawLabel(ctx, vLabels[1], 435, 150, 16, unknownVIndex === 1 ? brandPink : brandBlack); 
+        if (iLabels[1] !== "") drawLabel(ctx, iLabels[1], 415, 100, 16, unknownIIndex === 1 ? brandPink : brandBlack);
+        
+        drawLabel(ctx, "R3", 260, 300, 16, brandBlack);
+        if (vLabels[2] !== "") drawLabel(ctx, vLabels[2], 335, 300, 16, unknownVIndex === 2 ? brandPink : brandBlack); 
+        if (iLabels[2] !== "") drawLabel(ctx, iLabels[2], 315, 260, 16, unknownIIndex === 2 ? brandPink : brandBlack);
+        
     } else {
         // Series-then-Parallel Layout
         drawLine(ctx, 300, 60, 300, 100); drawResistor(ctx, 300, 125); drawLine(ctx, 300, 150, 300, 190);
         drawLine(ctx, 200, 190, 400, 190); drawLine(ctx, 200, 190, 200, 250); drawLine(ctx, 400, 190, 400, 250);
         drawResistor(ctx, 200, 275); drawResistor(ctx, 400, 275); drawLine(ctx, 200, 300, 200, 360); drawLine(ctx, 400, 300, 400, 360);
 
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2083", 260, 130);
-        ctx.fillStyle = unknownVIndex === 2 ? brandPink : brandBlack; ctx.fillText(vLabels[2], 335, 130); 
-        ctx.fillStyle = unknownIIndex === 2 ? brandPink : brandBlack; ctx.fillText(iLabels[2], 315, 90);
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2081", 160, 280);
-        ctx.fillStyle = unknownVIndex === 0 ? brandPink : brandBlack; ctx.fillText(vLabels[0], 70, 280); 
-        ctx.fillStyle = unknownIIndex === 0 ? brandPink : brandBlack; ctx.fillText(iLabels[0], 215, 230);
-        ctx.fillStyle = brandBlack; ctx.fillText("R\u2082", 365, 280); 
-        ctx.fillStyle = unknownVIndex === 1 ? brandPink : brandBlack; ctx.fillText(vLabels[1], 435, 280); 
-        ctx.fillStyle = unknownIIndex === 1 ? brandPink : brandBlack; ctx.fillText(iLabels[1], 415, 230);
+        // UPGRADED LABELS (Using smart drawLabel tool for perfectly aligned subscripts)
+        drawLabel(ctx, "R3", 260, 130, 16, brandBlack);
+        if (vLabels[2] !== "") drawLabel(ctx, vLabels[2], 335, 130, 16, unknownVIndex === 2 ? brandPink : brandBlack); 
+        if (iLabels[2] !== "") drawLabel(ctx, iLabels[2], 315, 90, 16, unknownIIndex === 2 ? brandPink : brandBlack);
+        
+        drawLabel(ctx, "R1", 160, 280, 16, brandBlack);
+        if (vLabels[0] !== "") drawLabel(ctx, vLabels[0], 70, 280, 16, unknownVIndex === 0 ? brandPink : brandBlack); 
+        if (iLabels[0] !== "") drawLabel(ctx, iLabels[0], 215, 230, 16, unknownIIndex === 0 ? brandPink : brandBlack);
+        
+        drawLabel(ctx, "R2", 365, 280, 16, brandBlack); 
+        if (vLabels[1] !== "") drawLabel(ctx, vLabels[1], 435, 280, 16, unknownVIndex === 1 ? brandPink : brandBlack); 
+        if (iLabels[1] !== "") drawLabel(ctx, iLabels[1], 415, 230, 16, unknownIIndex === 1 ? brandPink : brandBlack);
     }
 
     // 3. SOLUTION PANEL
@@ -1537,6 +1546,7 @@ function generateAnalysisProblem(ctx, canvas) {
     }
     showUnitInstruction();
 }
+
 
 // ======================================================
 // Colour Code 
@@ -1675,6 +1685,7 @@ function generateColorCodeProblem(ctx, canvas) {
         }
     }
 }
+    
 function generateOscilloscopeProblem() {
     // 1. SELF-INITIALIZE CANVAS
     const canvas = document.getElementById('circuitCanvas');
