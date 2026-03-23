@@ -856,7 +856,184 @@ function drawArrowOnWire(ctx, fromx, fromy, tox, toy) {
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
 // =========================================================================================================     
 
-// this function deals with adding resistances in series and parallel  
+// ======================================================
+// Circuit Analysis Problem
+// ======================================================
+function generateAnalysisProblem(ctx, canvas) {
+    // 0. RESET UI & STATE
+    hideAllInputGroups(); 
+    currentMode = 'analysis';
+    
+    // TURN ON THE V AND I BOXES
+    const groupV = document.getElementById('inputGroupV');
+    const groupI = document.getElementById('inputGroupI');
+    
+    // FIX #2: Change to 'block' so they stack on separate lines
+    if (groupV) groupV.style.display = 'block'; 
+    if (groupI) groupI.style.display = 'block';
+
+    const inputV = document.getElementById('inputV');
+    const inputI = document.getElementById('inputI');
+
+    // Determine units visually (e.g., V or mV)
+    const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
+    const iUnit = Math.random() < 0.5 ? 'A' : 'mA';
+    
+    // STRICT CASING FIX: Removed .toLowerCase() to match the new parser exactly
+    const expectedVUnit = vUnit;
+    const expectedIUnit = iUnit;
+
+    // 1. GENERATE MATH LOGIC
+    const v1 = Math.floor(Math.random() * 10) + 1; 
+    const v2 = v1; 
+    const v3 = Math.floor(Math.random() * 10) + 1; 
+    const vTotal = v1 + v3; 
+
+    const i1 = Math.floor(Math.random() * 10) + 1; 
+    const i2 = Math.floor(Math.random() * 10) + 1; 
+    const i3 = i1 + i2; 
+
+    // UPGRADED: Added pure HTML subscripts (V<sub>supply</sub>) and dropped the '+' for the UI boxes!
+    const voltages = [
+        { display: 'V1', html: 'V<sub>1</sub>', val: v1, logic: 'V<sub>1</sub> = V<sub>2</sub> (Parallel components share voltage)' },
+        { display: 'V2', html: 'V<sub>2</sub>', val: v2, logic: 'V<sub>2</sub> = V<sub>1</sub> (Parallel components share voltage)' },
+        { display: 'V3', html: 'V<sub>3</sub>', val: v3, logic: "V<sub>3</sub> = V<sub>supply</sub> - V<sub>1</sub> (" + vTotal + vUnit + " - " + v1 + vUnit + ")" },
+        { display: 'Vsupply', html: 'V<sub>supply</sub>', val: vTotal, logic: "V<sub>supply</sub> = V<sub>1</sub> + V<sub>3</sub> (" + v1 + vUnit + " + " + v3 + vUnit + ")" }
+    ];
+    
+    const currents = [
+        { display: 'I1', html: 'I<sub>1</sub>', val: i1, logic: "I<sub>1</sub> = I<sub>3</sub> - I<sub>2</sub> (" + i3 + iUnit + " - " + i2 + iUnit + ")" },
+        { display: 'I2', html: 'I<sub>2</sub>', val: i2, logic: "I<sub>2</sub> = I<sub>3</sub> - I<sub>1</sub> (" + i3 + iUnit + " - " + i1 + iUnit + ")" },
+        { display: 'I3', html: 'I<sub>3</sub>', val: i3, logic: "I<sub>3</sub> = I<sub>1</sub> + I<sub>2</sub> (" + i1 + iUnit + " + " + i2 + iUnit + ")" }
+    ];
+
+    const unknownVIndex = Math.floor(Math.random() * 4);
+    const unknownIIndex = Math.floor(Math.random() * 3);
+
+    // CRITICAL: Set the normalized answers for the checker
+    currentAnswers.vNameHTML = voltages[unknownVIndex].html;
+    currentAnswers.vValue = voltages[unknownVIndex].val;
+    currentAnswers.vUnit = expectedVUnit; 
+    
+    currentAnswers.iNameHTML = currents[unknownIIndex].html;
+    currentAnswers.iValue = currents[unknownIIndex].val;
+    currentAnswers.iUnit = expectedIUnit; 
+
+    // Update Input Labels to match the "?" in the diagram
+    const labelV = document.getElementById('labelV');
+    const labelI = document.getElementById('labelI');
+    if (labelV) labelV.innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
+    if (labelI) labelI.innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.iNameHTML + "</span> = ";
+    
+    // FIX #1: Change placeholders to integer values
+    if (inputV) {
+        inputV.value = "";
+        inputV.placeholder = "e.g. 5 " + vUnit; 
+    }
+    if (inputI) {
+        inputI.value = "";
+        inputI.placeholder = "e.g. 2 " + iUnit; 
+    }
+
+    // Drawing Prep
+    const vLabels = voltages.map(function(v, index) { 
+        return index === unknownVIndex ? v.display + " = ?" : v.display + " = " + v.val + " " + vUnit; 
+    });
+    const iLabels = currents.map(function(c, index) { 
+        return index === unknownIIndex ? c.display + " = ?" : c.display + " = " + c.val + " " + iUnit; 
+    });
+
+    // Logic adjustments for missing info
+    if (unknownVIndex === 2 || unknownVIndex === 3) {
+        if (Math.random() < 0.5) {
+            vLabels[0] = ""; 
+            voltages[2].logic = "V<sub>3</sub> = V<sub>supply</sub> - V<sub>2</sub> (since V<sub>1</sub> = V<sub>2</sub>, " + vTotal + vUnit + " - " + v2 + vUnit + ")";
+            voltages[3].logic = "V<sub>supply</sub> = V<sub>2</sub> + V<sub>3</sub> (since V<sub>1</sub> = V<sub>2</sub>, " + v2 + vUnit + " + " + v3 + vUnit + ")";
+        } else { vLabels[1] = ""; }
+    } else if (unknownVIndex === 0) {
+        if (Math.random() < 0.5) { vLabels[1] = ""; voltages[0].logic = "V<sub>1</sub> = V<sub>supply</sub> - V<sub>3</sub> (" + vTotal + vUnit + " - " + v3 + vUnit + ")"; } 
+    } else if (unknownVIndex === 1) {
+        if (Math.random() < 0.5) { vLabels[0] = ""; voltages[1].logic = "V<sub>2</sub> = V<sub>supply</sub> - V<sub>3</sub> (" + vTotal + vUnit + " - " + v3 + vUnit + ")"; } 
+    }
+
+    // 2. DRAWING
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = brandBlack;
+    ctx.lineWidth = 2;
+    ctx.font = "bold 18px Arial";
+
+    drawLine(ctx, 100, 60, 500, 60); 
+    drawLine(ctx, 100, 360, 500, 360); 
+
+    // UPGRADE: Custom drawing so "supply" becomes a tiny subscript on the canvas top rail!
+    ctx.fillStyle = unknownVIndex === 3 ? brandPink : brandBlack; 
+    ctx.font = "16px Arial";
+    ctx.fillText("V", 230, 45);
+    ctx.font = "12px Arial";
+    ctx.fillText("supply", 241, 49); // Drops down slightly to be a subscript
+    ctx.font = "16px Arial";
+    const restRail = unknownVIndex === 3 ? " = ?" : " = " + vTotal + " " + vUnit;
+    ctx.fillText(restRail, 283, 45);
+
+    ctx.fillStyle = brandBlack; 
+    ctx.fillText("0V (GND)", 260, 390);
+
+    ctx.font = "16px Arial";
+    if (Math.random() < 0.5) {
+        // Parallel-then-Series Layout
+        drawLine(ctx, 200, 60, 200, 120); drawLine(ctx, 400, 60, 400, 120); 
+        drawResistor(ctx, 200, 145); drawResistor(ctx, 400, 145); 
+        drawLine(ctx, 200, 170, 200, 230); drawLine(ctx, 400, 170, 400, 230); 
+        drawLine(ctx, 200, 230, 400, 230); drawLine(ctx, 300, 230, 300, 270); 
+        drawResistor(ctx, 300, 295); drawLine(ctx, 300, 320, 300, 360); 
+
+        // Smart drawLabel tool for perfectly aligned subscripts
+        drawLabel(ctx, "R1", 160, 150, 16, brandBlack);
+        if (vLabels[0] !== "") drawLabel(ctx, vLabels[0], 70, 150, 16, unknownVIndex === 0 ? brandPink : brandBlack); 
+        if (iLabels[0] !== "") drawLabel(ctx, iLabels[0], 215, 100, 16, unknownIIndex === 0 ? brandPink : brandBlack);
+        
+        drawLabel(ctx, "R2", 365, 150, 16, brandBlack); 
+        if (vLabels[1] !== "") drawLabel(ctx, vLabels[1], 435, 150, 16, unknownVIndex === 1 ? brandPink : brandBlack); 
+        if (iLabels[1] !== "") drawLabel(ctx, iLabels[1], 415, 100, 16, unknownIIndex === 1 ? brandPink : brandBlack);
+        
+        drawLabel(ctx, "R3", 260, 300, 16, brandBlack);
+        if (vLabels[2] !== "") drawLabel(ctx, vLabels[2], 335, 300, 16, unknownVIndex === 2 ? brandPink : brandBlack); 
+        if (iLabels[2] !== "") drawLabel(ctx, iLabels[2], 315, 260, 16, unknownIIndex === 2 ? brandPink : brandBlack);
+        
+    } else {
+        // Series-then-Parallel Layout
+        drawLine(ctx, 300, 60, 300, 100); drawResistor(ctx, 300, 125); drawLine(ctx, 300, 150, 300, 190);
+        drawLine(ctx, 200, 190, 400, 190); drawLine(ctx, 200, 190, 200, 250); drawLine(ctx, 400, 190, 400, 250);
+        drawResistor(ctx, 200, 275); drawResistor(ctx, 400, 275); drawLine(ctx, 200, 300, 200, 360); drawLine(ctx, 400, 300, 400, 360);
+
+        // Smart drawLabel tool for perfectly aligned subscripts
+        drawLabel(ctx, "R3", 260, 130, 16, brandBlack);
+        if (vLabels[2] !== "") drawLabel(ctx, vLabels[2], 335, 130, 16, unknownVIndex === 2 ? brandPink : brandBlack); 
+        if (iLabels[2] !== "") drawLabel(ctx, iLabels[2], 315, 90, 16, unknownIIndex === 2 ? brandPink : brandBlack);
+        
+        drawLabel(ctx, "R1", 160, 280, 16, brandBlack);
+        if (vLabels[0] !== "") drawLabel(ctx, vLabels[0], 70, 280, 16, unknownVIndex === 0 ? brandPink : brandBlack); 
+        if (iLabels[0] !== "") drawLabel(ctx, iLabels[0], 215, 230, 16, unknownIIndex === 0 ? brandPink : brandBlack);
+        
+        drawLabel(ctx, "R2", 365, 280, 16, brandBlack); 
+        if (vLabels[1] !== "") drawLabel(ctx, vLabels[1], 435, 280, 16, unknownVIndex === 1 ? brandPink : brandBlack); 
+        if (iLabels[1] !== "") drawLabel(ctx, iLabels[1], 415, 230, 16, unknownIIndex === 1 ? brandPink : brandBlack);
+    }
+
+    // 3. SOLUTION PANEL
+    const solText = document.getElementById('solText');
+    if (solText) {
+        solText.innerHTML = 
+            "<strong>" + voltages[unknownVIndex].html + " = " + voltages[unknownVIndex].val + " " + vUnit + "</strong> <br>" +
+            "<em>Logic:</em> " + voltages[unknownVIndex].logic + " <br><br>" +
+            "<strong>" + currents[unknownIIndex].html + " = " + currents[unknownIIndex].val + " " + iUnit + "</strong> <br>" +
+            "<em>Logic:</em> " + currents[unknownIIndex].logic;
+    }
+    showUnitInstruction();
+}
+// ======================================================
+// Total Resistance Problem
+// ======================================================
 // this function deals with adding resistances in series and parallel  
 function generateResistanceProblem(ctx, canvas) {
     // 1. CLEAR PREVIOUS STATE
@@ -1376,177 +1553,6 @@ function generateGrade9DividerProblem() {
         solText.innerHTML = logicHTML;
     }
 }
-
-// ======================================================
-// Circuit Analysis Problem
-// ======================================================
-function generateAnalysisProblem(ctx, canvas) {
-    // 0. RESET UI & STATE
-    hideAllInputGroups(); 
-    currentMode = 'analysis';
-    
-    // TURN ON THE V AND I BOXES
-    const groupV = document.getElementById('inputGroupV');
-    const groupI = document.getElementById('inputGroupI');
-    
-    // FIX #2: Change to 'block' so they stack on separate lines
-    if (groupV) groupV.style.display = 'block'; 
-    if (groupI) groupI.style.display = 'block';
-
-    const inputV = document.getElementById('inputV');
-    const inputI = document.getElementById('inputI');
-
-    // Determine units visually (e.g., V or mV)
-    const vUnit = Math.random() < 0.5 ? 'V' : 'mV';
-    const iUnit = Math.random() < 0.5 ? 'A' : 'mA';
-    
-    // STRICT CASING FIX: Removed .toLowerCase() to match the new parser exactly
-    const expectedVUnit = vUnit;
-    const expectedIUnit = iUnit;
-
-    // 1. GENERATE MATH LOGIC
-    const v1 = Math.floor(Math.random() * 10) + 1; 
-    const v2 = v1; 
-    const v3 = Math.floor(Math.random() * 10) + 1; 
-    const vTotal = v1 + v3; 
-
-    const i1 = Math.floor(Math.random() * 10) + 1; 
-    const i2 = Math.floor(Math.random() * 10) + 1; 
-    const i3 = i1 + i2; 
-
-    // UPGRADED: Added pure HTML subscripts (V<sub>supply</sub>) and dropped the '+' for the UI boxes!
-    const voltages = [
-        { display: 'V1', html: 'V<sub>1</sub>', val: v1, logic: 'V<sub>1</sub> = V<sub>2</sub> (Parallel components share voltage)' },
-        { display: 'V2', html: 'V<sub>2</sub>', val: v2, logic: 'V<sub>2</sub> = V<sub>1</sub> (Parallel components share voltage)' },
-        { display: 'V3', html: 'V<sub>3</sub>', val: v3, logic: "V<sub>3</sub> = V<sub>supply</sub> - V<sub>1</sub> (" + vTotal + vUnit + " - " + v1 + vUnit + ")" },
-        { display: 'Vsupply', html: 'V<sub>supply</sub>', val: vTotal, logic: "V<sub>supply</sub> = V<sub>1</sub> + V<sub>3</sub> (" + v1 + vUnit + " + " + v3 + vUnit + ")" }
-    ];
-    
-    const currents = [
-        { display: 'I1', html: 'I<sub>1</sub>', val: i1, logic: "I<sub>1</sub> = I<sub>3</sub> - I<sub>2</sub> (" + i3 + iUnit + " - " + i2 + iUnit + ")" },
-        { display: 'I2', html: 'I<sub>2</sub>', val: i2, logic: "I<sub>2</sub> = I<sub>3</sub> - I<sub>1</sub> (" + i3 + iUnit + " - " + i1 + iUnit + ")" },
-        { display: 'I3', html: 'I<sub>3</sub>', val: i3, logic: "I<sub>3</sub> = I<sub>1</sub> + I<sub>2</sub> (" + i1 + iUnit + " + " + i2 + iUnit + ")" }
-    ];
-
-    const unknownVIndex = Math.floor(Math.random() * 4);
-    const unknownIIndex = Math.floor(Math.random() * 3);
-
-    // CRITICAL: Set the normalized answers for the checker
-    currentAnswers.vNameHTML = voltages[unknownVIndex].html;
-    currentAnswers.vValue = voltages[unknownVIndex].val;
-    currentAnswers.vUnit = expectedVUnit; 
-    
-    currentAnswers.iNameHTML = currents[unknownIIndex].html;
-    currentAnswers.iValue = currents[unknownIIndex].val;
-    currentAnswers.iUnit = expectedIUnit; 
-
-    // Update Input Labels to match the "?" in the diagram
-    const labelV = document.getElementById('labelV');
-    const labelI = document.getElementById('labelI');
-    if (labelV) labelV.innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.vNameHTML + "</span> = ";
-    if (labelI) labelI.innerHTML = "<span style='color:" + brandPink + "'>" + currentAnswers.iNameHTML + "</span> = ";
-    
-    // FIX #1: Change placeholders to integer values
-    if (inputV) {
-        inputV.value = "";
-        inputV.placeholder = "e.g. 5 " + vUnit; 
-    }
-    if (inputI) {
-        inputI.value = "";
-        inputI.placeholder = "e.g. 2 " + iUnit; 
-    }
-
-    // Drawing Prep
-    const vLabels = voltages.map(function(v, index) { 
-        return index === unknownVIndex ? v.display + " = ?" : v.display + " = " + v.val + " " + vUnit; 
-    });
-    const iLabels = currents.map(function(c, index) { 
-        return index === unknownIIndex ? c.display + " = ?" : c.display + " = " + c.val + " " + iUnit; 
-    });
-
-    // Logic adjustments for missing info
-    if (unknownVIndex === 2 || unknownVIndex === 3) {
-        if (Math.random() < 0.5) {
-            vLabels[0] = ""; 
-            voltages[2].logic = "V<sub>3</sub> = V<sub>supply</sub> - V<sub>2</sub> (since V<sub>1</sub> = V<sub>2</sub>, " + vTotal + vUnit + " - " + v2 + vUnit + ")";
-            voltages[3].logic = "V<sub>supply</sub> = V<sub>2</sub> + V<sub>3</sub> (since V<sub>1</sub> = V<sub>2</sub>, " + v2 + vUnit + " + " + v3 + vUnit + ")";
-        } else { vLabels[1] = ""; }
-    } else if (unknownVIndex === 0) {
-        if (Math.random() < 0.5) { vLabels[1] = ""; voltages[0].logic = "V<sub>1</sub> = V<sub>supply</sub> - V<sub>3</sub> (" + vTotal + vUnit + " - " + v3 + vUnit + ")"; } 
-    } else if (unknownVIndex === 1) {
-        if (Math.random() < 0.5) { vLabels[0] = ""; voltages[1].logic = "V<sub>2</sub> = V<sub>supply</sub> - V<sub>3</sub> (" + vTotal + vUnit + " - " + v3 + vUnit + ")"; } 
-    }
-
-    // 2. DRAWING
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = brandBlack;
-    ctx.lineWidth = 2;
-    ctx.font = "bold 18px Arial";
-
-    drawLine(ctx, 100, 60, 500, 60); 
-    drawLine(ctx, 100, 360, 500, 360); 
-
-    // UPGRADE: Custom drawing so "supply" becomes a tiny subscript on the canvas top rail!
-    ctx.fillStyle = unknownVIndex === 3 ? brandPink : brandBlack; 
-    ctx.font = "16px Arial";
-    ctx.fillText("V", 230, 45);
-    ctx.font = "12px Arial";
-    ctx.fillText("supply", 241, 49); // Drops down slightly to be a subscript
-    ctx.font = "16px Arial";
-    const restRail = unknownVIndex === 3 ? " = ?" : " = " + vTotal + " " + vUnit;
-    ctx.fillText(restRail, 283, 45);
-
-    ctx.fillStyle = brandBlack; 
-    ctx.fillText("0V (GND)", 260, 390);
-
-    ctx.font = "16px Arial";
-    if (Math.random() < 0.5) {
-        // Parallel-then-Series Layout
-        drawLine(ctx, 200, 60, 200, 120); drawLine(ctx, 400, 60, 400, 120); 
-        drawResistor(ctx, 200, 145); drawResistor(ctx, 400, 145); 
-        drawLine(ctx, 200, 170, 200, 230); drawLine(ctx, 400, 170, 400, 230); 
-        drawLine(ctx, 200, 230, 400, 230); drawLine(ctx, 300, 230, 300, 270); 
-        drawResistor(ctx, 300, 295); drawLine(ctx, 300, 320, 300, 360); 
-
-        // Smart drawLabel tool for perfectly aligned subscripts
-        drawLabel(ctx, "R1", 160, 150, 16, brandBlack);
-        if (vLabels[0] !== "") drawLabel(ctx, vLabels[0], 70, 150, 16, unknownVIndex === 0 ? brandPink : brandBlack); 
-        if (iLabels[0] !== "") drawLabel(ctx, iLabels[0], 215, 100, 16, unknownIIndex === 0 ? brandPink : brandBlack);
-        
-        drawLabel(ctx, "R2", 365, 150, 16, brandBlack); 
-        if (vLabels[1] !== "") drawLabel(ctx, vLabels[1], 435, 150, 16, unknownVIndex === 1 ? brandPink : brandBlack); 
-        if (iLabels[1] !== "") drawLabel(ctx, iLabels[1], 415, 100, 16, unknownIIndex === 1 ? brandPink : brandBlack);
-        
-        drawLabel(ctx, "R3", 260, 300, 16, brandBlack);
-        if (vLabels[2] !== "") drawLabel(ctx, vLabels[2], 335, 300, 16, unknownVIndex === 2 ? brandPink : brandBlack); 
-        if (iLabels[2] !== "") drawLabel(ctx, iLabels[2], 315, 260, 16, unknownIIndex === 2 ? brandPink : brandBlack);
-        
-    } else {
-        // Series-then-Parallel Layout
-        drawLine(ctx, 300, 60, 300, 100); drawResistor(ctx, 300, 125); drawLine(ctx, 300, 150, 300, 190);
-        drawLine(ctx, 200, 190, 400, 190); drawLine(ctx, 200, 190, 200, 250); drawLine(ctx, 400, 190, 400, 250);
-        drawResistor(ctx, 200, 275); drawResistor(ctx, 400, 275); drawLine(ctx, 200, 300, 200, 360); drawLine(ctx, 400, 300, 400, 360);
-
-        // Smart drawLabel tool for perfectly aligned subscripts
-        drawLabel(ctx, "R3", 260, 130, 16, brandBlack);
-        if (vLabels[2] !== "") drawLabel(ctx, vLabels[2], 335, 130, 16, unknownVIndex === 2 ? brandPink : brandBlack); 
-        if (iLabels[2] !== "") drawLabel(ctx, iLabels[2], 315, 90, 16, unknownIIndex === 2 ? brandPink : brandBlack);
-        
-        drawLabel(ctx, "R1", 160, 280, 16, brandBlack);
-        if (vLabels[0] !== "") drawLabel(ctx, vLabels[0], 70, 280, 16, unknownVIndex === 0 ? brandPink : brandBlack); 
-        if (iLabels[0] !== "") drawLabel(ctx, iLabels[0], 215, 230, 16, unknownIIndex === 0 ? brandPink : brandBlack);
-        
-        drawLabel(ctx, "R2", 365, 280, 16, brandBlack); 
-        if (vLabels[1] !== "") drawLabel(ctx, vLabels[1], 435, 280, 16, unknownVIndex === 1 ? brandPink : brandBlack); 
-        if (iLabels[1] !== "") drawLabel(ctx, iLabels[1], 415, 230, 16, unknownIIndex === 1 ? brandPink : brandBlack);
-    }
-
-    // 3. SOLUTION PANEL
-    const solText = document.getElementById('solText');
-    if (solText) {
-        solText.innerHTML = 
-            "<strong>" + voltages[unknownVIndex].html + " = " + voltages[unknownVIndex].val + "
-
 
 // ======================================================
 // Colour Code 
