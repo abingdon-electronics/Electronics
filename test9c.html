@@ -253,39 +253,31 @@
     .form-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 2px solid #eaeaea; border-radius: 6px; }
     .modal-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 25px; }
     
-    /* ============================================================
+/* ============================================================
        7. MOBILE RESPONSIVENESS
        ============================================================ */
     @media (max-width: 700px) {
         .main-layout { flex-direction: column; align-items: center; width: 100%; }
         #circuitCanvas { width: 95vw; height: auto; max-width: 600px; }
-        /* Consolidate the right-panel here */
+        
+        /* Consolidate panels for phone screens */
         .left-panel, .right-panel { 
-        width: 95vw; 
-        max-width: 600px; 
-        height: auto; /* It's okay to jump on a small phone screen */
+            width: 95vw; 
+            max-width: 600px; 
+            height: auto !important; /* Allow height to be flexible on small phones */
         }
 
-        .right-panel { 
-        margin-top: 20px; 
+        .right-panel { margin-top: 20px; }
+
+        .quiz-section { 
+            height: auto !important; /* Stop forcing 100% height on phones */
+            min-height: 300px; 
+        }
+
+        .controls {
+            margin-top: 25px; /* Use a fixed gap on phones instead of 'auto' */
+        }  
     }
-       .quiz-section { 
-            background-color: #fdf4f8; 
-            padding: 15px 20px; 
-            border-radius: 8px; 
-            border: 1px solid #f2c7db; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100%; /* Force it to take up all 420px */
-            box-sizing: border-box;
-}
-        .right-panel { height: auto;      /* On phones, the box wraps tight to the buttons */
-        margin-top: 20px; 
-    }
-       .controls {
-        margin-top: 20px;  /* On phones, use a standard gap instead of 'auto' */
-    }  
-}
 </style>
 </head>
 
