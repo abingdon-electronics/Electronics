@@ -460,12 +460,12 @@
                     <div id="instructionPrompt" class="instruction-text" style="text-align: center; margin-bottom: 10px; font-size: 18px; display: none;"></div>
                         
                     <div class="input-group" id="inputGroupColorVal" style="display: none; justify-content: center; align-items: center; gap: 5px; margin-top: 15px; width: 100%;">
-                        <input type="number" id="inputResValue" placeholder="e.g. 4700" style="width: 120px; text-align: center;" />
+                        <input type="number" id="inputResValue" placeholder="value" style="width: 120px; text-align: center;" />
                         <span style="font-weight:bold; font-size: 1.2em;">Ω</span>
                         
                         <span style="margin: 0 10px; font-weight:bold; font-size: 1.2em;">&plusmn;</span>
                         
-                        <input type="number" id="inputResTol" placeholder="e.g. 5" style="width: 80px; text-align: center;" />
+                        <input type="number" id="inputResTol" placeholder="value" style="width: 80px; text-align: center;" />
                         <span style="font-weight:bold; font-size: 1.2em;">%</span>
                     </div>
 
@@ -1676,8 +1676,8 @@ function generateColorCodeProblem(ctx, canvas) {
     // Reset Box Values
     const inputResValue = document.getElementById('inputResValue');
     const inputResTol = document.getElementById('inputResTol');
-    if (inputResValue) { inputResValue.value = ""; inputResValue.placeholder = "e.g. 4.7"; }
-    if (inputResTol) { inputResTol.value = ""; inputResTol.placeholder = "e.g. 5"; }
+    if (inputResValue) { inputResValue.value = ""; inputResValue.placeholder = "value"; }
+    if (inputResTol) { inputResTol.value = ""; inputResTol.placeholder = "value"; }
     ['inputBand1', 'inputBand2', 'inputBand3', 'inputBandTol'].forEach(id => {
         const el = document.getElementById(id);
         if (el) { el.value = ""; el.placeholder = "colour"; }
