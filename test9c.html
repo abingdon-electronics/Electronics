@@ -3443,9 +3443,16 @@ function hideAllInputGroups() {
     // 2. Hide every div that has the 'input-group' class
     document.querySelectorAll('.input-group').forEach(el => el.style.display = 'none');
 
-    // 2b. BULLETPROOF FIX: Explicitly hide the color code groups just in case the HTML class is missing
+    // 2b. BULLETPROOF FIX: Explicitly hide specific groups just in case the HTML class is missing
     if (document.getElementById('inputGroupColorVal')) document.getElementById('inputGroupColorVal').style.display = 'none';
     if (document.getElementById('inputGroupColorNames')) document.getElementById('inputGroupColorNames').style.display = 'none';
+    
+    // ---> NEW ADDITIONS TO FIX ZENER/GRADE 9 TOGGLE GHOSTING <---
+    if (document.getElementById('inputGroupZener')) document.getElementById('inputGroupZener').style.display = 'none';
+    if (document.getElementById('inputGroupGrade9Zener')) document.getElementById('inputGroupGrade9Zener').style.display = 'none';
+    if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'none';
+    if (document.getElementById('grade9DividerBtn')) document.getElementById('grade9DividerBtn').style.display = 'none';
+    if (document.getElementById('grade9ResistorBtn')) document.getElementById('grade9ResistorBtn').style.display = 'none';
 
     // 3. Clear common UI elements
     if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = "";
