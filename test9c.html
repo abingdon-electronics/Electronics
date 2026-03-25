@@ -799,22 +799,26 @@
                     SUBMISSION & FEEDBACK SECTION              
                  ========================================== -->
                 <div style="margin-top: 20px;">
-                   <button id="checkansBtn" class="btn-check" onclick="checkAnswers()" style="padding: 10px 20px; background-color: #E64097; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Check Answer(s)</button>
-                    <div id="feedback" class="feedback" style="margin-top: 15px; font-weight: bold; min-height: 1.2em;"></div>
-                </div>
+                    <div class="controls" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                        <div style="display: flex; gap: 10px; width: 100%;">
+                            <button class="btn-black" onclick="handleGenerateClick()" style="flex: 1; margin: 0; padding: 10px 5px;">New Problem</button>
+                            <button id="grade9DividerBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge</button>
+                            <button id="grade9ResistorBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge</button>
+                            <button id="grade9ZenerBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9ZenerProblem()">🏆 Grade 9 Challenge</button>
+                        </div>
+                    </div>
                     
                 <!-- ==========================================
                      QUIZ CONTROLS                              
                      ========================================== -->
-                <div class="controls">
-                    <div style="display: flex; gap: 10px; width: 100%;">
-                        <button class="btn-black" onclick="handleGenerateClick()" style="flex: 1; margin: 0; padding: 10px 5px;">New Problem</button>
-                        <button id="grade9DividerBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge</button>
-                        <button id="grade9ResistorBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge</button>
-                        <button id="grade9ZenerBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9ZenerProblem()">🏆 Grade 9 Challenge</button>
+                <div class="controls" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                        <div style="display: flex; gap: 10px; width: 100%;">
+                            <button class="btn-black" onclick="handleGenerateClick()" style="flex: 1; margin: 0; padding: 10px 5px;">New Problem</button>
+                            <button id="grade9DividerBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge</button>
+                            <button id="grade9ResistorBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge</button>
+                            <button id="grade9ZenerBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9ZenerProblem()">🏆 Grade 9 Challenge</button>
+                        </div>
                     </div>
-                    <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none; width: 100%; margin-top: 5px;">Need Help? (Show Solution)</button>
-                </div>
 
             <!-- Step-by-Step Solutions Display  -->
                 <div id="solutions" class="solutions" style="display:none;">
@@ -956,10 +960,10 @@ function handleGenerateClick() {
     if (sol) sol.style.display = 'none';
     
     // Bring back the Help Button (since it hides when clicked)
-    const helpBtn = document.getElementById('helpBtn');
-    if (helpBtn) {
-        helpBtn.style.display = 'block'; 
-        helpBtn.innerText = "Need Help? (Show Solution)";
+    const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+    if (showsolutionsBtn) {
+        showsolutionsBtn.style.display = 'block'; 
+        showsolutionsBtn.innerText = "Need Help? (Show Solution)";
     }
 
     // NEW UPGRADE: Bring back the Check Answer button for the new problem!
@@ -3230,7 +3234,7 @@ function switchTab(mode) {
         'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener',
         'inputGroupSilicon', 'zenerOpenQuestions', 'zenerClosedQuestions', 
         'instructionPrompt', 'astableInstruction', 'ratioInstruction', 'zenerInstruction',
-        'grade9DividerBtn', 'grade9ResistorBtn', 'helpBtn', 'grade9ZenerBtn', 
+        'grade9DividerBtn', 'grade9ResistorBtn', 'showsolutionsBtn', 'grade9ZenerBtn', 
         'inputGroupGrade9Zener', 'g9ZenerClosed', 'g9ZenerOpen',
         'inputGroupIPOSort' // ADDED FOR IPO SORT
     ];
@@ -3444,7 +3448,7 @@ function checkAnswers() {
     if (isCurrentProblemSolved) return; 
 
     const feedback = document.getElementById('feedback');
-    const helpBtn = document.getElementById('helpBtn');
+    const showsolutionsBtn = document.getElementById('showsolutionsBtn');
 
     // =======================================================
     // IPO SORT GRADING INTERCEPTOR
@@ -3481,15 +3485,24 @@ function checkAnswers() {
         if (allCorrect) {
             isCurrentProblemSolved = true;
             if (canEarnPoints) { problemsCorrect++; }
-            feedback.innerHTML = "<span style='color: #198754;'>Perfect Sort! All components correct!</span>";
+            feedback.innerHTML = "<span style='color: #198754;'>Perfect Sort! All components correct! Click 'New Problem' to continue.</span>";
             canEarnPoints = false;
-            if (helpBtn) helpBtn.style.display = 'none';
+            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
         } else {
             canEarnPoints = false;
-            feedback.innerHTML = "<span style='color: #dc3545;'>Some components are in the wrong place. Try moving the red ones!</span>";
+            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Here is the solution:</span>";
+            // Force solution open for IPO!
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) solDiv.style.display = 'block';
+            if (typeof viewedSolution !== 'undefined') viewedSolution = true;
         }
         
-        if (allCorrect && document.getElementById('checkansBtn')) document.getElementById('checkansBtn').style.display = 'none';
+        // Hide BOTH buttons after checking IPO
+        const checkansBtn = document.getElementById('checkansBtn');
+        const showSolBtn = document.getElementById('showSolutionBtn');
+        if (checkansBtn) checkansBtn.style.display = 'none';
+        if (showSolBtn) showSolBtn.style.display = 'none';
+
         if (typeof updateScoreboard === "function") updateScoreboard();
         return; // Stop here so it doesn't run the rest of the text-box checker
     }
@@ -3667,7 +3680,7 @@ function checkAnswers() {
         canEarnPoints = false; // Lock out points so they can't double-score
         
         // Hide the help button because they are done
-        if (helpBtn) helpBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
 
     } else {
         // FAILURE PATH
@@ -3685,18 +3698,19 @@ function checkAnswers() {
         // Force the solution box open to help them learn
         const solDiv = document.getElementById('solutions');
         if (solDiv) solDiv.style.display = 'block';
+        if (typeof viewedSolution !== 'undefined') viewedSolution = true;
         
         // Hide the help button since the solution is now automatically showing
-        if (helpBtn) helpBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
     }
     
     // ==========================================
-    // THE MISSING FIX: HIDE THE CHECK BUTTON
+    // HIDE BOTH BUTTONS AFTER CHECKING
     // ==========================================
     const checkansBtn = document.getElementById('checkansBtn');
-    if (checkansBtn) {
-        checkansBtn.style.display = 'none';
-    }
+    const showSolBtn = document.getElementById('showSolutionBtn');
+    if (checkansBtn) checkansBtn.style.display = 'none';
+    if (showSolBtn) showSolBtn.style.display = 'none';
     
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
@@ -3895,33 +3909,27 @@ function provideHint() {
     }
     
     // Hide the help button after it's clicked
-    const helpBtn = document.getElementById('helpBtn');
-    if (helpBtn) helpBtn.style.display = 'none';
+    const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+    if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
 }
 
 function toggleSolutions() {
     const sol = document.getElementById('solutions');
-    if (!sol) return;
+    if (!sol) return; // Safety check: if the solution box doesn't exist, stop here
+
+    // 1. Show the solution box
+    sol.style.display = 'block'; 
     
-    if (sol.style.display === 'none' || sol.style.display === '') {
-        // Show the solution box
-        sol.style.display = 'block'; 
-        
-        // Update both flags!
-        viewedSolution = true;
-        canEarnPoints = false; // NEW: They lose the ability to score points for this problem
-        
-        // Hide the help button once the solution is showing
-        const helpBtn = document.getElementById('helpBtn');
-        if (helpBtn) helpBtn.style.display = 'none';
-        
-        // NEW UPGRADE: Hide the Check Answer button because they peeked!
-        const checkansBtn = document.getElementById('checkansBtn');
-        if (checkansBtn) checkansBtn.style.display = 'none';
-        
-    } else { 
-        sol.style.display = 'none'; 
-    }
+    // 2. Update both flags
+    viewedSolution = true;
+    canEarnPoints = false; 
+    
+    // 3. Hide both action buttons immediately
+    const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+    const checkansBtn = document.getElementById('checkansBtn');
+    
+    if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+    if (checkansBtn) checkansBtn.style.display = 'none';
 }
 // ==========================================
 // FINAL INITIALIZATION (Place at the end of your .js file)
