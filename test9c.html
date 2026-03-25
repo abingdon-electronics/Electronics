@@ -959,16 +959,16 @@ function handleGenerateClick() {
     const sol = document.getElementById('solutions');
     if (sol) sol.style.display = 'none';
     
-    // Bring back the Help Button (since it hides when clicked)
+    // Bring back the Help Button
     const showsolutionsBtn = document.getElementById('showsolutionsBtn');
     if (showsolutionsBtn) {
         showsolutionsBtn.style.display = 'block'; 
         showsolutionsBtn.innerText = "Need Help? (Show Solution)";
     }
 
-    // NEW UPGRADE: Bring back the Check Answer button for the new problem!
+    // Bring back the Check Answer button for the new problem
     const checkansBtn = document.getElementById('checkansBtn');
-    if (checkansBtn) checkansBtn.style.display = 'block'; // Or 'inline-block' depending on your CSS layout
+    if (checkansBtn) checkansBtn.style.display = 'block'; 
 
     // Clear any "Correct/Incorrect" feedback from the last problem
     const feedback = document.getElementById('feedback');
@@ -3497,11 +3497,10 @@ function checkAnswers() {
             if (typeof viewedSolution !== 'undefined') viewedSolution = true;
         }
         
-        // Hide BOTH buttons after checking IPO
+        // Hide BOTH buttons after checking IPO (UPDATED IDs)
         const checkansBtn = document.getElementById('checkansBtn');
-        const showSolBtn = document.getElementById('showSolutionBtn');
         if (checkansBtn) checkansBtn.style.display = 'none';
-        if (showSolBtn) showSolBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
 
         if (typeof updateScoreboard === "function") updateScoreboard();
         return; // Stop here so it doesn't run the rest of the text-box checker
@@ -3705,12 +3704,11 @@ function checkAnswers() {
     }
     
     // ==========================================
-    // HIDE BOTH BUTTONS AFTER CHECKING
+    // HIDE BOTH BUTTONS AFTER CHECKING (UPDATED IDs)
     // ==========================================
     const checkansBtn = document.getElementById('checkansBtn');
-    const showSolBtn = document.getElementById('showSolutionBtn');
     if (checkansBtn) checkansBtn.style.display = 'none';
-    if (showSolBtn) showSolBtn.style.display = 'none';
+    if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
     
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
@@ -3974,6 +3972,7 @@ function hideAllInputGroups() {
     hasCheckedCurrentProblem = false;
     viewedSolution = false;
     unitErrorMade = false;
+    canEarnPoints = true; // NEW: Reset the points lock!
 
     // 2. Hide every div that has the 'input-group' class
     document.querySelectorAll('.input-group').forEach(el => el.style.display = 'none');
@@ -4040,8 +4039,13 @@ function hideAllInputGroups() {
     // 9. CLEAR IPO DRAG ZONES (Prevents ghosting blocks if switching tabs mid-sort)
     if (document.getElementById('ipoBank')) document.getElementById('ipoBank').innerHTML = "";
     document.querySelectorAll('.ipo-zone').forEach(zone => zone.innerHTML = "");
-}
 
+    // 10. NEW: BRING BACK ACTION BUTTONS (In case they were hidden by Show Solutions)
+    const checkansBtn = document.getElementById('checkansBtn');
+    const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+    if (checkansBtn) checkansBtn.style.display = 'block';
+    if (showsolutionsBtn) showsolutionsBtn.style.display = 'block';
+}
 // Master Switch on Load
 window.onload = function() {
     hideAllInputGroups(); 
