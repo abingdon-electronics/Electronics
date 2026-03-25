@@ -3084,12 +3084,13 @@ function generateIPOProblem(ctx, canvas) {
 // FUNCTION 3. NAVIGATION and UI (Traffic Control) 
 // ===========================================================================================================================      
 
-   function goHome() {
+function goHome() {
     // 1. Hide the main work area and all sub-menus
     document.getElementById('contentArea').style.display = 'none';
     document.getElementById('menuBasics').style.display = 'none';
     document.getElementById('menuTiming').style.display = 'none';
     document.getElementById('menuDiodes').style.display = 'none';
+    if (document.getElementById('menuSystems')) document.getElementById('menuSystems').style.display = 'none'; // ADDED FOR IPO
     document.getElementById('menuPlaceholder').style.display = 'none';
 
     // 2. Show the main 8-button grid
@@ -3122,6 +3123,7 @@ function openModule(module) {
     document.getElementById('menuBasics').style.display = 'none';
     document.getElementById('menuTiming').style.display = 'none';
     document.getElementById('menuDiodes').style.display = 'none'; // Added for Diodes
+    if (document.getElementById('menuSystems')) document.getElementById('menuSystems').style.display = 'none'; // ADDED FOR IPO
     document.getElementById('menuPlaceholder').style.display = 'none';
     
     // Show the content area
@@ -3137,6 +3139,9 @@ function openModule(module) {
     } else if (module === 'diodes') {
         document.getElementById('menuDiodes').style.display = 'flex';
         switchTab('zener'); // Default to Zener Diodes
+    } else if (module === 'systems') {
+        document.getElementById('menuSystems').style.display = 'flex';
+        switchTab('iposort'); // Default to IPO Sort for Systems
     } else {
         document.getElementById('menuPlaceholder').style.display = 'flex';
         document.getElementById('contentArea').style.display = 'none';
@@ -3174,7 +3179,8 @@ function switchTab(mode) {
         'inputGroupSilicon', 'zenerOpenQuestions', 'zenerClosedQuestions', 
         'instructionPrompt', 'astableInstruction', 'ratioInstruction', 'zenerInstruction',
         'grade9DividerBtn', 'grade9ResistorBtn', 'helpBtn', 'grade9ZenerBtn', 
-        'inputGroupGrade9Zener', 'g9ZenerClosed', 'g9ZenerOpen'
+        'inputGroupGrade9Zener', 'g9ZenerClosed', 'g9ZenerOpen',
+        'inputGroupIPOSort' // ADDED FOR IPO SORT
     ];
 
     elementsToHide.forEach(id => {
@@ -3189,6 +3195,7 @@ function switchTab(mode) {
     if (subtitle) {
         if (mode === 'home') subtitle.innerText = "Welcome to Electronics";
         else if (['analysis', 'divider', 'resistance', 'colorcode'].includes(mode)) subtitle.innerText = "Module 1: Circuit Basics";
+        else if (mode === 'iposort') subtitle.innerText = "Module 2: Systems"; // ADDED FOR IPO SORT
         else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) subtitle.innerText = "Module 3: Timing Circuits";
         else if (['silicon', 'zener'].includes(mode)) subtitle.innerText = "Module 8: Diodes";
     }
@@ -3250,7 +3257,7 @@ function switchTab(mode) {
         if (document.getElementById('inputGroupSilicon')) document.getElementById('inputGroupSilicon').style.display = 'inline-block';
         if (typeof generateSiliconProblem === "function") generateSiliconProblem();
     } else {
-        // Module 1 Routing - FIXED
+        // Module 1 & 2 Routing - FIXED
         if (typeof hubController === "function") {
             hubController(ctx, canvas);
         } else {
@@ -3364,6 +3371,12 @@ function hubController(ctx, canvas) {
     } else if (currentMode === 'silicon') {
         if (document.getElementById('inputGroupSilicon')) document.getElementById('inputGroupSilicon').style.display = 'inline-block';
         generateSiliconProblem(ctx, canvas);
+        
+    // ==========================================
+    // NEW ROUTER ADDED FOR IPO SORT
+    // ==========================================
+    } else if (currentMode === 'iposort') {
+        generateIPOProblem(ctx, canvas);
     }
 
     // Always ensure scoreboard is synced after a route change
@@ -3380,6 +3393,50 @@ function checkAnswers() {
 
     const feedback = document.getElementById('feedback');
     const helpBtn = document.getElementById('helpBtn');
+
+    // =======================================================
+    // IPO SORT GRADING INTERCEPTOR
+    // =======================================================
+    if (currentMode === 'iposort') {
+        const bank = document.getElementById('ipoBank');
+        if (bank.children.length > 0) {
+            feedback.innerHTML = "<span style='color: #dc3545;'>Please drag all items out of the bank first!</span>";
+            return;
+        }
+
+        if (!hasCheckedCurrentProblem) { 
+            problemsAttempted++; 
+            hasCheckedCurrentProblem = true; 
+        }
+
+        let allCorrect = true;
+        for (let id in currentIPOAnswerKey) {
+            let el = document.getElementById(id);
+            let placedZone = el.closest('.ipo-zone').getAttribute('data-type');
+            
+            if (placedZone === currentIPOAnswerKey[id]) {
+                el.style.backgroundColor = "#28a745"; // Green for correct
+            } else {
+                el.style.backgroundColor = "#dc3545"; // Red for wrong
+                allCorrect = false;
+            }
+        }
+
+        if (allCorrect) {
+            isCurrentProblemSolved = true;
+            if (canEarnPoints) { problemsCorrect++; }
+            feedback.innerHTML = "<span style='color: #198754;'>Perfect Sort! All components correct!</span>";
+            canEarnPoints = false;
+            if (helpBtn) helpBtn.style.display = 'none';
+        } else {
+            canEarnPoints = false;
+            feedback.innerHTML = "<span style='color: #dc3545;'>Some components are in the wrong place. Try moving the red ones!</span>";
+        }
+        
+        if (allCorrect && document.getElementById('checkBtn')) document.getElementById('checkBtn').style.display = 'none';
+        if (typeof updateScoreboard === "function") updateScoreboard();
+        return; // Stop here so it doesn't run the rest of the text-box checker
+    }
 
     // 2. Identify which inputs are currently active
     let activeInputs = [];
@@ -3593,6 +3650,7 @@ function checkAnswers() {
  * @param {string} str - The raw text from the input box.
  * @param {string} dropdownUnit - (Optional) The value from a unit <select> box.
  */
+    
 function parseInput(str, dropdownUnit = null) {
     if (!str && str !== 0) return null;
 
@@ -3844,6 +3902,9 @@ function hideAllInputGroups() {
     if (document.getElementById('grade9DividerBtn')) document.getElementById('grade9DividerBtn').style.display = 'none';
     if (document.getElementById('grade9ResistorBtn')) document.getElementById('grade9ResistorBtn').style.display = 'none';
 
+    // ---> NEW ADDITIONS FOR IPO SORT (SYSTEMS) <---
+    if (document.getElementById('inputGroupIPOSort')) document.getElementById('inputGroupIPOSort').style.display = 'none';
+
     // 3. Clear common UI elements
     if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = "";
     if (document.getElementById('solutions')) document.getElementById('solutions').style.display = 'none';
@@ -3884,6 +3945,10 @@ function hideAllInputGroups() {
     const symbolI = document.getElementById('unitSymbolI');
     if (symbolV) symbolV.innerHTML = "";
     if (symbolI) symbolI.innerHTML = "";
+    
+    // 9. CLEAR IPO DRAG ZONES (Prevents ghosting blocks if switching tabs mid-sort)
+    if (document.getElementById('ipoBank')) document.getElementById('ipoBank').innerHTML = "";
+    document.querySelectorAll('.ipo-zone').forEach(zone => zone.innerHTML = "");
 }
 
 // Master Switch on Load
