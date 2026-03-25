@@ -356,14 +356,43 @@
         cursor: pointer;
         border-radius: 4px; /* Adjust this if your other buttons have rounder/sharper corners */
         font-weight: bold;
-}
+        }
+    /* Make it slightly darker when the user hovers over it */
+        .btn-purple:hover {
+            background-color: #5a32a3;
+            border-color: #5a32a3;
+        }
+    /* Blue Button Styling */
+    .btn-blue {
+        background-color: #007bff; /* A clean, bright blue */
+        color: #ffffff;
+        border: 1px solid #007bff;
+        cursor: pointer;
+        border-radius: 4px; /* Adjust if your other buttons are more round or square */
+        font-weight: bold;
+    }
 
     /* Make it slightly darker when the user hovers over it */
-    .btn-purple:hover {
-        background-color: #5a32a3;
-        border-color: #5a32a3;
-}
+    .btn-blue:hover {
+        background-color: #0056b3; /* A slightly darker blue for the hover effect */
+        border-color: #0056b3;
+    }
+
+    /* Red Button Styling */
+    .btn-red {
+        background-color: #dc3545; /* A bright, clear red */
+        color: #ffffff;
+        border: 1px solid #dc3545;
+        cursor: pointer;
+        border-radius: 4px; 
+        font-weight: bold;
+    }
     
+    /* Make it slightly darker when the user hovers over it */
+    .btn-red:hover {
+        background-color: #c82333; /* A deeper red for the hover effect */
+        border-color: #c82333;
+    }
     .solutions { 
         padding: 15px; 
         background-color: #f8f9fa; 
@@ -817,14 +846,14 @@
 
     <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 15px;">
         <button id="checkansBtn" class="btn-check" onclick="checkAnswers()" style="flex: 1; margin: 0; padding: 10px 5px;">Check Answers</button>
-        <button id="showsolutionsBtn" class="btn-purple" onclick="toggleSolutions()" style="background-color: #6f42c1; border-color: #6f42c1; color: #fff; flex: 1; margin: 0; padding: 10px 5px;">Show Solutions</button>
+        <button id="showsolutionsBtn" class="btn-red" onclick="toggleSolutions()" style="background-color: #6f42c1; border-color: #6f42c1; color: #fff; flex: 1; margin: 0; padding: 10px 5px;">Show Solutions</button>
     </div>
 
     <div id="feedback" style="font-weight: bold; margin-bottom: 15px; text-align: center; min-height: 24px;"></div>
 
     <div class="controls" style="padding-top: 15px; border-top: 1px solid #e0e0e0; margin-bottom: 20px;">
         <div style="display: flex; gap: 10px; width: 100%;">
-            <button class="btn-purple" onclick="handleGenerateClick()" style="flex: 1; margin: 0; padding: 10px 5px;">New Problem</button>
+            <button class="btn-black" onclick="handleGenerateClick()" style="flex: 1; margin: 0; padding: 10px 5px;">New Problem</button>
             <button id="grade9DividerBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9DividerProblem()">🏆 Grade 9 Challenge</button>
             <button id="grade9ResistorBtn" class="btn-check" style="background-color: #FFD700 !important; color: #000 !important; display: none; flex: 1; margin: 0; padding: 10px 5px;" onclick="generateGrade9Resistance()">🏆 Grade 9 Challenge</button>
             <button id="grade9ZenerBtn" class="btn-check
