@@ -299,6 +299,11 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
 </div>
 
+<div id="menuSystems" class="tabs" style="display:none;">
+    <button class="tab" id="tab-iposort" onclick="switchTab('iposort')">IPO Sort</button>
+    <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
+</div>
+
 <div id="menuDiodes" class="tabs" style="display:none;">
     <button class="tab" id="tab-silicon" onclick="switchTab('silicon')">Silicon Diodes</button>
     <button class="tab" id="tab-zener" onclick="switchTab('zener')">Zener Diodes</button>
@@ -309,18 +314,31 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Module Under Construction - Return Home</button>
 </div>
 
+
+
+<!--==========================================
+    MAIN APPLICATION AREA                      
+    ========================================== -->
+    
 <div id="contentArea" style="display:none;">
     <div class="main-layout">
         
+    <!--    ==========================================
+            LEFT PANEL: Circuit Visuals                
+            ========================================== -->
         <div class="left-panel">
             <div class="circuit-container">
                 <canvas id="circuitCanvas" width="600" height="450"></canvas>
             </div>  
         </div>
 
+     <!-- ==========================================
+           RIGHT PANEL: Quiz & Interaction Interface  
+           ==========================================  -->
         <div class="right-panel">
             <div class="quiz-section">
                 
+            <!--  HEADER: Scoreboard & Top Actions -->
                 <div class="quiz-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #f2c7db; padding-bottom: 15px; margin-bottom: 15px;">
                     <div class="scoreboard" id="scoreDisplay" style="margin: 0;">Score: 0 / 0</div>
 
@@ -334,10 +352,16 @@
                     </div>
                 </div>
         
+                // QUESTION TEXT DISPLAY
                 <div id="questionText" style="font-weight: bold; margin-bottom: 20px; color: #333; text-align: left; min-height: 24px;"></div>
                 
+             <!-- ==========================================
+                 DYNAMIC INPUT AREA                         
+                 All possible input groups are housed here  
+                 ========================================== -->
                 <div class="input-area">
 
+                   <!-- Basic Electrical Inputs (V, I, R) -->
                     <div class="input-group" id="inputGroupV" style="display:none; align-items: center; margin-bottom: 10px;">
                         <label id="labelV" for="inputV">V = </label>
                         <input type="text" id="inputV" placeholder="e.g. 10 mV">
@@ -352,12 +376,11 @@
 
                     <div class="input-group" id="inputGroupR" style="display:none; align-items: center; gap: 5px;">
                         <label id="labelR" for="inputR">R<sub style="position: relative; top: 6px; font-size: 0.7em;">TOTAL</sub> = </label>
-    
                         <input type="text" id="inputR" placeholder="e.g. 1.2k" style="height: 45px; width: 120px; font-size: 18px; padding: 10px;">
-    
                         <span id="unitSymbolR" style="font-size: 20px; font-weight: bold; margin-left: 5px; color: #333;">&Omega;</span>
                     </div>
 
+                     <!-- 555 Timer / Frequency Inputs -->
                     <div class="input-group" id="inputGroupMonostable" style="display:none;">
                         <label id="labelMonostable" for="inputMonostable">T = </label>
                         <input type="text" id="inputMonostable" style="width: 140px;" placeholder="e.g. 1.5 s">
@@ -385,28 +408,36 @@
                         <div id="ratioInstruction" style="color: #6c757d; font-size: 0.85em; margin-top: 5px;"></div>
                     </div>
                         
+                     <!-- Oscilloscope Inputs -->
                     <div id="oscilloscopeInputs" style="display:none;">
                         <div class="input-group" id="inputGroupOscAmp" style="display:none;">
-                            <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label><input type="text" id="inputOscAmp">
+                            <label id="labelOscAmp" for="inputOscAmp">Amplitude = </label>
+                            <input type="text" id="inputOscAmp">
                         </div>
                         <div class="input-group" id="inputGroupOscMark" style="display:none;">
-                            <label id="labelOscMark" for="inputOscMark">Mark Time = </label><input type="text" id="inputOscMark">
+                            <label id="labelOscMark" for="inputOscMark">Mark Time = </label>
+                            <input type="text" id="inputOscMark">
                         </div>
                         <div class="input-group" id="inputGroupOscSpace" style="display:none;">
-                            <label id="labelOscSpace" for="inputOscSpace">Space Time = </label><input type="text" id="inputOscSpace">
+                            <label id="labelOscSpace" for="inputOscSpace">Space Time = </label>
+                            <input type="text" id="inputOscSpace">
                         </div>
                         <div class="input-group" id="inputGroupOscPeriod" style="display:none;">
-                            <label id="labelOscPeriod" for="inputOscPeriod">Time Period = </label><input type="text" id="inputOscPeriod">
+                            <label id="labelOscPeriod" for="inputOscPeriod">Time Period = </label>
+                            <input type="text" id="inputOscPeriod">
                         </div>
                         <div class="input-group" id="inputGroupOscFreq" style="display:none;">
-                            <label id="labelOscFreq" for="inputOscFreq">Frequency = </label><input type="text" id="inputOscFreq">
+                            <label id="labelOscFreq" for="inputOscFreq">Frequency = </label>
+                            <input type="text" id="inputOscFreq">
                         </div>
                         <div class="input-group" id="inputGroupOscRatio" style="display:none;">
-                        <div class="input-spacer"></div> <label>Ratio = </label>
+                            <div class="input-spacer"></div>
+                            <label>Ratio = </label>
                             <input type="text" id="inputOscRatio" placeholder="e.g. 1/2">
                         </div>
                     </div>
 
+                     <!-- Standard Zener Diode Inputs -->
                     <div id="inputGroupZener" class="input-group" style="display:none; text-align: left; width: 100%;">
                         <div id="zenerClosedQuestions" class="input-group" style="display:none; border-left: 4px solid #E64097; padding-left: 15px; margin-bottom: 20px;">
                             <p style="margin-top:0; font-weight: bold; color: #333; margin-bottom: 15px;">Switch S is CLOSED. Calculate:</p>
@@ -433,6 +464,31 @@
                         </div>
                     </div>
 
+                     <!-- IPO Sort Drag & Drop Module -->
+                    <div id="inputGroupIPOSort" class="input-group" style="display:none; flex-direction: column; width: 100%; margin-top: 15px;">
+                        <div style="font-weight: bold; color: #333; margin-bottom: 15px; text-align: center;">
+                            Drag and drop the components from the bank into the correct stage of the system.
+                        </div>
+                        
+                        <div id="ipoBank" class="ipo-zone" ondrop="drop(event)" ondragover="allowDrop(event)" style="min-height: 60px; margin-bottom: 15px; background: #e2e3e5; border: 2px solid #ccc; border-radius: 5px; display: flex; flex-wrap: wrap; justify-content: center; padding: 10px; gap: 10px;"></div>
+                        
+                        <div class="ipo-containers" style="display: flex; justify-content: space-between; gap: 10px; width: 100%;">
+                            <div class="ipo-box" style="flex: 1; background: #f8f9fa; border: 2px solid #ccc; border-radius: 8px; padding: 10px; text-align: center;">
+                                <h3 style="margin-top: 0; color: #333; font-size: 1.1em;">Input</h3>
+                                <div id="zone-input" class="ipo-zone" data-type="input" ondrop="drop(event)" ondragover="allowDrop(event)" style="min-height: 120px; background: #fff; border: 2px dashed #aaa; border-radius: 5px; padding: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
+                            </div>
+                            <div class="ipo-box" style="flex: 1; background: #f8f9fa; border: 2px solid #ccc; border-radius: 8px; padding: 10px; text-align: center;">
+                                <h3 style="margin-top: 0; color: #333; font-size: 1.1em;">Process</h3>
+                                <div id="zone-process" class="ipo-zone" data-type="process" ondrop="drop(event)" ondragover="allowDrop(event)" style="min-height: 120px; background: #fff; border: 2px dashed #aaa; border-radius: 5px; padding: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
+                            </div>
+                            <div class="ipo-box" style="flex: 1; background: #f8f9fa; border: 2px solid #ccc; border-radius: 8px; padding: 10px; text-align: center;">
+                                <h3 style="margin-top: 0; color: #333; font-size: 1.1em;">Output</h3>
+                                <div id="zone-output" class="ipo-zone" data-type="output" ondrop="drop(event)" ondragover="allowDrop(event)" style="min-height: 120px; background: #fff; border: 2px dashed #aaa; border-radius: 5px; padding: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                     <!-- Grade 9 Challenge Zener Inputs -->
                     <div id="inputGroupGrade9Zener" class="input-group" style="display: none; margin-top: 15px;">
                         <div id="g9ZenerClosed" style="display: none;">
                             <div style="margin-bottom: 15px;">
@@ -458,13 +514,12 @@
                     </div>
 
                     <div id="instructionPrompt" class="instruction-text" style="text-align: center; margin-bottom: 10px; font-size: 18px; display: none;"></div>
-                        
+                    
+                    <!-- Resistor Colour Code Inputs -->
                     <div class="input-group" id="inputGroupColorVal" style="display: none; justify-content: center; align-items: center; gap: 5px; margin-top: 15px; width: 100%;">
                         <input type="number" id="inputResValue" placeholder="value" style="width: 120px; text-align: center;" />
                         <span style="font-weight:bold; font-size: 1.2em;">Ω</span>
-                        
                         <span style="margin: 0 10px; font-weight:bold; font-size: 1.2em;">&plusmn;</span>
-                        
                         <input type="number" id="inputResTol" placeholder="value" style="width: 80px; text-align: center;" />
                         <span style="font-weight:bold; font-size: 1.2em;">%</span>
                     </div>
@@ -491,11 +546,21 @@
                             </div>
                         </div>
                     </div>
-                </div> <div style="margin-top: 20px;">
+
+                </div> 
+                <!-- End of Dynamic Input Area
+                
+                 ==========================================
+                    SUBMISSION & FEEDBACK SECTION              
+                 ========================================== -->
+                <div style="margin-top: 20px;">
                    <button id="checkBtn" class="btn-check" onclick="checkAnswers()" style="padding: 10px 20px; background-color: #E64097; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Check Answer(s)</button>
                     <div id="feedback" class="feedback" style="margin-top: 15px; font-weight: bold; min-height: 1.2em;"></div>
                 </div>
                     
+                <!-- ==========================================
+                     QUIZ CONTROLS                              
+                     ========================================== -->
                 <div class="controls">
                     <div style="display: flex; gap: 10px; width: 100%;">
                         <button class="btn-black" onclick="handleGenerateClick()" style="flex: 1; margin: 0; padding: 10px 5px;">New Problem</button>
@@ -506,15 +571,22 @@
                     <button id="helpBtn" class="btn-secondary" onclick="toggleSolutions()" style="display: none; width: 100%; margin-top: 5px;">Need Help? (Show Solution)</button>
                 </div>
 
+                // Step-by-Step Solutions Display
                 <div id="solutions" class="solutions" style="display:none;">
                     <h3>Step-by-Step Logic</h3>
                     <p id="solText"></p>
                 </div>
+
             </div> 
         </div> 
     </div> 
 </div> 
     
+<!-- ==========================================
+      MODALS                                     
+     ========================================== 
+
+   Score Submission Modal -->
 <div id="submissionModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <h3>Submit Your Score</h3>
@@ -539,8 +611,8 @@
     </div>
 </div>
 
+<!-- Data Sheet Modal -->
 <div id="dataSheetModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(3px); font-family: Arial, sans-serif;">
-    
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 30px; border-radius: 12px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.4); color: #333; line-height: 1.6;">
         
         <button onclick="closeDataSheet()" aria-label="Close" style="position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: #E64097; font-weight: bold; background: none; border: none; padding: 0; line-height: 1;">&times;</button>
@@ -604,7 +676,7 @@
         
     </div>
 </div>
-</body>
+
 <script>
 
 // SCRIPT STARTS NOW============================================================================      
@@ -3451,6 +3523,7 @@ function updateZenerSolution(isClosed) {
 }
     
 // The Master Reset. This hides the containers and resets the UI layout.
+<script>
 function hideAllInputGroups() {
     // 1. Reset all the grading locks
     isCurrentProblemSolved = false;
@@ -3522,7 +3595,7 @@ window.onload = function() {
     }
 };
 </script>
-</body
+</body>
 </html>
 
 
