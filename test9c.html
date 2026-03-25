@@ -3105,12 +3105,12 @@ function generateIPOProblem(ctx, canvas) {
     const qText = document.getElementById("questionText");
     qText.style.display = "block";
     
-    // First sentence is strong (bold), second sentence is em (italic)!
-    qText.innerHTML = "<strong>Drag components from below over onto the main canvas.</strong><br><em>iPads: Press and hold for a second before moving.</em>";
+    // Wrapped the second line in a span to force normal weight, smaller size, and lighter color
+    qText.innerHTML = "<strong>Drag components from below over onto the main canvas.</strong><br><span style='font-weight: normal; font-size: 0.9em; color: #777;'><em>iPads: Press and hold for a second before moving.</em></span>";
     
     qText.style.textAlign = "left"; 
     qText.style.fontSize = "1.2em"; 
-    qText.style.color = "#444";
+    qText.style.color = "#444"; // This sets the color for the main bold text
 
     // 5. Select 6 random components
     const allComps = Object.keys(ipoDictionary);
