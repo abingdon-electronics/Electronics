@@ -3468,71 +3468,12 @@ function hubController(ctx, canvas) {
     } else if (currentMode === 'silicon') {
         if (document.getElementById('inputGroupSilicon')) document.getElementById('inputGroupSilicon').style.display = 'inline-block';
         generateSiliconProblem(ctx, canvas);
-        
-    // =======================================================
-    // IPO SORT GRADING INTERCEPTOR
-    // =======================================================
-    if (currentMode === 'iposort') {
-        const bank = document.getElementById('ipoBank');
-        if (bank.children.length > 0) {
-            feedback.innerHTML = "<span style='color: #dc3545;'>Please drag all items out of the bank first!</span>";
-            return;
-        }
-
-        if (!hasCheckedCurrentProblem) { 
-            problemsAttempted++; 
-            hasCheckedCurrentProblem = true; 
-        }
-
-        let allCorrect = true;
-        for (let id in currentIPOAnswerKey) {
-            let el = document.getElementById(id);
-            let placedZone = el.closest('.ipo-zone').getAttribute('data-type');
-            
-            if (placedZone === currentIPOAnswerKey[id]) {
-                el.style.backgroundColor = "#28a745"; // Green for correct
-                el.style.color = "#fff";              
-                el.style.borderColor = "#28a745";     
-            } else {
-                el.style.backgroundColor = "#dc3545"; // Red for wrong
-                el.style.color = "#fff";              
-                el.style.borderColor = "#dc3545";     
-                allCorrect = false;
-            }
-        }
-
-        const checkansBtn = document.getElementById('checkansBtn');
-
-        if (allCorrect) {
-            // SUCCESS
-            isCurrentProblemSolved = true;
-            if (canEarnPoints) { problemsCorrect++; }
-            feedback.innerHTML = "<span style='color: #198754;'>Perfect Sort! All components correct! Click 'New Problem' to continue.</span>";
-            canEarnPoints = false;
-            
-            // Hide BOTH buttons because they are completely done
-            if (checkansBtn) checkansBtn.style.display = 'none';
-            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-            
-        } else {
-            // FAILURE
-            canEarnPoints = false; // Mark lost for not getting it first try
-            
-            // Your custom feedback!
-            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Move the red boxes to the correct zones and try again!</span>";
-            
-            // Ensure the solutions box stays closed
-            const solDiv = document.getElementById('solutions');
-            if (solDiv) solDiv.style.display = 'none'; 
-            
-            // Hide the "Show Solutions" button (since there is no text), but keep "Check Answers" visible!
-            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-        }
-        
-        if (typeof updateScoreboard === "function") updateScoreboard();
-        return; // Stop here so it doesn't run the rest of the text-box checker
     }
 }
+    
+// =======================================================================================================  
+// FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
+// =======================================================================================================   
     
 // =======================================================================================================  
 // FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
@@ -3577,26 +3518,34 @@ function checkAnswers() {
             }
         }
 
+        const checkansBtn = document.getElementById('checkansBtn');
+
         if (allCorrect) {
+            // SUCCESS
             isCurrentProblemSolved = true;
             if (canEarnPoints) { problemsCorrect++; }
             feedback.innerHTML = "<span style='color: #198754;'>Perfect Sort! All components correct! Click 'New Problem' to continue.</span>";
             canEarnPoints = false;
+            
+            // Hide BOTH buttons because they are completely done
+            if (checkansBtn) checkansBtn.style.display = 'none';
             if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+            
         } else {
-            canEarnPoints = false;
-            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Here is the solution:</span>";
-            // Force solution open for IPO!
+            // FAILURE
+            canEarnPoints = false; // Mark lost for not getting it first try
+            
+            // Your custom feedback!
+            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. Move the red boxes to the correct zones and try again!</span>";
+            
+            // Ensure the solutions box stays closed
             const solDiv = document.getElementById('solutions');
-            if (solDiv) solDiv.style.display = 'block';
-            if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+            if (solDiv) solDiv.style.display = 'none'; 
+            
+            // Hide the "Show Solutions" button (since there is no text), but keep "Check Answers" visible!
+            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
         }
         
-        // Hide BOTH buttons after checking IPO (UPDATED IDs)
-        const checkansBtn = document.getElementById('checkansBtn');
-        if (checkansBtn) checkansBtn.style.display = 'none';
-        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-
         if (typeof updateScoreboard === "function") updateScoreboard();
         return; // Stop here so it doesn't run the rest of the text-box checker
     }
@@ -4021,14 +3970,13 @@ function updateZenerSolution(isClosed) {
     const solElement = document.getElementById('solText');
     if (!solElement) return;
 
-    // FIX: Calculate the base variables from our standardized currentAnswers.
-    // In our new generator: iZ is total supply current, vL is Zener voltage.
-    // Minimum Zener Current is Total Current (iZ) - Max Load Current (iL).
     const totalCurrent = currentAnswers.iZ;
     const zenerVolts = currentAnswers.vL;
-    const minZenerCurrent = (currentAnswers.iZ - currentAnswers.iL).toFixed(1);
 
     if (isClosed) {
+        // MOVED HERE: Now it only calculates this if the switch is closed!
+        const minZenerCurrent = (currentAnswers.iZ - currentAnswers.iL).toFixed(1);
+
         solElement.innerHTML = `
             <div class="solution-card">
                 <p><strong>Solution (Switch Closed):</strong></p>
