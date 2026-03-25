@@ -646,22 +646,42 @@
         <div class="right-panel">
             <div class="quiz-section">
                 
-            <!--  HEADER: Scoreboard & Top Actions -->
-                <div class="quiz-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #f2c7db; padding-bottom: 15px; margin-bottom: 15px;">
-                    <div class="scoreboard" id="scoreDisplay" style="margin: 0;">Score: 0 / 0</div>
+            <div class="quiz-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 2px solid #f2c7db; padding-bottom: 15px; margin-bottom: 15px;">
+                    <div class="scoreboard" id="scoreDisplay" style="margin: 0; font-size: 1.2em; font-weight: bold;">Score: 0 / 0</div>
 
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn-download" id="downloadBtn" onclick="openSubmissionModal()" style="margin: 0; padding: 8px 10px; font-size: 14px; width: 120px;">
-                            ⬇️ Download
-                        </button>
-                        <button id="dataSheetBtn" class="btn-secondary" onclick="openDataSheet()" style="margin: 0; padding: 8px 10px; font-size: 14px; width: 120px;">
+                        <button id="dataSheetBtn" class="btn-secondary" onclick="openDataSheet()" style="margin: 0; padding: 8px 15px; font-size: 14px; cursor: pointer;">
                             📖 Data Sheet
-                        </button>
-                        <button id="resetBtn" onclick="resetScore()" style="background-color: #f97316; color: white; border: none; border-radius: 5px; margin: 0; padding: 8px 10px; font-size: 14px; width: 120px; cursor: pointer;">
-                            🔄 Reset
                         </button>
                     </div>
                 </div>
+        
+             <div id="questionText" style="font-weight: bold; font-size: 1.1em; margin-bottom: 20px; color: #333; text-align: left; min-height: 24px;"></div>
+                
+             <div class="input-area" style="margin-bottom: 25px;">
+
+                    </div> 
+                <div class="quiz-footer" style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-top: 2px solid #eee; padding-top: 15px; margin-top: 10px; flex-wrap: wrap; gap: 15px;">
+                    
+                    <div class="primary-actions">
+                        <button id="submitAnswerBtn" onclick="checkAnswer()" style="background-color: #4CAF50; color: white; border: none; border-radius: 5px; padding: 10px 20px; font-size: 16px; font-weight: bold; cursor: pointer;">
+                            ✅ Check Answer
+                        </button>
+                    </div>
+
+                    <div class="secondary-actions" style="display: flex; gap: 10px;">
+                        <button class="btn-download" id="downloadBtn" onclick="openSubmissionModal()" style="padding: 8px 10px; font-size: 14px; width: 120px; cursor: pointer;">
+                            ⬇️ Download
+                        </button>
+                        <button id="resetBtn" onclick="resetScore()" style="background-color: #f97316; color: white; border: none; border-radius: 5px; padding: 8px 10px; font-size: 14px; width: 120px; cursor: pointer;">
+                            🔄 Reset
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
         
              <!--QUESTION TEXT DISPLAY -->
                 <div id="questionText" style="font-weight: bold; margin-bottom: 20px; color: #333; text-align: left; min-height: 24px;"></div>
