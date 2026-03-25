@@ -1082,6 +1082,12 @@ function showOhmUnitInstruction() {
     }
 }
 
+// Cleans up answers by removing spaces so students aren't penalized for them
+    function acceptSpaces(answer) {
+        if (!answer) return "";
+        return answer.toString().replace(/\s+/g, ''); 
+    }
+
 // =======================================================================================================
 // FUNCTION 1: DRAWING Helpers
 // =======================================================================================================
