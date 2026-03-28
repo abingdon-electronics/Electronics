@@ -2356,13 +2356,7 @@ function generateOscilloscopeProblem() {
     // 7. UNHIDE AND SET THE QUESTION TEXT
     const qText = document.getElementById('questionText');
     if (qText) {
-        if (qType === 1) {
-            qText.innerHTML = "Calculate the Amplitude, Mark time, and Space time for the waveform shown.";
-        } else if (qType === 2) {
-            qText.innerHTML = "Calculate the Amplitude, Period (T), and Frequency (f) of the waveform.";
-        } else {
-            qText.innerHTML = "Calculate the Amplitude and the Mark-to-Space ratio of the waveform.";
-        }
+        qText.innerHTML = "Determine the oscilloscope measurements.";
         qText.style.display = 'block'; 
     }
 }
@@ -2516,7 +2510,7 @@ function generateAstableProblem() {
             qText.innerHTML = "Calculate the astable frequency and period.";
         } else {
             // Updated text here so it fits on one line!
-            qText.innerHTML = "Determine the astable Mark-Space ratio.";
+            qText.innerHTML = "Determine the astable mark-space ratio.";
         }
         qText.style.display = 'block'; 
     }
@@ -2767,7 +2761,7 @@ function generateMonostableProblem() {
     const qText = document.getElementById('questionText');
     if (qText) {
         if (qType === 1) {
-            qText.innerHTML = "Calculate the monostableo pulse length.";
+            qText.innerHTML = "Calculate the monostable pulse length.";
         } else if (qType === 2) {
             qText.innerHTML = "Calculate R for the given pulse length.";
         } else {
