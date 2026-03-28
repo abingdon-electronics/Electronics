@@ -2647,11 +2647,15 @@ function generateMonostableProblem() {
         if (inputMono) inputMono.placeholder = "e.g. 5.5 s"; 
         currentAnswers.expectedT = roundedTime;
         currentAnswers.expectedUnit = "s"; 
+        
+        // ---> THE FIX: Hide the answer text when asking for Pulse Length <---
+        tLabel = "Pulse Length = ?"; 
+        
     } else if (qType === 2) { // Calculating Resistance
         if (monoLabel) monoLabel.innerHTML = "R = ";
         if (inputMono) inputMono.placeholder = "e.g. 100 kΩ"; 
         
-        // FIX: Calculate expected R based on the rounded time shown to the student
+        // Calculate expected R based on the rounded time shown to the student
         const expectedR = roundedTime / (1.1 * C_farads * 1000); 
         currentAnswers.expectedT = parseFloat(expectedR.toFixed(1));
         
@@ -2661,7 +2665,7 @@ function generateMonostableProblem() {
         if (monoLabel) monoLabel.innerHTML = "C = ";
         if (inputMono) inputMono.placeholder = "e.g. 47 μF"; 
         
-        // FIX: Calculate expected C based on the rounded time shown to the student
+        // Calculate expected C based on the rounded time shown to the student
         const expectedC = (roundedTime / (1.1 * R1_ohms)) * 1000000;
         currentAnswers.expectedT = parseFloat(expectedC.toFixed(1));
         
