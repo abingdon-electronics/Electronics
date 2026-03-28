@@ -741,7 +741,15 @@
     <div id="inputGroupMarkSpace" style="display:none; flex-direction: column; align-items: center; margin-top: 15px; margin-bottom: 15px;">
         
         <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
-            <label for="inputMarkSpace" style="font-weight: bold; margin-right: 10px; margin-bottom: 0;">Ratio = </label>
+            
+            <div style="display: flex; align-items: center; margin-right: 10px;">
+                <div style="display: flex; flex-direction: column; align-items: center; font-weight: bold; line-height: 1.2;">
+                    <span style="border-bottom: 2px solid #333; padding: 0 4px;">T<sub>ON</sub></span>
+                    <span style="padding: 0 4px;">T<sub>OFF</sub></span>
+                </div>
+                <span style="font-weight: bold; margin-left: 8px;">=</span>
+            </div>
+            
             <input type="text" id="inputMarkSpace" style="width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
@@ -2507,7 +2515,8 @@ function generateAstableProblem() {
         if (qType === 0) {
             qText.innerHTML = "Calculate the Frequency (f) and Period (T) of the 555 astable circuit.";
         } else {
-            qText.innerHTML = "Determine the Mark-to-Space ratio of the output waveform.";
+            // Updated text here so it fits on one line!
+            qText.innerHTML = "Determine the Mark-Space ratio of the output.";
         }
         qText.style.display = 'block'; 
     }
