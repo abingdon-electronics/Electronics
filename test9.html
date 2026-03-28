@@ -2183,33 +2183,25 @@ function generateColorCodeProblem(ctx, canvas) {
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = solTextStr;
     
-   // 7. Dynamic Instruction Text & Visibility Fix
+    // 7. Dynamic Instruction Text & Visibility Fix
     const qText = document.getElementById('questionText');
     const instruction = document.getElementById('instructionPrompt');
 
     if (qText) qText.style.display = 'block'; 
+    if (instruction) instruction.style.display = 'none'; // Hide the secondary text block
 
     if (qType === 0) {
         if (typeof showOhmUnitInstruction === 'function') {
             showOhmUnitInstruction();
         }
-        
+        // Simplified text, placed in the main heading element
         if (qText) {
-            qText.innerHTML = "Determine the resistance value and tolerance from the colour bands shown.";
-        }
-        
-        if (instruction) {
-            instruction.style.display = 'block';
-            instruction.innerHTML = "<strong>State the value and tolerance of the resistor.</strong>";
+            qText.innerHTML = "State the value and tolerance of the resistor.";
         }
     } else {
+        // Simplified text, placed in the main heading element
         if (qText) {
-            qText.innerHTML = "Determine the required colour bands for the given resistance value and tolerance.";
-        }
-        
-        if (instruction) {
-            instruction.style.display = 'block';
-            instruction.innerHTML = "<strong>Identify the resistor colour codes.</strong>";
+            qText.innerHTML = "Identify the resistor colour codes.";
         }
     }
 }
