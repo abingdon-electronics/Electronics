@@ -1085,7 +1085,17 @@ function showOhmUnitInstruction() {
         qText.style.display = 'block';
     }
 }
-
+// Used exclusively when giving dp instruction  
+function showDPinstruction() {
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.minHeight = "60px"; // Reserves space so the buttons don't jump
+        qText.innerHTML = `<div style="font-size: 16px; line-height: 1.2;">Enter value to 1 decimal place followed by a standard unit symbol<br>
+                           <em style="font-size: 15px; color: #666; font-weight: normal;">(e.g., 5.2 A, 12.0 mV).</em></div>`;
+        qText.style.display = 'block';
+    }
+}
+    
 // Cleans up answers by removing spaces so students aren't penalized for them
     function acceptSpaces(answer) {
         if (!answer) return "";
@@ -1954,9 +1964,11 @@ function generateGrade9DividerProblem() {
     // Update Question Text
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML = "<strong>🏆 Grade 9 Challenge:</strong> Calculate V<sub>OUT</sub>. <em>(Give your answer to 1 decimal place)</em>";
-        // ---> NEW: UNHIDE THE QUESTION TEXT <---
-        qText.style.display = 'block'; 
+        // 1. Call your function to load the standard DP/unit instruction layout
+        showDPinstruction(); 
+        
+        // 2. Drop the Grade 9 text right on top of it with a nice gap!
+        qText.innerHTML = `<div style="margin-bottom: 10px;"><strong>🏆 Grade 9 Challenge:</strong> Calculate V<sub>OUT</sub>.</div>` + qText.innerHTML;
     }
 
     // Determine units visually
