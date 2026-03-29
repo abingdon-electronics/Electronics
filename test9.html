@@ -1640,7 +1640,7 @@ function generateResistanceProblem(ctx, canvas) {
     // ---> NEW: 7. UNHIDE AND SET THE QUESTION TEXT <---
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML = "Calculate the total circuit resistance.";
+        qText.innerHTML = "Calculate the total resistance.";
         qText.style.display = 'block'; // THIS brings the text back!
     }
 }
@@ -1763,7 +1763,7 @@ function generateGrade9Resistance() {
         showDPinstruction(); 
         
         // 2. Drop the Grade 9 text right on top of it with a nice gap!
-        qText.innerHTML = `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong> Calculate the total equivalent resistance.</div>` + qText.innerHTML;
+        qText.innerHTML = `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong> Calculate the total resistance.</div>` + qText.innerHTML;
         
         // 3. Ensure the text box is visible 
         qText.style.display = 'block'; 
