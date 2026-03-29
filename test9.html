@@ -3119,10 +3119,10 @@ function generateGrade9ZenerProblem() {
             
             // 2. Drop the Grade 9 Zener text right on top of it with a nice gap!
             qText.innerHTML = `<div style="margin-bottom: 10px;">
-                <strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong> The switch S is <strong>OPEN</strong>.<br>
+                <strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong> The switch S is <strong>CLOSED</strong>.<br>
                 Calculate:<br>
                 1. Max Zener Power dissipation<br>
-                2. Minimum Zener power rating needed (to 1 sig fig)
+                2. Min Zener power rating needed (to 1 sig fig)
             </div>` + qText.innerHTML;
             
             // 3. Ensure the text box is visible
@@ -3166,7 +3166,12 @@ function generateGrade9ZenerProblem() {
             showDPinstruction(); 
             
             // 2. Drop the Grade 9 Zener text right on top of it with a nice gap!
-            qText.innerHTML = `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong> The switch S is <strong>OPEN</strong>. Calculate max Zener Power and hence the minimum Zener Power rating needed to 1 sig fig.</div>` + qText.innerHTML;
+            qText.innerHTML = `<div style="margin-bottom: 10px;">
+                <strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong> The switch S is <strong>OPEN</strong>.<br>
+                Calculate:<br>
+                1. Max Zener Power dissipation<br>
+                2. Min Zener power rating needed (to 1 sig fig)
+            </div>` + qText.innerHTML;
             
             // 3. Ensure the text box is visible
             qText.style.display = 'block'; 
