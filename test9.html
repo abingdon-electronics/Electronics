@@ -1453,7 +1453,7 @@ function generateResistanceProblem(ctx, canvas) {
     // BRING BACK THE GRADE 9 BUTTON
     const g9ResBtn = document.getElementById('grade9ResistorBtn');
     if (g9ResBtn) {
-        g9ResBtn.style.display = 'flex';
+        g9ResBtn.style.display = 'inline-block';
     }
     
     // Standardized instruction for Ohms/Prefixes
@@ -1939,7 +1939,7 @@ function generateGrade9DividerProblem() {
     
     // Turn the Grade 9 button back on
     if (document.getElementById('grade9DividerBtn')) {
-        document.getElementById('grade9DividerBtn').style.display = 'flex';
+        document.getElementById('grade9DividerBtn').style.display = 'inline-block';
     }
     
     // Bring back the specific Input Group
@@ -1954,7 +1954,7 @@ function generateGrade9DividerProblem() {
     // Update Question Text
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML = "<strong>🏆 Grade 9 Challenge:</strong> Calculate the output voltage (V<sub>OUT</sub>) for this parallel-series network. <em>(Give your answer to 1 decimal place)</em>";
+        qText.innerHTML = "<strong>🏆 Grade 9 Challenge:</strong> Calculate (V<sub>OUT</sub>). <em>(Give your answer to 1 decimal place)</em>";
         // ---> NEW: UNHIDE THE QUESTION TEXT <---
         qText.style.display = 'block'; 
     }
