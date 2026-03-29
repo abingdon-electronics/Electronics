@@ -1450,6 +1450,12 @@ function generateResistanceProblem(ctx, canvas) {
     hideAllInputGroups(); 
     currentMode = 'resistance'; // Flags the grader to use resistance logic
 
+    // BRING BACK THE GRADE 9 BUTTON
+    const g9ResBtn = document.getElementById('grade9ResistorBtn');
+    if (g9ResBtn) {
+        g9ResBtn.style.display = 'flex';
+    }
+    
     // Standardized instruction for Ohms/Prefixes
     if (typeof showOhmUnitInstruction === "function") {
         showOhmUnitInstruction(); 
@@ -1742,6 +1748,12 @@ function generateDividerProblem(ctx, canvas) {
     // 0. RESET UI & STATE
     hideAllInputGroups(); 
     currentMode = 'divider';
+
+    // BRING BACK THE GRADE 9 DIVIDER BUTTON
+    const g9DivBtn = document.getElementById('grade9DividerBtn');
+    if (g9DivBtn) {
+        g9DivBtn.style.display = 'flex';
+    }
 
     // TURN ON ONLY THE V BOX
     const groupV = document.getElementById('inputGroupV');
