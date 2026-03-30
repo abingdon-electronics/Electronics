@@ -2294,7 +2294,7 @@ function generateOscilloscopeProblem() {
     hideAllInputGroups(); 
     currentMode = 'oscilloscope';
 
-    // THE FIX: Ensure the main container and check button are visible
+    // Ensure the main container and check button are visible
     const scopeWrapper = document.getElementById('oscilloscopeInputs');
     if (scopeWrapper) scopeWrapper.style.display = "block";
     
@@ -2334,7 +2334,7 @@ function generateOscilloscopeProblem() {
     ctx.beginPath(); ctx.moveTo(220, 20); ctx.lineTo(220, 340); ctx.stroke(); 
 
     // 4. SETUP VARIABLES & MATH
-    if (typeof currentAnswers === "undefined") currentAnswers = {}; // Initialize safety
+    if (typeof currentAnswers === "undefined") currentAnswers = {}; 
 
     let vGainUnit = Math.random() < 0.5 ? 'V' : 'mV';
     let tBaseUnit = Math.random() < 0.5 ? 'ms' : 's';
@@ -2382,7 +2382,7 @@ function generateOscilloscopeProblem() {
     }
     ctx.stroke();
 
-    // 6. QUESTION TYPE UI LOGIC
+    // 6. QUESTION TYPE UI LOGIC (UPDATED)
     const qType = Math.floor(Math.random() * 3) + 1;
     currentAnswers.oscQType = qType;
 
@@ -2392,29 +2392,41 @@ function generateOscilloscopeProblem() {
         if (el) el.style.display = "none";
     });
 
+    // ALL scenarios require Amplitude
     document.getElementById('inputGroupOscAmp').style.display = "inline-block";
     document.getElementById('inputOscAmp').placeholder = "e.g. 5 " + vGainUnit;
 
     let solTextStr = "<strong>Amplitude = " + amplitude + " " + vGainUnit + "</strong><br>Logic: " + ampDivs + " divs &times; " + vGain + " " + vGainUnit + "/div<br><br>";
 
     if (qType === 1) {
-        document.getElementById('inputGroupOscMark').style.display = "inline-block";
-        document.getElementById('inputGroupOscSpace').style.display = "inline-block";
-        document.getElementById('inputOscMark').placeholder = "e.g. 10 " + tBaseUnit;
-        document.getElementById('inputOscSpace').placeholder = "e.g. 5 " + tBaseUnit;
-        solTextStr += "<strong>Mark:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit + "<br>";
-        solTextStr += "<strong>Space:</strong> " + spaceDivs + " divs &times; " + tBase + tBaseUnit + " = " + (spaceDivs*tBase) + tBaseUnit;
-    } else if (qType === 2) {
+        // Scenario 1: Amplitude, Period, Frequency
         document.getElementById('inputGroupOscPeriod').style.display = "inline-block";
         document.getElementById('inputGroupOscFreq').style.display = "inline-block";
         document.getElementById('inputOscPeriod').placeholder = "e.g. 20 " + tBaseUnit;
         document.getElementById('inputOscFreq').placeholder = "e.g. 50 Hz";
+        
         solTextStr += "<strong>Period (T):</strong> " + (markDivs+spaceDivs) + " divs &times; " + tBase + tBaseUnit + " = " + periodTime + tBaseUnit + "<br>";
         let fLogic = tBaseUnit === 'ms' ? `1000 / ${periodTime} ms` : `1 / ${periodTime} s`;
         solTextStr += `<strong>Frequency (f):</strong> ${fLogic} = <strong>${freq_rounded} Hz</strong>`;
+
+    } else if (qType === 2) {
+        // Scenario 2: Amplitude, Mark Time, Mark Space Ratio
+        document.getElementById('inputGroupOscMark').style.display = "inline-block";
+        document.getElementById('inputGroupOscRatio').style.display = "inline-block";
+        document.getElementById('inputOscMark').placeholder = "e.g. 10 " + tBaseUnit;
+        document.getElementById('inputOscRatio').placeholder = "e.g. 1/2";
+        
+        solTextStr += "<strong>Mark Time:</strong> " + markDivs + " divs &times; " + tBase + tBaseUnit + " = " + (markDivs*tBase) + tBaseUnit + "<br>";
+        solTextStr += "<strong>M/S Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = <strong>" + currentAnswers.oscRatioValue + "</strong>";
+
     } else {
-        document.getElementById('inputGroupOscRatio').style.display = "block";
-        document.getElementById('inputOscRatio').placeholder = "e.g. 1/2"; 
+        // Scenario 3: Amplitude, Space Time, Mark Space Ratio
+        document.getElementById('inputGroupOscSpace').style.display = "inline-block";
+        document.getElementById('inputGroupOscRatio').style.display = "inline-block";
+        document.getElementById('inputOscSpace').placeholder = "e.g. 5 " + tBaseUnit;
+        document.getElementById('inputOscRatio').placeholder = "e.g. 1/2";
+        
+        solTextStr += "<strong>Space Time:</strong> " + spaceDivs + " divs &times; " + tBase + tBaseUnit + " = " + (spaceDivs*tBase) + tBaseUnit + "<br>";
         solTextStr += "<strong>M/S Ratio:</strong> Mark (" + markDivs + " divs) / Space (" + spaceDivs + " divs) = <strong>" + currentAnswers.oscRatioValue + "</strong>";
     }
 
@@ -3797,10 +3809,15 @@ function checkAnswers() {
     else if (currentMode === 'divider') activeInputs = ['inputV'];
     else if (currentMode === 'resistance') activeInputs = ['inputR']; 
     else if (currentMode === 'oscilloscope') {
+        // ALL scenarios use Amplitude
         activeInputs = ['inputOscAmp'];
-        if (currentAnswers.oscQType === 1) activeInputs.push('inputOscMark', 'inputOscSpace');
-        else if (currentAnswers.oscQType === 2) activeInputs.push('inputOscPeriod', 'inputOscFreq');
-        else activeInputs.push('inputOscRatio');
+        if (currentAnswers.oscQType === 1) {
+            activeInputs.push('inputOscPeriod', 'inputOscFreq');
+        } else if (currentAnswers.oscQType === 2) {
+            activeInputs.push('inputOscMark', 'inputOscRatio');
+        } else {
+            activeInputs.push('inputOscSpace', 'inputOscRatio');
+        }
     }
     else if (currentMode === 'colorcode') {
         // UPGRADE: Relies on the state flag you set in generation, rather than CSS checking!
@@ -3820,7 +3837,6 @@ function checkAnswers() {
     }
 
     // 3. Check for empty boxes (Protects them from losing points if they accidentally click Check early!)
-    // UPGRADE: Used optional chaining (?.) for a cleaner, safer null-check
     let hasEmptyBox = activeInputs.some(id => !document.getElementById(id) || document.getElementById(id)?.value.trim() === '');
     if (hasEmptyBox) {
         feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a value!</span>";
@@ -3865,15 +3881,18 @@ function checkAnswers() {
         results.push(validateMatch(parseInput(cleanStr), currentAnswers.rValue, currentAnswers.rTargetUnit || 'Ω'));
 
     } else if (currentMode === 'oscilloscope') {
+        // ALWAYS grade amplitude
         results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputOscAmp').value)), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
         
         if (currentAnswers.oscQType === 1) {
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputOscMark').value)), currentAnswers.oscMarkValue, currentAnswers.oscMarkUnit));
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputOscSpace').value)), currentAnswers.oscSpaceValue, currentAnswers.oscSpaceUnit));
-        } else if (currentAnswers.oscQType === 2) {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputOscPeriod').value)), currentAnswers.oscPeriodValue, currentAnswers.oscPeriodUnit));
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputOscFreq').value)), currentAnswers.oscFreqValue, currentAnswers.oscFreqUnit));
+        } else if (currentAnswers.oscQType === 2) {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputOscMark').value)), currentAnswers.oscMarkValue, currentAnswers.oscMarkUnit));
+            const userRatio = document.getElementById('inputOscRatio').value;
+            results.push(acceptSpaces(userRatio) === acceptSpaces(currentAnswers.oscRatioValue) ? 'correct' : 'wrongval');
         } else {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputOscSpace').value)), currentAnswers.oscSpaceValue, currentAnswers.oscSpaceUnit));
             const userRatio = document.getElementById('inputOscRatio').value;
             results.push(acceptSpaces(userRatio) === acceptSpaces(currentAnswers.oscRatioValue) ? 'correct' : 'wrongval');
         }
