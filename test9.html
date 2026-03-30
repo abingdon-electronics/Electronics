@@ -1448,14 +1448,22 @@ function generateAnalysisProblem(ctx, canvas) {
 // ***************************************************
 
 // This function deals with adding resistances in series and parallel
+// This function deals with adding resistances in series and parallel
 function generateResistanceProblem(ctx, canvas) {
     // ==========================================
     // 1. INSTANT UI STABILIZATION (NO REFLOWS)
     // ==========================================
-    hideAllInputGroups(); 
+    
+    // Selectively hide ONLY the groups we aren't using to prevent container collapse
+    const groupV = document.getElementById('inputGroupV');
+    const groupI = document.getElementById('inputGroupI');
+    if (groupV) groupV.style.display = 'none';
+    if (groupI) groupI.style.display = 'none';
+    // Notice we do NOT hide inputGroupR, so it never collapses!
+
     currentMode = 'resistance'; 
 
-    // IMMEDIATELY unhide the exact boxes we need before the browser can collapse the height
+    // IMMEDIATELY ensure the Resistance box is visible
     const groupR = document.getElementById('inputGroupR') || document.getElementById('inputGroupV');
     if (groupR) groupR.style.display = 'flex'; 
 
@@ -1491,22 +1499,22 @@ function generateResistanceProblem(ctx, canvas) {
     // ==========================================
     // 2. LOAD INSTRUCTIONS TEXT (NO OVERWRITING)
     // ==========================================
-        const qText = document.getElementById('questionText');
-        if (qText) {
-            // 1. Lock the height immediately so the buttons below can't jump up
-            qText.style.minHeight = "60px"; 
-            
-            // 2. Build the exact HTML string in memory (this doesn't trigger a screen redraw)
-            let combinedInstructions = `<div style="margin-bottom: 10px;">Calculate the total resistance.</div>`;
-            
-            // Add your Ohm/Prefix instructions directly to our string
-            combinedInstructions += `<div style="font-size: 16px; line-height: 1.2;">Enter the value with or without a prefix<br>
-                                     <em style="font-size: 15px; color: #666; font-weight: normal;">(e.g., 520, 83k, or 6.1M).</em></div>`;
-            
-            // 3. Update the DOM exactly ONCE
-            qText.innerHTML = combinedInstructions;
-            qText.style.display = 'block'; 
-        }
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        // 1. Lock the height immediately so the buttons below can't jump up
+        qText.style.minHeight = "60px"; 
+        
+        // 2. Build the exact HTML string in memory (this doesn't trigger a screen redraw)
+        let combinedInstructions = `<div style="margin-bottom: 10px;">Calculate the total resistance.</div>`;
+        
+        // Add your Ohm/Prefix instructions directly to our string
+        combinedInstructions += `<div style="font-size: 16px; line-height: 1.2;">Enter the value with or without a prefix<br>
+                                 <em style="font-size: 15px; color: #666; font-weight: normal;">(e.g., 520, 83k, or 6.1M).</em></div>`;
+        
+        // 3. Update the DOM exactly ONCE
+        qText.innerHTML = combinedInstructions;
+        qText.style.display = 'block'; 
+    }
 
     // ==========================================
     // 3. CANVAS DRAWING & MATH LOGIC
