@@ -1465,7 +1465,7 @@ function generateResistanceProblem(ctx, canvas) {
         showOhmUnitInstruction(); 
     }
 
-    // 1. SHOW AND RESET THE INPUT BOX
+// 1. SHOW AND RESET THE INPUT BOX
     // Fallbacks added to link up perfectly with the HTML layout
     const groupR = document.getElementById('inputGroupR') || document.getElementById('inputGroupV');
     if (groupR) {
@@ -1476,23 +1476,27 @@ function generateResistanceProblem(ctx, canvas) {
     const unitSpan = document.getElementById('unitSymbolR') || document.getElementById('unitSymbolV'); 
     const oldDropdown = document.getElementById('unitR');    
     
+    if (oldDropdown) {
+        oldDropdown.style.display = 'none'; // Keep it hidden immediately
+    }
+
     if (inputR) {
         inputR.placeholder = "e.g. 1.2k"; 
         inputR.value = "";              
+        
+        // FIX: Force the border back to standard grey instantly to prevent color-ghosting
+        inputR.style.borderColor = "#ccc";
+        inputR.style.borderWidth = "2px";
+        inputR.style.borderStyle = "solid";
     }
     
     if (unitSpan) {
         unitSpan.innerHTML = "&Omega;"; // Fixed symbol outside the box
     }
     
-    if (oldDropdown) {
-        oldDropdown.style.display = 'none'; // Cleanup legacy UI
-    }
-    
     // 2. SET THE PINK LABEL
     const labelV = document.getElementById('labelV');
     if (labelV) {
-        // I swapped brandPink variable for the actual hex just in case it wasn't defined in this scope
         labelV.innerHTML = "<span style='color:#E64097'>R<sub>total</sub></span> = "; 
     }
 
