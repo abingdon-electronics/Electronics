@@ -4151,7 +4151,7 @@ function provideHint() {
                 <div style="${blueBox}">
                     <strong>💡 Hint:</strong><br>
                     • <b>Digits (Bands 1 & 2):</b> Match the first two numbers to their colours.<br>
-                    • <b>Multiplier(Band 3):</b> How many zeros follow the first two numbers?<br>
+                    • <b>Multiplier (Band 3):</b> How many zeros follow the first two numbers?<br>
                     • <b>Tolerance (Band 4):</b> Gold is 5%, Silver is 10%.<br>
                 </div>`;
         }
@@ -4185,6 +4185,31 @@ function provideHint() {
                     2. Use Ohm's Law (<b>I = V / R</b>) on the load resistor to find I<sub>L</sub>.
                 </div>`;
         }
+    } else if (currentMode === 'analysis') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint:</strong><br>
+                • <b>Current:</b> Splits or recombines at junctions.<br>
+                • <b>Voltage (Series):</b> Resistors in series divide voltage.<br>
+                • <b>Voltage (Parallel):</b> Resistors in parallel have equal voltage.
+            </div>`;
+    } else if (currentMode === 'diode' || currentMode === 'silicon') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint:</strong><br>
+                • Voltage splits across series components.<br>
+                • Use the <b>Potential Divider equation</b> from the Data Sheet.
+            </div>`;
+    } else if (currentMode === 'resistance') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint:</strong><br>
+                • <b>Series:</b> Resistances add together (R<sub>T</sub> = R<sub>1</sub> + R<sub>2</sub>...).<br>
+                • <b>Parallel:</b> Use the formula:<br>
+                <div style="text-align:center; margin-top:5px; font-weight:bold;">
+                    R<sub>T</sub> = (R<sub>1</sub> × R<sub>2</sub>) / (R<sub>1</sub> + R<sub>2</sub>)
+                </div>
+            </div>`;
     } else {
         // Potential Divider & General
         helpText = `
