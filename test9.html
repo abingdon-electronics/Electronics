@@ -1763,7 +1763,7 @@ function generateGrade9Resistance() {
         showDPinstruction(); 
         
         // 2. Drop the Grade 9 text right on top of it with a nice gap!
-        qText.innerHTML = `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong> Calculate R<sub>total</sub></div>` + qText.innerHTML;
+        qText.innerHTML = `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge.</strong><br> Calculate R<sub>total</sub></div>` + qText.innerHTML;
         
         // 3. Ensure the text box is visible 
         qText.style.display = 'block'; 
@@ -1989,7 +1989,7 @@ function generateGrade9DividerProblem() {
         showDPinstruction(); 
         
         // 2. Drop the Grade 9 text right on top of it with a nice gap!
-        qText.innerHTML = `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong> Calculate V<sub>OUT</sub></div>` + qText.innerHTML;
+        qText.innerHTML = `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge.<br></strong> Calculate V<sub>OUT</sub></div>` + qText.innerHTML;
     }
 
     // Determine units visually
@@ -3116,7 +3116,7 @@ function generateGrade9ZenerProblem() {
         if (qText) {
             // Drop the Grade 9 Zener text, adding the rounding rules directly to the list!
             qText.innerHTML = `<div style="margin-bottom: 10px;">
-                <strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong><br>The switch S is <strong>closed</strong>. Calculate:<br>
+                <strong style="color: #D4A017;">🏆 Grade 9 Challenge.</strong><br>The switch S is <strong>closed</strong>. Calculate:<br>
                 1. Max Zener power dissipation (to 1 dp)<br>
                 2. Min Zener power rating needed (to 1 sig fig)
             </div>
@@ -3161,7 +3161,7 @@ function generateGrade9ZenerProblem() {
         if (qText) {
             // Drop the Grade 9 Zener text, adding the rounding rules directly to the list!
             qText.innerHTML = `<div style="margin-bottom: 10px;">
-                <strong style="color: #D4A017;">🏆 Grade 9 Challenge:</strong><br>The switch S is <strong>open</strong>. Calculate:<br>
+                <strong style="color: #D4A017;">🏆 Grade 9 Challenge.</strong><br>The switch S is <strong>open</strong>. Calculate:<br>
                 1. Zener current (to 1 dp)<br>
                 2. Load current (to 1 sig fig)
             </div>
