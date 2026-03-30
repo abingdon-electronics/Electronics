@@ -3799,11 +3799,11 @@ function hubController(ctx, canvas) {
     viewedSolution = false; 
     unitErrorMade = false; 
 
-   // 3. Clear text containers
+    // 3. Clear text containers without collapsing the height!
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML = '';
-        qText.style.display = 'none'; // Keep hidden unless a module needs it
+        qText.innerHTML = '&nbsp;'; // Use a non-breaking space instead of ''
+        // Leave display as it is, do not force it to 'none' here!
     }
 
     // 4. ROUTER: Setup the UI for the specific mode
@@ -3822,8 +3822,9 @@ function hubController(ctx, canvas) {
     } else if (currentMode === 'resistance') {
         if (document.getElementById('inputGroupR')) document.getElementById('inputGroupR').style.display = 'inline-block';
         if (document.getElementById('grade9ResistorBtn')) document.getElementById('grade9ResistorBtn').style.display = 'inline-block';
-        // Small timeout helps some browsers render the canvas instructions correctly
-        setTimeout(() => { if (typeof generateResistanceProblem === "function") generateResistanceProblem(ctx, canvas); }, 20);
+        
+        // INSTANT EXECUTION: Removed the 20ms timeout!
+        if (typeof generateResistanceProblem === "function") generateResistanceProblem(ctx, canvas);
 
     } else if (currentMode === 'oscilloscope') {
         const oscWrapper = document.getElementById('oscilloscopeInputs');
@@ -3859,7 +3860,7 @@ function hubController(ctx, canvas) {
         // Wired up! Let the IPO generation begin!
         if (typeof generateIPOProblem === "function") generateIPOProblem(ctx, canvas);
     }
-}            
+}
             
 // =======================================================================================================  
 // FUNCTION 5. INPUT PROCESS AND SCORING (THE GRADERS) 
