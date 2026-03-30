@@ -4188,8 +4188,8 @@ const blueBox = `text-align:left; background:#e0f8ff; color:#0077b6; padding:15p
     } else if (currentMode === 'oscilloscope') {
         helpText = `
             <div style="${blueBox}">
-                <strong>💡 Hint:</strong> <i>Amplitude</i> is the vertical height from the center line to the peak. 
-                <i>Period (T)</i> is the horizontal time for one full cycle. Use <b>f = 1 / T</b>.
+                <strong>💡 Hint:</strong> For dc pulses, <i>Amplitude</i> is the height from pulse bottom to top.
+                <i>Period (T)</i> is the time for one full cycle. <i>Frequency</i> can be calculated from T using the data sheet formula.
             </div>`;
     } else if (currentMode === 'astable') {
         helpText = `
