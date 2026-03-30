@@ -2854,6 +2854,11 @@ function clearZenerInputs() {
 }
 
 function generateZenerProblem() {
+    // ---> NEW: Force the hint box to hide immediately <---
+    const hintBox = document.getElementById('hintBox');
+    if (hintBox) {
+        hintBox.style.display = 'none';
+    }
     // 0. RESET UI & STATE
     hideAllInputGroups();
     currentMode = 'zener';
