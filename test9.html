@@ -695,9 +695,9 @@
             </div>
         </div>
 
-        <div style="flex: 0 0 auto; display: flex; gap: 10px; margin-bottom: 12px;">
+        <<div style="flex: 0 0 auto; display: flex; gap: 10px; margin-bottom: 12px;">
             <button id="dataSheetBtn" class="btn-secondary" onclick="openDataSheet()" style="margin: 0; padding: 8px; font-size: 14px; flex: 1;">📖 Data Sheet</button>
-            <button id="showsolutionsBtn" class="btn-red" onclick="toggleSolutions()" style="margin: 0; padding: 8px; font-size: 14px; flex: 1;">🛟 Help</button>
+            <button id="hintBtn" class="btn-red" onclick="showHint()" style="margin: 0; padding: 8px; font-size: 14px; flex: 1;">💡 Hint</button>
         </div>
 
         <div id="scrollableArea" style="flex: 0 1 auto; overflow-y: auto; padding-right: 5px;">
@@ -4207,6 +4207,45 @@ function toggleSolutions() {
     
     if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
     if (checkansBtn) checkansBtn.style.display = 'none';
+}
+
+function showHint() {
+    // 1. Look for a hint box. If it doesn't exist yet, build it!
+    let hintBox = document.getElementById('hintBox');
+    
+    if (!hintBox) {
+        hintBox = document.createElement('div');
+        hintBox.id = 'hintBox';
+        
+        // Style it to look like a friendly, non-punishing alert box (Light Blue)
+        hintBox.style.backgroundColor = '#e0f8ff'; 
+        hintBox.style.border = '1px solid #90e0ef';
+        hintBox.style.color = '#0077b6';
+        hintBox.style.padding = '12px';
+        hintBox.style.borderRadius = '8px';
+        hintBox.style.marginBottom = '15px';
+        hintBox.style.fontSize = '15px';
+        
+        // Inject it right underneath the button row
+        const buttonsDiv = document.getElementById('hintBtn').parentElement;
+        buttonsDiv.insertAdjacentElement('afterend', hintBox);
+    }
+
+    // 2. Check which problem the student is currently working on
+    const isSwitchOpen = document.getElementById('zenerOpenQuestions').style.display !== 'none';
+
+    // 3. Inject the correct formulas based on the problem
+    if (isSwitchOpen) {
+        hintBox.innerHTML = "<strong>💡 Hint (Switch OPEN):</strong> The load is disconnected. <br>1. Find total source current (I<sub>S</sub>) using the main resistor. <br>2. All current flows through the Zener, so I<sub>Z</sub> = I<sub>S</sub>. <br>3. Finally, use P<sub>Z</sub> = I<sub>Z</sub> &times; V<sub>Z</sub>";
+    } else {
+        hintBox.innerHTML = "<strong>💡 Hint (Switch CLOSED):</strong> The Zener is in parallel with the load. <br>1. This means Load Voltage (V<sub>L</sub>) equals Zener Voltage (V<sub>Z</sub>). <br>2. Use Ohm's Law (I = V/R) on the load resistor to find I<sub>L</sub>.";
+    }
+
+    // 4. Show the hint box (Notice we DO NOT set canEarnPoints = false!)
+    hintBox.style.display = 'block';
+    
+    // Optional: Hide the hint button after they click it once so it doesn't clutter the screen
+    document.getElementById('hintBtn').style.display = 'none';
 }
 // ==========================================
 // FINAL INITIALIZATION (Place at the end of your .js file)
