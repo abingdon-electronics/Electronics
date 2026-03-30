@@ -695,11 +695,10 @@
         </div>
         </div>
 
-       <div style="flex: 0 0 auto; display: flex; gap: 10px; margin-bottom: 12px;">
-            <button id="dataSheetBtn" onclick="openDataSheet()" style="background-color: #ffffff; color: #6c757d; border: 2px solid #6c757d; border-radius: 5px; margin: 0; padding: 8px; font-size: 14px; flex: 1; cursor: pointer; font-weight: bold;">📖 Data Sheet</button>
-            <button id="hintBtn" onclick="provideHint()" style="background-color: #ffffff; color: #0077b6; border: 2px solid #0077b6; border-radius: 5px; margin: 0; padding: 8px; font-size: 14px; flex: 1; cursor: pointer; font-weight: bold;">💡 Hint</button>
+       <div style="display: flex; gap: 10px; flex: 2;">
+            <button id="resetBtn" onclick="resetScore()" style="background-color: #ffffff; color: #f97316; border: 2px solid #f97316; border-radius: 5px; margin: 0; padding: 8px 10px; font-size: 14px; flex: 1; cursor: pointer; font-weight: bold;">🔄 Reset</button>
+            <button id="downloadBtn" onclick="openSubmissionModal()" style="background-color: #43B3AE; color: white; border: none; border-radius: 5px; margin: 0; padding: 8px 10px; font-size: 14px; flex: 1; cursor: pointer; font-weight: bold;">⬇️ Submit</button>
         </div>
-
         <div id="scrollableArea" style="flex: 0 1 auto; overflow-y: auto; padding-right: 5px;">
             <div id="questionText" style="font-weight: bold; margin-bottom: 12px; color: #333; text-align: left; min-height: 20px; line-height: 1.2;"></div>
             
