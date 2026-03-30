@@ -1444,62 +1444,69 @@ function generateAnalysisProblem(ctx, canvas) {
     }
     showUnitInstruction();
 }
-// ======================================================
-// Total Resistance Problem
-// ======================================================
+    
+// ***************************************************
 
 // This function deals with adding resistances in series and parallel
 function generateResistanceProblem(ctx, canvas) {
-    // 0. RESET UI & STATE
+    // ==========================================
+    // 1. INSTANT UI STABILIZATION (NO REFLOWS)
+    // ==========================================
     hideAllInputGroups(); 
-    currentMode = 'resistance'; // Flags the grader to use resistance logic
+    currentMode = 'resistance'; 
 
-    // BRING BACK THE GRADE 9 BUTTON
-    const g9ResBtn = document.getElementById('grade9ResistorBtn');
-    if (g9ResBtn) {
-        g9ResBtn.style.display = 'inline-block';
-    }
-    
-    // Standardized instruction for Ohms/Prefixes
-    if (typeof showOhmUnitInstruction === "function") {
-        showOhmUnitInstruction(); 
-    }
-
-    // 1. SHOW AND RESET THE INPUT BOX
+    // IMMEDIATELY unhide the exact boxes we need before the browser can collapse the height
     const groupR = document.getElementById('inputGroupR') || document.getElementById('inputGroupV');
-    if (groupR) {
-        groupR.style.display = 'flex'; 
-    }
-    
-    const inputR = document.getElementById('inputR') || document.getElementById('inputV');
-    const unitSpan = document.getElementById('unitSymbolR') || document.getElementById('unitSymbolV'); 
+    if (groupR) groupR.style.display = 'flex'; 
+
+    const g9ResBtn = document.getElementById('grade9ResistorBtn');
+    if (g9ResBtn) g9ResBtn.style.display = 'inline-block';
+
+    // Swap the dropdown for the Omega symbol instantly
     const oldDropdown = document.getElementById('unitR');    
+    if (oldDropdown) oldDropdown.style.display = 'none';
     
-    if (oldDropdown) {
-        oldDropdown.style.display = 'none'; // Cleanup legacy UI
-    }
-    
+    const unitSpan = document.getElementById('unitSymbolR') || document.getElementById('unitSymbolV'); 
+    if (unitSpan) unitSpan.innerHTML = "&Omega;"; 
+
+    const labelV = document.getElementById('labelV');
+    if (labelV) labelV.innerHTML = "<span style='color:#E64097'>R<sub>total</sub></span> = "; 
+
+    // Clear old feedback without collapsing vertical height
+    const feedback = document.getElementById('feedback');
+    if (feedback) feedback.innerHTML = "&nbsp;"; 
+    const solutions = document.getElementById('solutions');
+    if (solutions) solutions.style.display = 'none';
+
+    // Setup the input box instantly
+    const inputR = document.getElementById('inputR') || document.getElementById('inputV');
     if (inputR) {
         inputR.placeholder = "e.g. 1.2k"; 
         inputR.value = "";              
-        
-        // Fix for the invisible border bug from earlier!
         inputR.style.borderColor = "#ccc";
         inputR.style.borderWidth = "2px";
         inputR.style.borderStyle = "solid";
     }
+
+    // ==========================================
+    // 2. LOAD INSTRUCTIONS TEXT
+    // ==========================================
+    if (typeof showOhmUnitInstruction === "function") showOhmUnitInstruction(); 
     
-    if (unitSpan) {
-        unitSpan.innerHTML = "&Omega;"; 
-    }
-    
-    // 2. SET THE PINK LABEL
-    const labelV = document.getElementById('labelV');
-    if (labelV) {
-        labelV.innerHTML = "<span style='color:#E64097'>R<sub>total</sub></span> = "; 
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        if (typeof showDPinstruction === "function") showDPinstruction(); 
+        
+        // Safety check: Only add the text if it isn't already there from a previous click
+        if (!qText.innerHTML.includes("Calculate the total resistance")) {
+            qText.innerHTML = `<div style="margin-bottom: 10px;">Calculate the total resistance.</div>` + qText.innerHTML;
+        }
+        qText.style.display = 'block'; 
     }
 
-    // 3. PREPARE CANVAS AND RANDOMIZE UNIT
+    // ==========================================
+    // 3. CANVAS DRAWING & MATH LOGIC
+    // ==========================================
     const rUnitVisual = Math.random() < 0.5 ? 'k\u03A9' : '\u03A9';
     const expectedRUnit = rUnitVisual === 'k\u03A9' ? 'kΩ' : 'Ω';
 
@@ -1515,11 +1522,11 @@ function generateResistanceProblem(ctx, canvas) {
     ctx.fillText("+Vsupply", 260, 45); 
     ctx.fillText("GND", 260, 390);
 
-    // 4. SELECT SCENARIO (0: Series, 1: Parallel, 2: Mixed)
     const scenario = Math.floor(Math.random() * 3);
     let rTotal, logicHTML;
 
     if (scenario === 0) {
+        // --- SCENARIO 0: SERIES ---
         const r1 = (Math.floor(Math.random() * 10) + 1) * 10; 
         const r2 = (Math.floor(Math.random() * 10) + 1) * 10;
         rTotal = r1 + r2;
@@ -1539,6 +1546,7 @@ function generateResistanceProblem(ctx, canvas) {
         logicHTML += "R<sub>Total</sub> = " + r1 + " + " + r2 + " = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
 
     } else if (scenario === 1) {
+        // --- SCENARIO 1: PARALLEL ---
         const pairs = [
             {r1: 10, r2: 10, req: 5}, {r1: 30, r2: 60, req: 20}, 
             {r1: 12, r2: 24, req: 8}, {r1: 40, r2: 40, req: 20},
@@ -1569,6 +1577,7 @@ function generateResistanceProblem(ctx, canvas) {
         logicHTML += "R<sub>Total</sub> = (" + pair.r1 + " &times; " + pair.r2 + ") / (" + pair.r1 + " + " + pair.r2 + ") = <strong>" + rTotal + " " + rUnitVisual + "</strong>";
 
     } else {
+        // --- SCENARIO 2: SERIES-PARALLEL (MIXED) ---
         const sp = [
             {r1: 10, r2: 20, r3: 20, rp: 10, req: 20}, 
             {r1: 15, r2: 30, r3: 60, rp: 20, req: 35}, 
@@ -1602,25 +1611,17 @@ function generateResistanceProblem(ctx, canvas) {
         logicHTML += "R<sub>Total</sub> = R<sub>1</sub> + R<sub>p</sub> = " + s.r1 + " + " + s.rp + " = <strong>" + s.req + " " + rUnitVisual + "</strong>";
     }
 
-    // 5. STORE CORRECT ANSWERS FOR GRADER
+    // ==========================================
+    // 4. SAVE DATA & UPDATE SOLUTIONS
+    // ==========================================
     currentAnswers.rValue = rTotal; 
     currentAnswers.rTargetUnit = expectedRUnit; 
     
-    // 6. UPDATE SOLUTION DRAWER
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = logicHTML;
-
-    // ---> NEW FIX: 7. EXACT GRADE 9 TEXT LOGIC <---
-    const qText = document.getElementById('questionText');
-    if (qText) {
-        // 1. Run the instruction function exactly like Grade 9 does
-        if (typeof showDPinstruction === "function") showDPinstruction(); 
-        
-        // 2. Prepend our text (using + qText.innerHTML) so we don't destroy the layout height!
-        qText.innerHTML = `<div style="margin-bottom: 10px;">Calculate the total resistance.</div>` + qText.innerHTML;
-        qText.style.display = 'block'; 
-    }
 }
+
+//****************************************************************
     
 function generateGrade9Resistance() {
     const canvas = document.getElementById('circuitCanvas');
@@ -1747,11 +1748,9 @@ function generateGrade9Resistance() {
     }
 }
 
+//*************************************************************************
 
-// =======================================================
 //  Generates the Potential Divider Problem (4-Variables)
-// =======================================================
-
 function generateDividerProblem(ctx, canvas) {
     // 0. RESET UI & STATE
     hideAllInputGroups(); 
