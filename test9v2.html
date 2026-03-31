@@ -805,6 +805,41 @@
         
     </div>
 
+    <div id="inputGroupGrade9Zener" class="input-group" style="display: none; flex-direction: column;">
+        
+        <div id="g9ZenerClosed" style="display: none; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <label style="min-width: 80px; margin-bottom: 0; text-align: right; margin-right: 10px;">
+                    <span style="font-weight: bold !important; font-size: 16px !important; color: #E64097 !important;">I<sub>L(max)</sub> =</span>
+                </label> 
+                <input type="text" id="g9IL" class="form-control" style="max-width: 140px; border-radius: 8px; border: 2px solid #ccc; text-align: center; font-style: italic; color: #888;" placeholder="e.g. 15.2 mA">
+            </div>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <label style="min-width: 80px; margin-bottom: 0; text-align: right; margin-right: 10px;">
+                    <span style="font-weight: bold !important; font-size: 16px !important; color: #E64097 !important;">I<sub>Z</sub> =</span>
+                </label> 
+                <input type="text" id="g9IZ" class="form-control" style="max-width: 140px; border-radius: 8px; border: 2px solid #ccc; text-align: center; font-style: italic; color: #888;" placeholder="e.g. 24.5 mA">
+            </div>
+        </div>
+        
+        <div id="g9ZenerOpen" style="display: none;">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <label style="min-width: 80px; margin-bottom: 0; text-align: right; margin-right: 10px;">
+                    <span style="font-weight: bold !important; font-size: 16px !important; color: #E64097 !important;">P<sub>Z(max)</sub> =</span>
+                </label> 
+                <input type="text" id="g9PZ" class="form-control" style="max-width: 140px; border-radius: 8px; border: 2px solid #ccc; text-align: center; font-style: italic; color: #888;" placeholder="e.g. 120 mW">
+            </div>
+            
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <label style="min-width: 80px; margin-bottom: 0; text-align: right; margin-right: 10px;">
+                    <span style="font-weight: bold !important; font-size: 16px !important; color: #E64097 !important;">Rating =</span>
+                </label> 
+                <input type="text" id="g9Rating" class="form-control" style="max-width: 140px; border-radius: 8px; border: 2px solid #ccc; text-align: center; font-style: italic; color: #888;" placeholder="e.g. 400 mW">
+            </div>
+        </div>
+        
+    </div>
                 <div id="inputGroupIPOSort" class="input-group" style="display:none; width: 100%; margin-top: 10px;">
                     <div style="display: flex; flex-direction: column; width: 100%; align-items: center; background-color: #ffffff; padding: 10px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e9ecef; box-sizing: border-box;">
                         <div id="ipoBank" class="ipo-zone" ondrop="drop(event)" ondragover="allowDrop(event)" style="min-height: 50px; width: 100%; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 5px; gap: 10px; box-sizing: border-box; transition: all 0.2s ease-in-out;">
@@ -812,16 +847,7 @@
                     </div>
                 </div>
 
-                <div id="inputGroupGrade9Zener" class="input-group" style="display: none;">
-                    <div id="g9ZenerClosed" style="display: none;">
-                        <label>Max I<sub>L</sub>: </label> <input type="text" id="g9IL">
-                        <label>Zener I<sub>Z</sub>: </label> <input type="text" id="g9IZ">
-                    </div>
-                    <div id="g9ZenerOpen" style="display: none;">
-                        <label>Max P<sub>Z</sub>: </label> <input type="text" id="g9PZ">
-                        <label>Min P<sub>Z</sub> Rating: </label> <input type="text" id="g9Rating">
-                    </div>
-                </div>
+                
 
                 <div class="input-group" id="inputGroupColorVal" style="display: none; justify-content: center; gap: 5px;">
                     <input type="number" id="inputResValue" placeholder="Value" style="width: 80px;"> Ω ± 
@@ -849,8 +875,8 @@
             <div style="display: flex; gap: 8px; width: 100%;">
                 <button onclick="handleGenerateClick()" style="background-color: #9571B9; color: white; border: none; border-radius: 5px; flex: 1; padding: 10px 5px; font-size: 14px; cursor: pointer; font-weight: bold;">❓ New Question</button>
                 <button id="grade9DividerBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="generateGrade9DividerProblem()">🚀 Grade 9</button>
-<button id="grade9ResistorBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="generateGrade9Resistance()">🚀 Grade 9</button>
-<button id="grade9ZenerBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="generateGrade9ZenerProblem()">🚀 Grade 9</button>
+                <button id="grade9ResistorBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="generateGrade9Resistance()">🚀 Grade 9</button>
+                <button id="grade9ZenerBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="generateGrade9ZenerProblem()">🚀 Grade 9</button>
             </div>
 
             <div id="solutions" class="solutions" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-left: 4px solid #E64097;">
