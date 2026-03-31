@@ -563,30 +563,28 @@
 </div>
 
 <div id="menuBasics" class="tabs" style="display:none;">
-    <!-- Added reset logic to these buttons-->
-    <button class="tab" id="tab-analysis" onclick="problemsAttempted=0; problemsCorrect=0; updateScoreboard(); switchTab('analysis')">Circuit Analysis</button>
-    <button class="tab" id="tab-divider" onclick="problemsAttempted=0; problemsCorrect=0; updateScoreboard(); switchTab('divider')">Potential Divider</button>
-    <button class="tab" id="tab-resistance" onclick="problemsAttempted=0; problemsCorrect=0; updateScoreboard(); switchTab('resistance')">Total Resistance</button>
-    <button class="tab" id="tab-colorcode" onclick="problemsAttempted=0; problemsCorrect=0; updateScoreboard(); switchTab('colorcode')">Colour Codes</button>
+    <button class="tab" id="tab-analysis" onclick="safeSwitchTab('analysis')">Circuit Analysis</button>
+    <button class="tab" id="tab-divider" onclick="safeSwitchTab('divider')">Potential Divider</button>
+    <button class="tab" id="tab-resistance" onclick="safeSwitchTab('resistance')">Total Resistance</button>
+    <button class="tab" id="tab-colorcode" onclick="safeSwitchTab('colorcode')">Colour Codes</button>
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
 </div>
 
 <div id="menuTiming" class="tabs" style="display:none;">
-    <button class="tab" id="tab-oscilloscope" onclick="switchTab('oscilloscope')">Oscilloscope</button>
-    <button class="tab" id="tab-astable" onclick="switchTab('astable')">Astable 555</button>
-    <button class="tab" id="tab-monostable" onclick="switchTab('monostable')">Monostable 555</button>
-    <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
+    <button class="tab" id="tab-oscilloscope" onclick="safeSwitchTab('oscilloscope')">Oscilloscope</button>
+    <button class="tab" id="tab-astable" onclick="safeSwitchTab('astable')">Astable 555</button>
+    <button class="tab" id="tab-monostable" onclick="safeSwitchTab('monostable')">Monostable 555</button>
+    <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
 <div id="menuSystems" class="tabs" style="display:none;">
-    <button class="tab" id="tab-iposort" onclick="switchTab('iposort')">IPO Sort</button>
-    <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
+    <button class="tab" id="tab-iposort" onclick="safeSwitchTab('iposort')">IPO Sort</button>
+    <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
 <div id="menuDiodes" class="tabs" style="display:none;">
-    <button class="tab" id="tab-silicon" onclick="problemsAttempted=0; problemsCorrect=0; updateScoreboard(); switchTab('silicon')">Silicon Diodes</button>
-    <!--  This is the specific one that takes them out of Grade 9 Zener back to basic Zener-->
-    <button class="tab" id="tab-zener" onclick="problemsAttempted=0; problemsCorrect=0; updateScoreboard(); switchTab('zener')">Zener Diodes</button>
+    <button class="tab" id="tab-silicon" onclick="safeSwitchTab('silicon')">Silicon Diodes</button>
+    <button class="tab" id="tab-zener" onclick="safeSwitchTab('zener')">Zener Diodes</button>
     <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
 </div>
     
@@ -1172,6 +1170,27 @@ function transitionToGrade9(generatorFunction) {
     if (typeof generatorFunction === 'function') {
         generatorFunction();
     }
+}
+
+    // SAFE TAB SWITCHING (Warns before reset)
+// ==========================================
+function safeSwitchTab(tabName) {
+    // If they have a score, warn them before switching tabs
+    if (problemsAttempted > 0) {
+        const wantsToProceed = confirm("Warning: Changing topics will reset your current score to 0. Do you want to continue?");
+        if (!wantsToProceed) {
+            return; // Cancelled, do nothing
+        }
+    }
+    
+    // If they clicked "OK" (or score is 0), wipe score and switch tab
+    problemsAttempted = 0;
+    problemsCorrect = 0;
+    if (typeof updateScoreboard === 'function') {
+        updateScoreboard();
+    }
+    
+    switchTab(tabName);
 }
 
 //**************************************************************
