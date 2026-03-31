@@ -4266,7 +4266,8 @@ const blueBox = `text-align:left; background:#e0f8ff; color:#0077b6; padding:15p
             <div style="${blueBox}">
                 <strong>💡 Hint:</strong> Use the formula on the data sheet!
             </div>`;
-    } else if (currentMode === 'zener' || currentMode === 'grade9zener') {
+    } else if (currentMode === 'zener') {
+        // Original standard Zener hints
         const isSwitchOpen = document.getElementById('zenerOpenQuestions') && document.getElementById('zenerOpenQuestions').style.display !== 'none';
         if (isSwitchOpen) {
             helpText = `
@@ -4282,6 +4283,23 @@ const blueBox = `text-align:left; background:#e0f8ff; color:#0077b6; padding:15p
                     <strong>💡 Hint (Switch CLOSED):</strong> The Zener is in parallel with the load.<br>
                     1. This means Load Voltage (V<sub>L</sub>) equals Zener Voltage (V<sub>Z</sub>).<br>
                     2. Use Ohm's Law (<b>I = V / R</b>) on the load resistor to find I<sub>L</sub>.
+                </div>`;
+        }
+        
+    } else if (currentMode === 'grade9zener') {
+        // NEW: Grade 9 specific hints!
+        // Check the Grade 9 specific ID to see if the switch is open
+        const isG9SwitchOpen = document.getElementById('g9ZenerOpen') && document.getElementById('g9ZenerOpen').style.display !== 'none';
+        
+        if (isG9SwitchOpen) {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint (Switch OPEN):</strong> The Zener diode power rating can never be below the power dissipated by the existing circuit set up.
+                </div>`;
+        } else {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint (Switch CLOSED):</strong> First calculate the Load current using Ohm's law. All other current passes through the Zener diode.
                 </div>`;
         }
     } else if (currentMode === 'analysis') {
