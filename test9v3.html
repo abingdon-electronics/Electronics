@@ -4210,7 +4210,7 @@ function parseInput(str, dropdownUnit = null) {
     return { val: isNaN(val) ? null : val, unit: '', dp: dp, tol: tol }; 
 }
 
-// **********************************************************************
+
 // **********************************************************************
 function validateMatch(parsedInput, expectedVal, expectedUnit) {
     if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
@@ -4257,6 +4257,19 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
         userVal *= 1000; userTol *= 1000; userUnit = 'μF';
     } else if (targetUnit === 'mF' && userUnit === 'μF') {
         userVal /= 1000; userTol /= 1000; userUnit = 'mF';
+    // NEW: Auto-convert nanoFarads and picoFarads added here!
+    } else if (targetUnit === 'μF' && userUnit === 'nF') {
+        userVal /= 1000; userTol /= 1000; userUnit = 'μF';
+    } else if (targetUnit === 'nF' && userUnit === 'μF') {
+        userVal *= 1000; userTol *= 1000; userUnit = 'nF';
+    } else if (targetUnit === 'μF' && userUnit === 'pF') {
+        userVal /= 1000000; userTol /= 1000000; userUnit = 'μF';
+    } else if (targetUnit === 'pF' && userUnit === 'μF') {
+        userVal *= 1000000; userTol *= 1000000; userUnit = 'pF';
+    } else if (targetUnit === 'nF' && userUnit === 'pF') {
+        userVal /= 1000; userTol /= 1000; userUnit = 'nF';
+    } else if (targetUnit === 'pF' && userUnit === 'nF') {
+        userVal *= 1000; userTol *= 1000; userUnit = 'pF';
     }
 
     const diff = Math.abs(userVal - expectedVal);
