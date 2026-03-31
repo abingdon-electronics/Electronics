@@ -3831,9 +3831,8 @@ function checkAnswers() {
     const feedback = document.getElementById('feedback');
     const showsolutionsBtn = document.getElementById('showsolutionsBtn');
 
-    // =======================================================
+   
     // IPO SORT GRADING INTERCEPTOR
-    // =======================================================
     if (currentMode === 'iposort') {
         const bank = document.getElementById('ipoBank');
         if (bank && bank.children.length > 0) {
@@ -4103,13 +4102,12 @@ function checkAnswers() {
     
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
-    
+// **********************************************************************
 /**
  * Upgraded Hybrid Parser
  * @param {string} str - The raw text from the input box.
  * @param {string} dropdownUnit - (Optional) The value from a unit <select> box.
  */
-    
 function parseInput(str, dropdownUnit = null) {
     if (!str && str !== 0) return null;
 
@@ -4166,6 +4164,13 @@ function parseInput(str, dropdownUnit = null) {
             normalizedUnit = "s";
         }
 
+        // POWER: W, watts, watt, mW, milliwatts (NEW)
+        else if (lowerUnit.match(/^(milliwatts|milliwatt|mwatts|mwatt)$/) || rawUnit === 'mW') {
+            normalizedUnit = "mW";
+        } else if (lowerUnit.match(/^(watts|watt)$/) || rawUnit === 'W') {
+            normalizedUnit = "W";
+        }
+
         // FREQUENCY: Standardized to "Hz" regardless of user input casing
         else if (lowerUnit.match(/^(hertz|hz)$/)) {
             normalizedUnit = 'Hz'; 
@@ -4182,34 +4187,64 @@ function parseInput(str, dropdownUnit = null) {
     return { val: isNaN(finalVal) ? null : finalVal, unit: '' }; 
 }
 
+// **********************************************************************
+
 function validateMatch(parsedInput, expectedVal, expectedUnit) {
     // 1. BASIC VALIDATION
     if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
     
-    // 2. RATIO CHECK (Unitless)
-    if (expectedUnit === 'ratio') {
-        return Math.abs(parsedInput.val - expectedVal) < 0.01 ? 'correct' : 'wrongval';
-    }
-    
-    // 3. VALUE MATCHING (With Floating Point Safety)
-    const diff = Math.abs(parsedInput.val - expectedVal);
-    // Allow 1% margin OR a very tiny absolute margin for small values (mA/mV)
-    const valMatch = diff < (Math.abs(expectedVal) * 0.01) || diff < 0.000001;
-    
-    // 4. UNIT MATCHING 
+    let userVal = parsedInput.val;
     let userUnit = (parsedInput.unit || "").trim();
     let targetUnit = (expectedUnit || "").trim(); 
 
+    // 2. RATIO CHECK (Unitless)
+    if (targetUnit === 'ratio') {
+        return Math.abs(userVal - expectedVal) < 0.01 ? 'correct' : 'wrongval';
+    }
+    
+    // 3. AUTO-CONVERT EQUIVALENT UNITS (NEW)
+    if (targetUnit === 'mA' && userUnit === 'A') {
+        userVal *= 1000;
+        userUnit = 'mA';
+    } else if (targetUnit === 'A' && userUnit === 'mA') {
+        userVal /= 1000;
+        userUnit = 'A';
+    } else if (targetUnit === 'mW' && userUnit === 'W') {
+        userVal *= 1000;
+        userUnit = 'mW';
+    } else if (targetUnit === 'W' && userUnit === 'mW') {
+        userVal /= 1000;
+        userUnit = 'W';
+    } else if (targetUnit === 'mV' && userUnit === 'V') {
+        userVal *= 1000;
+        userUnit = 'mV';
+    } else if (targetUnit === 'V' && userUnit === 'mV') {
+        userVal /= 1000;
+        userUnit = 'V';
+    } else if (targetUnit === 'kΩ' && userUnit === 'Ω') {
+        userVal /= 1000;
+        userUnit = 'kΩ';
+    } else if (targetUnit === 'Ω' && userUnit === 'kΩ') {
+        userVal *= 1000;
+        userUnit = 'Ω';
+    }
+
+    // 4. VALUE MATCHING (With Floating Point Safety)
+    const diff = Math.abs(userVal - expectedVal);
+    // Allow 1% margin OR a very tiny absolute margin for small values (mA/mV)
+    const valMatch = diff < (Math.abs(expectedVal) * 0.01) || diff < 0.000001;
+    
+    // 5. UNIT MATCHING 
     // Logic for strict casing:
     let unitMatch = (userUnit === targetUnit);
     
     // BASE UNIT LENIENCY:
-    // Accept blank units if the target is a base unit (Ω, V, or A)
-    if ((targetUnit === "Ω" || targetUnit === "V" || targetUnit === "A") && userUnit === "") {
+    // Accept blank units if the target is a base unit (Ω, V, A, or W)
+    if ((targetUnit === "Ω" || targetUnit === "V" || targetUnit === "A" || targetUnit === "W") && userUnit === "") {
         unitMatch = true;
     }
 
-    // 5. FINAL DECISION
+    // 6. FINAL DECISION
     if (valMatch && unitMatch) return 'correct';
     
     // Specialized feedback trigger: Number is right, units are wrong!
@@ -4217,12 +4252,13 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     
     return 'wrongval';
 }
-    
+// **********************************************************************       
 function updateScoreboard() {
     const scoreDisplay = document.getElementById('scoreDisplay');
     if (scoreDisplay) scoreDisplay.innerText = "Score: " + problemsCorrect + " / " + problemsAttempted;
 }
 
+// **********************************************************************   
 function resetScore() {
     // 1. Reset all your score tracking variables to 0
     if (typeof problemsCorrect !== 'undefined') problemsCorrect = 0;
@@ -4245,7 +4281,8 @@ function resetScore() {
         feedback.innerHTML = "<span style='color: #198754; font-weight: bold;'>Score reset! You've got this!</span>";
     }
 }
-    
+
+// **********************************************************************      
 function provideHint() {
     if (isCurrentProblemSolved) return;
 
@@ -4370,6 +4407,7 @@ const blueBox = `text-align:left; background:#e0f8ff; color:#0077b6; padding:15p
     feedback.innerHTML = helpText;
 }
 
+// **********************************************************************   
 function toggleSolutions() {
     const sol = document.getElementById('solutions');
     if (!sol) return; // Safety check: if the solution box doesn't exist, stop here
@@ -4389,6 +4427,7 @@ function toggleSolutions() {
     if (checkansBtn) checkansBtn.style.display = 'none';
 }
 
+// **********************************************************************   
 // ==========================================
 // FINAL INITIALIZATION (Place at the end of your .js file)
 // ==========================================
