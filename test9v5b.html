@@ -1027,16 +1027,33 @@ function handleGenerateClick() {
     const checkansBtn = document.getElementById('checkansBtn');
     if (checkansBtn) checkansBtn.style.display = 'block'; 
 
-    // ---> THE FIX: DO NOT COLLAPSE THE HEIGHT <---
+    // ---> DO NOT COLLAPSE THE HEIGHT <---
     // Use &nbsp; instead of "" so the div stays exactly the same height!
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "&nbsp;";
 
     // ==========================================
-    // ---> ESCAPE THE GRADE 9 LOOP <---
+    // ---> THE FIX: RE-SHOW THE CANVAS CONTAINER <---
+    // ==========================================
+    const circuitContainer = document.getElementById('circuitContainer');
+    if (circuitContainer) circuitContainer.style.display = 'block';
+    
+    const circuitCanvas = document.getElementById('circuitCanvas');
+    if (circuitCanvas) circuitCanvas.style.display = 'block';
+
+    // Hide the IPO workstation just in case it was left open
+    const canvasIPOWorkstation = document.getElementById('canvasIPOWorkstation');
+    if (canvasIPOWorkstation) canvasIPOWorkstation.style.display = 'none';
+
+    // ==========================================
+    // ---> ESCAPE THE GRADE 9 LOOPS <---
     // ==========================================
     if (currentMode === 'grade9zener') {
         currentMode = 'zener';
+    } else if (currentMode === 'grade9divider') {
+        currentMode = 'divider';
+    } else if (currentMode === 'grade9resistance') {
+        currentMode = 'resistance';
     }
 
     // ==========================================
@@ -1054,7 +1071,7 @@ function handleGenerateClick() {
     } else if (currentMode === 'analysis') {
         generateAnalysisProblem(ctx, canvas); 
     } else {
-        // Handles Astable, Monostable, Oscilloscope, and Resistance
+        // Handles Astable, Monostable, Oscilloscope, Divider, Resistance, etc.
         if (typeof hubController === "function") hubController(ctx, canvas);
     }
 }
