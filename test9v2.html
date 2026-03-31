@@ -3176,7 +3176,13 @@ function generateGrade9ZenerProblem() {
         V_unregulated = Vin * (RL / (R1 + RL));
     } while (V_unregulated <= Vz + 1);
 
-    const switchClosed = Math.random() > 0.5;
+    // THE FIX: Use the global tracker to alternate perfectly between 0 and 1
+    const qType = scenarioTracker.grade9zener;
+    scenarioTracker.grade9zener = (scenarioTracker.grade9zener + 1) % 2;
+
+    // Map the tracker to the switch state (0 = closed, 1 = open)
+    const switchClosed = (qType === 0);
+    
     currentZenerState = switchClosed ? "closed" : "open"; 
     
     // Core Calculations
