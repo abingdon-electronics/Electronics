@@ -1066,6 +1066,7 @@ function showUnitInstruction() {
     // This is used to cycle though the various question scenarios for individual pages
 const scenarioTracker = {
     colorcode: 0,
+    astable: 0,
     oscilloscope: 0,
     analysis: 0,
     zener: 0
@@ -2479,7 +2480,10 @@ function generateAstableProblem() {
     const ratioString = (num / common) + "/" + (den / common);
 
     // 5. CHOOSE QUESTION TYPE
-    const qType = Math.floor(Math.random() * 2);
+    // Use the global tracker to alternate perfectly
+    const qType = scenarioTracker.astable;
+    scenarioTracker.astable = (scenarioTracker.astable + 1) % 2;
+    
     if (typeof currentAnswers === "undefined") currentAnswers = {};
     currentAnswers.astableQType = qType;
 
