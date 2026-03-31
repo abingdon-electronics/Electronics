@@ -1093,6 +1093,7 @@ function showUnitInstruction() {
 const scenarioTracker = {
     colorcode: 0,
     astable: 0,
+    monostable: 0,
     oscilloscope: 0,
     analysis: 0,
     zener: 0,
@@ -2719,8 +2720,10 @@ function generateMonostableProblem() {
  
     if (typeof currentAnswers === "undefined") currentAnswers = {};
     
-    // 2. DECIDE QUESTION TYPE (1: Find T, 2: Find R, 3: Find C)
-    const qType = Math.floor(Math.random() * 3) + 1;
+    // 2. DECIDE QUESTION TYPE (Cycle sequentially 1 -> 2 -> 3)
+    scenarioTracker.monostable = (scenarioTracker.monostable % 3) + 1;
+    const qType = scenarioTracker.monostable;
+    
     currentAnswers.monoQType = qType;
 
     let rLabel = R1_k + " k\u03a9";
@@ -4388,12 +4391,12 @@ const blueBox = `text-align:left; background:#e0f8ff; color:#0077b6; padding:15p
     } else if (currentMode === 'astable') {
         helpText = `
             <div style="${blueBox}">
-                <strong>💡 Hint:</strong> Use the formula on the data sheet!
+                <strong>💡 Hint:</strong> Use the astable formula on the data sheet!
             </div>`;
     } else if (currentMode === 'monostable') {
         helpText = `
             <div style="${blueBox}">
-                <strong>💡 Hint:</strong> Use the formula on the data sheet!
+                <strong>💡 Hint:</strong> Use the monostable formula on the data sheet!
             </div>`;
     } else if (currentMode === 'zener') {
         // Original standard Zener hints
