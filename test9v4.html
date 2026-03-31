@@ -840,15 +840,6 @@
         </div>
         
     </div>
-                <div id="inputGroupIPOSort" class="input-group" style="display:none; width: 100%; margin-top: 10px;">
-                    <div style="display: flex; flex-direction: column; width: 100%; align-items: center; background-color: #ffffff; padding: 10px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e9ecef; box-sizing: border-box;">
-                        <div id="ipoBank" class="ipo-zone" ondrop="drop(event)" ondragover="allowDrop(event)" style="min-height: 50px; width: 100%; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 5px; gap: 10px; box-sizing: border-box; transition: all 0.2s ease-in-out;">
-                        </div>
-                    </div>
-                </div>
-
-                
-
                 <div class="input-group" id="inputGroupColorVal" style="display: none; justify-content: center; gap: 5px;">
                     <input type="number" id="inputResValue" placeholder="Value" style="width: 80px;"> <strong>Ω ±</strong> 
                     <input type="number" id="inputResTol" placeholder="Tol" style="width: 60px;"> <strong>%</strong>
@@ -864,6 +855,14 @@
                         <label for="inputBandTol" style="font-weight: bold;">Band 4:</label> <input type="text" id="inputBandTol" style="width: 80px; padding: 4px;" placeholder="e.g. gold">
                     </div>
                 </div>
+                
+                
+                <div id="inputGroupIPOSort" class="input-group" style="display:none; width: 100%; margin-top: 10px;">
+                    <div style="display: flex; flex-direction: column; width: 100%; align-items: center; background-color: #ffffff; padding: 10px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e9ecef; box-sizing: border-box;">
+                        <div id="ipoBank" class="ipo-zone" ondrop="drop(event)" ondragover="allowDrop(event)" style="min-height: 50px; width: 100%; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 5px; gap: 10px; box-sizing: border-box; transition: all 0.2s ease-in-out;">
+                        </div>
+                    </div>
+                </div>   
             </div>
         </div>
 
@@ -874,9 +873,9 @@
             
             <div style="display: flex; gap: 8px; width: 100%;">
                 <button onclick="handleGenerateClick()" style="background-color: #9571B9; color: white; border: none; border-radius: 5px; flex: 1; padding: 10px 5px; font-size: 14px; cursor: pointer; font-weight: bold;">❓ New Question</button>
-                <button id="grade9DividerBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="generateGrade9DividerProblem()">🚀 Grade 9</button>
-                <button id="grade9ResistorBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="generateGrade9Resistance()">🚀 Grade 9</button>
-                <button id="grade9ZenerBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="generateGrade9ZenerProblem()">🚀 Grade 9</button>
+                <button id="grade9DividerBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="problemsAttempted=0; problemsCorrect=0; if(typeof updateScoreboard==='function') updateScoreboard(); generateGrade9DividerProblem()">🚀 Grade 9</button>
+                <button id="grade9ResistorBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="problemsAttempted=0; problemsCorrect=0; if(typeof updateScoreboard==='function') updateScoreboard(); generateGrade9Resistance()">🚀 Grade 9</button>
+                <button id="grade9ZenerBtn" class="btn-check" style="color: #000 !important; display: none; flex: 1; padding: 10px 5px; font-size: 14px;" onclick="problemsAttempted=0; problemsCorrect=0; if(typeof updateScoreboard==='function') updateScoreboard(); generateGrade9ZenerProblem()">🚀 Grade 9</button>
             </div>
 
             <div id="solutions" class="solutions" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-left: 4px solid #E64097;">
@@ -884,7 +883,6 @@
                 <p id="solText" style="margin: 0; color: #333; line-height: 1.4; font-size: 0.85em;"></p>
             </div>
         </div>
-        
     </div>
 </div>
     
@@ -1487,7 +1485,6 @@ function generateAnalysisProblem(ctx, canvas) {
     
 // ***************************************************
 
-// This function deals with adding resistances in series and parallel
 // This function deals with adding resistances in series and parallel
 function generateResistanceProblem(ctx, canvas) {
     // ==========================================
