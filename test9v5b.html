@@ -1177,7 +1177,7 @@ function transitionToGrade9(generatorFunction) {
 function safeSwitchTab(tabName) {
     // If they have a score, warn them before switching tabs
     if (problemsAttempted > 0) {
-        const wantsToProceed = confirm("Warning: Changing topics will reset your current score to 0. Do you want to continue?");
+        const wantsToProceed = confirm("Warning: Changing topics will reset your current score and attempts to 0. Do you want to continue?");
         if (!wantsToProceed) {
             return; // Cancelled, do nothing
         }
