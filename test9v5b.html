@@ -682,12 +682,17 @@
         text-align: left; 
         width: auto; 
     }
-    .form-group input { 
+    /* Applies the nice styling to BOTH the text box and the dropdown */
+    .form-group input, 
+    .form-group select { 
         width: 100%; 
         padding: 10px; 
         box-sizing: border-box; 
         border: 2px solid #eaeaea; 
         border-radius: 6px; 
+        font-size: 16px; /* Crucial: Prevents iPad Safari from auto-zooming! */
+        font-family: inherit; /* Ensures the dropdown text matches your site */
+        background-color: #ffffff;
     }
     .modal-actions { 
         display: flex; 
@@ -1092,7 +1097,7 @@
         </div>
         <div class="modal-actions">
             <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-            <button class="btn-check" id="confirmSubmitBtn" onclick="processSubmission()">Submit Score</button>
+            <button class="btn-submit" id="confirmSubmitBtn" onclick="processSubmission()">Submit Score</button>
         </div>
     </div>
 </div>
