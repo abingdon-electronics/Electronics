@@ -4291,8 +4291,15 @@ function hubController(ctx, canvas) {
         
     } else if (currentMode === 'iposort') {
         if (document.getElementById('inputGroupIPOSort')) document.getElementById('inputGroupIPOSort').style.display = 'block';
-        // Wired up! Let the IPO generation begin!
         if (typeof generateIPOProblem === "function") generateIPOProblem(ctx, canvas);
+        
+    // ======================================================
+    // ---> NEW POWER ROUTE WIRED IN HERE <---
+    // ======================================================
+    } else if (currentMode === 'power') {
+        if (document.getElementById('inputGroupP')) document.getElementById('inputGroupP').style.display = 'inline-block';
+        if (document.getElementById('grade9PowerBtn')) document.getElementById('grade9PowerBtn').style.display = 'inline-block';
+        if (typeof generatePowerProblem === "function") generatePowerProblem(ctx, canvas);
     }
 }
             
