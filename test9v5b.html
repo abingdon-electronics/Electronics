@@ -345,16 +345,26 @@
     button:active { transform: scale(0.98); }
     
     .btn-secondary { background-color: #6c757d !important; color: #ffffff !important; opacity: 1 !important; }
+    
+    /* Check Answer Button Base Styles */
     .btn-check { 
         background-color: #E64097 !important; 
         color: #ffffff !important; 
         opacity: 1 !important; 
     }
     .btn-check:hover { background-color: #cc2b81 !important; }
+
+
+
+    
     .btn-black { background-color: #000000 !important; color: #ffffff !important; opacity: 1 !important; }
     
-    /* Reset Button Base Styles */
-    #resetBtn {
+/* ============================================================
+       UTILITY BUTTON CLASSES
+       ============================================================ */
+       
+    /* Reset Button */
+    .btn-reset {
         background-color: #ffffff; 
         color: #f97316; 
         border: 2px solid #f97316; 
@@ -365,17 +375,15 @@
         flex: 1; 
         cursor: pointer; 
         font-weight: bold;
-        transition: all 0.2s; /* Smooth fade effect */
+        transition: all 0.2s ease-in-out; 
+    }
+    .btn-reset:hover {
+        background-color: #f97316; 
+        color: #ffffff;            
     }
 
-    /* Reset Button Hover State */
-    #resetBtn:hover {
-        background-color: #f97316; /* Fill solid orange */
-        color: #ffffff;            /* Make text white */
-    }
-
-    /* Submit Button Base Styles */
-    #downloadBtn {
+    /* Submit Button */
+    .btn-submit {
         background-color: #43B3AE; 
         color: white; 
         border: none; 
@@ -386,16 +394,14 @@
         flex: 1; 
         cursor: pointer; 
         font-weight: bold;
-        transition: all 0.2s ease-in-out; /* Smooth transition */
+        transition: all 0.2s ease-in-out; 
+    }
+    .btn-submit:hover {
+        background-color: #328A86; 
     }
 
-    /* Submit Button Hover State */
-    #downloadBtn:hover {
-        background-color: #328A86; /* A slightly darker, richer teal */
-    }
-
-    /* Data Sheet Button Base Styles */
-    #dataSheetBtn {
+    /* Data Sheet Button */
+    .btn-datasheet {
         background-color: #ffffff; 
         color: #6c757d; 
         border: 2px solid #6c757d; 
@@ -408,15 +414,13 @@
         font-weight: bold;
         transition: all 0.2s ease-in-out;
     }
-
-    /* Data Sheet Button Hover State */
-    #dataSheetBtn:hover {
-        background-color: #6c757d; /* Fill solid grey */
-        color: #ffffff;            /* Make text white */
+    .btn-datasheet:hover {
+        background-color: #6c757d; 
+        color: #ffffff;            
     }
 
-    /* Hint Button Base Styles */
-    #hintBtn {
+    /* Hint Button */
+    .btn-hint {
         background-color: #ffffff; 
         color: #0077b6; 
         border: 2px solid #0077b6; 
@@ -429,11 +433,9 @@
         font-weight: bold;
         transition: all 0.2s ease-in-out;
     }
-
-    /* Hint Button Hover State */
-    #hintBtn:hover {
-        background-color: #0077b6; /* Fill solid blue */
-        color: #ffffff;            /* Make text white */
+    .btn-hint:hover {
+        background-color: #0077b6; 
+        color: #ffffff;            
     }
     
     /* Grade 9 normal bright yellow state */
@@ -728,14 +730,14 @@
             <div id="scoreDisplay" class="scoreboard" style="margin: 0; flex: 1; text-align: center; font-size: 1em;">Score: 0 / 0</div>
             
             <div style="display: flex; gap: 10px; flex: 2;">
-                <button id="resetBtn" onclick="resetScore()">🔄 Reset</button>
-                <button id="downloadBtn" onclick="openSubmissionModal()">⬇️ Submit</button>
+                <button class="btn-reset" onclick="resetScore()">🔄 Reset</button>
+                <button class="btn-submit" onclick="openSubmissionModal()">⬇️ Submit</button>
             </div>
         </div>
 
        <div style="flex: 0 0 auto; display: flex; gap: 10px; margin-bottom: 12px;">
-            <button id="dataSheetBtn" onclick="openDataSheet()">📖 Data Sheet</button>
-            <button id="hintBtn" onclick="provideHint()">💡 Hint</button>
+            <button class="btn-datasheet" onclick="openDataSheet()">📖 Data Sheet</button>
+            <button class="btn-hint" onclick="provideHint()">💡 Hint</button>
         </div>
 
         <div id="scrollableArea" style="flex: 0 1 auto; overflow-y: auto; padding-right: 5px;">
