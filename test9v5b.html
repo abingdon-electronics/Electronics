@@ -552,14 +552,14 @@
 </div>
 
 <div id="mainMenu" class="tabs">
-    <button class="tab" onclick="openModule('basics')">1. Circuit Basics</button>
-    <button class="tab" onclick="openModule('transistors')">5. Transistors</button>
-    <button class="tab" onclick="openModule('logic')">2. Logic Gates</button>
-    <button class="tab" onclick="openModule('opamps')">6. Op Amps</button>
-    <button class="tab" onclick="openModule('timing')">3. Timing Circuits</button>
-    <button class="tab" onclick="openModule('systems')">7. Systems</button>
-    <button class="tab" onclick="openModule('flipflops')">4. Flip Flops & Counters</button>
-    <button class="tab" onclick="openModule('diodes')">8. Diodes</button>
+    <button class="tab" onclick="safeOpenModule('basics')">1. Circuit Basics</button>
+    <button class="tab" onclick="safeOpenModule('transistors')">5. Transistors</button>
+    <button class="tab" onclick="safeOpenModule('logic')">2. Logic Gates</button>
+    <button class="tab" onclick="safeOpenModule('opamps')">6. Op Amps</button>
+    <button class="tab" onclick="safeOpenModule('timing')">3. Timing Circuits</button>
+    <button class="tab" onclick="safeOpenModule('systems')">7. Systems</button>
+    <button class="tab" onclick="safeOpenModule('flipflops')">4. Flip Flops & Counters</button>
+    <button class="tab" onclick="safeOpenModule('diodes')">8. Diodes</button>
 </div>
 
 <div id="menuBasics" class="tabs" style="display:none;">
@@ -567,7 +567,7 @@
     <button class="tab" id="tab-divider" onclick="safeSwitchTab('divider')">Potential Divider</button>
     <button class="tab" id="tab-resistance" onclick="safeSwitchTab('resistance')">Total Resistance</button>
     <button class="tab" id="tab-colorcode" onclick="safeSwitchTab('colorcode')">Colour Codes</button>
-    <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
+    <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
 <div id="menuTiming" class="tabs" style="display:none;">
@@ -585,11 +585,11 @@
 <div id="menuDiodes" class="tabs" style="display:none;">
     <button class="tab" id="tab-silicon" onclick="safeSwitchTab('silicon')">Silicon Diodes</button>
     <button class="tab" id="tab-zener" onclick="safeSwitchTab('zener')">Zener Diodes</button>
-    <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Home</button>
+    <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
     
 <div id="menuPlaceholder" class="tabs" style="display:none;">
-    <button class="tab" style="background:#6c757d; color:white;" onclick="goHome()">🏠 Module Under Construction - Return Home</button>
+    <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Module Under Construction - Return Home</button>
 </div>
 
 
@@ -1145,7 +1145,7 @@ const scenarioTracker = {
     // add any others you need here!
 };
 
-    // ==========================================
+// ==========================================
 // GRADE 9 TRANSITION WARNING
 // ==========================================
 function transitionToGrade9(generatorFunction) {
@@ -1192,7 +1192,43 @@ function safeSwitchTab(tabName) {
     
     switchTab(tabName);
 }
+// ==========================================
+// SAFE HOME NAVIGATION
+// ==========================================
+function safeGoHome() {
+    if (problemsAttempted > 0) {
+        const wantsToProceed = confirm("Warning: Returning home will reset your current score to 0. Do you want to continue?");
+        if (!wantsToProceed) {
+            return; // Cancelled, stay where they are
+        }
+    }
+    
+    // Wipe score and go home
+    problemsAttempted = 0;
+    problemsCorrect = 0;
+    if (typeof updateScoreboard === 'function') updateScoreboard();
+    
+    goHome();
+}
 
+// ==========================================
+// SAFE MODULE SWITCHING
+// ==========================================
+function safeOpenModule(moduleName) {
+    if (problemsAttempted > 0) {
+        const wantsToProceed = confirm("Warning: Changing modules will reset your current score to 0. Do you want to continue?");
+        if (!wantsToProceed) {
+            return; // Cancelled, stay where they are
+        }
+    }
+    
+    // Wipe score and open new module
+    problemsAttempted = 0;
+    problemsCorrect = 0;
+    if (typeof updateScoreboard === 'function') updateScoreboard();
+    
+    openModule(moduleName);
+}
 //**************************************************************
 
 // Used exclusively when asking for Ohms (Resistance)  
