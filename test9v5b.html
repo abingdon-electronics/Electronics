@@ -374,6 +374,26 @@
         color: #ffffff;            /* Make text white */
     }
 
+    /* Submit Button Base Styles */
+    #downloadBtn {
+        background-color: #43B3AE; 
+        color: white; 
+        border: none; 
+        border-radius: 5px; 
+        margin: 0; 
+        padding: 8px 10px; 
+        font-size: 14px; 
+        flex: 1; 
+        cursor: pointer; 
+        font-weight: bold;
+        transition: all 0.2s ease-in-out; /* Smooth transition */
+    }
+
+    /* Submit Button Hover State */
+    #downloadBtn:hover {
+        background-color: #328A86; /* A slightly darker, richer teal */
+    }
+    
     /* Grade 9 normal bright yellow state */
     #grade9DividerBtn, #grade9ResistorBtn, #grade9ZenerBtn {
         background-color: #FFD700 !important;
@@ -667,7 +687,7 @@
             
             <div style="display: flex; gap: 10px; flex: 2;">
                 <button id="resetBtn" onclick="resetScore()">🔄 Reset</button>
-                <button id="downloadBtn" onclick="openSubmissionModal()" style="background-color: #43B3AE; color: white; border: none; border-radius: 5px; margin: 0; padding: 8px 10px; font-size: 14px; flex: 1; cursor: pointer; font-weight: bold;">⬇️ Submit</button>
+                <button id="downloadBtn" onclick="openSubmissionModal()">⬇️ Submit</button>
             </div>
         </div>
 
