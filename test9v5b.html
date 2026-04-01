@@ -50,6 +50,14 @@
     /* ============================================================
        2. NAVIGATION & TAB BUTTONS
        ============================================================ */
+    /* Global Button Settings 
+   Removes the default translucent grey highlight on iPad/iPhone (Safari) 
+   to allow our custom :active 'squish' and color effects to shine.*/
+    button {
+            -webkit-tap-highlight-color: transparent;
+            outline: none; /* Also removes the blue focus outline on some browsers */
+    }
+    
     .tabs { 
         display: flex; 
         justify-content: center; 
@@ -356,7 +364,7 @@
        UTILITY BUTTON CLASSES
        ============================================================ */
     
-    /* Submit score Cancel Button */
+/* Submit score Cancel Button */
     .btn-cancel {
         background-color: #6c757d; 
         color: #ffffff; 
@@ -370,8 +378,13 @@
         transition: all 0.2s ease-in-out;
     }
 
-    .btn-cancel:hover {
+    .btn-cancel:hover,
+    .btn-cancel:active {
         background-color: #5a6268; 
+    }
+
+    .btn-cancel:active {
+        transform: scale(0.96);
     }
     
     /* Check Answer Button Base Styles */
@@ -379,8 +392,17 @@
         background-color: #E64097 !important; 
         color: #ffffff !important; 
         opacity: 1 !important; 
+        transition: all 0.2s ease-in-out; /* Added to support the iPad squish */
     }
-    .btn-check:hover { background-color: #cc2b81 !important; }
+
+    .btn-check:hover,
+    .btn-check:active { 
+        background-color: #cc2b81 !important; 
+    }
+
+    .btn-check:active {
+        transform: scale(0.96);
+    }
 
     /* New Question Button (Purple) */
     .btn-new-question {
@@ -396,11 +418,18 @@
         transition: all 0.2s ease-in-out;
     }
 
-    .btn-new-question:hover {
+    .btn-new-question:hover,
+    .btn-new-question:active {
         background-color: #7e5aa7; /* A deeper amethyst purple */
-        transform: translateY(-1px); /* Optional: adds a tiny "lift" effect */
     }
 
+    .btn-new-question:hover {
+        transform: translateY(-1px); /* Optional: adds a tiny "lift" effect for mice */
+    }
+
+    .btn-new-question:active {
+        transform: scale(0.96); /* Overrides the lift with a squish for fingers */
+    }
     
     /* Reset Button */
     .btn-reset {
@@ -416,9 +445,16 @@
         font-weight: bold;
         transition: all 0.2s ease-in-out; 
     }
-    .btn-reset:hover {
+
+    .btn-reset:hover,
+    .btn-reset:active {
         background-color: #f97316; 
         color: #ffffff;            
+    }
+
+    .btn-reset:active {
+        transform: scale(0.96);
+        border-color: #c2410c; /* Slightly darker border for extra press feedback */
     }
 
     /* Submit Button */
@@ -435,8 +471,14 @@
         font-weight: bold;
         transition: all 0.2s ease-in-out; 
     }
-    .btn-submit:hover {
+
+    .btn-submit:hover,
+    .btn-submit:active {
         background-color: #328A86; 
+    }
+
+    .btn-submit:active {
+        transform: scale(0.96);
     }
 
     /* Data Sheet Button */
@@ -453,9 +495,16 @@
         font-weight: bold;
         transition: all 0.2s ease-in-out;
     }
-    .btn-datasheet:hover {
+
+    .btn-datasheet:hover,
+    .btn-datasheet:active {
         background-color: #6c757d; 
         color: #ffffff;            
+    }
+
+    .btn-datasheet:active {
+        transform: scale(0.96);
+        border-color: #5a6268;
     }
 
     /* Hint Button */
@@ -472,25 +521,18 @@
         font-weight: bold;
         transition: all 0.2s ease-in-out;
     }
-    .btn-hint:hover {
+
+    .btn-hint:hover,
+    .btn-hint:active {
         background-color: #0077b6; 
         color: #ffffff;            
     }
-    
-    /* 
-    Grade 9 normal bright yellow state 
-    #grade9DividerBtn, #grade9ResistorBtn, #grade9ZenerBtn {
-        background-color: #FFD700 !important;
-        transition: background-color 0.2s ease-in-out;
+
+    .btn-hint:active {
+        transform: scale(0.96);
+        border-color: #005f8f;
     }
-
-   Grade 9 mustard hover state 
-    #grade9DividerBtn:hover, #grade9ResistorBtn:hover, #grade9ZenerBtn:hover {
-        background-color: #D4A017 !important;
-    } 
-    */
-
-    /* Grade 9 Button (Gold/Mustard) */
+    
     /* Grade 9 Button (Gold/Mustard)- Forced Yellow */
     .btn-grade9 {
         background-color: #FFD700 !important; /* Force the Bright Yellow */
@@ -500,12 +542,17 @@
         padding: 8px 10px;
         font-weight: bold;
         cursor: pointer;
-        transition: background-color 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out; /* Changed to 'all' so the squish is animated */
     }
 
-    .btn-grade9:hover {
+    .btn-grade9:hover,
+    .btn-grade9:active {
         background-color: #D4A017 !important; /* Force the Mustard Hover */
         color: #ffffff !important;            /* Optional: Flip text to white on hover */
+    }
+
+    .btn-grade9:active {
+        transform: scale(0.96);
     }
     
     
