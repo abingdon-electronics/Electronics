@@ -894,21 +894,21 @@
                         <option value="10">10 W</option>
                     </select>
                 </div>
-    <div class="input-group" id="inputGroupGrade9Power" style="display:none; flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 10px;">
+    <div class="input-group" id="inputGroupGrade9Power" style="display:none; flex-direction: column; align-items: flex-end; gap: 10px; margin-bottom: 15px;">
     
-    <div>
-        <label for="g9PowerIdealR" style="font-weight: bold; color: #333;">Ideal R = </label>
-        <input type="text" id="g9PowerIdealR" placeholder="e.g. 345.6 &Omega;" style="width: 100px;">
+    <div style="display: flex; align-items: center; justify-content: flex-end; width: 100%;">
+        <label for="g9PowerIdealR" style="font-weight: bold; color: #333; margin-right: 10px;">Ideal R =</label>
+        <input type="text" id="g9PowerIdealR" placeholder="e.g. 120.5 &Omega;" style="width: 110px;">
     </div>
     
-    <div>
-        <label for="g9PowerDissipated" style="font-weight: bold; color: #333;">Power = </label>
-        <input type="text" id="g9PowerDissipated" placeholder="e.g. 150 mW" style="width: 100px;">
+    <div style="display: flex; align-items: center; justify-content: flex-end; width: 100%;">
+        <label for="g9PowerDissipated" style="font-weight: bold; color: #333; margin-right: 10px;">Power =</label>
+        <input type="text" id="g9PowerDissipated" placeholder="e.g. 150.0 mW" style="width: 110px;">
     </div>
     
-    <div>
-        <label for="g9PowerE24" style="font-weight: bold; color: #333;">E24 R = </label>
-        <input type="text" id="g9PowerE24" placeholder="e.g. 360 &Omega;" style="width: 100px;">
+    <div style="display: flex; align-items: center; justify-content: flex-end; width: 100%;">
+        <label for="g9PowerE24" style="font-weight: bold; color: #333; margin-right: 10px;">E24 R =</label>
+        <input type="text" id="g9PowerE24" placeholder="e.g. 130 &Omega;" style="width: 110px;">
     </div>
 
 </div>
@@ -3258,13 +3258,6 @@ function generateGrade9PowerProblem() {
     if (document.getElementById('g9PowerDissipated')) document.getElementById('g9PowerDissipated').value = "";
     if (document.getElementById('g9PowerE24')) document.getElementById('g9PowerE24').value = "";
 
-    // Update Question Text
-    const qText = document.getElementById('questionText');
-    if (qText) {
-        if (typeof showDPinstruction === 'function') showDPinstruction(); 
-        qText.innerHTML = `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge.<br></strong></div>` + qText.innerHTML;
-    }
-
     // 1. GENERATE MATH
     const vSupplyList = [5, 9, 12, 15, 24];
     let v_in = vSupplyList[Math.floor(Math.random() * vSupplyList.length)];
@@ -3302,12 +3295,16 @@ function generateGrade9PowerProblem() {
         e24: e24R
     };
 
+    // Update Question Text (Removed italics, shortened text)
+    const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML += 
-            `The current through the LED must be limited to <strong>${i_led_mA} mA</strong>.<br><br>` +
-            `1) Calculate the ideal value of the resistor R to 4 sf.<br>` +
-            `2) Calculate the power dissipated by the resistor to 4 sf.<br>` +
-            `3) Select an appropriate resistor value from the E24 series for resistor R.`;
+        qText.innerHTML = 
+            `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge.</strong></div>` +
+            `<strong>The current through the LED must be limited to ${i_led_mA} mA.</strong><br><br>` +
+            `1) Calculate the ideal value of R to 4 sf.<br>` +
+            `2) Calculate the power dissipated by R to 4 sf.<br>` +
+            `3) Choose the correct E24 series for resistor R.`;
+        qText.style.display = 'block'; // Ensure it's visible
     }
 
     const hintDiv = document.getElementById('hintText');
@@ -3315,15 +3312,16 @@ function generateGrade9PowerProblem() {
         hintDiv.innerHTML = "<strong>Hint:</strong> Use your E24 series data sheet to find the closest standard resistor value. Remember, to safely limit current, you must choose the next highest standard value, not necessarily the closest!";
     }
 
-    // 2. DRAWING CODE (Replaced with Scenario 1 logic)
+    // 2. DRAWING CODE 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = brandBlack; 
+    const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097"; // Set up pink!
+    ctx.strokeStyle = "black"; 
     ctx.lineWidth = 2;
 
     drawLine(ctx, 150, 60, 450, 60);
     drawLine(ctx, 150, 360, 450, 360);
 
-    ctx.fillStyle = brandBlack; ctx.textAlign = "left";
+    ctx.fillStyle = "black"; ctx.textAlign = "left";
     ctx.font = "bold 16px Arial"; ctx.fillText("V", 250, 45);
     ctx.font = "bold 12px Arial"; ctx.fillText("supply", 262, 50); 
     ctx.font = "bold 16px Arial"; ctx.fillText(" = " + v_in + " V", 305, 45);
@@ -3332,13 +3330,17 @@ function generateGrade9PowerProblem() {
     drawLine(ctx, 300, 60, 300, 135); 
     if (typeof drawArrowOnWire === 'function') drawArrowOnWire(ctx, 300, 60, 300, 97.5);
 
-    ctx.fillStyle = brandBlack; ctx.font = "bold 16px Arial"; ctx.textAlign = "right"; 
+    ctx.fillStyle = "black"; ctx.font = "bold 16px Arial"; ctx.textAlign = "right"; 
     ctx.fillText("I = " + i_led_mA + " mA", 285, 103);
 
     if (typeof drawComponent === 'function') drawComponent(ctx, 'fixed', 300, 160); 
     drawLine(ctx, 300, 185, 300, 240);
 
-    ctx.fillStyle = brandBlack; ctx.textAlign = "right"; ctx.fillText("R = ?", 285, 165); 
+    // FIX: Make R and P Pink and vertically center them on the resistor body!
+    ctx.fillStyle = pink; 
+    ctx.textAlign = "right"; 
+    ctx.fillText("R = ?", 285, 153); // Shifted slightly up
+    ctx.fillText("P = ?", 285, 175); // Placed right below it
 
     // LED
     ctx.beginPath(); 
@@ -3351,7 +3353,7 @@ function generateGrade9PowerProblem() {
 
     drawLine(ctx, 300, 280, 300, 360); 
     
-    ctx.fillStyle = brandBlack; ctx.textAlign = "left";
+    ctx.fillStyle = "black"; ctx.textAlign = "left";
     ctx.font = "bold 16px Arial"; ctx.fillText("V", 365, 285);
     let vW = ctx.measureText("V").width;
     ctx.font = "bold 12px Arial"; ctx.fillText("LED", 365 + vW, 289);
