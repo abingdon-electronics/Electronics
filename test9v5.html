@@ -2854,25 +2854,34 @@ function generatePowerProblem(ctx, canvas) {
     drawLine(ctx, 150, 60, 450, 60);
     drawLine(ctx, 150, 360, 450, 360);
 
-    // --- Labels for Rails (ALL BLACK) ---
-    // Centered at X=300 to match the new branch location
-    drawLabel(ctx, "Vsupply  =  " + supplyV + " V", 300, 45, 16, brandBlack); 
-    drawLabel(ctx, "0V (GND)", 300, 390, 16, brandBlack); 
+    // --- Labels for Rails (USING RAW CANVAS TEXT) ---
+    ctx.fillStyle = brandBlack;
+    ctx.textAlign = "left";
+    
+    // Top Rail (Vsupply) - Replicating the subscript logic from circuit_analysis
+    ctx.font = "bold 16px Arial";
+    ctx.fillText("V", 250, 45);
+    ctx.font = "bold 12px Arial";
+    ctx.fillText("supply", 262, 50); // Dropped down slightly for subscript
+    ctx.font = "bold 16px Arial";
+    ctx.fillText(" = " + supplyV + " V", 305, 45);
+
+    // Bottom Rail (GND)
+    ctx.textAlign = "center";
+    ctx.fillText("0V (GND)", 300, 390);
 
     // --- Centered Vertical Branch (X = 300) ---
     // Top wire down to resistor box
     drawLine(ctx, 300, 60, 300, 135); 
 
     // Downward Current Arrowhead ON the wire using your helper
-    // 97.5 is the exact midpoint between Y=60 and Y=135
     drawArrowOnWire(ctx, 300, 60, 300, 97.5);
 
-    // Current Label (LEFT of the wire, BLACK)
+    // Current Label (LEFT of the wire, RAW TEXT)
     ctx.fillStyle = brandBlack; 
     ctx.font = "bold 16px Arial"; 
-    ctx.textAlign = "right"; // Right-align so it grows leftwards away from wire
-    ctx.fillText("I  =  " + current_mA + " mA", 285, 103);
-    ctx.textAlign = "center"; // Reset alignment for other standard text
+    ctx.textAlign = "right"; 
+    ctx.fillText("I = " + current_mA + " mA", 285, 103);
 
     // Resistor Box (Center Y is 160)
     drawComponent(ctx, 'fixed', 300, 160); 
@@ -2880,9 +2889,14 @@ function generatePowerProblem(ctx, canvas) {
     // Wire from bottom of Resistor to LED
     drawLine(ctx, 300, 185, 300, 240);
 
-    // Resistor Labels (Added double spaces and bumped P to the right)
-    drawLabel(ctx, "R", 265, 165, 16, brandBlack);       
-    drawLabel(ctx, "P  =  ?", 340, 165, 18, brandPink);  // Shifted X to 340, forced double spaces
+    // Resistor Labels (RAW TEXT)
+    ctx.fillStyle = brandBlack;
+    ctx.textAlign = "right";
+    ctx.fillText("R", 285, 165); // Left side
+
+    ctx.fillStyle = brandPink;
+    ctx.textAlign = "left";
+    ctx.fillText("P = ?", 325, 165); // Right side, safely spaced
 
     // --- LED (POINTING DOWN) ---
     ctx.beginPath(); 
@@ -2901,8 +2915,13 @@ function generatePowerProblem(ctx, canvas) {
     // Wire from LED to bottom rail
     drawLine(ctx, 300, 280, 300, 360); 
 
-    // LED Voltage Label (Added double spaces, shifted X to 385 to clear the arrows completely)
-    drawLabel(ctx, "V  =  " + ledV + " V", 385, 285, 16, brandBlack); 
+    // LED Voltage Label (RAW TEXT to avoid parsing bugs)
+    ctx.fillStyle = brandBlack;
+    ctx.textAlign = "left";
+    ctx.fillText("V = " + ledV + " V", 365, 285);
+
+    // Reset alignment just in case
+    ctx.textAlign = "left"; 
 
     // 4. SOLUTION LOGIC PANEL
     const solText = document.getElementById('solText');
