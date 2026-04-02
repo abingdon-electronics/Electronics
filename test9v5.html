@@ -2897,7 +2897,6 @@ function generatePowerProblem(ctx, canvas) {
         groupP.parentNode.insertBefore(ratingDiv, groupP.nextSibling);
 
         let ratingLabel = document.createElement('span');
-        // Changed text color to brandPink to match "P="
         ratingLabel.innerHTML = "<strong style='color:" + brandPink + "'>Bulb power rating = </strong>&nbsp;";
         ratingLabel.style.fontSize = '18px';
         
@@ -3036,7 +3035,8 @@ function generatePowerProblem(ctx, canvas) {
         }
 
         if (qText) {
-            qText.innerHTML = "Calculate the power dissipated by the filament bulb and choose the safest <u>minimum</u> power rating to choose from stock?";
+            // Updated question text formatting
+            qText.innerHTML = "1. Calculate the power dissipated by the filament bulb.<br>2. Select the minimum safe power rating from stock.";
             qText.style.display = 'block';
         }
 
@@ -3051,25 +3051,25 @@ function generatePowerProblem(ctx, canvas) {
         ctx.textAlign = "center"; ctx.fillText("0V (GND)", 300, 390);
 
         // Larger Bulb Drawing Parameters
-        let bulbR = 25; // Increased from 15
+        let bulbR = 25; 
 
         // Top wire down to bulb edge
         drawLine(ctx, 300, 60, 300, 210 - bulbR); 
         
-        // Custom Hump Bulb to match screenshot
+        // Custom Vertical Hump Bulb
         ctx.beginPath();
         ctx.arc(300, 210, bulbR, 0, 2 * Math.PI); // Outer circle
         ctx.fillStyle = "white"; // clear background
         ctx.fill();
         ctx.stroke();
 
-        // Horizontal line passing through to hump
-        drawLine(ctx, 300 - bulbR, 210, 288, 210);
-        drawLine(ctx, 312, 210, 300 + bulbR, 210);
+        // Vertical line passing through to hump
+        drawLine(ctx, 300, 210 - bulbR, 300, 198); // top inside wire
+        drawLine(ctx, 300, 222, 300, 210 + bulbR); // bottom inside wire
 
-        // Center hump (radius 12)
+        // Center hump (radius 12, drawn vertically pointing right)
         ctx.beginPath();
-        ctx.arc(300, 210, 12, Math.PI, 0); 
+        ctx.arc(300, 210, 12, -Math.PI / 2, Math.PI / 2); 
         ctx.stroke();
 
         // Bottom wire from bulb edge down to GND
