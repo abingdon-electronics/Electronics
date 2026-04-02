@@ -1258,7 +1258,7 @@ function handleGenerateClick() {
     const canvasIPOWorkstation = document.getElementById('canvasIPOWorkstation');
     if (canvasIPOWorkstation) canvasIPOWorkstation.style.display = 'none';
 
-// ==========================================
+    // ==========================================
     // ---> ESCAPE THE GRADE 9 LOOPS & RESET SCORE <---
     // ==========================================
     let escapedGrade9 = false;
@@ -1272,6 +1272,9 @@ function handleGenerateClick() {
         escapedGrade9 = true;
     } else if (currentMode === 'grade9resistance') {
         currentMode = 'resistance';
+        escapedGrade9 = true;
+    } else if (currentMode === 'grade9power') {        // <-- NEW: Added Power Escape
+        currentMode = 'power';
         escapedGrade9 = true;
     }
 
@@ -1308,6 +1311,8 @@ function handleGenerateClick() {
         generateSiliconProblem(ctx, canvas);
     } else if (currentMode === 'analysis') {
         generateAnalysisProblem(ctx, canvas); 
+    } else if (currentMode === 'power' || currentMode === 'grade9power') { // <-- NEW: Explicit Power Router
+        if (typeof generatePowerProblem === "function") generatePowerProblem(ctx, canvas);
     } else {
         // Handles Astable, Monostable, Oscilloscope, Divider, Resistance, etc.
         if (typeof hubController === "function") hubController(ctx, canvas);
