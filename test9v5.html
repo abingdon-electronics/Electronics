@@ -4699,6 +4699,12 @@ function checkAnswers() {
     else if (currentMode === 'grade9zener') {
         activeInputs = (currentZenerState === "closed") ? ['g9IL', 'g9IZ'] : ['g9PZ', 'g9Rating'];
     }
+    else if (currentMode === 'power') {
+        activeInputs = ['inputP'];
+        if (currentAnswers.scenario === 2) {
+            activeInputs.push('ratingSelectP');
+        }
+    }
 
     // 3. Check for empty boxes
     let hasEmptyBox = activeInputs.some(id => !document.getElementById(id) || document.getElementById(id)?.value.trim() === '');
@@ -4824,6 +4830,17 @@ function checkAnswers() {
                 results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9Rating').value)), currentAnswers.rating, 'mW'));
             }
          }
+    } else if (currentMode === 'power') {
+        if (currentAnswers.scenario === 2) {
+            // 1. Grade the math input
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputP').value)), currentAnswers.exactPower, currentAnswers.vUnit));
+            // 2. Grade the safe rating dropdown
+            const userRating = document.getElementById('ratingSelectP').value;
+            results.push(userRating === currentAnswers.safeRating ? 'correct' : 'wrongval');
+        } else {
+            // Scenarios 1 & 3: Standard single input math grading
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputP').value)), currentAnswers.vValue, currentAnswers.vUnit));
+        }
     }
 
     // 5. Final Feedback and Scoring
@@ -4896,6 +4913,7 @@ function checkAnswers() {
     
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
+    
 // **********************************************************************
 /**
  * Upgraded Hybrid Parser with Precision Tracking & Capacitance Support
