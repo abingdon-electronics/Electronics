@@ -2803,12 +2803,7 @@ function generateOscilloscopeProblem() {
 // ======================================================
 // Power Calculation Problem (Scenario 1)
 // ======================================================
-// ======================================================
-// Power Calculation Problem (adapted for Power Rails)
-// ======================================================
-// ======================================================
-// Power Calculation Problem (adapted for Power Rails)
-// ======================================================
+
 function generatePowerProblem(ctx, canvas) {
     // 0. RESET UI & STATE
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
@@ -2868,13 +2863,9 @@ function generatePowerProblem(ctx, canvas) {
     // Top wire down to resistor box
     drawLine(ctx, 300, 60, 300, 135); 
 
-    // Downward Current Arrowhead ON the wire
-    ctx.beginPath();
-    ctx.moveTo(295, 95);
-    ctx.lineTo(305, 95);
-    ctx.lineTo(300, 105);
-    ctx.fillStyle = brandBlack;
-    ctx.fill();
+    // Downward Current Arrowhead ON the wire using your helper
+    // 97.5 is the exact midpoint between Y=60 and Y=135
+    drawArrowOnWire(ctx, 300, 60, 300, 97.5);
 
     // Current Label (LEFT of the wire, BLACK)
     ctx.fillStyle = brandBlack; 
@@ -2889,7 +2880,7 @@ function generatePowerProblem(ctx, canvas) {
     // Wire from bottom of Resistor to LED
     drawLine(ctx, 300, 185, 300, 240);
 
-    // Resistor Labels
+    // Resistor Labels (Enforced spacing around equals sign)
     drawLabel(ctx, "R", 265, 165, 16, brandBlack);       // Left, Black
     drawLabel(ctx, "P = ?", 335, 165, 18, brandPink);    // Right, Pink (The ONLY pink item)
 
@@ -2910,8 +2901,8 @@ function generatePowerProblem(ctx, canvas) {
     // Wire from LED to bottom rail
     drawLine(ctx, 300, 280, 300, 360); 
 
-    // LED Voltage Label
-    drawLabel(ctx, "V = " + ledV + "V", 365, 285, 16, brandBlack); 
+    // LED Voltage Label (Enforced spaces around = and before the V unit, moved slightly right to avoid squishing)
+    drawLabel(ctx, "V = " + ledV + " V", 375, 285, 16, brandBlack); 
 
     // 4. SOLUTION LOGIC PANEL
     const solText = document.getElementById('solText');
