@@ -1090,7 +1090,7 @@
                 <button id="grade9DividerBtn" class="btn-grade9" style="display: none;" onclick="transitionToGrade9(generateGrade9DividerProblem)">🚀 Grade 9</button>
                 <button id="grade9ResistorBtn" class="btn-grade9" style="display: none;" onclick="transitionToGrade9(generateGrade9Resistance)">🚀 Grade 9</button>
                 <button id="grade9ZenerBtn" class="btn-grade9" style="display: none;" onclick="transitionToGrade9(generateGrade9ZenerProblem)">🚀 Grade 9</button>
-                <button id="grade9PowerBtn" class="btn-grade9" style="display: none;" onclick="transitionToGrade9(generateGrade9Power)">🚀 Grade 9</button>
+                <button id="grade9PowerBtn" class="btn-grade9" style="display: none;" onclick="transitionToGrade9(generateGrade9PowerProblem)">🚀 Grade 9</button>
             </div>
 
             <div id="solutions" class="solutions" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-left: 4px solid #E64097;">
@@ -4750,13 +4750,17 @@ function hubController(ctx, canvas) {
         if (document.getElementById('inputGroupIPOSort')) document.getElementById('inputGroupIPOSort').style.display = 'block';
         if (typeof generateIPOProblem === "function") generateIPOProblem(ctx, canvas);
         
-    // ======================================================
-    // ---> NEW POWER ROUTE WIRED IN HERE <---
-    // ======================================================
     } else if (currentMode === 'power') {
         if (document.getElementById('inputGroupP')) document.getElementById('inputGroupP').style.display = 'inline-block';
         if (document.getElementById('grade9PowerBtn')) document.getElementById('grade9PowerBtn').style.display = 'inline-block';
         if (typeof generatePowerProblem === "function") generatePowerProblem(ctx, canvas);
+        
+    } else if (currentMode === 'grade9power') {
+        // Show the generic input zone we injected into during the generation function
+        if (document.getElementById('inputGroupV')) document.getElementById('inputGroupV').style.display = 'block';
+        // Ensure the Grade 9 button stays visible
+        if (document.getElementById('grade9PowerBtn')) document.getElementById('grade9PowerBtn').style.display = 'inline-block';
+        if (typeof generateGrade9PowerProblem === "function") generateGrade9PowerProblem(ctx, canvas);
     }
 }
             
