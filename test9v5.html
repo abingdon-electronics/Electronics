@@ -1581,6 +1581,32 @@ function drawLamp(ctx, x, y) {
     
     ctx.stroke();
 }
+
+/**
+ * Draws a filament bulb symbol (Circle with semi-circle bump)
+ * centered at (x,y) with a radius of 15px, oriented vertically.
+ */
+function drawFilamentBulb(ctx, x, y) {
+    const radius = 15;
+    
+    ctx.strokeStyle = brandBlack;
+    ctx.lineWidth = 2;
+    
+    // 1. Draw the outer circle
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // 2. Draw the vertical filament (wire in, semi-circle bump right, wire out)
+    ctx.beginPath();
+    ctx.moveTo(x, y - radius);
+    ctx.lineTo(x, y - 6);
+    // Arc curving to the right (radius 6)
+    ctx.arc(x, y, 6, -Math.PI / 2, Math.PI / 2, false);
+    ctx.lineTo(x, y + radius);
+    ctx.stroke();
+}
+    
 // --- GLOBAL DRAWING HELPERS ---
 // These can be called by any function in your script
 
@@ -2966,20 +2992,21 @@ function generatePowerProblem(ctx, canvas) {
 
     } else if (scenario === 2) {
         // ==========================================
-        // SCENARIO 2: Real-World Component Rating (LAMP)
+        // SCENARIO 2: Real-World Component Rating (FILAMENT BULB)
         // Focus: P = V^2 / R
         // ==========================================
-        let supplyV = Math.floor(Math.random() * 11) + 5; // 5V to 15V
+        // UPGRADE: Restrict to standard power supply rails
+        const supplyOptions = [5, 6, 12, 24];
+        let supplyV = supplyOptions[Math.floor(Math.random() * supplyOptions.length)];
         let rValue = Math.floor(Math.random() * 36) + 15; // 15 to 50 ohms
         
         // Calculate power: P = V^2 / R
         let power_W = parseFloat(((supplyV * supplyV) / rValue).toFixed(2));
 
-        // Logic to pick the next highest available rating
-        const availableRatings = [1, 2, 5, 10, 20];
+        // Logic to pick the next highest available rating (Expanded up to 100W for 24V loads)
+        const availableRatings = [1, 2, 5, 10, 20, 50, 100];
         let chosenRating = availableRatings.find(rating => rating >= power_W);
 
-        // Sets the ANSWER that the checker expects
         currentAnswers.vNameHTML = 'P';
         currentAnswers.vValue = chosenRating; 
         currentAnswers.vUnit = 'W'; 
@@ -2991,8 +3018,6 @@ function generatePowerProblem(ctx, canvas) {
             selectBox.innerHTML = '<option value="" disabled selected>Select...</option>';
             availableRatings.forEach(rating => {
                 let opt = document.createElement('option');
-                // The 'change' listener above syncs "5 W" into inputBox.value, 
-                // which checkAnswer then parses to [5, "W"].
                 opt.value = rating + " W"; 
                 opt.innerHTML = rating + " W";
                 selectBox.appendChild(opt);
@@ -3000,58 +3025,54 @@ function generatePowerProblem(ctx, canvas) {
         }
 
         if (qText) {
-            // Text updated to reflect a lamp scenario
-            qText.innerHTML = "Calculate the power dissipated by the lamp. Based on your calculation, what is the safest minimum power rating to choose from stock?";
+            // Updated text to Filament Bulb
+            qText.innerHTML = "Calculate the power dissipated by the filament bulb. Based on your calculation, what is the safest minimum power rating to choose from stock?";
             qText.style.display = 'block';
         }
 
         // --- DRAWING ---
-        // 1. Draw Rails
         drawLine(ctx, 150, 60, 450, 60);
         drawLine(ctx, 150, 360, 450, 360);
 
-        // 2. Rails Labels
         ctx.fillStyle = brandBlack; ctx.textAlign = "left";
         ctx.font = "bold 16px Arial"; ctx.fillText("V", 250, 45);
         ctx.font = "bold 12px Arial"; ctx.fillText("supply", 262, 50); 
         ctx.font = "bold 16px Arial"; ctx.fillText(" = " + supplyV + " V", 305, 45);
         ctx.textAlign = "center"; ctx.fillText("0V (GND)", 300, 390);
 
-        // 3. Draw Wires and NEW Lamp Symbol
-        // Top wire stops 15px above center (edge of circle)
         drawLine(ctx, 300, 60, 300, 210 - 15); 
         
-        // --- DRAW THE LAMP ---
-        if (typeof drawLamp === "function") {
-            drawLamp(ctx, 300, 210); // Centered at (300, 210)
+        // --- DRAW THE FILAMENT BULB ---
+        if (typeof drawFilamentBulb === "function") {
+            drawFilamentBulb(ctx, 300, 210); // Centered at (300, 210)
         } else {
-            console.error("Missing drawLamp helper function!");
-            // Fallback to resistor if helper missing, for safety
+            console.error("Missing drawFilamentBulb helper function!");
             drawComponent(ctx, 'fixed', 300, 210); 
         }
 
-        // Bottom wire starts 15px below center
         drawLine(ctx, 300, 210 + 15, 300, 360); 
 
-        // 4. Labels for the Component
-        // Component is positioned at Y=210. Radius is 15px.
-        // Label pushed left away from circle boundary
+        // 4. Two-Line Labeling for the Component
         ctx.fillStyle = brandBlack; 
         ctx.textAlign = "right"; 
         ctx.font = "bold 16px Arial";
-        ctx.fillText("Lamp, R = " + rValue + " \u03A9", 300 - 25, 215); 
+        
+        // Line 1: Type of Bulb
+        ctx.fillText(supplyV + "V bulb", 300 - 25, 205); 
+        // Line 2: Resistance
+        ctx.fillText("R = " + rValue + " \u03A9", 300 - 25, 225); 
         
         // Question Label pushed right
         ctx.fillStyle = brandPink; 
         ctx.textAlign = "left"; 
         ctx.fillText("P = ?", 300 + 25, 215); 
 
-        // 5. Solution Panel Text updated for Lamp
+        // 5. Solution Panel
         if (solText) {
             solText.innerHTML = "<strong>Safe Rating = " + chosenRating + " W</strong><br><br>" +
                 "<em>Core Equation:</em> <strong>P = V&sup2; / R</strong><br><br>" +
                 "P = (" + supplyV + "&sup2;) / " + rValue + " = " + (supplyV*supplyV) + " / " + rValue + " = <strong>" + power_W + " W</strong><br><br>" +
-                "<em>Engineering Application:</em> Because the lamp dissipates " + power_W + "W, you must select the next highest available rating (" + chosenRating + "W) to prevent the component from failing.";
+                "<em>Engineering Application:</em> Because the filament bulb dissipates " + power_W + "W, you must select the next highest available rating (" + chosenRating + "W) to prevent the component from failing.";
         }
 
     } else {
