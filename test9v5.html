@@ -1553,17 +1553,19 @@ function drawResistor(ctx, x, y) {
 }
 /**
  * Draws a lamp symbol (Circle with an X inside - GCSE notation)
- * centered at (x,y) with a default radius of 15px.
+ * centered at (x,y) with a default radius of 25px.
  */
 function drawLamp(ctx, x, y) {
-    const radius = 15;
+    const radius = 25; // Increased to match the filament bulb
     
-    ctx.strokeStyle = brandBlack; // Ensure it uses the black color
-    ctx.lineWidth = 2; // Match existing line thickness
+    ctx.strokeStyle = brandBlack; 
+    ctx.lineWidth = 2; 
     
-    // 1. Draw the circle
+    // 1. Draw the circle with a solid white fill
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = "white"; // Blocks out background wires
+    ctx.fill();
     ctx.stroke();
 
     // 2. Draw the 'X' inside. 
@@ -1582,30 +1584,54 @@ function drawLamp(ctx, x, y) {
     ctx.stroke();
 }
 
-/**
- * Draws a filament bulb symbol (Circle with semi-circle bump)
- * centered at (x,y) with a radius of 15px, oriented vertically.
- */
+/** Draws a filament bulb symbol */
 function drawFilamentBulb(ctx, x, y) {
-    const radius = 15;
+    const radius = 25;
     
     ctx.strokeStyle = brandBlack;
     ctx.lineWidth = 2;
     
-    // 1. Draw the outer circle
+    // 1. Draw the outer circle with a solid white fill
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = "white";
+    ctx.fill();
     ctx.stroke();
 
     // 2. Draw the vertical filament (wire in, semi-circle bump right, wire out)
     ctx.beginPath();
     ctx.moveTo(x, y - radius);
-    ctx.lineTo(x, y - 6);
-    // Arc curving to the right (radius 6)
-    ctx.arc(x, y, 6, -Math.PI / 2, Math.PI / 2, false);
+    ctx.lineTo(x, y - 12);
+    // Arc curving to the right (radius 12)
+    ctx.arc(x, y, 12, -Math.PI / 2, Math.PI / 2, false);
     ctx.lineTo(x, y + radius);
     ctx.stroke();
 }
+    
+/** Draws a Motor symbol */
+function drawMotor(ctx, x, y) {
+    const radius = 25; // Matches the filament and signal lamps
+    
+    ctx.strokeStyle = brandBlack;
+    ctx.lineWidth = 2;
+    
+    // 1. Draw the outer circle with a solid white fill
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = "white"; // Blocks out background wires
+    ctx.fill();
+    ctx.stroke();
+
+    // 2. Draw the 'M' inside
+    ctx.fillStyle = brandBlack; // Switch fill color to black for the text
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold 24px Arial"; 
+    
+    // The +2 on the Y axis is a slight optical adjustment so the "M" looks perfectly centered vertically
+    ctx.fillText("M", x, y + 2); 
+}
+
     
 // --- GLOBAL DRAWING HELPERS ---
 // These can be called by any function in your script
@@ -3050,30 +3076,19 @@ function generatePowerProblem(ctx, canvas) {
         ctx.font = "bold 16px Arial"; ctx.fillText(" = " + supplyV + " V", 305, 45);
         ctx.textAlign = "center"; ctx.fillText("0V (GND)", 300, 390);
 
-        // Larger Bulb Drawing Parameters
-        let bulbR = 25; 
-
-        // Top wire down to bulb edge
-        drawLine(ctx, 300, 60, 300, 210 - bulbR); 
+        // Top wire down to bulb edge (210 - 25 = 185)
+        drawLine(ctx, 300, 60, 300, 185); 
         
-        // Custom Vertical Hump Bulb
-        ctx.beginPath();
-        ctx.arc(300, 210, bulbR, 0, 2 * Math.PI); // Outer circle
-        ctx.fillStyle = "white"; // clear background
-        ctx.fill();
-        ctx.stroke();
+        // Use the updated helper function instead of manual drawing!
+        if (typeof drawFilamentBulb === 'function') {
+            drawFilamentBulb(ctx, 300, 210);
+        } else {
+            // Fallback in case they use a generic drawComponent router
+            drawComponent(ctx, 'filament', 300, 210); 
+        }
 
-        // Vertical line passing through to hump
-        drawLine(ctx, 300, 210 - bulbR, 300, 198); // top inside wire
-        drawLine(ctx, 300, 222, 300, 210 + bulbR); // bottom inside wire
-
-        // Center hump (radius 12, drawn vertically pointing right)
-        ctx.beginPath();
-        ctx.arc(300, 210, 12, -Math.PI / 2, Math.PI / 2); 
-        ctx.stroke();
-
-        // Bottom wire from bulb edge down to GND
-        drawLine(ctx, 300, 210 + bulbR, 300, 360); 
+        // Bottom wire from bulb edge down to GND (210 + 25 = 235)
+        drawLine(ctx, 300, 235, 300, 360); 
 
         // Labels pushed out slightly further to accommodate larger bulb
         ctx.fillStyle = brandBlack; 
