@@ -3061,7 +3061,6 @@ function generatePowerProblem(ctx, canvas) {
         }
 
         if (qText) {
-            // Updated question text formatting
             qText.innerHTML = "1. Calculate the power dissipated by the filament bulb.<br>2. Select the minimum safe power rating from stock.";
             qText.style.display = 'block';
         }
@@ -3076,21 +3075,16 @@ function generatePowerProblem(ctx, canvas) {
         ctx.font = "bold 16px Arial"; ctx.fillText(" = " + supplyV + " V", 305, 45);
         ctx.textAlign = "center"; ctx.fillText("0V (GND)", 300, 390);
 
-        // Top wire down to bulb edge (210 - 25 = 185)
         drawLine(ctx, 300, 60, 300, 185); 
         
-        // Use the updated helper function instead of manual drawing!
         if (typeof drawFilamentBulb === 'function') {
             drawFilamentBulb(ctx, 300, 210);
         } else {
-            // Fallback in case they use a generic drawComponent router
             drawComponent(ctx, 'filament', 300, 210); 
         }
 
-        // Bottom wire from bulb edge down to GND (210 + 25 = 235)
         drawLine(ctx, 300, 235, 300, 360); 
 
-        // Labels pushed out slightly further to accommodate larger bulb
         ctx.fillStyle = brandBlack; 
         ctx.textAlign = "right"; 
         ctx.font = "bold 16px Arial";
@@ -3110,13 +3104,40 @@ function generatePowerProblem(ctx, canvas) {
 
     } else {
         // ==========================================
-        // SCENARIO 3: Series Ratio
+        // SCENARIO 3: Dynamic Series Components
         // ==========================================
         let current_A = parseFloat((Math.random() * 1.4 + 0.1).toFixed(1)); 
-        let r1Value = Math.floor(Math.random() * 8) * 10 + 20; 
-        let r2Value = Math.floor(Math.random() * 8) * 10 + 20; 
         
-        let power_W = parseFloat(((current_A * current_A) * r1Value).toFixed(2));
+        // Pick random components for top (c1) and bottom (c2)
+        const compTypes = ['resistor', 'signal', 'motor', 'filament'];
+        let c1 = { type: compTypes[Math.floor(Math.random() * compTypes.length)], r: Math.floor(Math.random() * 8) * 10 + 20, isTarget: false };
+        let c2 = { type: compTypes[Math.floor(Math.random() * compTypes.length)], r: Math.floor(Math.random() * 8) * 10 + 20, isTarget: false };
+
+        // Randomly pick which component we want them to calculate power for
+        let targetIdx = Math.random() < 0.5 ? 1 : 2;
+        let targetComp = targetIdx === 1 ? c1 : c2;
+        targetComp.isTarget = true;
+
+        // Dynamic naming logic (prevents grammar weirdness like "calculate power in resistor 1" if there's only one resistor)
+        function setProps(comp, otherComp, pos) {
+            if (comp.type === 'resistor') {
+                if (otherComp.type === 'resistor') { comp.name = "R<sub>" + pos + "</sub>"; comp.label = "R"; comp.sub = pos.toString(); }
+                else { comp.name = "the resistor"; comp.label = "R"; comp.sub = ""; }
+            } else if (comp.type === 'signal') {
+                if (otherComp.type === 'signal') { comp.name = "signal lamp " + pos; comp.label = "Lamp"; comp.sub = pos.toString(); }
+                else { comp.name = "the signal lamp"; comp.label = "Lamp"; comp.sub = ""; }
+            } else if (comp.type === 'motor') {
+                if (otherComp.type === 'motor') { comp.name = "motor " + pos; comp.label = "Motor"; comp.sub = pos.toString(); }
+                else { comp.name = "the motor"; comp.label = "Motor"; comp.sub = ""; }
+            } else if (comp.type === 'filament') {
+                if (otherComp.type === 'filament') { comp.name = "filament bulb " + pos; comp.label = "Bulb"; comp.sub = pos.toString(); }
+                else { comp.name = "the filament bulb"; comp.label = "Bulb"; comp.sub = ""; }
+            }
+        }
+        setProps(c1, c2, 1);
+        setProps(c2, c1, 2);
+
+        let power_W = parseFloat(((current_A * current_A) * targetComp.r).toFixed(2));
 
         currentAnswers.vNameHTML = 'P';
         currentAnswers.vValue = power_W;
@@ -3125,7 +3146,7 @@ function generatePowerProblem(ctx, canvas) {
         if (inputBox) inputBox.placeholder = "e.g. 11.75 W"; 
 
         if (qText) {
-            qText.innerHTML = "Calculate the power dissipated in <strong>R<sub>1</sub></strong> only.";
+            qText.innerHTML = "Calculate the power dissipated in <strong>" + targetComp.name + "</strong>.";
             qText.style.display = 'block';
         }
 
@@ -3145,33 +3166,51 @@ function generatePowerProblem(ctx, canvas) {
         drawArrowOnWire(ctx, 300, 60, 300, 90);
         ctx.textAlign = "right"; ctx.fillText("I = " + current_A + " A", 285, 95);
 
-        drawComponent(ctx, 'fixed', 300, 145); 
-        ctx.fillStyle = brandBlack; ctx.textAlign = "left"; 
-        ctx.font = "bold 16px Arial"; ctx.fillText("R", 210, 150); 
-        let r1TextW = ctx.measureText("R").width;
-        ctx.font = "bold 12px Arial"; ctx.fillText("1", 210 + r1TextW, 154);
-        let sub1W = ctx.measureText("1").width;
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = " + r1Value + " \u03A9", 210 + r1TextW + sub1W, 150); 
-        
-        ctx.fillStyle = brandPink; ctx.textAlign = "left"; ctx.fillText("P = ?", 325, 150); 
+        // Sub-function to handle dynamic drawing & text layout safely
+        function drawDynamicComp(comp, yCenter) {
+            if (comp.type === 'resistor') {
+                if (typeof drawComponent === 'function') drawComponent(ctx, 'fixed', 300, yCenter);
+            } else if (comp.type === 'signal') {
+                if (typeof drawLamp === 'function') drawLamp(ctx, 300, yCenter);
+            } else if (comp.type === 'motor') {
+                if (typeof drawMotor === 'function') drawMotor(ctx, 300, yCenter);
+            } else if (comp.type === 'filament') {
+                if (typeof drawFilamentBulb === 'function') drawFilamentBulb(ctx, 300, yCenter);
+            }
 
+            ctx.fillStyle = brandBlack; ctx.textAlign = "left"; 
+            ctx.font = "bold 16px Arial"; 
+            // x = 180 leaves enough room for longer words like "Motor" before hitting the 275px component edge
+            ctx.fillText(comp.label, 180, yCenter + 5); 
+            let labelW = ctx.measureText(comp.label).width;
+            if (comp.sub) {
+                ctx.font = "bold 12px Arial"; 
+                ctx.fillText(comp.sub, 180 + labelW, yCenter + 9);
+                let subW = ctx.measureText(comp.sub).width;
+                ctx.font = "bold 16px Arial"; 
+                ctx.fillText(" = " + comp.r + " \u03A9", 180 + labelW + subW, yCenter + 5); 
+            } else {
+                ctx.font = "bold 16px Arial"; 
+                ctx.fillText(" = " + comp.r + " \u03A9", 180 + labelW, yCenter + 5); 
+            }
+            
+            // Draw the P = ? label beside the target component
+            if (comp.isTarget) {
+                ctx.fillStyle = brandPink; ctx.textAlign = "left"; ctx.fillText("P = ?", 335, yCenter + 5); 
+            }
+        }
+
+        drawDynamicComp(c1, 145);
         drawLine(ctx, 300, 170, 300, 230);
-
-        drawComponent(ctx, 'fixed', 300, 255);
-        ctx.fillStyle = brandBlack; ctx.textAlign = "left"; 
-        ctx.font = "bold 16px Arial"; ctx.fillText("R", 210, 260); 
-        let r2TextW = ctx.measureText("R").width;
-        ctx.font = "bold 12px Arial"; ctx.fillText("2", 210 + r2TextW, 264);
-        let sub2W = ctx.measureText("2").width;
-        ctx.font = "bold 16px Arial"; ctx.fillText(" = " + r2Value + " \u03A9", 210 + r2TextW + sub2W, 260); 
+        drawDynamicComp(c2, 255);
 
         drawLine(ctx, 300, 280, 300, 360);
 
         if (solText) {
             solText.innerHTML = "<strong>P = " + power_W + " W</strong><br><br>" +
                 "<em>Core Equation:</em> <strong>P = I&sup2; &times; R</strong><br><br>" +
-                "<em>Trap Avoided:</em> You only need the resistance of R<sub>1</sub>, not the total circuit resistance.<br><br>" +
-                "P = (" + current_A + " A)&sup2; &times; " + r1Value + " &Omega; = " + (current_A * current_A).toFixed(2) + " &times; " + r1Value + " = <strong>" + power_W + " W</strong>";
+                "<em>Trap Avoided:</em> You only need the resistance of " + targetComp.name + ", not the total circuit resistance.<br><br>" +
+                "P = (" + current_A + " A)&sup2; &times; " + targetComp.r + " &Omega; = " + (current_A * current_A).toFixed(2) + " &times; " + targetComp.r + " = <strong>" + power_W + " W</strong>";
         }
     }
 }
