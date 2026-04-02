@@ -3104,34 +3104,35 @@ function generatePowerProblem(ctx, canvas) {
 
     } else {
         // ==========================================
-        // SCENARIO 3: Dynamic Series Components
+        // SCENARIO 3: Resistor + (Resistor, Motor, or Lamp)
         // ==========================================
+        // Series circuit so Current (Amps) is shared across both components
         let current_A = parseFloat((Math.random() * 1.4 + 0.1).toFixed(1)); 
         
-        // Pick random components for top (c1) and bottom (c2)
-        const compTypes = ['resistor', 'signal', 'motor', 'filament'];
-        let c1 = { type: compTypes[Math.floor(Math.random() * compTypes.length)], r: Math.floor(Math.random() * 8) * 10 + 20, isTarget: false };
-        let c2 = { type: compTypes[Math.floor(Math.random() * compTypes.length)], r: Math.floor(Math.random() * 8) * 10 + 20, isTarget: false };
+        const secondaryTypes = ['resistor', 'signal', 'motor'];
+        
+        // Ensure at least one component is always a resistor
+        let isTopResistor = Math.random() < 0.5;
+        let c1Type = isTopResistor ? 'resistor' : secondaryTypes[Math.floor(Math.random() * secondaryTypes.length)];
+        let c2Type = !isTopResistor ? 'resistor' : secondaryTypes[Math.floor(Math.random() * secondaryTypes.length)];
+
+        let c1 = { type: c1Type, r: Math.floor(Math.random() * 8) * 10 + 20, isTarget: false };
+        let c2 = { type: c2Type, r: Math.floor(Math.random() * 8) * 10 + 20, isTarget: false };
 
         // Randomly pick which component we want them to calculate power for
         let targetIdx = Math.random() < 0.5 ? 1 : 2;
         let targetComp = targetIdx === 1 ? c1 : c2;
         targetComp.isTarget = true;
 
-        // Dynamic naming logic (prevents grammar weirdness like "calculate power in resistor 1" if there's only one resistor)
+        // Dynamic naming logic ensuring perfect grammar
         function setProps(comp, otherComp, pos) {
             if (comp.type === 'resistor') {
                 if (otherComp.type === 'resistor') { comp.name = "R<sub>" + pos + "</sub>"; comp.label = "R"; comp.sub = pos.toString(); }
                 else { comp.name = "the resistor"; comp.label = "R"; comp.sub = ""; }
             } else if (comp.type === 'signal') {
-                if (otherComp.type === 'signal') { comp.name = "signal lamp " + pos; comp.label = "Lamp"; comp.sub = pos.toString(); }
-                else { comp.name = "the signal lamp"; comp.label = "Lamp"; comp.sub = ""; }
+                comp.name = "the signal lamp"; comp.label = "Lamp"; comp.sub = ""; 
             } else if (comp.type === 'motor') {
-                if (otherComp.type === 'motor') { comp.name = "motor " + pos; comp.label = "Motor"; comp.sub = pos.toString(); }
-                else { comp.name = "the motor"; comp.label = "Motor"; comp.sub = ""; }
-            } else if (comp.type === 'filament') {
-                if (otherComp.type === 'filament') { comp.name = "filament bulb " + pos; comp.label = "Bulb"; comp.sub = pos.toString(); }
-                else { comp.name = "the filament bulb"; comp.label = "Bulb"; comp.sub = ""; }
+                comp.name = "the motor"; comp.label = "Motor"; comp.sub = ""; 
             }
         }
         setProps(c1, c2, 1);
@@ -3174,15 +3175,13 @@ function generatePowerProblem(ctx, canvas) {
                 if (typeof drawLamp === 'function') drawLamp(ctx, 300, yCenter);
             } else if (comp.type === 'motor') {
                 if (typeof drawMotor === 'function') drawMotor(ctx, 300, yCenter);
-            } else if (comp.type === 'filament') {
-                if (typeof drawFilamentBulb === 'function') drawFilamentBulb(ctx, 300, yCenter);
-            }
+            } 
 
             ctx.fillStyle = brandBlack; ctx.textAlign = "left"; 
             ctx.font = "bold 16px Arial"; 
-            // x = 180 leaves enough room for longer words like "Motor" before hitting the 275px component edge
             ctx.fillText(comp.label, 180, yCenter + 5); 
             let labelW = ctx.measureText(comp.label).width;
+            
             if (comp.sub) {
                 ctx.font = "bold 12px Arial"; 
                 ctx.fillText(comp.sub, 180 + labelW, yCenter + 9);
