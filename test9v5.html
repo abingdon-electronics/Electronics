@@ -3046,50 +3046,45 @@ function generatePowerProblem(ctx, canvas) {
         let rValue = Math.floor(Math.random() * 36) + 15; 
         let power_W = parseFloat(((supplyV * supplyV) / rValue).toFixed(2));
 
-        const availableRatings = [0.25, 1, 2, 5, 10];
+        const availableRatings = [1, 2, 5, 10, 20, 50, 100];
         let chosenRating = availableRatings.find(rating => rating >= power_W);
-        if (!chosenRating) chosenRating = 10;
 
         currentAnswers.vNameHTML = 'P';
         currentAnswers.exactPower = power_W; 
-        currentAnswers.safeRating = chosenRating.toString(); 
+        currentAnswers.safeRating = chosenRating + " W"; 
         currentAnswers.vUnit = 'W'; 
 
         if (inputBox) inputBox.placeholder = "e.g. 1.2 W";
         
-        // --- RESTORED: THE "PERFECT" ORIGINAL FORMATTING ---
+        // --- RESTORED PERFECT FORMATTING ---
         if (powerRatingGroup) {
             powerRatingGroup.style.display = 'flex';
-            powerRatingGroup.style.alignItems = 'center';
             powerRatingGroup.style.marginTop = '10px';
-            powerRatingGroup.style.flexDirection = 'row';    
-            powerRatingGroup.style.justifyContent = 'flex-start'; 
-            powerRatingGroup.style.marginLeft = '0';        
+            powerRatingGroup.style.alignItems = 'center';
+            powerRatingGroup.style.justifyContent = 'center'; // Centers the group in the panel
+            powerRatingGroup.style.width = '100%';
             
             const ratingLabel = powerRatingGroup.querySelector('label');
             if (ratingLabel) {
                 ratingLabel.innerHTML = "<strong style='color:" + brandPink + "'>Bulb power rating = </strong>&nbsp;";
                 ratingLabel.style.fontSize = '18px';
-                ratingLabel.style.fontWeight = 'normal'; 
-                ratingLabel.style.whiteSpace = 'nowrap'; 
+                ratingLabel.style.whiteSpace = 'nowrap';
             }
         }
         
         if (selectBox) {
+            // Reverting to the 160px width from your original code
             selectBox.style.fontSize = '16px';
             selectBox.style.padding = '6px'; 
             selectBox.style.borderRadius = '6px';
-            selectBox.style.border = '2px solid #ccc';
             selectBox.style.cursor = 'pointer';
-            
-            // Set to 200px wide as requested
-            selectBox.style.setProperty('width', '200px', 'important');
-            selectBox.style.setProperty('min-width', '200px', 'important');
+            selectBox.style.setProperty('width', '160px', 'important');
+            selectBox.style.setProperty('min-width', '160px', 'important');
 
-            selectBox.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+            selectBox.innerHTML = '<option value="" disabled selected>Select Rating...</option>';
             availableRatings.forEach(rating => {
                 let opt = document.createElement('option');
-                opt.value = rating; 
+                opt.value = rating + " W"; 
                 opt.innerHTML = rating + " W";
                 selectBox.appendChild(opt);
             });
@@ -3108,8 +3103,8 @@ function generatePowerProblem(ctx, canvas) {
         ctx.font = "bold 12px Arial"; ctx.fillText("supply", 262, 50); 
         ctx.font = "bold 16px Arial"; ctx.fillText(" = " + supplyV + " V", 305, 45);
         ctx.textAlign = "center"; ctx.fillText("0V (GND)", 300, 390);
+
         drawLine(ctx, 300, 60, 300, 185); 
-        
         if (typeof drawFilamentBulb === 'function') {
             drawFilamentBulb(ctx, 300, 210);
         } else {
@@ -3117,10 +3112,14 @@ function generatePowerProblem(ctx, canvas) {
         }
         drawLine(ctx, 300, 235, 300, 360); 
 
-        ctx.fillStyle = brandBlack; ctx.textAlign = "right"; ctx.font = "bold 16px Arial";
-        ctx.fillText(supplyV + "V bulb", 268, 205); 
-        ctx.fillText("R = " + rValue + " \u03A9", 268, 225); 
-        ctx.fillStyle = brandPink; ctx.textAlign = "left"; ctx.fillText("P = ?", 332, 215); 
+        ctx.fillStyle = brandBlack; 
+        ctx.textAlign = "right"; 
+        ctx.font = "bold 16px Arial";
+        ctx.fillText(supplyV + "V bulb", 300 - 32, 205); 
+        ctx.fillText("R = " + rValue + " \u03A9", 300 - 32, 225); 
+        ctx.fillStyle = brandPink; 
+        ctx.textAlign = "left"; 
+        ctx.fillText("P = ?", 300 + 32, 215); 
 
         if (solText) {
             solText.innerHTML = "<strong>Exact Power = " + power_W + " W | Safe Rating = " + chosenRating + " W</strong><br><br>" +
