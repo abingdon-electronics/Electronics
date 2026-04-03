@@ -1986,8 +1986,11 @@ function generateResistanceProblem(ctx, canvas) {
     const groupR = document.getElementById('inputGroupR') || document.getElementById('inputGroupV');
     if (groupR) groupR.style.display = 'flex'; 
 
-    const g9ResBtn = document.getElementById('grade9ResistorBtn');
-    if (g9ResBtn) g9ResBtn.style.display = 'inline-block';
+    // SHOW THE Grade 9 button
+    const smartRocket = document.getElementById('mainGrade9Btn');
+    if (smartRocket) {
+        smartRocket.style.display = 'inline-block';
+    }
 
     // Swap the dropdown for the Omega symbol instantly
     const oldDropdown = document.getElementById('unitR');    
@@ -2163,8 +2166,8 @@ function generateGrade9Resistance() {
     currentMode = 'grade9resistance'; 
 
     // Turn the Grade 9 button back on
-    if (document.getElementById('grade9ResistorBtn')) {
-        document.getElementById('grade9ResistorBtn').style.display = 'inline-block';
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'inline-block';
     }
     
     // Show instruction for Ohms/Prefixes if function exists
@@ -2287,11 +2290,11 @@ function generateDividerProblem(ctx, canvas) {
     hideAllInputGroups(); 
     currentMode = 'divider';
 
-    // BRING BACK THE GRADE 9 DIVIDER BUTTON
-    const g9DivBtn = document.getElementById('grade9DividerBtn');
-    if (g9DivBtn) {
-        g9DivBtn.style.display = 'inline-block';
-    }
+   // BRING BACK THE Grade 9 Button
+const smartRocket = document.getElementById('mainGrade9Btn');
+if (smartRocket) {
+    smartRocket.style.display = 'inline-block';
+}
 
     // TURN ON ONLY THE V BOX
     const groupV = document.getElementById('inputGroupV');
@@ -2477,10 +2480,10 @@ function generateGrade9DividerProblem() {
     hideAllInputGroups(); 
     currentMode = 'grade9divider'; 
     
-    // Turn the Grade 9 button back on
-    if (document.getElementById('grade9DividerBtn')) {
-        document.getElementById('grade9DividerBtn').style.display = 'inline-block';
-    }
+    // KEEP THE grade 9 button on
+if (document.getElementById('mainGrade9Btn')) {
+    document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+}
     
     // Bring back the specific Input Group
     const groupV = document.getElementById('inputGroupV');
@@ -2950,8 +2953,11 @@ function generatePowerProblem(ctx, canvas) {
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
     currentMode = 'power'; 
 
-    const g9PowerBtn = document.getElementById('grade9PowerBtn');
-    if (g9PowerBtn) g9PowerBtn.style.display = 'inline-block';
+    // SHOW THE SMART ROCKET (Grade 9)
+    const smartRocket = document.getElementById('mainGrade9Btn');
+    if (smartRocket) {
+        smartRocket.style.display = 'inline-block';
+    }
 
     const groupP = document.getElementById('inputGroupP');
     if (groupP) groupP.style.display = 'flex'; 
@@ -3837,8 +3843,11 @@ function generateZenerProblem() {
     currentMode = 'zener';
     clearZenerInputs(); // Ensure inputs are wiped
     
-    // ---> THE FIX: Turn the Grade 9 button back on after the wipe! <---
-    if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'inline-block';
+    // ---> THE FIX: Turn the Grade 9 button (Smart Rocket) back on after the wipe! <---
+
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+    }
     
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
@@ -4112,8 +4121,12 @@ function generateGrade9ZenerProblem() {
     
     // ---> THE FIX: Turn the UI back on after the generator's wipe <---
     if (document.getElementById('inputGroupGrade9Zener')) document.getElementById('inputGroupGrade9Zener').style.display = 'block';
-    if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'inline-block';
     
+    // KEEP THE SMART ROCKET (Grade 9)
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+    }
+        
     // Clear Grade 9 Inputs
     const ids = ['g9IL', 'g9IZ', 'g9PZ', 'g9Rating'];
     ids.forEach(id => {
@@ -5701,11 +5714,10 @@ function hideAllInputGroups() {
         if (el) el.style.setProperty("display", "none", "important");
     });
     
-    // 2c. TOGGLE BUTTONS (Hide Zener/Divider buttons, but NOT Grade 9 Power)
-    // We removed 'grade9PowerBtn' from this list so it doesn't disappear!
-    if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'none';
-    if (document.getElementById('grade9DividerBtn')) document.getElementById('grade9DividerBtn').style.display = 'none';
-    if (document.getElementById('grade9ResistorBtn')) document.getElementById('grade9ResistorBtn').style.display = 'none';
+    // 2c. TOGGLE BUTTONS (Hide the Smart Rocket before the new problem decides to show it)
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'none';
+    }
     
     // NEW WORKSTATION TOGGLES
     if (document.getElementById('canvasIPOWorkstation')) document.getElementById('canvasIPOWorkstation').style.display = 'none';
