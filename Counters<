@@ -747,12 +747,12 @@
 
 <div id="mainMenu" class="tabs">
     <button class="tab" onclick="safeOpenModule('basics')">1. Circuit Basics</button>
-    <button class="tab" onclick="safeOpenModule('transistors')">5. Transistors</button>
+    <button class="tab" onclick="safeOpenModule('flipflops')">5. Flip Flops & Counters</button>
     <button class="tab" onclick="safeOpenModule('logic')">2. Logic Gates</button>
-    <button class="tab" onclick="safeOpenModule('opamps')">6. Op Amps</button>
+    <button class="tab" onclick="safeOpenModule('transistors')">6. Transistors</button>
     <button class="tab" onclick="safeOpenModule('timing')">3. Timing Circuits</button>
-    <button class="tab" onclick="safeOpenModule('systems')">7. Systems</button>
-    <button class="tab" onclick="safeOpenModule('flipflops')">4. Flip Flops & Counters</button>
+    <button class="tab" onclick="safeOpenModule('opamps')">7. Op Amps</button>
+    <button class="tab" onclick="safeOpenModule('systems')">4. Systems</button>
     <button class="tab" onclick="safeOpenModule('diodes')">8. Diodes</button>
 </div>
 
@@ -4622,9 +4622,11 @@ function switchTab(mode) {
         'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener',
         'inputGroupSilicon', 'zenerOpenQuestions', 'zenerClosedQuestions', 
         'instructionPrompt', 'astableInstruction', 'ratioInstruction', 'zenerInstruction',
-        'mainGrade9Btn', 'showsolutionsBtn', // Updated: Removed old IDs, added mainGrade9Btn
+        'mainGrade9Btn', 'showsolutionsBtn', 
         'inputGroupGrade9Zener', 'g9ZenerClosed', 'g9ZenerOpen',
-        'inputGroupIPOSort'
+        'inputGroupIPOSort',
+        // --- NEW POWER CONTAINERS ADDED HERE ---
+        'inputGroupPower', 'inputGroupGrade9Power', 'inputGroupPowerRating' 
     ];
 
     elementsToHide.forEach(id => {
@@ -4638,9 +4640,10 @@ function switchTab(mode) {
     const subtitle = document.getElementById('moduleSubtitle');
     if (subtitle) {
         if (mode === 'home') subtitle.innerText = "Welcome to Electronics";
-        else if (['analysis', 'divider', 'resistance', 'colorcode'].includes(mode)) subtitle.innerText = "Module 1: Circuit Basics";
-        else if (mode === 'iposort') subtitle.innerText = "Module 7: Systems";
+        // --- POWER AND GRADE9POWER ADDED TO MODULE 1 ---
+        else if (['analysis', 'divider', 'resistance', 'colorcode', 'power', 'grade9power'].includes(mode)) subtitle.innerText = "Module 1: Circuit Basics";
         else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) subtitle.innerText = "Module 3: Timing Circuits";
+        else if (mode === 'iposort') subtitle.innerText = "Module 4: Systems";
         else if (['silicon', 'zener', 'grade9zener'].includes(mode)) subtitle.innerText = "Module 8: Diodes";
     }
 
