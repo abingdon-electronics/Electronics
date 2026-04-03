@@ -5554,19 +5554,21 @@ async function processSubmission() {
     // Map the technical mode name to a readable topic string
     // Update this section in your processSubmission function:
     const topicMap = {
-        'analysis': 'Cct Analysis',
-        'divider': 'Pot Divider',
-        'resistance': 'Tot Resistance',
-        'oscilloscope': 'Oscilloscopes',
-        'astable': 'Astable', 
-        'monostable': 'Monostable',
-        'zener': 'Zener Diodes',
-        'silicon': 'Silicon Diodes',
-        'iposort': 'IPO Sort',
-        'grade9divider': 'G9 Divider',
-        'grade9resistance': 'G9 Resistance',
-        'grade9zener': 'G9 Zener'
-    };
+            'analysis': 'Cct Analysis',
+            'divider': 'Pot Divider',
+            'resistance': 'Tot Resistance',
+            'oscilloscope': 'Oscilloscopes',
+            'astable': 'Astable', 
+            'monostable': 'Monostable',
+            'zener': 'Zener Diodes',
+            'silicon': 'Silicon Diodes',
+            'iposort': 'IPO Sort',
+            'power': 'Power',  
+            'grade9divider': 'G9 Divider',
+            'grade9resistance': 'G9 Resistance',
+            'grade9zener': 'G9 Zener',
+            'grade9power': 'G9 Power' 
+        };
     const currentTopic = topicMap[currentMode] || 'Unknown Topic';
 
     closeModal();
