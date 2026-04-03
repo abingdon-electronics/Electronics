@@ -3061,41 +3061,36 @@ function generatePowerProblem(ctx, canvas) {
         currentAnswers.vUnit = 'W'; 
 
         if (inputBox) inputBox.placeholder = "e.g. 1.2 W";
-        // --- REFINED ALIGNMENT & SIZING ---
+        
+// --- ULTIMATE OVERRIDE ALIGNMENT ---
         if (powerRatingGroup) {
-            powerRatingGroup.style.display = 'flex';
-            powerRatingGroup.style.flexDirection = 'row'; // Forces side-by-side
-            powerRatingGroup.style.marginTop = '15px';
-            powerRatingGroup.style.alignItems = 'center';
-            powerRatingGroup.style.justifyContent = 'center'; 
-            powerRatingGroup.style.gap = '5px'; // REDUCED space between label and box
-            powerRatingGroup.style.width = '100%';
-            powerRatingGroup.style.paddingLeft = '0'; 
+            powerRatingGroup.style.setProperty('display', 'flex', 'important');
+            powerRatingGroup.style.setProperty('flex-direction', 'row', 'important');
+            powerRatingGroup.style.setProperty('align-items', 'center', 'important');
+            // Anchor left and push inwards so it CANNOT clip the edge
+            powerRatingGroup.style.setProperty('justify-content', 'flex-start', 'important'); 
+            powerRatingGroup.style.setProperty('padding-left', '25px', 'important'); 
+            powerRatingGroup.style.setProperty('gap', '5px', 'important'); 
+            powerRatingGroup.style.setProperty('width', '100%', 'important');
             
             const ratingLabel = powerRatingGroup.querySelector('label');
             if (ratingLabel) {
-                // Removed extra spaces after the equals sign
                 ratingLabel.innerHTML = "<strong style='color:" + brandPink + "'>P<sub>rating</sub> =</strong>";
-                ratingLabel.style.fontSize = '20px';
-                ratingLabel.style.whiteSpace = 'nowrap'; 
-                ratingLabel.style.flexShrink = '0';
-                ratingLabel.style.margin = '0'; // Kills hidden margins
+                ratingLabel.style.setProperty('font-size', '20px', 'important');
+                ratingLabel.style.setProperty('margin', '0', 'important'); // Kill hidden margins
+                ratingLabel.style.setProperty('padding', '0', 'important');
             }
         }
         
         if (selectBox) {
-            // REDUCED WIDTH AND PADDING
-            selectBox.style.fontSize = '15px'; // Slightly smaller font to fit the text safely
-            selectBox.style.padding = '4px';   // Reduced internal padding
-            selectBox.style.borderRadius = '6px';
-            selectBox.style.border = '2px solid #ccc';
-            selectBox.style.cursor = 'pointer';
+            selectBox.style.setProperty('font-size', '15px', 'important'); 
+            selectBox.style.setProperty('padding', '4px', 'important');   
+            // Force the smaller width
+            selectBox.style.setProperty('width', '130px', 'important'); 
+            selectBox.style.setProperty('min-width', '130px', 'important');
+            // Kill the hidden margin causing that massive gap
+            selectBox.style.setProperty('margin', '0', 'important'); 
             
-            // Shrunk from 160px to 140px
-            selectBox.style.setProperty('width', '140px', 'important');
-            selectBox.style.setProperty('min-width', '140px', 'important');
-            selectBox.style.margin = '0'; // Kills hidden margins
-
             selectBox.innerHTML = '<option value="" disabled selected>Select Rating...</option>';
             availableRatings.forEach(rating => {
                 let opt = document.createElement('option');
