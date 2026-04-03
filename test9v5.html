@@ -2960,7 +2960,7 @@ function generatePowerProblem(ctx, canvas) {
     const qText = document.getElementById('questionText');
     const solText = document.getElementById('solText');
 
-    // TARGET THE HTML DROPDOWN (No longer creating dynamic ones)
+    // TARGET THE HTML DROPDOWN
     const powerRatingGroup = document.getElementById('inputGroupPowerRating');
     const selectBox = document.getElementById('selectPowerRating');
 
@@ -3043,14 +3043,19 @@ function generatePowerProblem(ctx, canvas) {
                 "P = " + current_mA + " mA &times; " + resistorV.toFixed(1) + "V = <strong>" + power_mW + " mW</strong>";
         }
 
-} else if (scenario === 2) {
+    } else if (scenario === 2) {
         // ==========================================
-        // SCENARIO 2: Real-World Component Rating
+        // SCENARIO 2: "Missing Resistance" Trap + Rating
         // ==========================================
-        const supplyOptions = [5, 6, 12, 24];
+        const supplyOptions = [9, 12, 24];
         let supplyV = supplyOptions[Math.floor(Math.random() * supplyOptions.length)];
-        let rValue = Math.floor(Math.random() * 36) + 15; 
-        let power_W = parseFloat(((supplyV * supplyV) / rValue).toFixed(2));
+        
+        // Randomize the series resistor voltage (leave at least 2V for the bulb)
+        let resistorV = Math.floor(Math.random() * (supplyV - 3)) + 2; 
+        let bulbV = supplyV - resistorV;
+        
+        let rValue = Math.floor(Math.random() * 20) + 10; 
+        let power_W = parseFloat(((bulbV * bulbV) / rValue).toFixed(2));
 
         const availableRatings = [1, 2, 5, 10, 20, 50, 100];
         let chosenRating = availableRatings.find(rating => rating >= power_W);
@@ -3062,12 +3067,11 @@ function generatePowerProblem(ctx, canvas) {
 
         if (inputBox) inputBox.placeholder = "e.g. 1.2 W";
         
-// --- ULTIMATE OVERRIDE ALIGNMENT ---
+        // --- ULTIMATE OVERRIDE ALIGNMENT ---
         if (powerRatingGroup) {
             powerRatingGroup.style.setProperty('display', 'flex', 'important');
             powerRatingGroup.style.setProperty('flex-direction', 'row', 'important');
             powerRatingGroup.style.setProperty('align-items', 'center', 'important');
-            // Anchor left and push inwards so it CANNOT clip the edge
             powerRatingGroup.style.setProperty('justify-content', 'flex-start', 'important'); 
             powerRatingGroup.style.setProperty('padding-left', '25px', 'important'); 
             powerRatingGroup.style.setProperty('gap', '5px', 'important'); 
@@ -3077,7 +3081,7 @@ function generatePowerProblem(ctx, canvas) {
             if (ratingLabel) {
                 ratingLabel.innerHTML = "<strong style='color:" + brandPink + "'>P<sub>rating</sub> =</strong>";
                 ratingLabel.style.setProperty('font-size', '16px', 'important');
-                ratingLabel.style.setProperty('margin', '0', 'important'); // Kill hidden margins
+                ratingLabel.style.setProperty('margin', '0', 'important'); 
                 ratingLabel.style.setProperty('padding', '0', 'important');
             }
         }
@@ -3085,10 +3089,8 @@ function generatePowerProblem(ctx, canvas) {
         if (selectBox) {
             selectBox.style.setProperty('font-size', '15px', 'important'); 
             selectBox.style.setProperty('padding', '4px', 'important');   
-            // Force the smaller width
             selectBox.style.setProperty('width', '130px', 'important'); 
             selectBox.style.setProperty('min-width', '130px', 'important');
-            // Kill the hidden margin causing that massive gap
             selectBox.style.setProperty('margin', '0', 'important'); 
             
             selectBox.innerHTML = '<option value="" disabled selected>Select Rating...</option>';
@@ -3106,70 +3108,60 @@ function generatePowerProblem(ctx, canvas) {
         }
 
         // --- DRAWING ---
-        drawLine(ctx, 150, 60, 450, 60);
-        drawLine(ctx, 150, 360, 450, 360);
+        drawLine(ctx, 150, 60, 450, 60); // Supply
+        drawLine(ctx, 150, 360, 450, 360); // Ground
+        
         ctx.fillStyle = brandBlack; ctx.textAlign = "left";
         ctx.font = "bold 16px Arial"; ctx.fillText("V", 250, 45);
         ctx.font = "bold 12px Arial"; ctx.fillText("supply", 262, 50); 
         ctx.font = "bold 16px Arial"; ctx.fillText(" = " + supplyV + " V", 305, 45);
         ctx.textAlign = "center"; ctx.fillText("0V (GND)", 300, 390);
 
-        drawLine(ctx, 300, 60, 300, 185); 
-        if (typeof drawFilamentBulb === 'function') {
-            drawFilamentBulb(ctx, 300, 210);
-        } else {
-            drawComponent(ctx, 'filament', 300, 210); 
-        }
-        drawLine(ctx, 300, 235, 300, 360); 
+        // Top Resistor
+        drawLine(ctx, 300, 60, 300, 120); 
+        drawComponent(ctx, 'fixed', 300, 145); 
+        ctx.fillStyle = brandBlack; ctx.textAlign = "right"; ctx.font = "bold 16px Arial";
+        ctx.fillText(resistorV + " V", 270, 150); // Voltage written to the left
 
-        ctx.fillStyle = brandBlack; 
-        ctx.textAlign = "right"; 
-        ctx.font = "bold 16px Arial";
-        ctx.fillText(supplyV + "V bulb", 300 - 32, 205); 
-        ctx.fillText("R = " + rValue + " \u03A9", 300 - 32, 225); 
-        ctx.fillStyle = brandPink; 
-        ctx.textAlign = "left"; 
-        ctx.fillText("P = ?", 300 + 32, 215); 
+        // Bulb
+        drawLine(ctx, 300, 170, 300, 230); 
+        if (typeof drawFilamentBulb === 'function') {
+            drawFilamentBulb(ctx, 300, 255);
+        } else {
+            drawComponent(ctx, 'filament', 300, 255); 
+        }
+        
+        ctx.fillStyle = brandBlack; ctx.textAlign = "right"; 
+        ctx.fillText("R = " + rValue + " \u03A9", 270, 260); // R given on the left
+        ctx.fillStyle = brandPink; ctx.textAlign = "left"; 
+        ctx.fillText("P = ?", 330, 260); // Target P on right
+
+        drawLine(ctx, 300, 280, 300, 360); 
 
         if (solText) {
             solText.innerHTML = "<strong>Exact Power = " + power_W + " W | Safe Rating = " + chosenRating + " W</strong><br><br>" +
-                "<em>Core Equation:</em> <strong>P = V&sup2; / R</strong><br><br>" +
-                "P = (" + supplyV + "&sup2;) / " + rValue + " = " + (supplyV*supplyV) + " / " + rValue + " = <strong>" + power_W + " W</strong><br><br>" +
+                "<em>Step 1:</em> Find the voltage across the bulb.<br>" +
+                "V<sub>bulb</sub> = V<sub>supply</sub> - V<sub>resistor</sub> = " + supplyV + " - " + resistorV + " = <strong>" + bulbV + " V</strong><br><br>" +
+                "<em>Step 2:</em> Use the core equation <strong>P = V&sup2; / R</strong><br>" +
+                "P = (" + bulbV + "&sup2;) / " + rValue + " = " + (bulbV*bulbV) + " / " + rValue + " = <strong>" + power_W + " W</strong><br><br>" +
                 "<em>Engineering Application:</em> Because the filament bulb dissipates " + power_W + "W, you must select the next highest available rating (" + chosenRating + "W) to prevent the component from failing.";
         }
 
     } else {
         // ==========================================
-        // SCENARIO 3: Resistor + (Resistor, Motor, or Lamp)
+        // SCENARIO 3: Identical Parallel Split
         // ==========================================
-        let current_A = parseFloat((Math.random() * 1.4 + 0.1).toFixed(1)); 
-        const secondaryTypes = ['resistor', 'signal', 'motor'];
-        let isTopResistor = Math.random() < 0.5;
-        let c1Type = isTopResistor ? 'resistor' : secondaryTypes[Math.floor(Math.random() * secondaryTypes.length)];
-        let c2Type = !isTopResistor ? 'resistor' : secondaryTypes[Math.floor(Math.random() * secondaryTypes.length)];
+        // Ensures total current gives an easy-to-halve decimal (e.g., 0.4, 0.6... 2.4)
+        let total_I = parseFloat(((Math.floor(Math.random() * 11) + 2) * 0.2).toFixed(1)); 
+        let branch_I = parseFloat((total_I / 2).toFixed(2));
+        
+        let compType = Math.random() < 0.5 ? 'signal' : 'motor';
+        let compName = compType === 'signal' ? "one of the identical lamps" : "one of the identical motors";
+        
+        let rValue = Math.floor(Math.random() * 8) * 10 + 20; // e.g. 20, 30... 90 ohms
 
-        let c1 = { type: c1Type, r: Math.floor(Math.random() * 8) * 10 + 20, isTarget: false };
-        let c2 = { type: c2Type, r: Math.floor(Math.random() * 8) * 10 + 20, isTarget: false };
-
-        let targetIdx = Math.random() < 0.5 ? 1 : 2;
-        let targetComp = targetIdx === 1 ? c1 : c2;
-        targetComp.isTarget = true;
-
-        function setProps(comp, otherComp, pos) {
-            comp.label = "R";
-            comp.sub = pos.toString(); 
-            if (comp.type === 'resistor') {
-                comp.name = (otherComp.type === 'resistor') ? "R<sub>" + pos + "</sub>" : "the resistor";
-            } else if (comp.type === 'signal') {
-                comp.name = "the signal lamp"; 
-            } else if (comp.type === 'motor') {
-                comp.name = "the motor"; 
-            }
-        }
-        setProps(c1, c2, 1);
-        setProps(c2, c1, 2);
-
-        let power_W = parseFloat(((current_A * current_A) * targetComp.r).toFixed(2));
+        let power_W = parseFloat(((branch_I * branch_I) * rValue).toFixed(2));
+        
         currentAnswers.vNameHTML = 'P';
         currentAnswers.vValue = power_W;
         currentAnswers.vUnit = 'W'; 
@@ -3177,46 +3169,66 @@ function generatePowerProblem(ctx, canvas) {
         if (inputBox) inputBox.placeholder = "e.g. 11.75 W"; 
 
         if (qText) {
-            qText.innerHTML = "Calculate the power dissipated in <strong>" + targetComp.name + "</strong>.";
+            qText.innerHTML = "Calculate the power dissipated in <strong>" + compName + "</strong>.";
             qText.style.display = 'block';
         }
 
         // --- DRAWING ---
-        drawLine(ctx, 150, 60, 450, 60);
-        drawLine(ctx, 150, 360, 450, 360);
+        drawLine(ctx, 150, 60, 450, 60); // Supply
+        drawLine(ctx, 150, 360, 450, 360); // Ground
+        
         ctx.fillStyle = brandBlack; ctx.textAlign = "left";
         ctx.font = "bold 16px Arial"; ctx.fillText("V", 270, 45);
         ctx.font = "bold 12px Arial"; ctx.fillText("supply", 282, 50);
         ctx.textAlign = "center"; ctx.font = "bold 16px Arial"; ctx.fillText("0V (GND)", 300, 390);
-        drawLine(ctx, 300, 60, 300, 120); 
-        drawArrowOnWire(ctx, 300, 60, 300, 90);
-        ctx.textAlign = "right"; ctx.fillText("I = " + current_A + " A", 285, 95);
 
-        function drawDynamicComp(comp, yCenter) {
-            if (comp.type === 'resistor') drawComponent(ctx, 'fixed', 300, yCenter);
-            else if (comp.type === 'signal') drawLamp(ctx, 300, yCenter);
-            else if (comp.type === 'motor') drawMotor(ctx, 300, yCenter);
-            
-            ctx.fillStyle = brandBlack; ctx.textAlign = "left"; ctx.font = "bold 16px Arial"; 
-            ctx.fillText(comp.label, 180, yCenter + 5); 
-            let labelW = ctx.measureText(comp.label).width;
-            ctx.font = "bold 12px Arial"; ctx.fillText(comp.sub, 180 + labelW, yCenter + 9);
-            let subW = ctx.measureText(comp.sub).width;
-            ctx.font = "bold 16px Arial"; ctx.fillText(" = " + comp.r + " \u03A9", 180 + labelW + subW, yCenter + 5);
-            if (comp.isTarget) {
-                ctx.fillStyle = brandPink; ctx.textAlign = "left"; ctx.fillText("P = ?", 335, yCenter + 5); 
-            }
+        // Main line to parallel split
+        drawLine(ctx, 300, 60, 300, 110); 
+        
+        // Top parallel branches
+        drawLine(ctx, 220, 110, 380, 110); 
+        drawLine(ctx, 220, 110, 220, 125); // Left drop
+        drawLine(ctx, 380, 110, 380, 125); // Right drop
+        
+        if (compType === 'signal') {
+            drawLamp(ctx, 220, 150);
+            drawLamp(ctx, 380, 150);
+        } else {
+            drawMotor(ctx, 220, 150);
+            drawMotor(ctx, 380, 150);
         }
 
-        drawDynamicComp(c1, 145);
-        drawLine(ctx, 300, 170, 300, 230);
-        drawDynamicComp(c2, 255);
-        drawLine(ctx, 300, 280, 300, 360);
+        // Label for the right-side component (representing "one of")
+        ctx.fillStyle = brandBlack; ctx.textAlign = "left";
+        ctx.fillText("R = " + rValue + " \u03A9", 410, 145);
+        ctx.fillStyle = brandPink;
+        ctx.fillText("P = ?", 410, 165);
+
+        // Bottom parallel branches
+        drawLine(ctx, 220, 175, 220, 190);
+        drawLine(ctx, 380, 175, 380, 190);
+        drawLine(ctx, 220, 190, 380, 190); // Recombine
+        
+        // Main line down to resistor
+        drawLine(ctx, 300, 190, 300, 255); 
+        
+        // Main branch current arrow (dropped down before the lower resistor)
+        drawArrowOnWire(ctx, 300, 190, 300, 230);
+        ctx.fillStyle = brandBlack; ctx.textAlign = "right"; 
+        ctx.fillText("I = " + total_I + " A", 285, 225);
+
+        // Lower Resistor
+        drawComponent(ctx, 'fixed', 300, 280);
+        
+        // Wire to ground
+        drawLine(ctx, 300, 305, 300, 360);
 
         if (solText) {
             solText.innerHTML = "<strong>P = " + power_W + " W</strong><br><br>" +
-                "<em>Core Equation:</em> <strong>P = I&sup2; &times; R</strong><br><br>" +
-                "P = (" + current_A + " A)&sup2; &times; " + targetComp.r + " &Omega; = <strong>" + power_W + " W</strong>";
+                "<em>Step 1:</em> Because the components are identical and in parallel, the main current splits equally.<br>" +
+                "I<sub>branch</sub> = " + total_I + " A / 2 = <strong>" + branch_I + " A</strong><br><br>" +
+                "<em>Step 2:</em> Use the core equation <strong>P = I&sup2; &times; R</strong><br>" +
+                "P = (" + branch_I + " A)&sup2; &times; " + rValue + " &Omega; = <strong>" + power_W + " W</strong>";
         }
     }
 }
