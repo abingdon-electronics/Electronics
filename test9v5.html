@@ -3274,6 +3274,11 @@ function generateGrade9PowerProblem() {
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
     currentMode = 'grade9power'; 
     
+    // ---> THE UPGRADE: Keep the Smart Rocket visible! <---
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+    }
+
     // Show the new dedicated HTML container
     const inputZone = document.getElementById('inputGroupGrade9Power');
     if (inputZone) inputZone.style.display = 'block'; 
