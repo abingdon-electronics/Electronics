@@ -1357,20 +1357,28 @@ function handleGenerateClick() {
 }
 
 function handleGrade9Click() {
-    // 1. First, hide the Rocket button so it doesn't stay visible inside the Grade 9 module
-    document.getElementById('mainGrade9Btn').style.display = 'none';
+    // 1. Hide the Rocket button immediately to prevent double-clicks
+    const rocket = document.getElementById('mainGrade9Btn');
+    if (rocket) rocket.style.display = 'none';
 
-    // 2. Teleport the student based on their current page
-    if (currentMode === 'potentialDivider') {
-        safeSwitchTab('grade9divider');
+    // 2. Routing Logic: Where do we go based on the current mode?
+    if (currentMode === 'divider') {
+        generateGrade9DividerProblem(); 
     } 
-    else if (currentMode === 'resistorColor' || currentMode === 'basics') {
-        safeSwitchTab('grade9power');
+    else if (currentMode === 'resistance') {
+        // Change this to your actual Grade 9 Resistance function name
+        generateGrade9ResistorProblem(); 
     } 
-    else if (currentMode === 'zenerDiode') {
-        safeSwitchTab('grade9zener');
+    else if (currentMode === 'zener') {
+        generateGrade9ZenerProblem(); 
     }
-    // As you build 'Total Resistance', you'd add another 'else if' here!
+    else if (currentMode === 'power') {
+        // Change this to your actual Grade 9 Power function name
+        generateGrade9PowerProblem(); 
+    }
+    
+    // Safety check: Log to console so you can see if it fired
+    console.log("Rocket launched for mode: " + currentMode);
 }
 // ==================================================================================================================
 // FUNCTION 0: SMALL UTILITIES (HELPERS)   
