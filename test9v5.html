@@ -1412,7 +1412,8 @@ const scenarioTracker = {
     oscilloscope: 0,
     analysis: 0,
     zener: 0,
-    grade9zener: 0
+    grade9zener: 0,
+    power: 0
     // add any others you need here!
 };
 
@@ -2978,7 +2979,20 @@ function generatePowerProblem(ctx, canvas) {
     ctx.strokeStyle = brandBlack;
     ctx.lineWidth = 2;
 
-    const scenario = Math.floor(Math.random() * 3) + 1;
+    // ==========================================
+    // CYCLING LOGIC (Using scenarioTracker)
+    // ==========================================
+    // Fallback just in case 'power' wasn't added to the tracker yet
+    if (typeof scenarioTracker.power === 'undefined') {
+        scenarioTracker.power = 0;
+    }
+    
+    scenarioTracker.power++;
+    if (scenarioTracker.power > 3) {
+        scenarioTracker.power = 1;
+    }
+    
+    const scenario = scenarioTracker.power;
     currentAnswers.scenario = scenario; 
 
     if (scenario === 1) {
@@ -3129,10 +3143,10 @@ function generatePowerProblem(ctx, canvas) {
         }
         
         ctx.fillStyle = brandBlack; ctx.textAlign = "right"; ctx.textBaseline = "middle";
-        ctx.font = "bold 16px Arial"; // Restored to 16px
-        ctx.fillText("R = " + rValue + " \u03A9", 265, 255); // Nudged slightly left to 265
+        ctx.font = "bold 16px Arial"; 
+        ctx.fillText("R = " + rValue + " \u03A9", 265, 255); 
         ctx.fillStyle = brandPink; ctx.textAlign = "left"; 
-        ctx.fillText("P = ?", 335, 255); // Nudged slightly right to 335
+        ctx.fillText("P = ?", 335, 255); 
 
         drawLine(ctx, 300, 280, 300, 360); 
 
@@ -3166,7 +3180,7 @@ function generatePowerProblem(ctx, canvas) {
         if (inputBox) inputBox.placeholder = "e.g. 11.75 W"; 
 
         if (qText) {
-            qText.innerHTML = "Calculate the power dissipated in <strong>" + compName + "</strong>.";
+            qText.innerHTML = "Calculate the power dissipated by <strong>" + compName + "</strong>.";
             qText.style.display = 'block';
         }
 
@@ -3193,10 +3207,10 @@ function generatePowerProblem(ctx, canvas) {
 
         // Label for the right-side component
         ctx.fillStyle = brandBlack; ctx.textAlign = "left"; ctx.textBaseline = "middle";
-        ctx.font = "bold 16px Arial"; // Restored to 16px
-        ctx.fillText("R = " + rValue + " \u03A9", 420, 115); // Nudged slightly right to 420
+        ctx.font = "bold 16px Arial"; 
+        ctx.fillText("R = " + rValue + " \u03A9", 420, 115); 
         ctx.fillStyle = brandPink;
-        ctx.fillText("P = ?", 420, 135); // Nudged slightly right to 420
+        ctx.fillText("P = ?", 420, 135); 
 
         // Bottom parallel branches recombining. Start at y=150 so they don't clip into components.
         drawLine(ctx, 220, 150, 220, 190);
@@ -3209,7 +3223,7 @@ function generatePowerProblem(ctx, canvas) {
         // Total current arrow correctly placed before the lower resistor
         drawArrowOnWire(ctx, 300, 190, 300, 225);
         ctx.fillStyle = brandBlack; ctx.textAlign = "right"; ctx.textBaseline = "middle";
-        ctx.font = "bold 16px Arial"; // Restored to 16px
+        ctx.font = "bold 16px Arial"; 
         ctx.fillText("I = " + total_I + " A", 285, 207);
 
         // Lower Resistor
