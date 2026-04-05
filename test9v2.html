@@ -1727,14 +1727,14 @@ function drawResistor(ctx, x, y) {
 // --- GLOBAL DRAWING HELPERS ---
 // These can be called by any function in your script
 //********************************************************   
+
 /**
  * Draws a lamp symbol (Circle with an X inside - GCSE notation)
  * centered at (x,y) with a default radius of 25px.
  */
-function drawLamp(ctx, x, y) {
-    const radius = 25; // Increased to match the filament bulb
-    
-    ctx.strokeStyle = brandBlack; 
+function drawLamp(ctx, x, y, radius = 25) {
+    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "black";
+    ctx.strokeStyle = strokeColor; 
     ctx.lineWidth = 2; 
     
     // 1. Draw the circle with a solid white fill
@@ -1745,7 +1745,6 @@ function drawLamp(ctx, x, y) {
     ctx.stroke();
 
     // 2. Draw the 'X' inside. 
-    // We calculate the offsets using 45-degree trigonometry (radius * 0.707)
     const offset = radius * 0.7071;
     ctx.beginPath();
     
@@ -1759,7 +1758,6 @@ function drawLamp(ctx, x, y) {
     
     ctx.stroke();
 }
-
 /** Draws a filament bulb symbol */
 function drawFilamentBulb(ctx, x, y) {
     const radius = 25;
@@ -4613,22 +4611,22 @@ function generateSiliconProblem() {
         
         // Left Branch (L1)
         drawLine(ctx, 180, 80, 180, 240);
-        drawLamp(ctx, 180, 150);
-        drawLabel(ctx, "L1", 180 + 30, 150 + 5, 16, pink);
+        drawLamp(ctx, 180, 150, 15);
+        drawLabel(ctx, "L1", 180 + 25, 150 + 5, 16, pink);
         
         // Right Branch (L2 + Diode)
         drawLine(ctx, 320, 80, 320, 120);
         drawDiode(ctx, 320, 135, d2Forward ? "down" : "up");
         drawLine(ctx, 320, 150, 320, 180);
-        drawLamp(ctx, 320, 195);
-        drawLabel(ctx, "L2", 320 + 30, 195 + 5, 16, pink);
+        drawLamp(ctx, 320, 195, 15);
+        drawLabel(ctx, "L2", 320 + 25, 195 + 5, 16, pink);
         drawLine(ctx, 320, 210, 320, 240);
 
         // Recombine & Main Wire Bottom (L3)
         drawLine(ctx, 180, 240, 320, 240);
         drawLine(ctx, 250, 240, 250, 280);
-        drawLamp(ctx, 250, 295);
-        drawLabel(ctx, "L3", 250 + 30, 295 + 5, 16, pink);
+        drawLamp(ctx, 250, 295, 15);
+        drawLabel(ctx, "L3", 250 + 25, 295 + 5, 16, pink);
         drawLine(ctx, 250, 310, 250, 360);
 
         logicHTML += `<strong>L1 is ${l1_state}</strong>: It is on a direct branch to ground with no diodes blocking it.<br><br>`;
@@ -4657,8 +4655,8 @@ function generateSiliconProblem() {
         
         // Master Lamp (L3)
         drawLine(ctx, 250, 90, 250, 110);
-        drawLamp(ctx, 250, 125);
-        drawLabel(ctx, "L3", 250 + 30, 125 + 5, 16, pink);
+        drawLamp(ctx, 250, 125, 15);
+        drawLabel(ctx, "L3", 250 + 25, 125 + 5, 16, pink);
 
         // Split
         drawLine(ctx, 250, 140, 250, 170);
@@ -4668,14 +4666,14 @@ function generateSiliconProblem() {
         drawLine(ctx, 180, 170, 180, 200);
         drawDiode(ctx, 180, 215, branchForward ? "down" : "up");
         drawLine(ctx, 180, 230, 180, 260);
-        drawLamp(ctx, 180, 275);
-        drawLabel(ctx, "L1", 180 + 30, 275 + 5, 16, pink);
+        drawLamp(ctx, 180, 275, 15);
+        drawLabel(ctx, "L1", 180 + 25, 275 + 5, 16, pink);
         drawLine(ctx, 180, 290, 180, 320);
 
         // Right Branch (L2 only)
         drawLine(ctx, 320, 170, 320, 260);
-        drawLamp(ctx, 320, 275);
-        drawLabel(ctx, "L2", 320 + 30, 275 + 5, 16, pink);
+        drawLamp(ctx, 320, 275, 15);
+        drawLabel(ctx, "L2", 320 + 25, 275 + 5, 16, pink);
         drawLine(ctx, 320, 290, 320, 320);
 
         // Recombine
@@ -4712,8 +4710,8 @@ function generateSiliconProblem() {
             drawLine(ctx, xPos[i], 40, xPos[i], 100);
             drawDiode(ctx, xPos[i], 115, fwds[i] ? "down" : "up");
             drawLine(ctx, xPos[i], 130, xPos[i], 200);
-            drawLamp(ctx, xPos[i], 215);
-            drawLabel(ctx, labels[i], xPos[i] + 30, 215 + 5, 16, pink);
+            drawLamp(ctx, xPos[i], 215, 15);
+            drawLabel(ctx, labels[i], xPos[i] + 25, 215 + 5, 16, pink);
             drawLine(ctx, xPos[i], 230, xPos[i], 360);
         }
 
