@@ -747,12 +747,12 @@
 
 <div id="mainMenu" class="tabs">
     <button class="tab" onclick="safeOpenModule('basics')">1. Circuit Basics</button>
-    <button class="tab" onclick="safeOpenModule('transistors')">5. Transistors</button>
+    <button class="tab" onclick="safeOpenModule('flipflops')">5. Flip Flops & Counters</button>
     <button class="tab" onclick="safeOpenModule('logic')">2. Logic Gates</button>
-    <button class="tab" onclick="safeOpenModule('opamps')">6. Op Amps</button>
+    <button class="tab" onclick="safeOpenModule('transistors')">6. Transistors</button>
     <button class="tab" onclick="safeOpenModule('timing')">3. Timing Circuits</button>
-    <button class="tab" onclick="safeOpenModule('systems')">7. Systems</button>
-    <button class="tab" onclick="safeOpenModule('flipflops')">4. Flip Flops & Counters</button>
+    <button class="tab" onclick="safeOpenModule('opamps')">7. Op Amps</button>
+    <button class="tab" onclick="safeOpenModule('systems')">4. Systems</button>
     <button class="tab" onclick="safeOpenModule('diodes')">8. Diodes</button>
 </div>
 
@@ -1023,6 +1023,57 @@
             </div>
         </div>
     </div>
+                
+<!-- Input group Silicon -->   
+<div id="inputGroupSilicon" class="input-group" style="display: none;">
+    <label id="labelSil1"></label>
+    <input type="text" id="inputSil1" placeholder="ON or OFF">
+    
+    <label id="labelSil2" style="margin-left: 15px;"></label>
+    <input type="text" id="inputSil2" placeholder="ON or OFF">
+</div>
+
+<!-- Input group G9Silicon -->   
+                
+<div id="inputGroupGrade9Silicon" class="input-group" style="display: none; flex-direction: column; padding-left: 25px;">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label style="min-width: 100px; margin-bottom: 0; text-align: left; margin-right: 10px;">
+            <span style="font-weight: bold; font-size: 16px; color: #E64097;">V<sub>Payload</sub> =</span>
+        </label> 
+        <input type="text" id="g9SilVPayload" class="form-control" style="width: 130px;" placeholder="e.g. 11.3">
+        <span style="font-size: 20px; font-weight: bold; margin-left: 5px;">V</span>
+    </div>
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label style="min-width: 100px; margin-bottom: 0; text-align: left; margin-right: 10px;">
+            <span style="font-weight: bold; font-size: 16px; color: #E64097;">D1 State =</span>
+        </label> 
+        <input type="text" id="g9SilD1" class="form-control" style="width: 130px;" placeholder="ON or OFF">
+    </div>
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label style="min-width: 100px; margin-bottom: 0; text-align: left; margin-right: 10px;">
+            <span style="font-weight: bold; font-size: 16px; color: #E64097;">D2 State =</span>
+        </label> 
+        <input type="text" id="g9SilD2" class="form-control" style="width: 130px;" placeholder="ON or OFF">
+    </div>
+</div>
+
+<div id="inputGroupGrade9SiliconReverse" class="input-group" style="display: none; flex-direction: column; padding-left: 25px;">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label style="min-width: 130px; margin-bottom: 0; text-align: left; margin-right: 10px;">
+            <span style="font-weight: bold; font-size: 16px; color: #E64097;">V<sub>Diode</sub> =</span>
+        </label> 
+        <input type="text" id="g9SilRevVDiode" class="form-control" style="width: 130px;" placeholder="e.g. 12">
+        <span style="font-size: 20px; font-weight: bold; margin-left: 5px;">V</span>
+    </div>
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+        <label style="min-width: 130px; margin-bottom: 0; text-align: left; margin-right: 10px;">
+            <span style="font-weight: bold; font-size: 16px; color: #E64097;">V<sub>Component</sub> =</span>
+        </label> 
+        <input type="text" id="g9SilRevVComp" class="form-control" style="width: 130px;" placeholder="e.g. 0">
+        <span style="font-size: 20px; font-weight: bold; margin-left: 5px;">V</span>
+    </div>
+</div>
+                
 <!-- Input group Zener -->                
     <div id="inputGroupZener" class="input-group" style="display:none; flex-direction: column;">
         
@@ -1127,10 +1178,7 @@
             
             <div style="display: flex; gap: 8px; width: 100%;">
                 <button class="btn-new-question" onclick="handleGenerateClick()">❓ New Question</button>
-                <button id="grade9DividerBtn" class="btn-grade9" style="display: none;" onclick="transitionToGrade9(generateGrade9DividerProblem)">🚀 Grade 9</button>
-                <button id="grade9ResistorBtn" class="btn-grade9" style="display: none;" onclick="transitionToGrade9(generateGrade9Resistance)">🚀 Grade 9</button>
-                <button id="grade9ZenerBtn" class="btn-grade9" style="display: none;" onclick="transitionToGrade9(generateGrade9ZenerProblem)">🚀 Grade 9</button>
-                <button id="grade9PowerBtn" class="btn-grade9" style="display: none;" onclick="transitionToGrade9(generateGrade9PowerProblem)">🚀 Grade 9</button>
+                <button id="mainGrade9Btn" class="btn-grade9" style="display: none;" onclick="handleGrade9Click()">🚀 Grade 9</button>
             </div>
 
             <div id="solutions" class="solutions" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-left: 4px solid #E64097;">
@@ -1357,6 +1405,36 @@ function handleGenerateClick() {
         // Handles Astable, Monostable, Oscilloscope, Divider, Resistance, etc.
         if (typeof hubController === "function") hubController(ctx, canvas);
     }
+}
+
+// *********************************************************************
+    
+function handleGrade9Click() {
+    // 1. We keep the hide logic commented out so the button stays visible 
+    // allowing the user to click it again for a new Grade 9 problem.
+    // const rocket = document.getElementById('mainGrade9Btn');
+    // if (rocket) rocket.style.display = 'none';
+
+    // 2. Routing Logic: Catch the Basic mode, Alternative Basic modes, AND the Grade 9 mode
+    if (currentMode === 'divider' || currentMode === 'potentialDivider' || currentMode === 'grade9divider') {
+        generateGrade9DividerProblem(); 
+    } 
+    else if (currentMode === 'resistance' || currentMode === 'resistorColor' || currentMode === 'grade9resistance') {
+        generateGrade9Resistance(); 
+    } 
+    else if (currentMode === 'zener' || currentMode === 'zenerDiode' || currentMode === 'grade9zener') {
+        generateGrade9ZenerProblem(); 
+    }
+    else if (currentMode === 'power' || currentMode === 'grade9power') {
+        generateGrade9PowerProblem(); 
+    }
+    else {
+        // If nothing happens, this will tell you EXACTLY what mode name is missing from the list above!
+        console.warn("Rocket clicked, but currentMode was not recognized: " + currentMode);
+    }
+    
+    // Safety check: Log to console so you can see if it fired
+    console.log("Rocket launched for mode: " + currentMode);
 }
 // ==================================================================================================================
 // FUNCTION 0: SMALL UTILITIES (HELPERS)   
@@ -1769,7 +1847,57 @@ function drawArrowOnWire(ctx, fromx, fromy, tox, toy) {
     ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
     ctx.stroke();
 }
+/**
+ * Draws a standard GCSE Silicon Diode (with wire passing through the middle)
+ * direction can be: "up", "down", "left", "right" (defaults to "down")
+ */
+function drawDiode(ctx, x, y, direction = "down") {
+    const size = 18; 
+    ctx.strokeStyle = "black"; 
+    ctx.lineWidth = 2;
 
+    // 1. Create the Triangle Path
+    ctx.beginPath();
+    if (direction === "right") {
+        ctx.moveTo(x - size, y - size); ctx.lineTo(x - size, y + size); ctx.lineTo(x + size, y);
+    } else if (direction === "left") {
+        ctx.moveTo(x + size, y - size); ctx.lineTo(x + size, y + size); ctx.lineTo(x - size, y);
+    } else if (direction === "up") {
+        ctx.moveTo(x - size, y + size); ctx.lineTo(x + size, y + size); ctx.lineTo(x, y - size);
+    } else if (direction === "down") {
+        ctx.moveTo(x - size, y - size); ctx.lineTo(x + size, y - size); ctx.lineTo(x, y + size);
+    }
+    ctx.closePath();
+    
+    // Fill white first to block any background wires drawn behind it
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.stroke(); // Draw the triangle outline
+
+    // 2. Draw the inner wire (The GCSE specification requirement)
+    ctx.beginPath();
+    if (direction === "right" || direction === "left") {
+        ctx.moveTo(x - size, y);
+        ctx.lineTo(x + size, y);
+    } else if (direction === "up" || direction === "down") {
+        ctx.moveTo(x, y - size);
+        ctx.lineTo(x, y + size);
+    }
+    ctx.stroke();
+
+    // 3. Draw the Cathode Bar
+    ctx.beginPath();
+    if (direction === "right") {
+        ctx.moveTo(x + size, y - size); ctx.lineTo(x + size, y + size);
+    } else if (direction === "left") {
+        ctx.moveTo(x - size, y - size); ctx.lineTo(x - size, y + size);
+    } else if (direction === "up") {
+        ctx.moveTo(x - size, y - size); ctx.lineTo(x + size, y - size);
+    } else if (direction === "down") {
+        ctx.moveTo(x - size, y + size); ctx.lineTo(x + size, y + size);
+    }
+    ctx.stroke();
+}
   
 // =========================================================================================================      
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
@@ -1972,8 +2100,11 @@ function generateResistanceProblem(ctx, canvas) {
     const groupR = document.getElementById('inputGroupR') || document.getElementById('inputGroupV');
     if (groupR) groupR.style.display = 'flex'; 
 
-    const g9ResBtn = document.getElementById('grade9ResistorBtn');
-    if (g9ResBtn) g9ResBtn.style.display = 'inline-block';
+    // SHOW THE Grade 9 button
+    const smartRocket = document.getElementById('mainGrade9Btn');
+    if (smartRocket) {
+        smartRocket.style.display = 'inline-block';
+    }
 
     // Swap the dropdown for the Omega symbol instantly
     const oldDropdown = document.getElementById('unitR');    
@@ -2149,8 +2280,8 @@ function generateGrade9Resistance() {
     currentMode = 'grade9resistance'; 
 
     // Turn the Grade 9 button back on
-    if (document.getElementById('grade9ResistorBtn')) {
-        document.getElementById('grade9ResistorBtn').style.display = 'inline-block';
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'inline-block';
     }
     
     // Show instruction for Ohms/Prefixes if function exists
@@ -2273,11 +2404,11 @@ function generateDividerProblem(ctx, canvas) {
     hideAllInputGroups(); 
     currentMode = 'divider';
 
-    // BRING BACK THE GRADE 9 DIVIDER BUTTON
-    const g9DivBtn = document.getElementById('grade9DividerBtn');
-    if (g9DivBtn) {
-        g9DivBtn.style.display = 'inline-block';
-    }
+   // BRING BACK THE Grade 9 Button
+const smartRocket = document.getElementById('mainGrade9Btn');
+if (smartRocket) {
+    smartRocket.style.display = 'inline-block';
+}
 
     // TURN ON ONLY THE V BOX
     const groupV = document.getElementById('inputGroupV');
@@ -2463,10 +2594,10 @@ function generateGrade9DividerProblem() {
     hideAllInputGroups(); 
     currentMode = 'grade9divider'; 
     
-    // Turn the Grade 9 button back on
-    if (document.getElementById('grade9DividerBtn')) {
-        document.getElementById('grade9DividerBtn').style.display = 'inline-block';
-    }
+    // KEEP THE grade 9 button on
+if (document.getElementById('mainGrade9Btn')) {
+    document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+}
     
     // Bring back the specific Input Group
     const groupV = document.getElementById('inputGroupV');
@@ -2936,8 +3067,11 @@ function generatePowerProblem(ctx, canvas) {
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
     currentMode = 'power'; 
 
-    const g9PowerBtn = document.getElementById('grade9PowerBtn');
-    if (g9PowerBtn) g9PowerBtn.style.display = 'inline-block';
+    // SHOW THE SMART ROCKET (Grade 9)
+    const smartRocket = document.getElementById('mainGrade9Btn');
+    if (smartRocket) {
+        smartRocket.style.display = 'inline-block';
+    }
 
     const groupP = document.getElementById('inputGroupP');
     if (groupP) groupP.style.display = 'flex'; 
@@ -3241,6 +3375,11 @@ function generateGrade9PowerProblem() {
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
     currentMode = 'grade9power'; 
     
+    // ---> THE UPGRADE: Keep the Smart Rocket visible! <---
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+    }
+
     // Show the new dedicated HTML container
     const inputZone = document.getElementById('inputGroupGrade9Power');
     if (inputZone) inputZone.style.display = 'block'; 
@@ -3255,7 +3394,7 @@ function generateGrade9PowerProblem() {
     const powerInput = document.getElementById('g9PowerDissipated');
     if (powerInput) {
         powerInput.value = "";
-        powerInput.placeholder = "e.g. 150 mW";
+        powerInput.placeholder = "e.g. 150.5 mW";
     }
     
     const e24Input = document.getElementById('g9PowerE24');
@@ -3276,7 +3415,7 @@ function generateGrade9PowerProblem() {
     // --- Core Math: Step 1 (Ideal R) ---
     let v_r = v_in - v_f; 
     let r_ideal = (v_r / (i_led_mA / 1000)); 
-    let r_ideal_4sf = Number(r_ideal.toPrecision(4));
+    let r_ideal_rounded = Number(r_ideal.toFixed(1)); // Rounded to 1 dp
 
     // --- Core Math: Step 2 (Find E24 value FIRST so we can use it for Power) ---
     const e24Base = [1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1];
@@ -3293,13 +3432,13 @@ function generateGrade9PowerProblem() {
     // --- Core Math: Step 3 (E24 Power) ---
     // Calculate power using the selected E24 resistor: P = (V_R^2) / R_E24
     let p_r_mW = ((v_r * v_r) / e24R) * 1000; 
-    let p_r_mW_4sf = Number(p_r_mW.toPrecision(4));
+    let p_r_mW_rounded = Number(p_r_mW.toFixed(1)); // Rounded to 1 dp
 
     // Save for validation
     currentAnswers = {
-        rIdeal: r_ideal_4sf,
+        rIdeal: r_ideal_rounded,
         e24: e24R,
-        pMw: p_r_mW_4sf
+        pMw: p_r_mW_rounded
     };
 
     // Update Question Text
@@ -3308,7 +3447,7 @@ function generateGrade9PowerProblem() {
         qText.innerHTML = 
             `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge.</strong></div>` +
             `<strong>The LED current is limited to ${i_led_mA} mA.</strong><br><br>` +
-            `1) Calculate the ideal value of R to 4 sf.<br>` +
+            `1) Calculate the ideal value of R.<br>` +
             `2) Choose the correct E24 series for resistor R.<br>` +
             `3) Calculate the power dissipated by the E24 R.`;
         qText.style.display = 'block';
@@ -3366,23 +3505,23 @@ function generateGrade9PowerProblem() {
     let ledW = ctx.measureText("LED").width;
     ctx.font = "bold 16px Arial"; ctx.fillText(" = " + v_f + " V", 365 + vW + ledW, 285);
 
-    // 3. SOLUTION TEXT
+    // 3. SOLUTION TEXT (Updated to 1 dp)
     const solText = document.getElementById('solText');
     if (solText) {
         solText.innerHTML = `
             <strong>Step 1: Ideal Resistor</strong><br>
-            V<sub>R</sub> = V<sub>supply</sub> - V<sub>LED</sub> = ${v_in}V - ${v_f}V = ${v_r.toFixed(2)}V<br>
-            R = V<sub>R</sub> / I = ${v_r.toFixed(2)}V / ${(i_led_mA/1000).toFixed(3)}A = ${r_ideal.toFixed(2)} &Omega;<br>
-            To 4 sf: <strong>${r_ideal_4sf} &Omega;</strong><br><br>
+            V<sub>R</sub> = V<sub>supply</sub> - V<sub>LED</sub> = ${v_in}V - ${v_f}V = ${v_r.toFixed(1)}V<br>
+            R = V<sub>R</sub> / I = ${v_r.toFixed(1)}V / ${(i_led_mA/1000).toFixed(3)}A = ${r_ideal.toFixed(1)} &Omega;<br>
+            Ideal R: <strong>${r_ideal_rounded} &Omega;</strong><br><br>
             
             <strong>Step 2: E24 Series Selection</strong><br>
-            Ideal resistance is ${r_ideal.toFixed(2)} &Omega;. To ensure the current is limited to a max of ${i_led_mA} mA, we must round <em>up</em> to the next standard value.<br>
+            Ideal resistance is ${r_ideal.toFixed(1)} &Omega;. To ensure the current is limited to a max of ${i_led_mA} mA, we must round <em>up</em> to the next standard value.<br>
             Selected Value: <strong>${e24R} &Omega;</strong><br><br>
 
             <strong>Step 3: Power Dissipated by E24 R</strong><br>
             Using our chosen E24 resistor, P = V<sub>R</sub>&sup2; / R<sub>E24</sub><br>
-            P = (${v_r.toFixed(2)}V)&sup2; / ${e24R} &Omega; = ${(p_r_mW / 1000).toFixed(4)} W = ${p_r_mW.toFixed(2)} mW<br>
-            To 4 sf: <strong>${p_r_mW_4sf} mW</strong>
+            P = (${v_r.toFixed(1)}V)&sup2; / ${e24R} &Omega; = ${(p_r_mW / 1000).toFixed(3)} W<br>
+            P = <strong>${p_r_mW_rounded} mW</strong>
         `;
     }
 }
@@ -3823,8 +3962,11 @@ function generateZenerProblem() {
     currentMode = 'zener';
     clearZenerInputs(); // Ensure inputs are wiped
     
-    // ---> THE FIX: Turn the Grade 9 button back on after the wipe! <---
-    if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'inline-block';
+    // ---> THE FIX: Turn the Grade 9 button (Smart Rocket) back on after the wipe! <---
+
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+    }
     
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
@@ -4090,6 +4232,8 @@ function generateZenerProblem() {
         qText.style.display = 'block'; 
     }
 }
+
+//****************************************************
     
 function generateGrade9ZenerProblem() {
     // 0. RESET UI & STATE
@@ -4098,8 +4242,12 @@ function generateGrade9ZenerProblem() {
     
     // ---> THE FIX: Turn the UI back on after the generator's wipe <---
     if (document.getElementById('inputGroupGrade9Zener')) document.getElementById('inputGroupGrade9Zener').style.display = 'block';
-    if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'inline-block';
     
+    // KEEP THE SMART ROCKET (Grade 9)
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+    }
+        
     // Clear Grade 9 Inputs
     const ids = ['g9IL', 'g9IZ', 'g9PZ', 'g9Rating'];
     ids.forEach(id => {
@@ -4341,6 +4489,427 @@ function generateGrade9ZenerProblem() {
     }
 }
 
+//****************************************************
+
+function generateSiliconProblem(ctx, canvas) {
+    // 0. RESET UI & STATE
+    if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
+    currentMode = 'silicon'; 
+
+    // SHOW THE SMART ROCKET (Grade 9) - Ready for your 3rd scenario later!
+    const smartRocket = document.getElementById('mainGrade9Btn');
+    if (smartRocket) {
+        smartRocket.style.display = 'inline-block';
+    }
+
+    // TARGET THE HTML INPUTS
+    const groupSil = document.getElementById('inputGroupSilicon');
+    if (groupSil) groupSil.style.display = 'flex'; 
+    
+    // Assuming you have two input boxes for these questions
+    const input1 = document.getElementById('inputSil1'); 
+    const input2 = document.getElementById('inputSil2');
+    const label1 = document.getElementById('labelSil1');
+    const label2 = document.getElementById('labelSil2');
+    
+    const qText = document.getElementById('questionText');
+    const solText = document.getElementById('solText');
+
+    // Clear previous inputs
+    if (input1) input1.value = ""; 
+    if (input2) input2.value = "";
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+
+    // ==========================================
+    // CYCLING LOGIC (Using scenarioTracker)
+    // ==========================================
+    if (typeof scenarioTracker.silicon === 'undefined') {
+        scenarioTracker.silicon = 0;
+    }
+    
+    scenarioTracker.silicon++;
+    if (scenarioTracker.silicon > 2) { // We will bump this to 3 when you add the Grade 9 question!
+        scenarioTracker.silicon = 1;
+    }
+    
+    const scenario = scenarioTracker.silicon;
+    currentAnswers = {}; // Reset answers
+    currentAnswers.scenario = scenario; 
+
+    if (scenario === 1) {
+        // ==========================================
+        // SCENARIO 1: Basic Forward/Reverse Bias Logic (ON / OFF)
+        // ==========================================
+        
+        // Randomly decide which way the diodes point ("down" = forward, "up" = reverse)
+        let d1Dir = Math.random() < 0.5 ? "down" : "up";
+        let d2Dir = Math.random() < 0.5 ? "down" : "up";
+
+        let lamp1State = (d1Dir === "down") ? "ON" : "OFF";
+        let lamp2State = (d2Dir === "down") ? "ON" : "OFF";
+
+        // Save answers for validation (Accepting caps/lowercase handled in your grader)
+        currentAnswers.ans1 = lamp1State;
+        currentAnswers.ans2 = lamp2State;
+
+        // Setup UI
+        if (qText) qText.innerHTML = "State whether Lamp 1 and Lamp 2 are <strong>ON</strong> or <strong>OFF</strong>.";
+        if (label1) label1.innerHTML = "<strong style='color:" + pink + "'>L1 = </strong>";
+        if (label2) label2.innerHTML = "<strong style='color:" + pink + "'>L2 = </strong>";
+        if (input1) input1.placeholder = "ON or OFF";
+        if (input2) input2.placeholder = "ON or OFF";
+
+        // --- DRAWING ---
+        drawLine(ctx, 150, 60, 450, 60);  // Top Rail (+V)
+        drawLine(ctx, 150, 360, 450, 360); // Bottom Rail (0V)
+
+        ctx.fillStyle = "black"; ctx.textAlign = "left";
+        ctx.font = "bold 16px Arial"; ctx.fillText("+ V", 250, 45);
+        ctx.font = "bold 12px Arial"; ctx.fillText("supply", 275, 50); 
+        ctx.textAlign = "center"; ctx.font = "bold 16px Arial"; ctx.fillText("0V (GND)", 300, 390);
+
+        // Branch 1 (Left)
+        drawLine(ctx, 220, 60, 220, 110); 
+        drawDiode(ctx, 220, 130, d1Dir);
+        drawLine(ctx, 220, 150, 220, 210);
+        drawLamp(ctx, 220, 235);
+        drawLine(ctx, 220, 260, 220, 360);
+        
+        ctx.fillStyle = "black"; ctx.textAlign = "right"; ctx.font = "bold 16px Arial"; 
+        ctx.fillText("L1", 185, 235);
+        ctx.fillStyle = pink;
+        ctx.fillText("Status = ?", 200, 255);
+
+        // Branch 2 (Right)
+        drawLine(ctx, 380, 60, 380, 110); 
+        drawDiode(ctx, 380, 130, d2Dir);
+        drawLine(ctx, 380, 150, 380, 210);
+        drawLamp(ctx, 380, 235);
+        drawLine(ctx, 380, 260, 380, 360);
+
+        ctx.fillStyle = "black"; ctx.textAlign = "left"; ctx.font = "bold 16px Arial"; 
+        ctx.fillText("L2", 415, 235);
+        ctx.fillStyle = pink;
+        ctx.fillText("Status = ?", 400, 255);
+
+        if (solText) {
+            solText.innerHTML = `<strong>L1 = ${lamp1State} | L2 = ${lamp2State}</strong><br><br>` +
+                `<em>Logic:</em> Current flows from positive (top) to negative (bottom).<br>` +
+                `A silicon diode only allows current to flow in the direction of its arrow (forward-biased). If it points against the current, it blocks it (reverse-biased).`;
+        }
+
+    } else if (scenario === 2) {
+        // ==========================================
+        // SCENARIO 2: Forward Bias 0.7V Drop Math
+        // ==========================================
+        
+        // Let's mix up what is given!
+        // Type A: Give V_supply, ask for V_diode and V_Lamp1
+        // Type B: Give V_Lamp1, ask for V_diode and V_supply
+        let isTypeA = Math.random() < 0.5;
+
+        let vSupply = Math.floor(Math.random() * 8) + 5; // 5V to 12V
+        let vDiode = 0.7; // Constant
+        let vLamp1 = parseFloat((vSupply - vDiode).toFixed(1)); 
+
+        if (isTypeA) {
+            currentAnswers.ans1 = vDiode;  // Input 1 is Diode
+            currentAnswers.ans2 = vLamp1;  // Input 2 is Lamp 1
+            if (qText) qText.innerHTML = "Calculate the voltage across the <strong>Diode</strong> and <strong>Lamp 1</strong>.";
+        } else {
+            currentAnswers.ans1 = vDiode;  // Input 1 is Diode
+            currentAnswers.ans2 = vSupply; // Input 2 is Supply
+            if (qText) qText.innerHTML = "Calculate the voltage across the <strong>Diode</strong> and the <strong>Supply Voltage</strong>.";
+        }
+
+        // Setup UI
+        if (label1) label1.innerHTML = "<strong style='color:" + pink + "'>V<sub style='font-size: 0.75em;'>diode</sub> = </strong>";
+        if (label2) {
+            label2.innerHTML = isTypeA ? 
+                "<strong style='color:" + pink + "'>V<sub style='font-size: 0.75em;'>L1</sub> = </strong>" : 
+                "<strong style='color:" + pink + "'>V<sub style='font-size: 0.75em;'>supply</sub> = </strong>";
+        }
+        if (input1) input1.placeholder = "e.g. 0.7 V";
+        if (input2) input2.placeholder = "e.g. 5.3 V";
+
+        // --- DRAWING ---
+        drawLine(ctx, 150, 60, 450, 60);  
+        drawLine(ctx, 150, 360, 450, 360); 
+
+        // Top Supply Label
+        ctx.fillStyle = "black"; ctx.textAlign = "left";
+        ctx.font = "bold 16px Arial"; ctx.fillText("V", 250, 45);
+        ctx.font = "bold 12px Arial"; ctx.fillText("supply", 262, 50); 
+        if (isTypeA) {
+            ctx.font = "bold 16px Arial"; ctx.fillText(" = " + vSupply + " V", 305, 45);
+        } else {
+            ctx.fillStyle = pink; ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", 305, 45);
+        }
+        
+        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.fillText("0V (GND)", 300, 390);
+
+        // Branch 1 (Left) - Diode + Lamp
+        drawLine(ctx, 220, 60, 220, 110); 
+        drawDiode(ctx, 220, 130, "down"); // Always forward biased for Scenario 2
+        
+        ctx.fillStyle = pink; ctx.textAlign = "right"; ctx.font = "bold 16px Arial"; 
+        ctx.fillText("V = ?", 190, 135);
+
+        drawLine(ctx, 220, 150, 220, 210);
+        drawLamp(ctx, 220, 235);
+        drawLine(ctx, 220, 260, 220, 360);
+        
+        ctx.textAlign = "right";
+        ctx.fillStyle = "black"; ctx.fillText("L1", 185, 230);
+        if (isTypeA) {
+            ctx.fillStyle = pink; ctx.fillText("V = ?", 185, 250);
+        } else {
+            ctx.fillStyle = "black"; ctx.fillText(vLamp1 + " V", 185, 250);
+        }
+
+        // Branch 2 (Right) - Identical Lamp parallel branch
+        drawLine(ctx, 380, 60, 380, 180); 
+        drawLamp(ctx, 380, 205);
+        drawLine(ctx, 380, 230, 380, 360);
+
+        ctx.fillStyle = "black"; ctx.textAlign = "left"; ctx.font = "bold 16px Arial"; 
+        ctx.fillText("L2", 415, 200);
+        // Show the voltage of Lamp 2 to help them deduce the parallel rules
+        ctx.fillText(vSupply + " V", 415, 220);
+
+        if (solText) {
+            if (isTypeA) {
+                solText.innerHTML = `<strong>V<sub>diode</sub> = 0.7 V | V<sub>L1</sub> = ${vLamp1} V</strong><br><br>` +
+                    `<em>Step 1:</em> A forward-biased silicon diode always has a fixed voltage drop of <strong>0.7 V</strong>.<br>` +
+                    `<em>Step 2:</em> Because it is a parallel circuit, the left branch receives the full ${vSupply} V supply.<br>` +
+                    `<em>Step 3:</em> V<sub>L1</sub> = V<sub>supply</sub> - V<sub>diode</sub> = ${vSupply} - 0.7 = <strong>${vLamp1} V</strong>.`;
+            } else {
+                solText.innerHTML = `<strong>V<sub>diode</sub> = 0.7 V | V<sub>supply</sub> = ${vSupply} V</strong><br><br>` +
+                    `<em>Step 1:</em> A forward-biased silicon diode always has a fixed voltage drop of <strong>0.7 V</strong>.<br>` +
+                    `<em>Step 2:</em> In a series branch, voltages add up. Therefore, the total voltage of the left branch is V<sub>diode</sub> + V<sub>L1</sub> = 0.7 + ${vLamp1} = <strong>${vSupply} V</strong>.<br>` +
+                    `<em>Step 3:</em> Because branches are parallel, the supply voltage equals the total branch voltage.`;
+            }
+        }
+    }
+}
+
+//****************************************************
+
+
+function generateGrade9SiliconProblem() {
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 0. RESET UI & STATE
+    if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
+    
+    // Set the tracker if it doesn't exist yet
+    if (typeof scenarioTracker.grade9silicon === 'undefined') {
+        scenarioTracker.grade9silicon = 0;
+    }
+    
+    // Toggle between 0 (OR-Gate) and 1 (Reverse Bias)
+    const qType = scenarioTracker.grade9silicon;
+    scenarioTracker.grade9silicon = (scenarioTracker.grade9silicon + 1) % 2;
+    const isOrGate = (qType === 0);
+
+    // Set a distinct currentMode so your checkAnswers() function knows which one to grade!
+    currentMode = isOrGate ? 'grade9silicon_orgate' : 'grade9silicon_reverse';
+    
+    // Keep the Smart Rocket visible!
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+    }
+
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none";
+
+    const qText = document.getElementById('questionText');
+    const solText = document.getElementById('solText');
+    const hintDiv = document.getElementById('hintText');
+    const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
+
+    // Setup Canvas
+    ctx.setTransform(1, 0, 0, 1, 0, 0); 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "black"; 
+    ctx.lineWidth = 2;
+
+    // ==========================================
+    // BRANCH 1: THE OR-GATE PAYLOAD PROBLEM
+    // ==========================================
+    if (isOrGate) {
+        // Show correct HTML inputs
+        if (document.getElementById('inputGroupGrade9Silicon')) document.getElementById('inputGroupGrade9Silicon').style.display = 'flex';
+        document.getElementById('g9SilVPayload').value = "";
+        document.getElementById('g9SilD1').value = "";
+        document.getElementById('g9SilD2').value = "";
+
+        // Math
+        const mainVoltages = [12, 15, 24];
+        let v_main = mainVoltages[Math.floor(Math.random() * mainVoltages.length)];
+        let v_backup = v_main - (Math.floor(Math.random() * 3) + 2); // 2V to 4V lower
+
+        let v_payload = Number((v_main - 0.7).toFixed(1));
+        let d1_state = "ON";
+        let d2_state = "OFF";
+
+        currentAnswers = { vPayload: v_payload, d1: d1_state, d2: d2_state };
+
+        // Text Update
+        if (qText) {
+            qText.innerHTML = 
+                `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🚀 Grade 9 Challenge: Payload Redundancy</strong></div>` +
+                `A critical rocket payload is powered by a Main Battery (<strong>${v_main}V</strong>) and a Backup Battery (<strong>${v_backup}V</strong>).<br>` +
+                `Both are connected using Silicon Diodes (0.7V drop) to prevent power backfeeding.<br><br>` +
+                `1) Calculate the voltage at the Payload.<br>` +
+                `2) Determine if D1 is ON or OFF.<br>` +
+                `3) Determine if D2 is ON or OFF.`;
+            qText.style.display = 'block';
+        }
+        if (hintDiv) {
+            hintDiv.innerHTML = "<strong>Hint:</strong> The battery with the highest voltage will push its diode into forward bias. Check the voltage at the cathode junction to see if the backup diode can turn on!";
+        }
+
+        // Draw: Horizontal Rails & Vertical Components
+        ctx.fillStyle = "black"; ctx.font = "bold 14px Arial";
+        
+        // Rail 1: Main Battery (Top)
+        ctx.textAlign = "right"; ctx.fillText(`Main (${v_main}V)`, 140, 55);
+        drawLine(ctx, 150, 60, 250, 60);
+        
+        // D1 dropping vertically
+        drawLine(ctx, 200, 60, 200, 90);
+        ctx.beginPath(); // Diode pointing down
+        ctx.moveTo(185, 90); ctx.lineTo(215, 90); ctx.lineTo(200, 120); ctx.closePath();
+        ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
+        drawLine(ctx, 185, 120, 215, 120); // Cathode
+        ctx.fillStyle = pink; ctx.textAlign = "right"; ctx.fillText("D1", 175, 110);
+        drawLine(ctx, 200, 120, 200, 220); // Wire down to junction
+
+        // Rail 2: Backup Battery (Middle)
+        ctx.fillStyle = "black"; ctx.textAlign = "right"; ctx.fillText(`Backup (${v_backup}V)`, 140, 135);
+        drawLine(ctx, 150, 140, 350, 140);
+        
+        // D2 dropping vertically
+        drawLine(ctx, 300, 140, 300, 160);
+        ctx.beginPath(); // Diode pointing down
+        ctx.moveTo(285, 160); ctx.lineTo(315, 160); ctx.lineTo(300, 190); ctx.closePath();
+        ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
+        drawLine(ctx, 285, 190, 315, 190); // Cathode
+        ctx.fillStyle = pink; ctx.textAlign = "left"; ctx.fillText("D2", 325, 180);
+        drawLine(ctx, 300, 190, 300, 220); // Wire down to junction
+
+        // Combine at Junction and drop to Payload
+        drawLine(ctx, 200, 220, 300, 220); // Horizontal connecting wire
+        if(typeof drawNode === 'function') { drawNode(ctx, 200, 220); drawNode(ctx, 300, 220); drawNode(ctx, 250, 220); }
+        
+        drawLine(ctx, 250, 220, 250, 250);
+        
+        // Payload Box
+        ctx.fillStyle = "#f8f9fa"; ctx.fillRect(215, 250, 70, 50); ctx.strokeRect(215, 250, 70, 50);
+        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.fillText("Payload", 250, 275);
+        ctx.fillStyle = pink; ctx.fillText("V = ?", 250, 295);
+
+        // Ground
+        drawLine(ctx, 250, 300, 250, 340);
+        drawLine(ctx, 230, 340, 270, 340); drawLine(ctx, 240, 345, 260, 345); drawLine(ctx, 245, 350, 255, 350);
+        ctx.fillStyle = "black"; ctx.fillText("0V (GND)", 250, 365);
+
+        // Solution Text
+        if (solText) {
+            solText.innerHTML = `
+                <strong>Step 1: Understand Diode OR-Logic</strong><br>
+                Both batteries are trying to power the payload. The one with the highest voltage will "win" and push its diode into forward bias.<br><br>
+                <strong>Step 2: Calculate Payload Voltage</strong><br>
+                The Main battery (${v_main}V) is higher. It pushes D1 into conduction (ON).<br>
+                V<sub>Payload</sub> = V<sub>Main</sub> - 0.7V = ${v_main}V - 0.7V = <strong>${v_payload}V</strong>.<br><br>
+                <strong>Step 3: Determine D2 State</strong><br>
+                Look at D2. Its anode is connected to the Backup battery (${v_backup}V). Its cathode is tied to the Payload (${v_payload}V).<br>
+                Because its cathode voltage (${v_payload}V) is higher than its anode voltage (${v_backup}V), D2 is reverse-biased (<strong>OFF</strong>). This perfectly prevents the Main battery from dangerously charging the Backup battery!
+            `;
+        }
+    } 
+    // ==========================================
+    // BRANCH 2: THE REVERSE BIAS LEAKAGE PROBLEM
+    // ==========================================
+    else {
+        // Show correct HTML inputs
+        if (document.getElementById('inputGroupGrade9SiliconReverse')) document.getElementById('inputGroupGrade9SiliconReverse').style.display = 'flex';
+        document.getElementById('g9SilRevVDiode').value = "";
+        document.getElementById('g9SilRevVComp').value = "";
+
+        // Math
+        const vSupplyList = [5, 9, 12, 15, 24];
+        let v_in = vSupplyList[Math.floor(Math.random() * vSupplyList.length)];
+        let v_diode = v_in;
+        let v_comp = 0;
+
+        currentAnswers = { vDiode: v_diode, vComp: v_comp };
+
+        // Text Update
+        if (qText) {
+            qText.innerHTML = 
+                `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge: Reverse Leakage</strong></div>` +
+                `A silicon diode is connected in series with a load component, but it has been installed backward.<br><br>` +
+                `1) Calculate the voltage measured across the diode (V<sub>Diode</sub>).<br>` +
+                `2) Calculate the voltage measured across the component (V<sub>Component</sub>).`;
+            qText.style.display = 'block';
+        }
+        if (hintDiv) {
+            hintDiv.innerHTML = "<strong>Hint:</strong> Think of a reverse-biased diode as an open switch (infinite resistance). In a series circuit, where does the supply voltage drop if the circuit is broken?";
+        }
+
+        // Draw: Vertical Series Circuit
+        drawLine(ctx, 200, 60, 400, 60);
+        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.font = "bold 16px Arial";
+        ctx.fillText("V_supply = " + v_in + "V", 300, 45);
+
+        drawLine(ctx, 300, 60, 300, 120);
+
+        // Draw Diode (Reverse Biased - pointing UP)
+        ctx.beginPath();
+        ctx.moveTo(280, 160); ctx.lineTo(320, 160); ctx.lineTo(300, 120); ctx.closePath();
+        ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
+        drawLine(ctx, 280, 120, 320, 120); // Cathode line
+        ctx.fillStyle = pink; ctx.textAlign = "left"; ctx.fillText("V_Diode = ?", 340, 145);
+
+        drawLine(ctx, 300, 160, 300, 220);
+
+        // Draw Component
+        ctx.fillStyle = "white"; ctx.fillRect(285, 220, 30, 60); ctx.strokeRect(285, 220, 30, 60);
+        ctx.fillStyle = pink; ctx.textAlign = "left"; ctx.fillText("V_Component = ?", 340, 255);
+
+        // Ground
+        drawLine(ctx, 300, 280, 300, 340);
+        drawLine(ctx, 200, 340, 400, 340); // Bottom Ground Rail
+        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.fillText("0V (GND)", 300, 365);
+
+        // Solution Text
+        if (solText) {
+            solText.innerHTML = `
+                <strong>Step 1: Check Diode Orientation</strong><br>
+                The diode is pointing <em>against</em> the positive supply. It is reverse-biased and acts like an open switch with effectively infinite resistance.<br><br>
+                <strong>Step 2: Component Voltage</strong><br>
+                Because the diode acts as an open switch, <strong>0 A</strong> of current flows through the circuit. With no current flowing through the load component, there is no voltage drop across it (Ohm's Law: V = I &times; R &rarr; V = 0 &times; R = 0V).<br>
+                V<sub>Component</sub> = <strong>0 V</strong>.<br><br>
+                <strong>Step 3: Diode Voltage</strong><br>
+                By Kirchhoff's Voltage Law, the sum of voltage drops must equal the supply voltage. Since the component drops 0V, the entire supply voltage must be dropping across the "open switch" (the diode).<br>
+                V<sub>Diode</sub> = <strong>${v_in} V</strong>.
+            `;
+        }
+    }
+}
+
+
+
+
+
+    
 // ==========================================
 // IPO SORT GENERATOR & LOGIC
 // ==========================================
@@ -4565,7 +5134,7 @@ function switchTab(mode) {
     if (activeTab) {
         activeTab.classList.add('active');
         activeTab.style.backgroundColor = "#333"; 
-        activeTab.style.color = "#fff";               
+        activeTab.style.color = "#fff";                
     }
 
     // 2. SAFE HIDE: Loop through elements and only hide them if they exist
@@ -4577,7 +5146,7 @@ function switchTab(mode) {
         'inputGroupColorVal', 'inputGroupColorNames', 'inputGroupZener',
         'inputGroupSilicon', 'zenerOpenQuestions', 'zenerClosedQuestions', 
         'instructionPrompt', 'astableInstruction', 'ratioInstruction', 'zenerInstruction',
-        'grade9DividerBtn', 'grade9ResistorBtn', 'showsolutionsBtn', 'grade9ZenerBtn', 
+        'mainGrade9Btn', 'showsolutionsBtn', // Updated: Removed old IDs, added mainGrade9Btn
         'inputGroupGrade9Zener', 'g9ZenerClosed', 'g9ZenerOpen',
         'inputGroupIPOSort'
     ];
@@ -4594,7 +5163,7 @@ function switchTab(mode) {
     if (subtitle) {
         if (mode === 'home') subtitle.innerText = "Welcome to Electronics";
         else if (['analysis', 'divider', 'resistance', 'colorcode'].includes(mode)) subtitle.innerText = "Module 1: Circuit Basics";
-        else if (mode === 'iposort') subtitle.innerText = "Module 7: Systems";
+        else if (mode === 'iposort') subtitle.innerText = "Module 4: Systems";
         else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) subtitle.innerText = "Module 3: Timing Circuits";
         else if (['silicon', 'zener', 'grade9zener'].includes(mode)) subtitle.innerText = "Module 8: Diodes";
     }
@@ -4684,24 +5253,22 @@ function hubController(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // 2. Full UI Reset (The "Master Wipe")
-    // This handles all state and hides all groups BEFORE we pick the new mode
     if (typeof hideAllInputGroups === "function") hideAllInputGroups(); 
     
-    // ---> THE FIX: Reset the workspaces so normal circuits don't vanish! <---
+    // Reset the workspaces
     if (document.getElementById("circuitContainer")) document.getElementById("circuitContainer").style.display = "block";
     if (document.getElementById("canvasIPOWorkstation")) document.getElementById("canvasIPOWorkstation").style.display = "none";
 
-    // Reset grading flags for the new problem
+    // Reset grading flags
     hasCheckedCurrentProblem = false;
     isCurrentProblemSolved = false;
-    viewedSolution = false; 
+    viewSolution = false; 
     unitErrorMade = false; 
 
-    // 3. Clear text containers without collapsing the height!
+    // 3. Clear text containers
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.innerHTML = '&nbsp;'; // Use a non-breaking space instead of ''
-        // Leave display as it is, do not force it to 'none' here!
+        qText.innerHTML = '&nbsp;'; 
     }
 
     // 4. ROUTER: Setup the UI for the specific mode
@@ -4714,14 +5281,14 @@ function hubController(ctx, canvas) {
 
     } else if (currentMode === 'divider') {
         if (document.getElementById('inputGroupV')) document.getElementById('inputGroupV').style.display = 'inline-block';
-        if (document.getElementById('grade9DividerBtn')) document.getElementById('grade9DividerBtn').style.display = 'inline-block';
+        // SHOW SMART ROCKET
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateDividerProblem === "function") generateDividerProblem(ctx, canvas);
 
     } else if (currentMode === 'resistance') {
         if (document.getElementById('inputGroupR')) document.getElementById('inputGroupR').style.display = 'inline-block';
-        if (document.getElementById('grade9ResistorBtn')) document.getElementById('grade9ResistorBtn').style.display = 'inline-block';
-        
-        // INSTANT EXECUTION: Removed the 20ms timeout!
+        // SHOW SMART ROCKET
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateResistanceProblem === "function") generateResistanceProblem(ctx, canvas);
 
     } else if (currentMode === 'oscilloscope') {
@@ -4741,12 +5308,14 @@ function hubController(ctx, canvas) {
 
     } else if (currentMode === 'zener') {
         if (document.getElementById('inputGroupZener')) document.getElementById('inputGroupZener').style.display = 'inline-block';
-        if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'inline-block';
+        // SHOW SMART ROCKET
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateZenerProblem === "function") generateZenerProblem(ctx, canvas); 
 
     } else if (currentMode === 'grade9zener') {
         if (document.getElementById('inputGroupGrade9Zener')) document.getElementById('inputGroupGrade9Zener').style.display = 'inline-block';
-        if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'inline-block';
+        // Hide rocket because we are already in Grade 9
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
         if (typeof generateGrade9ZenerProblem === "function") generateGrade9ZenerProblem(ctx, canvas);
 
     } else if (currentMode === 'silicon') {
@@ -4759,15 +5328,14 @@ function hubController(ctx, canvas) {
         
     } else if (currentMode === 'power') {
         if (document.getElementById('inputGroupP')) document.getElementById('inputGroupP').style.display = 'inline-block';
-        if (document.getElementById('grade9PowerBtn')) document.getElementById('grade9PowerBtn').style.display = 'inline-block';
+        // SHOW SMART ROCKET
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generatePowerProblem === "function") generatePowerProblem(ctx, canvas);
         
     } else if (currentMode === 'grade9power') {
-        // ---> FIX: Target the new dedicated container, not inputGroupV! <---
         if (document.getElementById('inputGroupGrade9Power')) document.getElementById('inputGroupGrade9Power').style.display = 'block';
-        
-        // Ensure the Grade 9 button stays visible
-        if (document.getElementById('grade9PowerBtn')) document.getElementById('grade9PowerBtn').style.display = 'inline-block';
+        // Hide rocket because we are already in Grade 9
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
         if (typeof generateGrade9PowerProblem === "function") generateGrade9PowerProblem(ctx, canvas);
     }
 }
@@ -4902,8 +5470,12 @@ function checkAnswers() {
     let results = [];
     
     if (currentMode === 'analysis') {
-        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputV').value)), currentAnswers.vValue, 'mV'));
-        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputI').value)), currentAnswers.iValue, 'mA'));
+        // Use the dynamic units from currentAnswers, with fallbacks just in case
+        const expectedVUnit = currentAnswers.vUnit || 'V'; 
+        const expectedIUnit = currentAnswers.iUnit || 'A';
+
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputV').value)), currentAnswers.vValue, expectedVUnit));
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputI').value)), currentAnswers.iValue, expectedIUnit));
 
     } else if (currentMode === 'divider') {
         let inputStr = document.getElementById('inputV').value;
@@ -5465,9 +6037,7 @@ function provideHint() {
     } else if (currentMode === 'grade9power') {
         helpText = `
             <div style="${blueBox}">
-                <strong>💡 Hint:</strong> Trap alert! If you use the chosen E24 resistor, the current is no longer exactly the target value. You must either calculate the <em>new</em> actual current first, or skip a step by using the constant resistor voltage:<br><br>
-                <div style="text-align:center; font-weight:bold;">
-                    P = V<sub>R</sub>&sup2; / R<sub>E24</sub>
+                <strong>💡 Hint:</strong> Once the E24 resistor is used, the current no longer matches the target value. Howeveer, no need to calculate the <em>new</em> actual current as the LED will clamp the voltage at the given value. Therefore you can use the resistor voltage in the power equation (on the data sheet!) as it stays constant. 
                 </div>
             </div>`;
     } else {
@@ -5510,19 +6080,22 @@ async function processSubmission() {
     // Map the technical mode name to a readable topic string
     // Update this section in your processSubmission function:
     const topicMap = {
-        'analysis': 'Cct Analysis',
-        'divider': 'Pot Divider',
-        'resistance': 'Tot Resistance',
-        'oscilloscope': 'Oscilloscopes',
-        'astable': 'Astable', 
-        'monostable': 'Monostable',
-        'zener': 'Zener Diodes',
-        'silicon': 'Silicon Diodes',
-        'iposort': 'IPO Sort',
-        'grade9divider': 'G9 Divider',
-        'grade9resistance': 'G9 Resistance',
-        'grade9zener': 'G9 Zener'
-    };
+            'analysis': 'Cct Analysis',
+            'divider': 'Pot Divider',
+            'grade9divider': 'G9 Divider',
+            'resistance': 'Tot Resistance',
+            'grade9resistance': 'G9 Resistance',
+            'colorcode': 'Colour Codes', 
+            'power': 'Power',
+            'grade9power': 'G9 Power',
+            'oscilloscope': 'Oscilloscopes',
+            'astable': 'Astable', 
+            'monostable': 'Monostable',
+            'zener': 'Zener Diodes',
+            'grade9zener': 'G9 Zener',
+            'silicon': 'Silicon Diodes',
+            'iposort': 'IPO Sort'    
+        };
     const currentTopic = topicMap[currentMode] || 'Unknown Topic';
 
     closeModal();
@@ -5688,11 +6261,10 @@ function hideAllInputGroups() {
         if (el) el.style.setProperty("display", "none", "important");
     });
     
-    // 2c. TOGGLE BUTTONS (Hide Zener/Divider buttons, but NOT Grade 9 Power)
-    // We removed 'grade9PowerBtn' from this list so it doesn't disappear!
-    if (document.getElementById('grade9ZenerBtn')) document.getElementById('grade9ZenerBtn').style.display = 'none';
-    if (document.getElementById('grade9DividerBtn')) document.getElementById('grade9DividerBtn').style.display = 'none';
-    if (document.getElementById('grade9ResistorBtn')) document.getElementById('grade9ResistorBtn').style.display = 'none';
+    // 2c. TOGGLE BUTTONS (Hide the Smart Rocket before the new problem decides to show it)
+    if (document.getElementById('mainGrade9Btn')) {
+        document.getElementById('mainGrade9Btn').style.display = 'none';
+    }
     
     // NEW WORKSTATION TOGGLES
     if (document.getElementById('canvasIPOWorkstation')) document.getElementById('canvasIPOWorkstation').style.display = 'none';
