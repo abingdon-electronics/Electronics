@@ -4527,210 +4527,213 @@ function generateGrade9ZenerProblem() {
 
 //****************************************************
 
-function generateSiliconProblem(ctx, canvas) {
+function generateSiliconProblem() {
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+
     // 0. RESET UI & STATE
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
-    currentMode = 'silicon'; 
-
-    // SHOW THE SMART ROCKET (Grade 9) - Ready for your 3rd scenario later!
-    const smartRocket = document.getElementById('mainGrade9Btn');
-    if (smartRocket) {
-        smartRocket.style.display = 'inline-block';
-    }
-
-    // TARGET THE HTML INPUTS
-    const groupSil = document.getElementById('inputGroupSilicon');
-    if (groupSil) groupSil.style.display = 'flex'; 
     
-    // Assuming you have two input boxes for these questions
-    const input1 = document.getElementById('inputSil1'); 
-    const input2 = document.getElementById('inputSil2');
-    const label1 = document.getElementById('labelSil1');
-    const label2 = document.getElementById('labelSil2');
-    
-    const qText = document.getElementById('questionText');
-    const solText = document.getElementById('solText');
-
-    // Clear previous inputs
-    if (input1) input1.value = ""; 
-    if (input2) input2.value = "";
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-
-    // ==========================================
-    // CYCLING LOGIC (Using scenarioTracker)
-    // ==========================================
+    // Updated tracker name to match the new function name
     if (typeof scenarioTracker.silicon === 'undefined') {
         scenarioTracker.silicon = 0;
     }
     
-    scenarioTracker.silicon++;
-    if (scenarioTracker.silicon > 2) { // We will bump this to 3 when you add the Grade 9 question!
-        scenarioTracker.silicon = 1;
-    }
-    
+    // Cycle between 0, 1, and 2
     const scenario = scenarioTracker.silicon;
-    currentAnswers = {}; // Reset answers
-    currentAnswers.scenario = scenario; 
+    scenarioTracker.silicon = (scenarioTracker.silicon + 1) % 3;
+    
+    currentMode = 'basics_diode_logic';
 
-    if (scenario === 1) {
-        // ==========================================
-        // SCENARIO 1: Basic Forward/Reverse Bias Logic (ON / OFF)
-        // ==========================================
-        
-        // Randomly decide which way the diodes point ("down" = forward, "up" = reverse)
-        let d1Dir = Math.random() < 0.5 ? "down" : "up";
-        let d2Dir = Math.random() < 0.5 ? "down" : "up";
+    const inputZone = document.getElementById('inputGroupBasicsDiodeLogic');
+    if (inputZone) inputZone.style.display = 'flex'; 
 
-        let lamp1State = (d1Dir === "down") ? "ON" : "OFF";
-        let lamp2State = (d2Dir === "down") ? "ON" : "OFF";
+    // Reset dropdowns
+    document.getElementById('basicL1State').value = "";
+    document.getElementById('basicL2State').value = "";
+    document.getElementById('basicL3State').value = "";
 
-        // Save answers for validation (Accepting caps/lowercase handled in your grader)
-        currentAnswers.ans1 = lamp1State;
-        currentAnswers.ans2 = lamp2State;
+    const qText = document.getElementById('questionText');
+    const solText = document.getElementById('solText');
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none";
+    
+    const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
 
-        // Setup UI
-        if (qText) qText.innerHTML = "State whether Lamp 1 and Lamp 2 are <strong>ON</strong> or <strong>OFF</strong>.";
-        if (label1) label1.innerHTML = "<strong style='color:" + pink + "'>L1 = </strong>";
-        if (label2) label2.innerHTML = "<strong style='color:" + pink + "'>L2 = </strong>";
-        if (input1) input1.placeholder = "ON or OFF";
-        if (input2) input2.placeholder = "ON or OFF";
+    // Setup Canvas Base
+    ctx.setTransform(1, 0, 0, 1, 0, 0); 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "black"; 
+    ctx.lineWidth = 2;
 
-        // --- DRAWING ---
-        drawLine(ctx, 150, 60, 450, 60);  // Top Rail (+V)
-        drawLine(ctx, 150, 360, 450, 360); // Bottom Rail (0V)
+    // Helper Functions for Drawing Components
+    function drawBulb(x, y, label) {
+        ctx.beginPath(); ctx.arc(x, y, 15, 0, 2 * Math.PI);
+        ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x - 10, y - 10); ctx.lineTo(x + 10, y + 10);
+        ctx.moveTo(x + 10, y - 10); ctx.lineTo(x - 10, y + 10); ctx.stroke();
+        ctx.fillStyle = pink; ctx.font = "bold 16px Arial"; ctx.fillText(label, x + 25, y + 5);
+        ctx.strokeStyle = "black"; ctx.fillStyle = "black";
+    }
 
-        ctx.fillStyle = "black"; ctx.textAlign = "left";
-        ctx.font = "bold 16px Arial"; ctx.fillText("+ V", 250, 45);
-        ctx.font = "bold 12px Arial"; ctx.fillText("supply", 275, 50); 
-        ctx.textAlign = "center"; ctx.font = "bold 16px Arial"; ctx.fillText("0V (GND)", 300, 390);
-
-        // Branch 1 (Left)
-        drawLine(ctx, 220, 60, 220, 110); 
-        drawDiode(ctx, 220, 130, d1Dir);
-        drawLine(ctx, 220, 150, 220, 210);
-        drawLamp(ctx, 220, 235);
-        drawLine(ctx, 220, 260, 220, 360);
-        
-        ctx.fillStyle = "black"; ctx.textAlign = "right"; ctx.font = "bold 16px Arial"; 
-        ctx.fillText("L1", 185, 235);
-        ctx.fillStyle = pink;
-        ctx.fillText("Status = ?", 200, 255);
-
-        // Branch 2 (Right)
-        drawLine(ctx, 380, 60, 380, 110); 
-        drawDiode(ctx, 380, 130, d2Dir);
-        drawLine(ctx, 380, 150, 380, 210);
-        drawLamp(ctx, 380, 235);
-        drawLine(ctx, 380, 260, 380, 360);
-
-        ctx.fillStyle = "black"; ctx.textAlign = "left"; ctx.font = "bold 16px Arial"; 
-        ctx.fillText("L2", 415, 235);
-        ctx.fillStyle = pink;
-        ctx.fillText("Status = ?", 400, 255);
-
-        if (solText) {
-            solText.innerHTML = `<strong>L1 = ${lamp1State} | L2 = ${lamp2State}</strong><br><br>` +
-                `<em>Logic:</em> Current flows from positive (top) to negative (bottom).<br>` +
-                `A silicon diode only allows current to flow in the direction of its arrow (forward-biased). If it points against the current, it blocks it (reverse-biased).`;
+    function drawVertDiode(x, y, isForward) {
+        ctx.beginPath();
+        if (isForward) { // Pointing down
+            ctx.moveTo(x - 15, y - 15); ctx.lineTo(x + 15, y - 15); ctx.lineTo(x, y + 15);
+        } else { // Pointing up
+            ctx.moveTo(x - 15, y + 15); ctx.lineTo(x + 15, y + 15); ctx.lineTo(x, y - 15);
         }
+        ctx.closePath(); ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
+        ctx.beginPath();
+        if (isForward) { ctx.moveTo(x - 15, y + 15); ctx.lineTo(x + 15, y + 15); } 
+        else { ctx.moveTo(x - 15, y - 15); ctx.lineTo(x + 15, y - 15); }
+        ctx.stroke();
+    }
 
-    } else if (scenario === 2) {
-        // ==========================================
-        // SCENARIO 2: Forward Bias 0.7V Drop Math
-        // ==========================================
+    // Top and Bottom Rails
+    drawLine(ctx, 100, 40, 400, 40);
+    ctx.font = "bold 16px Arial"; ctx.fillText("12V (Supply)", 100, 30);
+    drawLine(ctx, 100, 360, 400, 360);
+    ctx.fillText("0V (Ground)", 100, 380);
+
+    // Update Common Question Text
+    if (qText) {
+        qText.innerHTML = 
+            `<div style="margin-bottom: 10px;"><strong style="color: #4CAF50;">💡 Basics: Diode Logic</strong></div>` +
+            `Assume the diodes are ideal (acting as simple open or closed switches).<br><br>` +
+            `Look carefully at the direction of the supply voltage and determine if bulbs <strong>L1, L2, and L3</strong> are ON or OFF.`;
+        qText.style.display = 'block';
+    }
+
+    let l1_state, l2_state, l3_state;
+    let logicHTML = "<strong>Step-by-Step Logic:</strong><br><br>";
+
+    // ==========================================
+    // SCENARIO 0: Parallel Bypass
+    // ==========================================
+    if (scenario === 0) {
+        const d2Forward = Math.random() < 0.5;
+        l1_state = "ON";
+        l3_state = "ON";
+        l2_state = d2Forward ? "ON" : "OFF";
+
+        // Main Wire Top
+        drawLine(ctx, 250, 40, 250, 80);
+        drawLine(ctx, 180, 80, 320, 80); // Split
         
-        // Let's mix up what is given!
-        // Type A: Give V_supply, ask for V_diode and V_Lamp1
-        // Type B: Give V_Lamp1, ask for V_diode and V_supply
-        let isTypeA = Math.random() < 0.5;
+        // Left Branch (L1)
+        drawLine(ctx, 180, 80, 180, 240);
+        drawBulb(180, 150, "L1");
+        
+        // Right Branch (L2 + Diode)
+        drawLine(ctx, 320, 80, 320, 120);
+        drawVertDiode(320, 135, d2Forward);
+        drawLine(ctx, 320, 150, 320, 180);
+        drawBulb(320, 195, "L2");
+        drawLine(ctx, 320, 210, 320, 240);
 
-        let vSupply = Math.floor(Math.random() * 8) + 5; // 5V to 12V
-        let vDiode = 0.7; // Constant
-        let vLamp1 = parseFloat((vSupply - vDiode).toFixed(1)); 
+        // Recombine & Main Wire Bottom (L3)
+        drawLine(ctx, 180, 240, 320, 240);
+        drawLine(ctx, 250, 240, 250, 280);
+        drawBulb(250, 295, "L3");
+        drawLine(ctx, 250, 310, 250, 360);
 
-        if (isTypeA) {
-            currentAnswers.ans1 = vDiode;  // Input 1 is Diode
-            currentAnswers.ans2 = vLamp1;  // Input 2 is Lamp 1
-            if (qText) qText.innerHTML = "Calculate the voltage across the <strong>Diode</strong> and <strong>Lamp 1</strong>.";
+        logicHTML += `<strong>L1 is ${l1_state}</strong>: It is on a direct branch to ground with no diodes blocking it.<br><br>`;
+        logicHTML += `<strong>L2 is ${l2_state}</strong>: The diode on its branch is ${d2Forward ? "pointing toward ground (Forward-biased)" : "pointing against the supply (Reverse-biased)"}.<br><br>`;
+        logicHTML += `<strong>L3 is ${l3_state}</strong>: Because L1 provides an open path for current, current successfully reaches the bottom junction and flows through L3 to ground.`;
+    }
+
+    // ==========================================
+    // SCENARIO 1: Master Gate
+    // ==========================================
+    else if (scenario === 1) {
+        const masterForward = Math.random() < 0.5;
+        const branchForward = Math.random() < 0.5;
+
+        if (!masterForward) {
+            l1_state = "OFF"; l2_state = "OFF"; l3_state = "OFF"; // L3 represents Master state here
         } else {
-            currentAnswers.ans1 = vDiode;  // Input 1 is Diode
-            currentAnswers.ans2 = vSupply; // Input 2 is Supply
-            if (qText) qText.innerHTML = "Calculate the voltage across the <strong>Diode</strong> and the <strong>Supply Voltage</strong>.";
+            l2_state = "ON";
+            l1_state = branchForward ? "ON" : "OFF";
+            l3_state = "ON"; // Master is on
         }
 
-        // Setup UI
-        if (label1) label1.innerHTML = "<strong style='color:" + pink + "'>V<sub style='font-size: 0.75em;'>diode</sub> = </strong>";
-        if (label2) {
-            label2.innerHTML = isTypeA ? 
-                "<strong style='color:" + pink + "'>V<sub style='font-size: 0.75em;'>L1</sub> = </strong>" : 
-                "<strong style='color:" + pink + "'>V<sub style='font-size: 0.75em;'>supply</sub> = </strong>";
-        }
-        if (input1) input1.placeholder = "e.g. 0.7 V";
-        if (input2) input2.placeholder = "e.g. 5.3 V";
+        // Master Wire
+        drawLine(ctx, 250, 40, 250, 60);
+        drawVertDiode(250, 75, masterForward);
+        
+        // Trick: We will label a bulb L3 directly on the master branch just to use the 3rd dropdown!
+        drawLine(ctx, 250, 90, 250, 110);
+        drawBulb(250, 125, "L3");
 
-        // --- DRAWING ---
-        drawLine(ctx, 150, 60, 450, 60);  
-        drawLine(ctx, 150, 360, 450, 360); 
+        // Split
+        drawLine(ctx, 250, 140, 250, 170);
+        drawLine(ctx, 180, 170, 320, 170); 
 
-        // Top Supply Label
-        ctx.fillStyle = "black"; ctx.textAlign = "left";
-        ctx.font = "bold 16px Arial"; ctx.fillText("V", 250, 45);
-        ctx.font = "bold 12px Arial"; ctx.fillText("supply", 262, 50); 
-        if (isTypeA) {
-            ctx.font = "bold 16px Arial"; ctx.fillText(" = " + vSupply + " V", 305, 45);
+        // Left Branch (Branch Diode + L1)
+        drawLine(ctx, 180, 170, 180, 200);
+        drawVertDiode(180, 215, branchForward);
+        drawLine(ctx, 180, 230, 180, 260);
+        drawBulb(180, 275, "L1");
+        drawLine(ctx, 180, 290, 180, 320);
+
+        // Right Branch (L2 only)
+        drawLine(ctx, 320, 170, 320, 260);
+        drawBulb(320, 275, "L2");
+        drawLine(ctx, 320, 290, 320, 320);
+
+        // Recombine
+        drawLine(ctx, 180, 320, 320, 320);
+        drawLine(ctx, 250, 320, 250, 360);
+
+        if (!masterForward) {
+            logicHTML += `<strong>The Master Diode is Reverse-Biased.</strong> It acts as an open switch.<br>Because no current can pass the main gate, <strong>L1, L2, and L3 are all OFF</strong>.`;
         } else {
-            ctx.fillStyle = pink; ctx.font = "bold 16px Arial"; ctx.fillText(" = ?", 305, 45);
-        }
-        
-        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.fillText("0V (GND)", 300, 390);
-
-        // Branch 1 (Left) - Diode + Lamp
-        drawLine(ctx, 220, 60, 220, 110); 
-        drawDiode(ctx, 220, 130, "down"); // Always forward biased for Scenario 2
-        
-        ctx.fillStyle = pink; ctx.textAlign = "right"; ctx.font = "bold 16px Arial"; 
-        ctx.fillText("V = ?", 190, 135);
-
-        drawLine(ctx, 220, 150, 220, 210);
-        drawLamp(ctx, 220, 235);
-        drawLine(ctx, 220, 260, 220, 360);
-        
-        ctx.textAlign = "right";
-        ctx.fillStyle = "black"; ctx.fillText("L1", 185, 230);
-        if (isTypeA) {
-            ctx.fillStyle = pink; ctx.fillText("V = ?", 185, 250);
-        } else {
-            ctx.fillStyle = "black"; ctx.fillText(vLamp1 + " V", 185, 250);
-        }
-
-        // Branch 2 (Right) - Identical Lamp parallel branch
-        drawLine(ctx, 380, 60, 380, 180); 
-        drawLamp(ctx, 380, 205);
-        drawLine(ctx, 380, 230, 380, 360);
-
-        ctx.fillStyle = "black"; ctx.textAlign = "left"; ctx.font = "bold 16px Arial"; 
-        ctx.fillText("L2", 415, 200);
-        // Show the voltage of Lamp 2 to help them deduce the parallel rules
-        ctx.fillText(vSupply + " V", 415, 220);
-
-        if (solText) {
-            if (isTypeA) {
-                solText.innerHTML = `<strong>V<sub>diode</sub> = 0.7 V | V<sub>L1</sub> = ${vLamp1} V</strong><br><br>` +
-                    `<em>Step 1:</em> A forward-biased silicon diode always has a fixed voltage drop of <strong>0.7 V</strong>.<br>` +
-                    `<em>Step 2:</em> Because it is a parallel circuit, the left branch receives the full ${vSupply} V supply.<br>` +
-                    `<em>Step 3:</em> V<sub>L1</sub> = V<sub>supply</sub> - V<sub>diode</sub> = ${vSupply} - 0.7 = <strong>${vLamp1} V</strong>.`;
-            } else {
-                solText.innerHTML = `<strong>V<sub>diode</sub> = 0.7 V | V<sub>supply</sub> = ${vSupply} V</strong><br><br>` +
-                    `<em>Step 1:</em> A forward-biased silicon diode always has a fixed voltage drop of <strong>0.7 V</strong>.<br>` +
-                    `<em>Step 2:</em> In a series branch, voltages add up. Therefore, the total voltage of the left branch is V<sub>diode</sub> + V<sub>L1</sub> = 0.7 + ${vLamp1} = <strong>${vSupply} V</strong>.<br>` +
-                    `<em>Step 3:</em> Because branches are parallel, the supply voltage equals the total branch voltage.`;
-            }
+            logicHTML += `<strong>The Master Diode is Forward-Biased.</strong> Current passes through it.<br><br>`;
+            logicHTML += `<strong>L3 is ${l3_state}</strong>: It is on the main wire receiving current.<br><br>`;
+            logicHTML += `<strong>L2 is ${l2_state}</strong>: Its branch has no diodes blocking the path to ground.<br><br>`;
+            logicHTML += `<strong>L1 is ${l1_state}</strong>: The branch diode is ${branchForward ? "Forward-biased" : "Reverse-biased"}.`;
         }
     }
+
+    // ==========================================
+    // SCENARIO 2: Triple Drop
+    // ==========================================
+    else if (scenario === 2) {
+        const d1Forward = Math.random() < 0.5;
+        const d2Forward = Math.random() < 0.5;
+        const d3Forward = Math.random() < 0.5;
+
+        l1_state = d1Forward ? "ON" : "OFF";
+        l2_state = d2Forward ? "ON" : "OFF";
+        l3_state = d3Forward ? "ON" : "OFF";
+
+        const xPos = [150, 250, 350];
+        const fwds = [d1Forward, d2Forward, d3Forward];
+        const labels = ["L1", "L2", "L3"];
+        
+        for(let i=0; i<3; i++) {
+            drawLine(ctx, xPos[i], 40, xPos[i], 100);
+            drawVertDiode(xPos[i], 115, fwds[i]);
+            drawLine(ctx, xPos[i], 130, xPos[i], 200);
+            drawBulb(xPos[i], 215, labels[i]);
+            drawLine(ctx, xPos[i], 230, xPos[i], 360);
+        }
+
+        logicHTML += `These are three completely independent parallel branches. The state of each bulb depends entirely on the orientation of its own diode.<br><br>`;
+        logicHTML += `<strong>L1 is ${l1_state}</strong>: Its diode is ${d1Forward ? "pointing down (Forward)" : "pointing up (Reverse)"}.<br><br>`;
+        logicHTML += `<strong>L2 is ${l2_state}</strong>: Its diode is ${d2Forward ? "pointing down (Forward)" : "pointing up (Reverse)"}.<br><br>`;
+        logicHTML += `<strong>L3 is ${l3_state}</strong>: Its diode is ${d3Forward ? "pointing down (Forward)" : "pointing up (Reverse)"}.`;
+    }
+
+    // Save answers & Solutions
+    currentAnswers = {
+        l1: l1_state,
+        l2: l2_state,
+        l3: l3_state
+    };
+
+    if (solText) solText.innerHTML = logicHTML;
 }
 
 //****************************************************
