@@ -4552,7 +4552,8 @@ function generateSiliconProblem() {
     }
     
     const scenario = scenarioTracker.silicon;
-    scenarioTracker.silicon = (scenarioTracker.silicon + 1) % 3;
+    // Now toggles only between 0 and 1
+    scenarioTracker.silicon = (scenarioTracker.silicon + 1) % 2;
 
     const inputZone = document.getElementById('inputGroupBasicsDiodeLogic');
     if (inputZone) inputZone.style.display = 'flex'; 
@@ -4685,38 +4686,6 @@ function generateSiliconProblem() {
             logicHTML += `<strong>L2 is ${l2_state}</strong>: Its branch has no diodes blocking the path to ground.<br><br>`;
             logicHTML += `<strong>L1 is ${l1_state}</strong>: The branch diode is ${branchForward ? "Forward-biased" : "Reverse-biased"}.`;
         }
-    }
-
-    // ==========================================
-    // SCENARIO 2: Triple Drop
-    // ==========================================
-    else if (scenario === 2) {
-        const d1Forward = Math.random() < 0.5;
-        const d2Forward = Math.random() < 0.5;
-        const d3Forward = Math.random() < 0.5;
-
-        l1_state = d1Forward ? "ON" : "OFF";
-        l2_state = d2Forward ? "ON" : "OFF";
-        l3_state = d3Forward ? "ON" : "OFF";
-
-        const xPos = [150, 250, 350];
-        const fwds = [d1Forward, d2Forward, d3Forward];
-        const labels = ["L1", "L2", "L3"];
-        
-        for(let i=0; i<3; i++) {
-            // Center is 115. Wires stop at 103 and start at 127.
-            drawLine(ctx, xPos[i], 40, xPos[i], 103);
-            drawDiode(ctx, xPos[i], 115, fwds[i] ? "down" : "up", 12);
-            drawLine(ctx, xPos[i], 127, xPos[i], 200);
-            drawLamp(ctx, xPos[i], 215, 15);
-            drawLabel(ctx, labels[i], xPos[i] + 25, 215 + 5, 16, pink);
-            drawLine(ctx, xPos[i], 230, xPos[i], 360);
-        }
-
-        logicHTML += `These are three completely independent parallel branches. The state of each lamp depends entirely on the orientation of its own diode.<br><br>`;
-        logicHTML += `<strong>L1 is ${l1_state}</strong>: Its diode is ${d1Forward ? "pointing down (Forward)" : "pointing up (Reverse)"}.<br><br>`;
-        logicHTML += `<strong>L2 is ${l2_state}</strong>: Its diode is ${d2Forward ? "pointing down (Forward)" : "pointing up (Reverse)"}.<br><br>`;
-        logicHTML += `<strong>L3 is ${l3_state}</strong>: Its diode is ${d3Forward ? "pointing down (Forward)" : "pointing up (Reverse)"}.`;
     }
 
     // Save answers & Solutions
