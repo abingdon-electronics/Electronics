@@ -1026,15 +1026,8 @@
     </div>
                 
 <!-- Input group Silicon -->   
-<div id="inputGroupSilicon" class="input-group" style="display: none;">
-    <label id="labelSil1"></label>
-    <input type="text" id="inputSil1" placeholder="ON or OFF">
-    
-    <label id="labelSil2" style="margin-left: 15px;"></label>
-    <input type="text" id="inputSil2" placeholder="ON or OFF">
-</div>
 
-<div id="inputGroupBasicsDiodeLogic" class="input-group" style="display: none; flex-direction: column; padding-left: 25px;">
+<div id="inputGroupSilicon" class="input-group" style="display: none; flex-direction: column; padding-left: 25px;">
     
     <div style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 15px;">
         <label for="basicL1State" style="min-width: 90px; margin-bottom: 0; text-align: left; margin-right: 10px;">
@@ -4555,7 +4548,8 @@ function generateSiliconProblem() {
     // Now toggles only between 0 and 1
     scenarioTracker.silicon = (scenarioTracker.silicon + 1) % 2;
 
-    const inputZone = document.getElementById('inputGroupBasicsDiodeLogic');
+    // UPDATED: Now targets the newly named 'inputGroupSilicon'
+    const inputZone = document.getElementById('inputGroupSilicon');
     if (inputZone) inputZone.style.display = 'flex'; 
 
     document.getElementById('basicL1State').value = "";
