@@ -4546,7 +4546,8 @@ function generateSiliconProblem() {
     const ctx = canvas.getContext('2d');
 
     // 0. RESET UI & STATE
-    if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
+    // SABOTEUR 1 REMOVED: We no longer call hideAllInputGroups() here!
+    // Let the hubController handle the wiping so we don't accidentally re-hide things.
     
     // Updated tracker name to match the new function name
     if (typeof scenarioTracker.silicon === 'undefined') {
@@ -4557,8 +4558,10 @@ function generateSiliconProblem() {
     const scenario = scenarioTracker.silicon;
     scenarioTracker.silicon = (scenarioTracker.silicon + 1) % 3;
     
-    currentMode = 'basics_diode_logic';
+    // SABOTEUR 2 REMOVED: We no longer change currentMode here.
+    // It remains whatever hubController set it to (e.g., 'silicon').
 
+    // Unhide the specific input group for the dropdowns
     const inputZone = document.getElementById('inputGroupBasicsDiodeLogic');
     if (inputZone) inputZone.style.display = 'flex'; 
 
@@ -4580,7 +4583,16 @@ function generateSiliconProblem() {
     ctx.strokeStyle = "black"; 
     ctx.lineWidth = 2;
 
-    // Helper Functions for Drawing Components
+    // --- Helper Functions for Drawing Components ---
+    
+    // UPGRADE: Added a local drawLine function in case it was missing globally!
+    function drawLine(ctx, x1, y1, x2, y2) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
+
     function drawBulb(x, y, label) {
         ctx.beginPath(); ctx.arc(x, y, 15, 0, 2 * Math.PI);
         ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
@@ -4616,7 +4628,7 @@ function generateSiliconProblem() {
             `<div style="margin-bottom: 10px;"><strong style="color: #4CAF50;">💡 Basics: Diode Logic</strong></div>` +
             `Assume the diodes are ideal (acting as simple open or closed switches).<br><br>` +
             `Look carefully at the direction of the supply voltage and determine if bulbs <strong>L1, L2, and L3</strong> are ON or OFF.`;
-        qText.style.display = 'block';
+        qText.style.display = 'block'; // Ensures the text actually becomes visible
     }
 
     let l1_state, l2_state, l3_state;
