@@ -139,9 +139,10 @@
         display: flex; 
         gap: 20px; 
         align-items: flex-start; 
-        flex-wrap: wrap; 
+        flex-wrap: nowrap; /* Forces them to stay side-by-side */
         justify-content: center; 
     }
+
     .left-panel { 
         flex: 0 0 630px; /* 0=don't grow, 0=don't shrink, 630px perfectly fits canvas + padding */
         max-width: 650px; 
