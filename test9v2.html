@@ -4810,7 +4810,7 @@ function generateGrade9SiliconProblem() {
     const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
 
     // ==========================================
-    // UI REVEAL LOGIC (Fix for Blank Canvas/Inputs)
+    // UI REVEAL LOGIC
     // ==========================================
     
     // 1. Bring the Question Text container back to life
@@ -4839,12 +4839,6 @@ function generateGrade9SiliconProblem() {
     // BRANCH 1: THE OR-GATE PAYLOAD PROBLEM
     // ==========================================
     if (isOrGate) {
-        // Show correct HTML inputs
-        if (document.getElementById('inputGroupGrade9Silicon')) document.getElementById('inputGroupGrade9Silicon').style.display = 'flex';
-        document.getElementById('g9SilVPayload').value = "";
-        document.getElementById('g9SilD1').value = "";
-        document.getElementById('g9SilD2').value = "";
-
         // Math
         const mainVoltages = [12, 15, 24];
         let v_main = mainVoltages[Math.floor(Math.random() * mainVoltages.length)];
@@ -4883,7 +4877,8 @@ function generateGrade9SiliconProblem() {
         ctx.beginPath(); // Diode pointing down
         ctx.moveTo(185, 90); ctx.lineTo(215, 90); ctx.lineTo(200, 120); ctx.closePath();
         ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
-        drawLine(ctx, 185, 120, 215, 120); // Cathode
+        drawLine(ctx, 185, 120, 215, 120); // Cathode line
+        drawLine(ctx, 200, 90, 200, 120);  // <-- GCSE STANDARD: Line straight through the middle
         ctx.fillStyle = pink; ctx.textAlign = "right"; ctx.fillText("D1", 175, 110);
         drawLine(ctx, 200, 120, 200, 220); // Wire down to junction
 
@@ -4896,7 +4891,8 @@ function generateGrade9SiliconProblem() {
         ctx.beginPath(); // Diode pointing down
         ctx.moveTo(285, 160); ctx.lineTo(315, 160); ctx.lineTo(300, 190); ctx.closePath();
         ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
-        drawLine(ctx, 285, 190, 315, 190); // Cathode
+        drawLine(ctx, 285, 190, 315, 190); // Cathode line
+        drawLine(ctx, 300, 160, 300, 190); // <-- GCSE STANDARD: Line straight through the middle
         ctx.fillStyle = pink; ctx.textAlign = "left"; ctx.fillText("D2", 325, 180);
         drawLine(ctx, 300, 190, 300, 220); // Wire down to junction
 
@@ -4934,11 +4930,6 @@ function generateGrade9SiliconProblem() {
     // BRANCH 2: THE REVERSE BIAS LEAKAGE PROBLEM
     // ==========================================
     else {
-        // Show correct HTML inputs
-        if (document.getElementById('inputGroupGrade9SiliconReverse')) document.getElementById('inputGroupGrade9SiliconReverse').style.display = 'flex';
-        document.getElementById('g9SilRevVDiode').value = "";
-        document.getElementById('g9SilRevVComp').value = "";
-
         // Math
         const vSupplyList = [5, 9, 12, 15, 24];
         let v_in = vSupplyList[Math.floor(Math.random() * vSupplyList.length)];
@@ -4972,6 +4963,7 @@ function generateGrade9SiliconProblem() {
         ctx.moveTo(280, 160); ctx.lineTo(320, 160); ctx.lineTo(300, 120); ctx.closePath();
         ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
         drawLine(ctx, 280, 120, 320, 120); // Cathode line
+        drawLine(ctx, 300, 160, 300, 120); // <-- GCSE STANDARD: Line straight through the middle
         ctx.fillStyle = pink; ctx.textAlign = "left"; ctx.fillText("V_Diode = ?", 340, 145);
 
         drawLine(ctx, 300, 160, 300, 220);
