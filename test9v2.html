@@ -4939,9 +4939,9 @@ function generateGrade9SiliconProblem() {
         // Text Update
         if (qText) {
             qText.innerHTML = 
-                `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🚀 Grade 9 Challenge: Payload Redundancy</strong></div>` +
+                `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🚀 Grade 9 Challenge: Backup Battery</strong></div>` +
                 `Backup batteries for critical systems use diodes to prevent power backfeeding.<br><br>` +
-                `1) Input the rocket's "critical payload" voltage.<br>` +
+                `1) Calculate the load voltage.<br>` +
                 `2) Determine if D1 is ON or OFF.<br>` +
                 `3) Determine if D2 is ON or OFF.`;
         }
@@ -4999,7 +4999,7 @@ ctx.fillStyle = "black";
 ctx.textAlign = "center";
 ctx.textBaseline = "middle"; // Ensures perfect vertical centering
 ctx.font = "bold 14px Arial"; // Adjusted to 14px as per your preference for smaller text
-ctx.fillText("Payload", boxX + (boxW / 2), centerY); 
+ctx.fillText("Load", boxX + (boxW / 2), centerY); 
 
 // 3. Draw pink label outside the box - situated tightly to the left
 let pinkColor = typeof brandPink !== 'undefined' ? brandPink : "#E64097";
