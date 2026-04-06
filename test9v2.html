@@ -4777,7 +4777,7 @@ function generateSiliconProblem() {
         currentAnswers = { l1: l1_state, l2: l2_state, l3: l3_state };
     }
 
-// ==========================================
+    // ==========================================
     // SCENARIO 2: Series Staircase (Voltage Math)
     // ==========================================
     else if (scenario === 2) {
@@ -4798,8 +4798,15 @@ function generateSiliconProblem() {
         
         // Draw TP1 (Starts exactly at 85 + 12 = 97)
         drawLine(ctx, 250, 97, 250, 140);
-        if(typeof drawNode === 'function') drawNode(ctx, 250, 140);
-        ctx.fillStyle = pink; // <-- CHANGED TO PINK
+        
+        // Draw Pink Circle for TP1
+        ctx.beginPath();
+        ctx.arc(250, 140, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = pink;
+        ctx.fill();
+        ctx.stroke(); // Gives it the black border
+        
+        ctx.fillStyle = pink;
         ctx.fillText("TP1", 270, 145); 
         
         // Draw Line to D2 (Stops exactly at 195 - 12 = 183)
@@ -4808,8 +4815,15 @@ function generateSiliconProblem() {
         
         // Draw TP2 (Starts exactly at 195 + 12 = 207)
         drawLine(ctx, 250, 207, 250, 250);
-        if(typeof drawNode === 'function') drawNode(ctx, 250, 250);
-        ctx.fillStyle = pink; // <-- CHANGED TO PINK
+        
+        // Draw Pink Circle for TP2
+        ctx.beginPath();
+        ctx.arc(250, 250, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = pink;
+        ctx.fill();
+        ctx.stroke(); // Gives it the black border
+        
+        ctx.fillStyle = pink;
         ctx.fillText("TP2", 270, 255);
 
         // Draw Load Resistor to Ground
