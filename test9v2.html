@@ -760,7 +760,7 @@
     <button class="tab" onclick="safeOpenModule('timing')">3. Timing Circuits</button>
     <button class="tab" onclick="safeOpenModule('opamps')">7. Op Amps</button>
     <button class="tab" onclick="safeOpenModule('systems')">4. Systems</button>
-    <button class="tab" onclick="safeOpenModule('silicon')">8. Diodes</button>
+    <button class="tab" onclick="safeOpenModule('diodes')">8. Diodes</button>
 </div>
 
 <div id="menuBasics" class="tabs" style="display:none;">
@@ -5096,7 +5096,7 @@ function openModule(module) {
         switchTab('oscilloscope'); 
     } else if (module === 'diodes') {
         document.getElementById('menuDiodes').style.display = 'flex';
-        switchTab('zener'); 
+        switchTab('silicon'); 
     } else if (module === 'systems') {
         if (document.getElementById('menuSystems')) document.getElementById('menuSystems').style.display = 'flex';
         switchTab('iposort'); 
