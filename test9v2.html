@@ -4912,7 +4912,10 @@ function generateGrade9SiliconProblem() {
     // 2. Unhide the specific Input Group based on our current tracker mode
     if (currentMode === 'grade9silicon_orgate') {
         const groupOrGate = document.getElementById('inputGroupGrade9Silicon');
-        if (groupOrGate) groupOrGate.style.display = 'flex';
+        if (groupOrGate) {
+            groupOrGate.style.display = 'flex';
+            groupOrGate.style.flexDirection = 'column'; // Forced vertical layout
+        }
     } 
     // Note: We don't need to unhide the Reverse group here anymore, because we do it inside the Pathfinder block below!
 
@@ -4954,7 +4957,7 @@ function generateGrade9SiliconProblem() {
             hintDiv.innerHTML = "<strong>Hint:</strong> The battery with the highest voltage will push its diode into forward bias. Check the voltage at the cathode junction to see if the backup diode can turn on!";
         }
 
-// Draw: Horizontal Rails & Vertical Components
+        // Draw: Horizontal Rails & Vertical Components
         ctx.fillStyle = "black"; ctx.font = "bold 14px Arial";
         
         // Rail 1: Main Battery (Top)
@@ -5165,9 +5168,12 @@ function generateGrade9SiliconProblem() {
 
         // Show the new input group
         const pathInputGroup = document.getElementById('inputGroupGrade9SiliconPath');
-        if (pathInputGroup) pathInputGroup.style.display = 'flex';
+        if (pathInputGroup) {
+            pathInputGroup.style.display = 'flex';
+            pathInputGroup.style.flexDirection = 'column'; // Forced vertical layout
+        }
     }
-} 
+}
 
     
 // ==========================================
