@@ -1480,10 +1480,9 @@ function handleGrade9Click() {
     else if (currentMode === 'power' || currentMode === 'grade9power') {
         generateGrade9PowerProblem(); 
     }
-
-
-    else if (currentMode === 'silicon' || currentMode === 'grade9silicon') {  // <-- NEW: Silicon Rocket Logic
-        currentMode = 'grade9silicon'; 
+    // 👇 NEW: Catch the Silicon base mode AND the two new sub-modes! 👇
+    else if (currentMode === 'silicon' || currentMode === 'grade9silicon' || currentMode === 'grade9silicon_parallel' || currentMode === 'grade9silicon_reverse') { 
+        currentMode = 'grade9silicon'; // Force it back to the parent mode so the Hub recognizes it
         const canvas = document.getElementById('circuitCanvas');
         const ctx = canvas ? canvas.getContext('2d') : null;
         if (typeof hubController === "function") hubController(ctx, canvas);
@@ -5405,20 +5404,17 @@ function hubController(ctx, canvas) {
         }
         
     } else if (currentMode === 'grade9silicon') {
-        // 1. Unhide the specific Grade 9 containers
-        if (document.getElementById('inputGroupGrade9Silicon')) document.getElementById('inputGroupGrade9Silicon').style.display = 'flex'; 
-        // Note: Add inputGroupGrade9SiliconReverse here later if it needs to be visible immediately!
+        // 1. Keep rocket VISIBLE so they can cycle through the Grade 9 problems
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         
-        // 2. Hide rocket because we are already in Grade 9
-        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
-        
-        // 3. Generate & Log
+        // 2. Generate & Log (The generator will handle unhiding the correct input groups!)
         console.log("Hub: Attempting to generate Grade 9 Silicon problem...");
         if (typeof generateGrade9SiliconProblem === "function") {
             generateGrade9SiliconProblem(ctx, canvas);
         } else {
             console.error("Hub: generateGrade9SiliconProblem is not defined!");
         }
+    }
     } else if (currentMode === 'iposort') {
         if (document.getElementById('inputGroupIPOSort')) document.getElementById('inputGroupIPOSort').style.display = 'block';
         if (typeof generateIPOProblem === "function") generateIPOProblem(ctx, canvas);
