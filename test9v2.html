@@ -793,9 +793,8 @@
 <div id="menuPlaceholder" class="tabs" style="display:none;">
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Module Under Construction - Return Home</button>
 </div>
-
-
-
+<!-- *************************************************************************************** -->    
+<!-- *************************************************************************************** -->    
 <!--==========================================
     MAIN APPLICATION AREA                      
     ========================================== -->
@@ -1217,17 +1216,18 @@
                     </div>   
             </div>
         </div>
-<!-- *************************************************************************************** -->       
+<!-- *************************************************************************************** -->   
+<!-- *************************************************************************************** -->    
 <!-- Bottom Controls, Feedback, and Solutions -->
-        <div style="flex: 0 0 auto; margin-top: 5px; padding-top: 5px; border-top: 1px solid #eee;">
+       <div style="flex: 0 0 auto; margin-top: 5px; padding-top: 5px; border-top: 1px solid #eee;">
             <div id="feedback" style="font-weight: bold; margin-bottom: 5px; text-align: center; min-height: 0px; font-size: 0.95em;"></div>
             
             <button id="checkansBtn" class="btn-check" onclick="checkAnswers()" style="width: 100%; margin-bottom: 10px; padding: 12px; font-size: 18px;">🎯 Check Answers</button>
             
             <div style="display: flex; gap: 8px; width: 100%;">
-                <button class="btn-new-question" style="flex: 1;" onclick="handleNewQuestionClick()">❓ New Standard Question</button>
+                <button class="btn-new-question" style="flex: 1;" onclick="handleNewQuestionClick()">❓ + Standard Question</button>
                 
-                <button id="mainGrade9Btn" class="btn-grade9" style="display: none; flex: 1; white-space: nowrap;" onclick="handleGrade9Click()">🚀 New Grade 9 Question</button>
+                <button id="mainGrade9Btn" class="btn-grade9" style="display: none; flex: 1; white-space: nowrap;" onclick="handleGrade9Click()">🚀 + Grade 9 Question</button>
             </div>
         
             <div id="solutions" class="solutions" style="display: none; margin-top: 10px; padding: 12px; background-color: #f8f9fa; border-left: 4px solid #E64097;">
@@ -1237,7 +1237,8 @@
         </div>
     </div>
 </div>
-    
+<!-- *************************************************************************************** -->    
+<!-- *************************************************************************************** -->    
 <!-- ==========================================
       MODALS                                     
      ========================================== 
@@ -1334,10 +1335,10 @@
 </div>
 
 <script>
-
-// SCRIPT STARTS NOW============================================================================      
+<!-- *************************************************************************************** -->    
+// SCRIPT STARTS NOW      
 // GLOBAL VARIABLES
-// ================================================================================================  
+
 const brandPink = "#E64097";
 const brandBlack = "#000000";
 
