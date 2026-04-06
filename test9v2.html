@@ -4646,8 +4646,19 @@ function generateSiliconProblem() {
     } else {
         if (inputLogic) inputLogic.style.display = 'none'; 
         if (inputVoltage) inputVoltage.style.display = 'flex';
-        document.getElementById('siliconTP1').value = "";
-        document.getElementById('siliconTP2').value = "";
+        
+        let tp1 = document.getElementById('siliconTP1');
+        let tp2 = document.getElementById('siliconTP2');
+        
+        // Reset values and add placeholders
+        if (tp1) {
+            tp1.value = "";
+            tp1.placeholder = "e.g. 11.3 V";
+        }
+        if (tp2) {
+            tp2.value = "";
+            tp2.placeholder = "e.g. 10.6 V";
+        }
     }
 
     const qText = document.getElementById('questionText');
@@ -4898,7 +4909,7 @@ function generateGrade9SiliconProblem() {
     // ==========================================
     // UI REVEAL LOGIC
     // ==========================================
-    if (qText) qText.style.display = 'block';
+   if (qText) qText.style.display = 'block';
 
     if (isOrGate) {
         const groupOrGate = document.getElementById('inputGroupGrade9Silicon');
@@ -4907,6 +4918,14 @@ function generateGrade9SiliconProblem() {
             groupOrGate.style.flexDirection = 'column';
             groupOrGate.style.alignItems = 'flex-start'; 
         }
+        
+        // --- ADD OR-GATE PLACEHOLDERS ---
+        // NOTE: Replace 'grade9OrVoltage' with your actual HTML ID!
+        let orVoltInput = document.getElementById('grade9OrVoltage');
+        if (orVoltInput) {
+            orVoltInput.placeholder = "e.g. 14.3 V";
+        }
+        
     } else {
         const pathInputGroup = document.getElementById('inputGroupGrade9SiliconPath');
         if (pathInputGroup) {
@@ -4914,6 +4933,16 @@ function generateGrade9SiliconProblem() {
             pathInputGroup.style.flexDirection = 'column';
             pathInputGroup.style.alignItems = 'flex-start'; 
         }
+        
+        // --- ADD PATHFINDER PLACEHOLDERS ---
+        // NOTE: Replace these IDs with your actual HTML IDs!
+        let pathTP1 = document.getElementById('grade9PathTP1');
+        let pathTP2 = document.getElementById('grade9PathTP2');
+        let pathVLoad = document.getElementById('grade9PathVLoad');
+
+        if (pathTP1) pathTP1.placeholder = "e.g. 11.3 V";
+        if (pathTP2) pathTP2.placeholder = "e.g. 0 V";
+        if (pathVLoad) pathVLoad.placeholder = "e.g. 11.3 V";
     }
 
     // ==========================================
