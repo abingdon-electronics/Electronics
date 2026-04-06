@@ -4975,28 +4975,36 @@ function generateGrade9SiliconProblem() {
         drawLine(ctx, 150, 60, 250, 60);
         
         // --- DRAWING THE SWITCH (S) ON D1 BRANCH ---
-        drawLine(ctx, 200, 60, 200, 70);
+        drawLine(ctx, 200, 60, 200, 71); // Wire down to top switch node
         
-        ctx.beginPath(); ctx.arc(200, 70, 3, 0, 2 * Math.PI); ctx.fill(); // Top switch node
-        ctx.beginPath(); ctx.arc(200, 95, 3, 0, 2 * Math.PI); ctx.fill(); // Bottom switch node
+        // Top open node
+        ctx.beginPath(); ctx.arc(200, 75, 4, 0, 2 * Math.PI); 
+        ctx.fillStyle = "white"; ctx.fill(); ctx.stroke(); 
         
+        // Bottom open node
+        ctx.beginPath(); ctx.arc(200, 115, 4, 0, 2 * Math.PI); 
+        ctx.fillStyle = "white"; ctx.fill(); ctx.stroke(); 
+        
+        ctx.fillStyle = "black"; // Reset to black for drawing lines/text
         if (switchClosed) {
-            drawLine(ctx, 200, 70, 200, 95); // Closed line
+            drawLine(ctx, 200, 79, 200, 111); // Closed line connecting nodes
         } else {
-            drawLine(ctx, 200, 95, 220, 75); // Angled open line
+            drawLine(ctx, 200, 115, 225, 85); // Angled open line pivoting from bottom
         }
         ctx.textAlign = "left"; 
-        ctx.fillText("S", 220, 85); // Switch label
+        ctx.fillText("S", 230, 100); // Switch label
 
-        // --- DRAWING D1 (Shifted down slightly to fit the switch) ---
-        drawLine(ctx, 200, 95, 200, 100);
+        // --- DRAWING D1 (Shifted down to accommodate the bigger switch) ---
+        drawLine(ctx, 200, 119, 200, 135); // Wire from bottom node to D1
+        
         ctx.beginPath(); 
-        ctx.moveTo(185, 100); ctx.lineTo(215, 100); ctx.lineTo(200, 130); ctx.closePath();
+        ctx.moveTo(185, 135); ctx.lineTo(215, 135); ctx.lineTo(200, 165); ctx.closePath();
         ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
-        drawLine(ctx, 185, 130, 215, 130); 
-        drawLine(ctx, 200, 100, 200, 130);  
-        ctx.fillStyle = pink; ctx.textAlign = "right"; ctx.fillText("D1", 175, 120);
-        drawLine(ctx, 200, 130, 200, 220); 
+        drawLine(ctx, 185, 165, 215, 165); // Cathode line
+        drawLine(ctx, 200, 135, 200, 165); // Internal triangle line  
+        ctx.fillStyle = pink; ctx.textAlign = "right"; ctx.fillText("D1", 175, 155);
+        
+        drawLine(ctx, 200, 165, 200, 220); // Wire from D1 down to the junction 
 
         // --- DRAWING BACKUP BRANCH & D2 ---
         drawLine(ctx, 230, 140, 350, 140);
