@@ -1084,32 +1084,23 @@
 </div>
                 
 <!-- Input group G9Silicon -->                  
-<div id="inputGroupGrade9Silicon" class="input-group" style="display: none; flex-direction: column; gap: 15px; padding-left: 25px; margin-top: 15px;">
-    
-    <div style="display: flex; align-items: center; justify-content: flex-start;">
-        <label style="min-width: 110px; margin-right: 10px;">
-            <span style="font-weight: bold; font-size: 16px; color: #E64097;">V<sub>Payload</sub> =</span>
-        </label> 
-        <input type="number" step="0.1" id="g9SilPayload" class="form-control" style="width: 100px; padding: 5px;" placeholder="e.g. 11.3">
-        <span style="margin-left: 5px; font-weight: bold; color: #E64097;">V</span>
+<div id="inputGroupGrade9Silicon" class="input-group" style="display: none; flex-direction: column; gap: 12px; padding: 10px 0 10px 25px; align-items: flex-start;">
+    <div style="display: flex; align-items: center; justify-content: flex-start; width: 100%;">
+        <div style="width: 110px; font-weight: bold; color: #E64097; font-size: 16px;">V<sub>Payload</sub> =</div>
+        <input type="number" step="0.1" id="g9SilPayload" style="width: 100px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+        <span style="margin-left: 8px; font-weight: bold; color: #E64097;">V</span>
     </div>
-
-    <div style="display: flex; align-items: center; justify-content: flex-start;">
-        <label style="min-width: 110px; margin-right: 10px;">
-            <span style="font-weight: bold; font-size: 16px; color: #E64097;">D1 State =</span>
-        </label> 
-        <select id="g9SilD1" class="form-control" style="width: 100px; padding: 5px;">
+    <div style="display: flex; align-items: center; justify-content: flex-start; width: 100%;">
+        <div style="width: 110px; font-weight: bold; color: #E64097; font-size: 16px;">D1 State =</div>
+        <select id="g9SilD1" style="width: 100px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
             <option value="">--</option>
             <option value="ON">ON</option>
             <option value="OFF">OFF</option>
         </select>
     </div>
-
-    <div style="display: flex; align-items: center; justify-content: flex-start;">
-        <label style="min-width: 110px; margin-right: 10px;">
-            <span style="font-weight: bold; font-size: 16px; color: #E64097;">D2 State =</span>
-        </label> 
-        <select id="g9SilD2" class="form-control" style="width: 100px; padding: 5px;">
+    <div style="display: flex; align-items: center; justify-content: flex-start; width: 100%;">
+        <div style="width: 110px; font-weight: bold; color: #E64097; font-size: 16px;">D2 State =</div>
+        <select id="g9SilD2" style="width: 100px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
             <option value="">--</option>
             <option value="ON">ON</option>
             <option value="OFF">OFF</option>
@@ -1117,27 +1108,18 @@
     </div>
 </div>
 
-<div id="inputGroupGrade9SiliconPath" class="input-group" style="display: none; flex-direction: column; gap: 15px; padding-left: 25px; margin-top: 15px;">
-    
-    <div style="display: flex; align-items: center; justify-content: flex-start;">
-        <label style="min-width: 110px; margin-right: 10px;">
-            <span style="font-weight: bold; font-size: 16px; color: #E64097;">V<sub>TP1</sub> =</span>
-        </label> 
-        <input type="text" id="g9SilTP1" class="form-control" style="width: 100px; padding: 5px;" placeholder="e.g. 5.3V">
+<div id="inputGroupGrade9SiliconPath" class="input-group" style="display: none; flex-direction: column; gap: 12px; padding: 10px 0 10px 25px; align-items: flex-start;">
+    <div style="display: flex; align-items: center; justify-content: flex-start; width: 100%;">
+        <div style="width: 110px; font-weight: bold; color: #E64097; font-size: 16px;">V<sub>TP1</sub> =</div>
+        <input type="text" id="g9SilTP1" placeholder="e.g. 5.3V" style="width: 100px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
     </div>
-
-    <div style="display: flex; align-items: center; justify-content: flex-start;">
-        <label style="min-width: 110px; margin-right: 10px;">
-            <span style="font-weight: bold; font-size: 16px; color: #E64097;">V<sub>TP2</sub> =</span>
-        </label> 
-        <input type="text" id="g9SilTP2" class="form-control" style="width: 100px; padding: 5px;" placeholder="e.g. 0V">
+    <div style="display: flex; align-items: center; justify-content: flex-start; width: 100%;">
+        <div style="width: 110px; font-weight: bold; color: #E64097; font-size: 16px;">V<sub>TP2</sub> =</div>
+        <input type="text" id="g9SilTP2" placeholder="e.g. 0V" style="width: 100px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
     </div>
-
-    <div style="display: flex; align-items: center; justify-content: flex-start;">
-        <label style="min-width: 110px; margin-right: 10px;">
-            <span style="font-weight: bold; font-size: 16px; color: #E64097;">V<sub>Load</sub> =</span>
-        </label> 
-        <input type="text" id="g9SilOut" class="form-control" style="width: 100px; padding: 5px;" placeholder="e.g. 5.3V">
+    <div style="display: flex; align-items: center; justify-content: flex-start; width: 100%;">
+        <div style="width: 110px; font-weight: bold; color: #E64097; font-size: 16px;">V<sub>Load</sub> =</div>
+        <input type="text" id="g9SilOut" placeholder="e.g. 5.3V" style="width: 100px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
     </div>
 </div>
                 
