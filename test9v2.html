@@ -5075,23 +5075,35 @@ function generateGrade9SiliconProblem() {
 
         // -- REJOIN & OUTPUT --
         drawLine(ctx, 200, 220, 300, 220); // Horizontal Rejoin
-        if(typeof drawNode === 'function') { drawNode(ctx, 200, 220); drawNode(ctx, 300, 220); drawNode(ctx, 250, 220); }
+        
+        // Draw ONLY the center junction node (removed the 2 corners)
+        if(typeof drawNode === 'function') { 
+            drawNode(ctx, 250, 220); 
+        }
         
         drawLine(ctx, 250, 220, 250, 250); // Down to Load
 
-        // OUT Marker
-        ctx.beginPath(); ctx.arc(250, 235, 4, 0, 2*Math.PI); ctx.fillStyle = "red"; ctx.fill(); ctx.stroke();
-        ctx.fillStyle = pink; ctx.textAlign = "left"; ctx.fillText("OUT", 265, 240);
-
         // Component (Load Box)
         ctx.fillStyle = "#f8f9fa"; ctx.fillRect(215, 250, 70, 50); ctx.strokeRect(215, 250, 70, 50);
-        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.fillText("Load", 250, 275);
-        ctx.fillStyle = pink; ctx.fillText("V = ?", 250, 295);
+        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.font = "bold 16px Arial";
+        ctx.fillText("Load", 250, 280);
+
+        // V_Load = ? (Positioned to the left of the Load Box with a subscript)
+        let pinkColor = typeof pink !== 'undefined' ? pink : "#E64097";
+        ctx.fillStyle = pinkColor; 
+        ctx.textAlign = "left";
+        ctx.font = "bold 16px Arial";
+        ctx.fillText("V", 135, 280);
+        ctx.font = "bold 12px Arial";
+        ctx.fillText("Load", 147, 285); // Drops slightly lower to act as subscript
+        ctx.font = "bold 16px Arial";
+        ctx.fillText(" = ?", 179, 280);
 
         // Ground Connection
         drawLine(ctx, 250, 300, 250, 340);
         drawLine(ctx, 230, 340, 270, 340); drawLine(ctx, 240, 345, 260, 345); drawLine(ctx, 245, 350, 255, 350);
-        ctx.fillStyle = "black"; ctx.fillText("0V (GND)", 250, 365);
+        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.font = "bold 16px Arial";
+        ctx.fillText("0V (GND)", 250, 365);
 
         // Solution Text
         if (solText) {
@@ -5103,11 +5115,11 @@ function generateGrade9SiliconProblem() {
             s += `The right diode is <b>${d2Forward ? 'Forward' : 'REVERSE'}</b> biased. `;
             s += d2Forward ? `It drops 0.7V. TP2 = ${v_in} - 0.7 = <b>${v_tp2}V</b>.<br><br>` : `It blocks current. TP2 = <b>0V</b>.<br><br>`;
 
-            s += `<strong>Step 3: Output Node (OUT)</strong><br>`;
+            s += `<strong>Step 3: Load Voltage</strong><br>`;
             if (d1Forward || d2Forward) {
-                s += `Since at least one path is open, current flows and the voltage at the junction is <b>${v_out}V</b>.`;
+                s += `Since at least one path is open, current flows and the voltage arriving at the load is <b>${v_out}V</b>.`;
             } else {
-                s += `Both paths are blocked! No current flows to the output load, so OUT = <b>0V</b>.`;
+                s += `Both paths are blocked! No current flows to the load, so V<sub>Load</sub> = <b>0V</b>.`;
             }
             solText.innerHTML = s;
         }
