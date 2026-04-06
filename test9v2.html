@@ -169,20 +169,24 @@
         height: auto; 
     }
     
-    .right-panel { 
-        flex: 1 1 300px; 
-        display: flex; 
-        flex-direction: column; 
-        width: 100%; 
-        max-width: 500px; 
-        min-height: 520px; /* <-- Changed from height to min-height */
-        height: auto;      /* <-- Added this so it can stretch */
-    }
+/* FORCE PANEL VISIBILITY */
+.right-panel {
+    flex: 1 1 300px;
+    display: flex !important;
+    flex-direction: column !important;
+    background-color: #fdf4f8 !important; /* This is your pink background */
+    padding: 20px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+    min-height: 520px;
+    height: auto;
+    visibility: visible !important;
+}
     
-    /* UNIVERSAL DROPDOWN STYLE */
+/* UNIVERSAL DROPDOWN STYLE */
 .quiz-section select {
     height: 38px !important;
-    width: 160px !important; /* Fits "Select..." and the arrow perfectly */
+    width: 160px !important; 
     margin-left: 8px !important;
     background-color: white !important;
     border: 2px solid #ccc !important;
@@ -190,7 +194,7 @@
     font-size: 15px !important;
     color: #333 !important;
     flex-shrink: 0 !important;
-    appearance: auto !important; /* Ensures the arrow icon is visible */
+    appearance: auto !important;
 }
     
     .quiz-header { 
