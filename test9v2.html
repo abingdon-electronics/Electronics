@@ -5004,7 +5004,7 @@ function generateGrade9SiliconProblem() {
         const vSupplyList = [6, 9, 12, 15, 24];
         let v_in = vSupplyList[Math.floor(Math.random() * vSupplyList.length)];
         
-        // Randomize Directions (true = Forward/East, false = Reverse/West)
+        // Randomize Directions (true = Forward/Down, false = Reverse/Up)
         let d1Forward = Math.random() > 0.5;
         let d2Forward = Math.random() > 0.5;
 
@@ -5021,8 +5021,8 @@ function generateGrade9SiliconProblem() {
             qText.innerHTML = 
                 `<div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge: The Pathfinder</strong></div>` +
                 `Analyze the diode directions in this parallel circuit.<br><br>` +
-                `1) Calculate the voltage at <b>TP1</b> (Top Branch).<br>` +
-                `2) Calculate the voltage at <b>TP2</b> (Bottom Branch).<br>` +
+                `1) Calculate the voltage at <b>TP1</b> (Left Branch).<br>` +
+                `2) Calculate the voltage at <b>TP2</b> (Right Branch).<br>` +
                 `3) Determine the final voltage at <b>OUT</b>.`;
             qText.style.display = 'block';
         }
@@ -5030,95 +5030,91 @@ function generateGrade9SiliconProblem() {
             hintDiv.innerHTML = "<strong>Hint:</strong> A reverse-biased diode acts like an open switch (0V passes). If both branches are open, what happens to the output?";
         }
 
-        // --- DRAWING: PARALLEL CIRCUIT ---
-        // Supply Text
-        ctx.fillStyle = "black"; ctx.textAlign = "right"; ctx.font = "bold 16px Arial";
-        ctx.fillText(v_in + "V", 90, 155);
+        // --- DRAWING: VERTICAL PARALLEL CIRCUIT ---
+        
+        // Top Rail: Supply
+        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.font = "bold 16px Arial";
+        ctx.fillText("V_supply = " + v_in + "V", 250, 40);
+        drawLine(ctx, 150, 60, 350, 60);
 
-        // Main wire in & Vertical Fork
-        drawLine(ctx, 100, 150, 150, 150); 
-        drawLine(ctx, 150, 100, 150, 200); 
-
-        // -- TOP BRANCH --
-        drawLine(ctx, 150, 100, 200, 100);
-        // Top Diode (Center: 220, 100)
-        ctx.beginPath();
+        // -- LEFT BRANCH (D1) --
+        drawLine(ctx, 200, 60, 200, 100);
+        ctx.beginPath(); // Vertical Diode
         if (d1Forward) {
-            ctx.moveTo(200, 90); ctx.lineTo(240, 100); ctx.lineTo(200, 110);
+            ctx.moveTo(185, 100); ctx.lineTo(215, 100); ctx.lineTo(200, 130);
         } else {
-            ctx.moveTo(240, 90); ctx.lineTo(200, 100); ctx.lineTo(240, 110);
+            ctx.moveTo(185, 130); ctx.lineTo(215, 130); ctx.lineTo(200, 100);
         }
         ctx.closePath();
         ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
-        drawLine(ctx, d1Forward ? 240 : 200, 90, d1Forward ? 240 : 200, 110); // Cathode line
-        drawLine(ctx, 200, 100, 240, 100); // Middle wire
-        
-        drawLine(ctx, 240, 100, 350, 100);
+        drawLine(ctx, 185, d1Forward ? 130 : 100, 215, d1Forward ? 130 : 100); // Cathode line
+        drawLine(ctx, 200, 100, 200, 130); // Middle wire
+        drawLine(ctx, 200, 130, 200, 220); // Down to junction
         
         // TP1 Marker
-        ctx.beginPath(); ctx.arc(300, 100, 4, 0, 2*Math.PI); ctx.fillStyle = "red"; ctx.fill(); ctx.stroke();
-        ctx.fillStyle = pink; ctx.textAlign = "center"; ctx.fillText("TP1", 300, 85);
+        ctx.beginPath(); ctx.arc(200, 175, 4, 0, 2*Math.PI); ctx.fillStyle = "red"; ctx.fill(); ctx.stroke();
+        ctx.fillStyle = pink; ctx.textAlign = "right"; ctx.fillText("TP1", 185, 180);
 
-        // -- BOTTOM BRANCH --
-        drawLine(ctx, 150, 200, 200, 200);
-        // Bottom Diode (Center: 220, 200)
-        ctx.beginPath();
+        // -- RIGHT BRANCH (D2) --
+        drawLine(ctx, 300, 60, 300, 100);
+        ctx.beginPath(); // Vertical Diode
         if (d2Forward) {
-            ctx.moveTo(200, 190); ctx.lineTo(240, 200); ctx.lineTo(200, 210);
+            ctx.moveTo(285, 100); ctx.lineTo(315, 100); ctx.lineTo(300, 130);
         } else {
-            ctx.moveTo(240, 190); ctx.lineTo(200, 200); ctx.lineTo(240, 210);
+            ctx.moveTo(285, 130); ctx.lineTo(315, 130); ctx.lineTo(300, 100);
         }
         ctx.closePath();
         ctx.fillStyle = "white"; ctx.fill(); ctx.stroke();
-        drawLine(ctx, d2Forward ? 240 : 200, 190, d2Forward ? 240 : 200, 210); // Cathode line
-        drawLine(ctx, 200, 200, 240, 200); // Middle wire
-        
-        drawLine(ctx, 240, 200, 350, 200);
+        drawLine(ctx, 285, d2Forward ? 130 : 100, 315, d2Forward ? 130 : 100); // Cathode line
+        drawLine(ctx, 300, 100, 300, 130); // Middle wire
+        drawLine(ctx, 300, 130, 300, 220); // Down to junction
         
         // TP2 Marker
-        ctx.beginPath(); ctx.arc(300, 200, 4, 0, 2*Math.PI); ctx.fillStyle = "red"; ctx.fill(); ctx.stroke();
-        ctx.fillStyle = pink; ctx.textAlign = "center"; ctx.fillText("TP2", 300, 185);
+        ctx.beginPath(); ctx.arc(300, 175, 4, 0, 2*Math.PI); ctx.fillStyle = "red"; ctx.fill(); ctx.stroke();
+        ctx.fillStyle = pink; ctx.textAlign = "left"; ctx.fillText("TP2", 315, 180);
 
         // -- REJOIN & OUTPUT --
-        drawLine(ctx, 350, 100, 350, 200); // Vertical Rejoin
-        drawLine(ctx, 350, 150, 400, 150); // Wire to component
-
-        // Component (Load)
-        ctx.fillStyle = "white"; ctx.fillRect(400, 135, 40, 30); ctx.strokeRect(400, 135, 40, 30);
-        drawLine(ctx, 440, 150, 520, 150); // Final wire
+        drawLine(ctx, 200, 220, 300, 220); // Horizontal Rejoin
+        if(typeof drawNode === 'function') { drawNode(ctx, 200, 220); drawNode(ctx, 300, 220); drawNode(ctx, 250, 220); }
+        
+        drawLine(ctx, 250, 220, 250, 250); // Down to Load
 
         // OUT Marker
-        ctx.beginPath(); ctx.arc(480, 150, 4, 0, 2*Math.PI); ctx.fillStyle = "red"; ctx.fill(); ctx.stroke();
-        ctx.fillStyle = pink; ctx.textAlign = "center"; ctx.fillText("OUT", 480, 135);
+        ctx.beginPath(); ctx.arc(250, 235, 4, 0, 2*Math.PI); ctx.fillStyle = "red"; ctx.fill(); ctx.stroke();
+        ctx.fillStyle = pink; ctx.textAlign = "left"; ctx.fillText("OUT", 265, 240);
 
-        // Ground Symbol
-        drawLine(ctx, 520, 150, 520, 180);
-        drawLine(ctx, 505, 180, 535, 180);
-        drawLine(ctx, 512, 185, 528, 185);
-        drawLine(ctx, 518, 190, 522, 190);
+        // Component (Load Box)
+        ctx.fillStyle = "#f8f9fa"; ctx.fillRect(215, 250, 70, 50); ctx.strokeRect(215, 250, 70, 50);
+        ctx.fillStyle = "black"; ctx.textAlign = "center"; ctx.fillText("Load", 250, 275);
+        ctx.fillStyle = pink; ctx.fillText("V = ?", 250, 295);
+
+        // Ground Connection
+        drawLine(ctx, 250, 300, 250, 340);
+        drawLine(ctx, 230, 340, 270, 340); drawLine(ctx, 240, 345, 260, 345); drawLine(ctx, 245, 350, 255, 350);
+        ctx.fillStyle = "black"; ctx.fillText("0V (GND)", 250, 365);
 
         // Solution Text
         if (solText) {
-            let s = `<strong>Step 1: Top Branch (TP1)</strong><br>`;
-            s += `The top diode is <b>${d1Forward ? 'Forward' : 'REVERSE'}</b> biased. `;
+            let s = `<strong>Step 1: Left Branch (TP1)</strong><br>`;
+            s += `The left diode is <b>${d1Forward ? 'Forward' : 'REVERSE'}</b> biased. `;
             s += d1Forward ? `It drops 0.7V. TP1 = ${v_in} - 0.7 = <b>${v_tp1}V</b>.<br><br>` : `It blocks current. TP1 = <b>0V</b>.<br><br>`;
             
-            s += `<strong>Step 2: Bottom Branch (TP2)</strong><br>`;
-            s += `The bottom diode is <b>${d2Forward ? 'Forward' : 'REVERSE'}</b> biased. `;
+            s += `<strong>Step 2: Right Branch (TP2)</strong><br>`;
+            s += `The right diode is <b>${d2Forward ? 'Forward' : 'REVERSE'}</b> biased. `;
             s += d2Forward ? `It drops 0.7V. TP2 = ${v_in} - 0.7 = <b>${v_tp2}V</b>.<br><br>` : `It blocks current. TP2 = <b>0V</b>.<br><br>`;
 
             s += `<strong>Step 3: Output Node (OUT)</strong><br>`;
             if (d1Forward || d2Forward) {
                 s += `Since at least one path is open, current flows and the voltage at the junction is <b>${v_out}V</b>.`;
             } else {
-                s += `Both paths are blocked! No current flows to the output, so OUT = <b>0V</b>.`;
+                s += `Both paths are blocked! No current flows to the output load, so OUT = <b>0V</b>.`;
             }
             solText.innerHTML = s;
         }
 
-        // Show the new input group (You will need to add this to your HTML!)
+        // Show the new input group
         const pathInputGroup = document.getElementById('inputGroupGrade9SiliconPath');
-        if (pathInputGroup) pathInputGroup.style.display = 'flex'; // Use flex if your CSS needs it
+        if (pathInputGroup) pathInputGroup.style.display = 'flex';
     }
 } 
 
