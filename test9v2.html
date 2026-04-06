@@ -179,16 +179,18 @@
         height: auto;      /* <-- Added this so it can stretch */
     }
     
-    /* Shrunk Dropdowns - UPDATED to be legible */
-    .quiz-section select {
-    height: 38px !important;       /* Standard height */
-    width: 160px !important;      /* Wide enough for "Select..." and the arrow */
+    /* UNIVERSAL DROPDOWN STYLE */
+.quiz-section select {
+    height: 38px !important;
+    width: 160px !important; /* Fits "Select..." and the arrow perfectly */
     margin-left: 8px !important;
     background-color: white !important;
     border: 2px solid #ccc !important;
     border-radius: 6px !important;
     font-size: 15px !important;
+    color: #333 !important;
     flex-shrink: 0 !important;
+    appearance: auto !important; /* Ensures the arrow icon is visible */
 }
     
     .quiz-header { 
@@ -299,21 +301,9 @@
         color: #333 !important;
     }
 
-    /* Shrunk Dropdowns */
-    .quiz-section select {
-        height: 36px !important;       
-        width: 65px !important;        
-        margin-left: 8px !important;
-        background-color: white !important;
-        border: 2px solid #ccc !important;
-        border-radius: 6px !important;
-        font-size: 15px !important;
-        flex-shrink: 0 !important;
-    }
 
-        #inputGroupSilicon select {
-        width: 120px !important;
-        }
+
+        
 
         /* Override the global row/important constraint for Grade 9 Silicon */
         #inputGroupGrade9Silicon, 
