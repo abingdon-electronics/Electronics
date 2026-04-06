@@ -5006,7 +5006,7 @@ function generateGrade9SiliconProblem() {
         drawLine(ctx, 200, 165, 200, 220); // Wire from D1 down to the junction 
 
         // --- DRAWING BACKUP BRANCH & D2 ---
-        drawLine(ctx, 230, 140, 350, 140);
+        drawLine(ctx, 260, 140, 350, 140); // Adjusted starting X from 230 to 260 to shorten LHS
         ctx.fillStyle = "black"; ctx.textAlign = "left"; 
         ctx.fillText(`Backup (${v_backup}V)`, 360, 145);
         
@@ -5017,7 +5017,7 @@ function generateGrade9SiliconProblem() {
         drawLine(ctx, 285, 190, 315, 190); 
         drawLine(ctx, 300, 160, 300, 190); 
         ctx.fillStyle = pink; ctx.textAlign = "left"; ctx.fillText("D2", 325, 180);
-        drawLine(ctx, 300, 190, 300, 220); 
+        drawLine(ctx, 300, 190, 300, 220);
 
         // --- LOWER CIRCUIT RECOMBINATION ---
         drawLine(ctx, 200, 220, 300, 220); 
