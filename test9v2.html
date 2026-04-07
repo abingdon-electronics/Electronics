@@ -5813,13 +5813,13 @@ function checkAnswers() {
             activeInputs.push('siliconTP1', 'siliconTP2');
         }
     }
-    // ---> FIXED MODE NAMES HERE <---
-    else if (currentMode === 'grade9silicon_orgate' || currentMode === 'grade9silicon_pathfinder') {
+    // ---> BULLETPROOF GRADE 9 SILICON CATCH-ALL <---
+    else if (currentMode.startsWith('grade9silicon')) {
         activeInputs = [];
-        if (document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
+        if (document.getElementById('inputGroupGrade9Silicon') && document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
             activeInputs.push('g9SilPayload', 'g9SilD1', 'g9SilD2');
         }
-        if (document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
+        if (document.getElementById('inputGroupGrade9SiliconPath') && document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
             activeInputs.push('g9SilTP1', 'g9SilTP2', 'g9SilOut');
         }
     }
@@ -5992,14 +5992,14 @@ function checkAnswers() {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('siliconTP2').value)), currentAnswers.tp2, 'V'));
         }
 
-    // ---> FIXED MODE NAMES AND ANSWER VARIABLES HERE <---
-    } else if (currentMode === 'grade9silicon_orgate' || currentMode === 'grade9silicon_pathfinder') {
-        if (document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
+    // ---> BULLETPROOF GRADE 9 SILICON CATCH-ALL <---
+    } else if (currentMode.startsWith('grade9silicon')) {
+        if (document.getElementById('inputGroupGrade9Silicon') && document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPayload').value)), currentAnswers.vPayload, 'V'));
             results.push(document.getElementById('g9SilD1').value === currentAnswers.d1 ? 'correct' : 'wrongval');
             results.push(document.getElementById('g9SilD2').value === currentAnswers.d2 ? 'correct' : 'wrongval');
         }
-        if (document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
+        if (document.getElementById('inputGroupGrade9SiliconPath') && document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilTP1').value)), currentAnswers.tp1, 'V'));
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilTP2').value)), currentAnswers.tp2, 'V'));
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilOut').value)), currentAnswers.out, 'V'));
