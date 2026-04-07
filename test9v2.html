@@ -5741,6 +5741,24 @@ function checkAnswers() {
     else if (currentMode === 'grade9power') {
         activeInputs = ['g9PowerIdealR', 'g9PowerDissipated', 'g9PowerE24'];
     }
+    else if (currentMode === 'silicon') {
+        activeInputs = [];
+        if (document.getElementById('inputGroupSilicon').style.display !== 'none') {
+            activeInputs.push('basicL1State', 'basicL2State', 'basicL3State');
+        }
+        if (document.getElementById('inputGroupSiliconVoltage').style.display !== 'none') {
+            activeInputs.push('siliconTP1', 'siliconTP2');
+        }
+    }
+    else if (currentMode === 'grade9silicon') {
+        activeInputs = [];
+        if (document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
+            activeInputs.push('g9SilPayload', 'g9SilD1', 'g9SilD2');
+        }
+        if (document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
+            activeInputs.push('g9SilTP1', 'g9SilTP2', 'g9SilOut');
+        }
+    }
 
     // 3. Check for empty boxes
     let hasEmptyBox = activeInputs.some(id => !document.getElementById(id) || document.getElementById(id)?.value.trim() === '');
@@ -5898,6 +5916,28 @@ function checkAnswers() {
         let cleanE24 = acceptSpaces(e24Input);
         if (cleanE24 !== "" && !cleanE24.includes("Ω") && !cleanE24.toLowerCase().includes("ohm")) cleanE24 += "Ω";
         results.push(validateMatch(parseInput(cleanE24), currentAnswers.e24, 'Ω'));
+    } else if (currentMode === 'silicon') {
+        if (document.getElementById('inputGroupSilicon').style.display !== 'none') {
+            results.push(document.getElementById('basicL1State').value === currentAnswers.l1State ? 'correct' : 'wrongval');
+            results.push(document.getElementById('basicL2State').value === currentAnswers.l2State ? 'correct' : 'wrongval');
+            results.push(document.getElementById('basicL3State').value === currentAnswers.l3State ? 'correct' : 'wrongval');
+        }
+        if (document.getElementById('inputGroupSiliconVoltage').style.display !== 'none') {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('siliconTP1').value)), currentAnswers.tp1, 'V'));
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('siliconTP2').value)), currentAnswers.tp2, 'V'));
+        }
+
+    } else if (currentMode === 'grade9silicon') {
+        if (document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPayload').value)), currentAnswers.vLoad, 'V'));
+            results.push(document.getElementById('g9SilD1').value === currentAnswers.d1State ? 'correct' : 'wrongval');
+            results.push(document.getElementById('g9SilD2').value === currentAnswers.d2State ? 'correct' : 'wrongval');
+        }
+        if (document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilTP1').value)), currentAnswers.tp1, 'V'));
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilTP2').value)), currentAnswers.tp2, 'V'));
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilOut').value)), currentAnswers.vLoad, 'V'));
+        }
     }
 
     // 5. Final Feedback and Scoring
