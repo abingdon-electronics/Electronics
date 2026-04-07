@@ -5835,14 +5835,11 @@ function checkAnswers() {
         }
     }
     // ---> BULLETPROOF GRADE 9 SILICON CATCH-ALL <---
-    else if (currentMode.startsWith('grade9silicon')) {
-        activeInputs = [];
-        if (document.getElementById('inputGroupGrade9Silicon') && document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
-            activeInputs.push('g9SilPayload', 'g9SilD1', 'g9SilD2');
-        }
-        if (document.getElementById('inputGroupGrade9SiliconPath') && document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
-            activeInputs.push('g9SilTP1', 'g9SilTP2', 'g9SilOut');
-        }
+    else if (currentMode === 'grade9silicon_orgate') {
+        activeInputs = ['g9SilPayload', 'g9SilD1', 'g9SilD2'];
+    }
+    else if (currentMode === 'grade9silicon_pathfinder') {
+        activeInputs = ['g9SilPathID1', 'g9SilPathID2', 'g9SilPathVD1', 'g9SilPathVD2', 'g9SilPathVLoad'];
     }
 
     // 3. Check for empty boxes
@@ -6014,17 +6011,17 @@ function checkAnswers() {
         }
 
     // ---> BULLETPROOF GRADE 9 SILICON CATCH-ALL <---
-    } else if (currentMode.startsWith('grade9silicon')) {
-        if (document.getElementById('inputGroupGrade9Silicon') && document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPayload').value)), currentAnswers.vPayload, 'V'));
-            results.push(document.getElementById('g9SilD1').value === currentAnswers.d1 ? 'correct' : 'wrongval');
-            results.push(document.getElementById('g9SilD2').value === currentAnswers.d2 ? 'correct' : 'wrongval');
-        }
-        if (document.getElementById('inputGroupGrade9SiliconPath') && document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilTP1').value)), currentAnswers.tp1, 'V'));
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilTP2').value)), currentAnswers.tp2, 'V'));
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilOut').value)), currentAnswers.out, 'V'));
-        }
+    } else if (currentMode === 'grade9silicon_orgate') {
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPayload').value)), currentAnswers.vPayload, 'V'));
+        results.push(document.getElementById('g9SilD1').value === currentAnswers.d1 ? 'correct' : 'wrongval');
+        results.push(document.getElementById('g9SilD2').value === currentAnswers.d2 ? 'correct' : 'wrongval');
+        
+    } else if (currentMode === 'grade9silicon_pathfinder') {
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathID1').value)), currentAnswers.id1, 'mA'));
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathID2').value)), currentAnswers.id2, 'mA'));
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVD1').value)), currentAnswers.vd1, 'V'));
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVD2').value)), currentAnswers.vd2, 'V'));
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVLoad').value)), currentAnswers.vload, 'V'));
     }
 
     // 5. Final Feedback and Scoring
