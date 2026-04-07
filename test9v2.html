@@ -5645,7 +5645,7 @@ function hubController(ctx, canvas) {
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
         if (typeof generateGrade9ZenerProblem === "function") generateGrade9ZenerProblem(ctx, canvas);
 
-} else if (currentMode === 'silicon') {
+    } else if (currentMode === 'silicon') {
         // 1. Unhide the parent container AND the specific Diode Logic container!
         if (document.getElementById('inputGroupSilicon')) document.getElementById('inputGroupSilicon').style.display = 'flex';
         
@@ -5660,7 +5660,8 @@ function hubController(ctx, canvas) {
             console.error("Hub: generateSiliconProblem is not defined!");
         }
         
-    } else if (currentMode === 'grade9silicon' || currentMode === 'grade9silicon_orgate' || currentMode === 'grade9silicon_reverse' || currentMode === 'grade9silicon_parallel') {
+    // *** UPDATED LINE HERE: Added 'grade9silicon_pathfinder' ***
+    } else if (currentMode === 'grade9silicon' || currentMode === 'grade9silicon_orgate' || currentMode === 'grade9silicon_pathfinder' || currentMode === 'grade9silicon_reverse' || currentMode === 'grade9silicon_parallel') {
         // 1. Keep rocket VISIBLE so they can cycle through the Grade 9 problems
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         
@@ -5672,7 +5673,6 @@ function hubController(ctx, canvas) {
             console.error("Hub: generateGrade9SiliconProblem is not defined!");
         }
 
- 
     } else if (currentMode === 'iposort') {
         if (document.getElementById('inputGroupIPOSort')) document.getElementById('inputGroupIPOSort').style.display = 'block';
         if (typeof generateIPOProblem === "function") generateIPOProblem(ctx, canvas);
