@@ -1422,7 +1422,7 @@ function handleGenerateClick() {
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "&nbsp;";
 
-    // ---> THE FIX: RE-SHOW THE CANVAS CONTAINER <--- ********************
+    // ---> RE-SHOW THE CANVAS CONTAINER <--- ********************
     const circuitContainer = document.getElementById('circuitContainer');
     if (circuitContainer) circuitContainer.style.display = 'block';
     
@@ -1432,6 +1432,14 @@ function handleGenerateClick() {
     // Hide the IPO workstation just in case it was left open
     const canvasIPOWorkstation = document.getElementById('canvasIPOWorkstation');
     if (canvasIPOWorkstation) canvasIPOWorkstation.style.display = 'none';
+
+    // 👇 ---> NEW FIX: REMOVE THE GRADE 9 CSS LOCKS <--- 👇 ********************
+    // This stops the Pathfinder/Master UI from permanently blocking standard questions
+    const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
+    const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
+    if (g9Master) g9Master.style.removeProperty("display");
+    if (g9Path) g9Path.style.removeProperty("display");
+    // 👆 ------------------------------------------------ 👆
 
     // ---> ESCAPE THE GRADE 9 LOOPS & RESET SCORE <--- ********************
     let escapedGrade9 = false;
@@ -1501,10 +1509,12 @@ function handleGenerateClick() {
 // *********************************************************************
     
 function handleGrade9Click() {
-    // 1. Clean the slate
-    hideAllInputGroups();
+    // 1. Run the standard hide logic first to clean the slate
+    if (typeof hideAllInputGroups === "function") {
+        hideAllInputGroups();
+    }
 
-    // 2. Routing Logic (Resistance, Zener, Power stay the same)
+    // 2. Routing Logic (Restored exact explicit matches)
     if (currentMode === 'divider' || currentMode === 'potentialDivider' || currentMode === 'grade9divider') {
         generateGrade9DividerProblem(); 
     } 
@@ -1517,34 +1527,47 @@ function handleGrade9Click() {
     else if (currentMode === 'power' || currentMode === 'grade9power') {
         generateGrade9PowerProblem(); 
     }
-    // 👇 SILICON PATHFINDER ROUTING 👇
+    // 👇 RESTORED EXACT SILICON ROUTING 👇
     else if (
         currentMode === 'silicon' || 
-        currentMode.startsWith('grade9silicon')
+        currentMode === 'grade9silicon' || 
+        currentMode === 'grade9silicon_orgate' || 
+        currentMode === 'grade9silicon_reverse' || 
+        currentMode === 'grade9silicon_parallel' ||
+        currentMode === 'grade9silicon_pathfinder'
     ) { 
         currentMode = 'grade9silicon'; 
 
+        // 3. THE OVERRIDE: Set BEFORE generator runs
+        const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
+        const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
+        
+        if (g9Master) {
+            g9Master.style.setProperty("display", "flex", "important");
+        }
+        if (g9Path) {
+            g9Path.style.setProperty("display", "flex", "important");
+        }
+
+        // 4. Trigger the circuit drawing/logic AFTER UI is prepped
         const canvas = document.getElementById('circuitCanvas');
         const ctx = canvas ? canvas.getContext('2d') : null;
         
-        // A. Run logic first (it might try to hide things)
         if (typeof hubController === "function") {
             hubController(ctx, canvas);
         } else if (typeof generateGrade9SiliconProblem === "function") {
             generateGrade9SiliconProblem();
         }
-
-        // B. Force UI visible LAST so it wins the battle
-        const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
-        const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
-        
-        if (g9Master) g9Master.style.setProperty("display", "flex", "important");
-        if (g9Path) g9Path.style.setProperty("display", "flex", "important");
+    }
+    else {
+        console.warn("Rocket clicked, but currentMode was not recognized: " + currentMode);
     }
     
-    // Safety: Keep the rocket visible
+    // Final Safety: Ensure the rocket button itself stays visible 
     const rocket = document.getElementById('mainGrade9Btn');
     if (rocket) rocket.style.display = 'block';
+
+    console.log("Rocket launched. Transitioned to: " + currentMode);
 }
 //***********************************************************************************************
 // ==================================================================================================================
