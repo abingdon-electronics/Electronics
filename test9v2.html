@@ -5997,37 +5997,30 @@ function checkAnswers() {
         results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVLoad').value)), currentAnswers.vLoad, 'V'));
     }
 
-    // 5. Final Feedback and Scoring (UPGRADED for DROPDOWNS)
+// 5. Final Feedback and Scoring (BORDERS ONLY)
     activeInputs.forEach((id, index) => {
         const el = document.getElementById(id);
         if (el) {
             let mainColor = "";
-            let bgColor = "";
-            let textColor = "";
 
-            // Determine the palette based on the result
+            // Determine the border color based on the result
             if (results[index] === 'wrongunit') {
                 mainColor = "#fd7e14"; // Orange
-                bgColor = "#fff3cd";   // Light Yellow/Orange
-                textColor = "#856404"; 
             } else if (results[index] === 'correct' || results[index] === 'manydecimals') {
                 mainColor = "#28a745"; // Green
-                bgColor = "#d4edda";   // Light Green
-                textColor = "#155724"; 
             } else {
                 mainColor = "#dc3545"; // Red
-                bgColor = "#f8d7da";   // Light Red
-                textColor = "#721c24"; 
             }
 
-            // Apply universal border styles
-            el.style.borderColor = mainColor;
-            el.style.borderWidth = "2px";
-            el.style.borderStyle = "solid";
+            // Force the border and shadow styles
+            el.style.setProperty('border-color', mainColor, 'important');
+            el.style.setProperty('border-width', '2px', 'important');
+            el.style.setProperty('border-style', 'solid', 'important');
+            el.style.setProperty('box-shadow', `0 0 5px ${mainColor}`, 'important');
 
-           // Apply text color, but force the background to stay white
-            el.style.setProperty('color', mainColor, 'important');
-            el.style.setProperty('background-color', 'white', 'important');
+            // Force the text to stay standard dark grey and background to stay white
+            el.style.setProperty('color', '#333', 'important');
+            el.style.setProperty('background-color', '#ffffff', 'important');
         }
     });
 
