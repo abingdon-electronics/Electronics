@@ -4619,8 +4619,11 @@ function generateSiliconProblem() {
     }
     
     const scenario = scenarioTracker.silicon;
-    // UPDATED: Now toggles between 0, 1, and 2!
+    // Toggles between 0, 1, and 2!
     scenarioTracker.silicon = (scenarioTracker.silicon + 1) % 3;
+
+    // GENERATE A RANDOM SUPPLY VOLTAGE BETWEEN 5V and 24V
+    const supplyVoltage = Math.floor(Math.random() * 20) + 5;
 
     // UI TOGGLE LOGIC: Show dropdowns for Logic, show text boxes for Math
     const inputLogic = document.getElementById('inputGroupSilicon');
@@ -4644,14 +4647,14 @@ function generateSiliconProblem() {
         let tp1 = document.getElementById('siliconTP1');
         let tp2 = document.getElementById('siliconTP2');
         
-        // Reset values and add placeholders safely
+        // Reset values and add safer, non-giveaway placeholders
         if (tp1) {
             tp1.value = "";
-            tp1.placeholder = "e.g. 11.3 V";
+            tp1.placeholder = "e.g. 8.4 V"; 
         }
         if (tp2) {
             tp2.value = "";
-            tp2.placeholder = "e.g. 10.6 V";
+            tp2.placeholder = "e.g. 3.2 V";
         }
     }
 
@@ -4667,9 +4670,10 @@ function generateSiliconProblem() {
     ctx.strokeStyle = "black"; 
     ctx.lineWidth = 2;
 
-    // Top and Bottom Rails
+    // Top and Bottom Rails (Now uses dynamic supply voltage!)
     drawLine(ctx, 100, 40, 400, 40);
-    ctx.font = "bold 16px Arial"; ctx.fillText("12V (Supply)", 100, 30);
+    ctx.font = "bold 16px Arial"; 
+    ctx.fillText(supplyVoltage + "V (Supply)", 100, 30);
     drawLine(ctx, 100, 360, 400, 360);
     ctx.fillText("0V (Ground)", 100, 380);
 
@@ -4789,16 +4793,15 @@ function generateSiliconProblem() {
     // ==========================================
     else if (scenario === 2) {
         if (qText) {
-            // Remind them of the unit requirement using your existing function!
             if (typeof showDPinstruction === 'function') showDPinstruction();
             qText.innerHTML = `Determine the voltage at test points TP1 and TP2.<br>` + qText.innerHTML;
-            qText.style.display = 'block'; // <--- FIX: Forces text block to display for Scenario 2
+            qText.style.display = 'block'; 
         }
 
-        // Math Logic
+        // Dynamic Math Logic (Using Number and toFixed to prevent JavaScript floating point errors)
         const d2Forward = Math.random() < 0.5; // The Twist!
-        let v_tp1 = 11.3; // 12V - 0.7V
-        let v_tp2 = d2Forward ? 10.6 : 0; // If reverse, it's 0V!
+        let v_tp1 = Number((supplyVoltage - 0.7).toFixed(1)); 
+        let v_tp2 = d2Forward ? Number((v_tp1 - 0.7).toFixed(1)) : 0; 
 
         // Draw Line to D1 (Stops exactly at 85 - 12 = 73)
         drawLine(ctx, 250, 40, 250, 73);
@@ -4812,7 +4815,7 @@ function generateSiliconProblem() {
         ctx.arc(250, 140, 4, 0, 2 * Math.PI);
         ctx.fillStyle = pink;
         ctx.fill();
-        ctx.stroke(); // Gives it the black border
+        ctx.stroke(); 
         
         ctx.fillStyle = pink;
         ctx.fillText("TP1", 270, 145); 
@@ -4829,7 +4832,7 @@ function generateSiliconProblem() {
         ctx.arc(250, 250, 4, 0, 2 * Math.PI);
         ctx.fillStyle = pink;
         ctx.fill();
-        ctx.stroke(); // Gives it the black border
+        ctx.stroke(); 
         
         ctx.fillStyle = pink;
         ctx.fillText("TP2", 270, 255);
@@ -4840,13 +4843,13 @@ function generateSiliconProblem() {
         ctx.fillStyle = "black"; ctx.fillText("Load", 280, 310);
         drawLine(ctx, 250, 330, 250, 360);
 
-        // Solution Logic
+        // Solution Logic (Now dynamically inserts the random supply voltage)
         logicHTML += `<strong>TP1:</strong> The top diode is forward-biased. It consumes 0.7V of the supply voltage to operate.<br>`;
-        logicHTML += `12V - 0.7V = <strong>11.3V at TP1</strong>.<br><br>`;
+        logicHTML += `${supplyVoltage}V - 0.7V = <strong>${v_tp1.toFixed(1)}V at TP1</strong>.<br><br>`;
         
         if (d2Forward) {
             logicHTML += `<strong>TP2:</strong> The second diode is also forward-biased! It consumes another 0.7V.<br>`;
-            logicHTML += `11.3V - 0.7V = <strong>10.6V at TP2</strong>.`;
+            logicHTML += `${v_tp1.toFixed(1)}V - 0.7V = <strong>${v_tp2.toFixed(1)}V at TP2</strong>.`;
         } else {
             logicHTML += `<strong>TP2:</strong> The second diode is pointing backwards (Reverse-Biased)!<br>`;
             logicHTML += `It acts as an open switch. Because the circuit is broken, no current can flow down to the load resistor. Therefore, a voltmeter at TP2 reading relative to ground will see <strong>0V</strong>.`;
