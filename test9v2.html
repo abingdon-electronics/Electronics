@@ -5969,7 +5969,6 @@ function checkAnswers() {
                 return userVal === correctVal ? 'correct' : 'wrongval';
             };
 
-            // FIXED: Using correct keys (l1, l2, l3) from your generator
             results.push(checkState('basicL1State', currentAnswers.l1));
             results.push(checkState('basicL2State', currentAnswers.l2));
             results.push(checkState('basicL3State', currentAnswers.l3));
@@ -5992,19 +5991,42 @@ function checkAnswers() {
         results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVLoad').value)), currentAnswers.vLoad, 'V'));
     }
 
-    // 5. Final Feedback and Scoring
+    // 5. Final Feedback and Scoring (UPGRADED for DROPDOWNS)
     activeInputs.forEach((id, index) => {
         const el = document.getElementById(id);
         if (el) {
+            let mainColor = "";
+            let bgColor = "";
+            let textColor = "";
+
+            // Determine the palette based on the result
             if (results[index] === 'wrongunit') {
-                el.style.borderColor = "#fd7e14"; // Orange for unit error
+                mainColor = "#fd7e14"; // Orange
+                bgColor = "#fff3cd";   // Light Yellow/Orange
+                textColor = "#856404"; 
             } else if (results[index] === 'correct' || results[index] === 'manydecimals') {
-                el.style.borderColor = "#28a745"; // Green for correct
+                mainColor = "#28a745"; // Green
+                bgColor = "#d4edda";   // Light Green
+                textColor = "#155724"; 
             } else {
-                el.style.borderColor = "#dc3545"; // Red for incorrect/empty
+                mainColor = "#dc3545"; // Red
+                bgColor = "#f8d7da";   // Light Red
+                textColor = "#721c24"; 
             }
+
+            // Apply universal border styles
+            el.style.borderColor = mainColor;
             el.style.borderWidth = "2px";
-            el.style.borderStyle = "solid"; 
+            el.style.borderStyle = "solid";
+
+            // If the input is a dropdown, apply a background tint to force the browser to show the styling
+            if (el.tagName.toUpperCase() === 'SELECT') {
+                el.style.backgroundColor = bgColor;
+                el.style.color = textColor;
+            } else {
+                // For regular text boxes, just color the typed text to match the border
+                el.style.color = mainColor;
+            }
         }
     });
 
