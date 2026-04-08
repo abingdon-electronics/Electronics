@@ -269,13 +269,13 @@
     }
 
 /* Complex Overrides */
-    #inputGroupSilicon, /* <--- ADDED HERE */
+    #inputGroupSilicon, 
     #inputGroupZener, #zenerClosedQuestions, #zenerOpenQuestions, #inputGroupGrade9Zener, #inputGroupColorNames {
         flex-direction: column !important;
         align-items: flex-start !important; 
     }
 
-    #inputGroupSilicon label, /* <--- ADDED HERE */
+    #inputGroupSilicon label, 
     #inputGroupZener label, 
     #inputGroupGrade9Zener label,
     #inputGroupColorNames label,
@@ -303,11 +303,7 @@
         background: #fff !important;
         flex-shrink: 0 !important;     
         color: #333 !important;
-    }
-
-
-
-        
+    }      
 
         /* Override the global row/important constraint for Grade 9 Silicon */
         #inputGroupGrade9Silicon, 
@@ -1280,9 +1276,9 @@
 <!-- *************************************************************************************** -->    
 <!-- ==========================================
       MODALS                                     
-     ========================================== 
+     ========================================== -->
 
-   Score Submission Modal -->
+<!-- Score Submission Modal -->
 <div id="submissionModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <h3>Submit Your Score</h3>
@@ -1374,7 +1370,7 @@
 </div>
 
 <script>
-<!-- *************************************************************************************** -->    
+// ***************************************************************************************    
 // SCRIPT STARTS NOW      
 // GLOBAL VARIABLES
 
@@ -1394,7 +1390,7 @@ let canEarnPoints = true;
 // This allows the variable to hold ANY data we throw at it (Voltage, Resistors, Colour Codes, etc.)
 let currentAnswers = {};
 //*****************************************************
-/* --- 2. MAIN CONTROLLER --- */
+// --- 2. MAIN CONTROLLER --- 
 //*****************************************************
 function handleGenerateClick() {
 
@@ -5054,7 +5050,7 @@ function generateGrade9SiliconProblem() {
         ctx.font = "bold 14px Arial"; 
         ctx.fillText("Load", boxX + (boxW / 2), centerY); 
 
-        ctx.fillStyle = pinkColor; 
+        ctx.fillStyle = pink; 
         ctx.textAlign = "right"; 
         ctx.font = "bold 16px Arial"; 
         ctx.fillText("V = ?", boxX - 10, centerY); 
@@ -5246,9 +5242,9 @@ function generateGrade9SiliconProblem() {
 
 //*****************************************************************************************
     
-    // ==========================================
-    // IPO SORT GENERATOR & LOGIC
-    // ==========================================
+// ==============================
+// IPO SORT GENERATOR & LOGIC
+// ===============================
     const ipoDictionary = {
         "LDR": "input", "Temp Sensor": "input", "Switch": "input", "Microphone": "input", "Light Sensor": "input",
         "Microcontroller": "process", "Logic Gate": "process", "Comparator": "process", "Op-Amp": "process", "Astable": "process", "Monostable": "process", "Counter": "process", "Transistor": "process", "MOSFET": "process",
@@ -5271,7 +5267,7 @@ function generateGrade9SiliconProblem() {
         }
 }
 
-//*****************************************************************************************
+//***************************************************
 
 function generateIPOProblem(ctx, canvas) {
     // 1. Wipe everything clean first
