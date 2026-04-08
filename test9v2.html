@@ -1502,11 +1502,10 @@ function handleGenerateClick() {
     
 function handleGrade9Click() {
     // 1. We keep the hide logic commented out so the button stays visible 
-    // allowing the user to click it again for a new Grade 9 problem.
     // const rocket = document.getElementById('mainGrade9Btn');
     // if (rocket) rocket.style.display = 'none';
 
-    // 2. Routing Logic: Catch the Basic mode, Alternative Basic modes, AND the Grade 9 mode
+    // 2. Routing Logic
     if (currentMode === 'divider' || currentMode === 'potentialDivider' || currentMode === 'grade9divider') {
         generateGrade9DividerProblem(); 
     } 
@@ -1519,31 +1518,37 @@ function handleGrade9Click() {
     else if (currentMode === 'power' || currentMode === 'grade9power') {
         generateGrade9PowerProblem(); 
     }
-    // 👇 UPGRADED SILICON ROUTING: Includes the Parallel Trap & Pathfinder 👇
+    // 👇 UPGRADED SILICON ROUTING: Includes Master Container Visibility 👇
     else if (
         currentMode === 'silicon' || 
         currentMode === 'grade9silicon' || 
         currentMode === 'grade9silicon_orgate' || 
         currentMode === 'grade9silicon_reverse' || 
         currentMode === 'grade9silicon_parallel' ||
-        currentMode === 'grade9silicon_pathfinder' // <- Added Pathfinder here!
+        currentMode === 'grade9silicon_pathfinder'
     ) { 
-        currentMode = 'grade9silicon'; // Force to parent mode so hubController triggers the generator
+        currentMode = 'grade9silicon';
+
+        // FIX: Ensure the master container and the pathfinder group are set to display
+        const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
+        const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
+        
+        if (g9Master) g9Master.style.display = 'flex';
+        if (g9Path) g9Path.style.display = 'flex';
+
         const canvas = document.getElementById('circuitCanvas');
         const ctx = canvas ? canvas.getContext('2d') : null;
+        
         if (typeof hubController === "function") {
             hubController(ctx, canvas);
         } else if (typeof generateGrade9SiliconProblem === "function") {
-            // Fallback if hubController isn't available
             generateGrade9SiliconProblem();
         }
     }
     else {
-        // If nothing happens, this will tell you EXACTLY what mode name is missing!
         console.warn("Rocket clicked, but currentMode was not recognized: " + currentMode);
     }
     
-    // Safety check: Log to console so you can see the state
     console.log("Rocket launched. Transitioned from/to mode: " + currentMode);
 }
 //***********************************************************************************************
