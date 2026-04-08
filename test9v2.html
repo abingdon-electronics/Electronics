@@ -4632,9 +4632,14 @@ function generateSiliconProblem() {
     if (scenario === 0 || scenario === 1) {
         if (inputLogic) inputLogic.style.display = 'flex'; 
         if (inputVoltage) inputVoltage.style.display = 'none';
-        document.getElementById('basicL1State').value = "";
-        document.getElementById('basicL2State').value = "";
-        document.getElementById('basicL3State').value = "";
+        
+        // SAFE RESETS: Only clear the value if the element is ready!
+        const l1 = document.getElementById('basicL1State');
+        const l2 = document.getElementById('basicL2State');
+        const l3 = document.getElementById('basicL3State');
+        if (l1) l1.value = "";
+        if (l2) l2.value = "";
+        if (l3) l3.value = "";
     } else {
         if (inputLogic) inputLogic.style.display = 'none'; 
         if (inputVoltage) inputVoltage.style.display = 'flex';
@@ -4642,7 +4647,7 @@ function generateSiliconProblem() {
         let tp1 = document.getElementById('siliconTP1');
         let tp2 = document.getElementById('siliconTP2');
         
-        // Reset values and add placeholders
+        // Reset values and add placeholders safely
         if (tp1) {
             tp1.value = "";
             tp1.placeholder = "e.g. 11.3 V";
@@ -4790,6 +4795,7 @@ function generateSiliconProblem() {
             // Remind them of the unit requirement using your existing function!
             if (typeof showDPinstruction === 'function') showDPinstruction();
             qText.innerHTML = `Determine the voltage at test points TP1 and TP2.<br>` + qText.innerHTML;
+            qText.style.display = 'block'; // <--- FIX: Forces text block to display for Scenario 2
         }
 
         // Math Logic
