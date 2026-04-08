@@ -188,12 +188,18 @@
     height: 38px !important;
     width: 140px !important; 
     margin-left: 8px !important;
-    background-color: white !important;
-    border: 2px solid #ccc !important;
     border-radius: 6px !important;
     font-size: 15px !important;
-    color: #333 !important;
     flex-shrink: 0 !important;
+    
+    /* REMOVED !important from these so JavaScript can easily change them! */
+    background-color: white;
+    border: 2px solid #ccc;
+    color: #333;
+    
+    /* WARNING FOR MAC/iOS: 'auto' forces Apple's default grey bubble styling. 
+       If the borders STILL don't show on an iPad/Mac, change this to 'none !important;' 
+       (Note: this removes the little dropdown arrow, but lets you style the box perfectly) */
     appearance: auto !important;
 }
     
