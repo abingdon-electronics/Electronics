@@ -1501,11 +1501,10 @@ function handleGenerateClick() {
 // *********************************************************************
     
 function handleGrade9Click() {
-    // 1. Run the standard hide logic first to clean the slate
-    // This wipes old points, colors, and standard inputs
+    // 1. Clean the slate
     hideAllInputGroups();
 
-    // 2. Routing Logic
+    // 2. Routing Logic (Resistance, Zener, Power stay the same)
     if (currentMode === 'divider' || currentMode === 'potentialDivider' || currentMode === 'grade9divider') {
         generateGrade9DividerProblem(); 
     } 
@@ -1518,76 +1517,35 @@ function handleGrade9Click() {
     else if (currentMode === 'power' || currentMode === 'grade9power') {
         generateGrade9PowerProblem(); 
     }
-    // 👇 RE-VERIFIED SILICON ROUTING 👇
+    // 👇 SILICON PATHFINDER ROUTING 👇
     else if (
         currentMode === 'silicon' || 
-        currentMode === 'grade9silicon' || 
-        currentMode === 'grade9silicon_orgate' || 
-        currentMode === 'grade9silicon_reverse' || 
-        currentMode === 'grade9silicon_parallel' ||
-        currentMode === 'grade9silicon_pathfinder'
+        currentMode.startsWith('grade9silicon')
     ) { 
         currentMode = 'grade9silicon'; 
 
-        // 3. THE OVERRIDE: 
-        // We use setProperty with "important" to beat the hideAllInputGroups rule
-        const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
-        const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
-        
-        if (g9Master) {
-            g9Master.style.setProperty("display", "flex", "important");
-        }
-        if (g9Path) {
-            g9Path.style.setProperty("display", "flex", "important");
-        }
-
-        // 4. Trigger the circuit drawing/logic
         const canvas = document.getElementById('circuitCanvas');
         const ctx = canvas ? canvas.getContext('2d') : null;
         
+        // A. Run logic first (it might try to hide things)
         if (typeof hubController === "function") {
             hubController(ctx, canvas);
         } else if (typeof generateGrade9SiliconProblem === "function") {
             generateGrade9SiliconProblem();
         }
-    }
-    else {
-        console.warn("Rocket clicked, but currentMode was not recognized: " + currentMode);
+
+        // B. Force UI visible LAST so it wins the battle
+        const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
+        const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
+        
+        if (g9Master) g9Master.style.setProperty("display", "flex", "important");
+        if (g9Path) g9Path.style.setProperty("display", "flex", "important");
     }
     
-    // Final Safety: Ensure the rocket button itself stays visible 
-    // (since hideAllInputGroups hides it)
+    // Safety: Keep the rocket visible
     const rocket = document.getElementById('mainGrade9Btn');
     if (rocket) rocket.style.display = 'block';
-
-    console.log("Rocket launched. Transitioned to: " + currentMode);
 }
-//***********************************************************************************************
-
-function handleNewQuestionClick() {
-    // 1. THE UNIVERSAL ESCAPE HATCH
-    // This looks at currentMode and strips "grade9" out of it.
-    // e.g., 'grade9silicon_orgate' becomes 'silicon'
-    // e.g., 'grade9power' becomes 'power'
-    if (currentMode.includes('grade9')) {
-        currentMode = currentMode.replace('grade9', '');
-        
-        // If there's a sub-mode like '_orgate', strip that too
-        if (currentMode.includes('_')) {
-            currentMode = currentMode.split('_')[0];
-        }
-    }
-
-    // 2. Clear the screen and UI
-    const canvas = document.getElementById('circuitCanvas');
-    const ctx = canvas ? canvas.getContext('2d') : null;
-
-    // 3. Hand over to the Hub to generate the BASIC version
-    if (typeof hubController === "function") {
-        hubController(ctx, canvas);
-    }
-}
-
 //***********************************************************************************************
 // ==================================================================================================================
 // FUNCTION 0: SMALL UTILITIES (HELPERS)   
@@ -6648,7 +6606,7 @@ function hideAllInputGroups() {
     // 1. Reset all the grading locks
     isCurrentProblemSolved = false;
     hasCheckedCurrentProblem = false;
-    viewSolution = false; // Synchronized with your global variable name
+    viewSolution = false; 
     unitErrorMade = false;
     canEarnPoints = true; 
 
@@ -6667,11 +6625,12 @@ function hideAllInputGroups() {
         'inputGroupPowerRating', 
         'inputGroupIPOSort',
         'inputGroupSilicon',               // Standard Logic
-        'inputGroupSiliconVoltage',        // Standard Math
-        'inputGroupGrade9Silicon',         // Grade 9 OR-Gate
-        'inputGroupGrade9SiliconPath',     // Grade 9 Pathfinder
-        'oscilloscopeInputs',              // Oscilloscope wrapper
-        'inputGroupMonostable'             // Monostable wrapper
+        'inputGroupSiliconVoltage',         // Standard Math
+        'inputGroupGrade9Silicon',          // Grade 9 OR-Gate
+        'inputGroupGrade9SiliconPath',      // Grade 9 Pathfinder
+        'inputGroupGrade9SiliconMaster',
+        'oscilloscopeInputs',               // Oscilloscope wrapper
+        'inputGroupMonostable'              // Monostable wrapper
     ];
 
     ghostGroups.forEach(id => {
@@ -6679,7 +6638,7 @@ function hideAllInputGroups() {
         if (el) el.style.setProperty("display", "none", "important");
     });
     
-    // 2c. TOGGLE BUTTONS (Hide the Smart Rocket before the new problem decides to show it)
+    // 2c. TOGGLE BUTTONS
     if (document.getElementById('mainGrade9Btn')) {
         document.getElementById('mainGrade9Btn').style.display = 'none';
     }
@@ -6692,7 +6651,7 @@ function hideAllInputGroups() {
     if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = "";
     if (document.getElementById('solutions')) document.getElementById('solutions').style.display = 'none';
     if (document.getElementById('solText')) document.getElementById('solText').innerHTML = "";
-    if (document.getElementById('hintText')) document.getElementById('hintText').innerHTML = ""; // Added to clear new hints!
+    if (document.getElementById('hintText')) document.getElementById('hintText').innerHTML = ""; 
 
     // 4. Hide and wipe Question Text
     const qText = document.getElementById('questionText');
@@ -6708,23 +6667,23 @@ function hideAllInputGroups() {
     document.querySelectorAll('input').forEach(input => {
         if (input.type === 'text' || input.type === 'number') {
             input.value = "";                      
-            input.style.border = "";           // Clears thick validation borders
+            input.style.border = "";           
             input.style.borderColor = "#ccc";      
             input.style.borderWidth = "1px";      
             input.style.backgroundColor = "";     
-            input.style.color = "";            // Clears green/red text   
-            input.placeholder = "";                
+            input.style.color = "";            
+            // NOTE: input.placeholder = ""; was removed here to keep Pathfinder hints visible
         }
     });
 
-    // 7. DROPDOWN RESET (Now wipes validation colors too!)
+    // 7. DROPDOWN RESET
     document.querySelectorAll('select').forEach(select => {
         if (select.id !== 'teacherSelect') {
             select.selectedIndex = 0; 
-            select.style.border = "";          // Clears thick validation borders
-            select.style.borderColor = "#ccc"; // Resets to default grey
-            select.style.backgroundColor = ""; // Removes red/green fill
-            select.style.color = "";           // Removes red/green text
+            select.style.border = "";          
+            select.style.borderColor = "#ccc"; 
+            select.style.backgroundColor = ""; 
+            select.style.color = "";           
         }
     });
 
@@ -6745,7 +6704,6 @@ function hideAllInputGroups() {
     if (checkansBtn) checkansBtn.style.display = 'block';
     if (showsolutionsBtn) showsolutionsBtn.style.display = 'block';
 }
-
 // Master Switch on Load
 window.onload = function() {
     hideAllInputGroups(); 
