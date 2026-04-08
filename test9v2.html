@@ -5580,7 +5580,8 @@ function hubController(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // 2. Full UI Reset (The "Master Wipe")
-    if (typeof hideAllInputGroups === "function") hideAllInputGroups(); 
+    // Because hideAllInputGroups() was upgraded above, all dropdown validation is wiped here!
+    if (typeof hideAllInputGroups === "function") hideAllInputGroups();
     
     // Reset the workspaces
     if (document.getElementById("circuitContainer")) document.getElementById("circuitContainer").style.display = "block";
@@ -6671,17 +6672,23 @@ function hideAllInputGroups() {
     document.querySelectorAll('input').forEach(input => {
         if (input.type === 'text' || input.type === 'number') {
             input.value = "";                      
+            input.style.border = "";           // Clears thick validation borders
             input.style.borderColor = "#ccc";      
             input.style.borderWidth = "1px";      
             input.style.backgroundColor = "";     
+            input.style.color = "";            // Clears green/red text   
             input.placeholder = "";                
         }
     });
 
-    // 7. DROPDOWN RESET
+    // 7. DROPDOWN RESET (Now wipes validation colors too!)
     document.querySelectorAll('select').forEach(select => {
         if (select.id !== 'teacherSelect') {
             select.selectedIndex = 0; 
+            select.style.border = "";          // Clears thick validation borders
+            select.style.borderColor = "#ccc"; // Resets to default grey
+            select.style.backgroundColor = ""; // Removes red/green fill
+            select.style.color = "";           // Removes red/green text
         }
     });
 
