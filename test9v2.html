@@ -4628,18 +4628,24 @@ function generateSiliconProblem() {
     // UI TOGGLE LOGIC: Show dropdowns for Logic, show text boxes for Math
     const inputLogic = document.getElementById('inputGroupSilicon');
     const inputVoltage = document.getElementById('inputGroupSiliconVoltage');
+
+    // HELPER FUNCTION: Clears values AND green/red validation styles
+    function clearInputState(el) {
+        if (!el) return;
+        el.value = "";
+        el.style.boxShadow = "none";  // Wipes out the green glow
+        el.style.borderColor = "";    // Wipes out inline border colors
+        el.classList.remove("correct", "is-valid", "success", "wrong", "is-invalid", "error"); // Wipes out classes
+    }
     
     if (scenario === 0 || scenario === 1) {
         if (inputLogic) inputLogic.style.display = 'flex'; 
         if (inputVoltage) inputVoltage.style.display = 'none';
         
-        // SAFE RESETS: Only clear the value if the element is ready!
-        const l1 = document.getElementById('basicL1State');
-        const l2 = document.getElementById('basicL2State');
-        const l3 = document.getElementById('basicL3State');
-        if (l1) l1.value = "";
-        if (l2) l2.value = "";
-        if (l3) l3.value = "";
+        // Apply the deep clear to the logic dropdowns
+        clearInputState(document.getElementById('basicL1State'));
+        clearInputState(document.getElementById('basicL2State'));
+        clearInputState(document.getElementById('basicL3State'));
     } else {
         if (inputLogic) inputLogic.style.display = 'none'; 
         if (inputVoltage) inputVoltage.style.display = 'flex';
@@ -4647,15 +4653,12 @@ function generateSiliconProblem() {
         let tp1 = document.getElementById('siliconTP1');
         let tp2 = document.getElementById('siliconTP2');
         
-        // Reset values and add safer, non-giveaway placeholders
-        if (tp1) {
-            tp1.value = "";
-            tp1.placeholder = "e.g. 8.4 V"; 
-        }
-        if (tp2) {
-            tp2.value = "";
-            tp2.placeholder = "e.g. 3.2 V";
-        }
+        // Apply the deep clear to the math text boxes, then re-add placeholders
+        clearInputState(tp1);
+        if (tp1) tp1.placeholder = "e.g. 8.4 V"; 
+        
+        clearInputState(tp2);
+        if (tp2) tp2.placeholder = "e.g. 3.2 V";
     }
 
     const qText = document.getElementById('questionText');
