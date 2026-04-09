@@ -1731,6 +1731,20 @@ function showDPinstruction() {
         return answer.toString().replace(/\s+/g, ''); 
     }
 
+// Helper to clear values AND remove green/red ghosting
+    function clearInputsAndGhosting(ids) {
+        ids.forEach(id => {
+            let el = document.getElementById(id);
+            if (el) {
+                el.value = "";
+                el.style.boxShadow = "none";  // Strips inline glows
+                el.style.borderColor = "";    // Strips inline border colors
+                // Removes any classes your grading function might have added
+                el.classList.remove("correct", "is-valid", "success", "wrong", "is-invalid", "error"); 
+            }
+        });
+    }
+
 // =======================================================================================================
 // DRAWING Helpers
 // =======================================================================================================
@@ -4950,13 +4964,15 @@ function generateGrade9SiliconProblem() {
         }
         if (pathInputGroup) pathInputGroup.style.display = 'none';
         
+        // Clear OR-Gate inputs and ghosting
+        if (typeof clearInputsAndGhosting === 'function') {
+            clearInputsAndGhosting(['g9SilPayload', 'g9SilD1', 'g9SilD2']);
+        }
+        
         let orVoltInput = document.getElementById('g9SilPayload');
         if (orVoltInput) {
-            orVoltInput.value = "";
             orVoltInput.placeholder = "e.g. 11.3 V";
         }
-        if (document.getElementById('g9SilD1')) document.getElementById('g9SilD1').value = "";
-        if (document.getElementById('g9SilD2')) document.getElementById('g9SilD2').value = "";
         
     } else {
         // Show Pathfinder, Hide OR-Gate
@@ -4967,12 +4983,10 @@ function generateGrade9SiliconProblem() {
         }
         if (groupOrGate) groupOrGate.style.display = 'none';
         
-        // --- ADD PATHFINDER CLEARING ---
-        const pathIds = ['g9SilPathID1', 'g9SilPathID2', 'g9SilPathVD1', 'g9SilPathVD2', 'g9SilPathVLoad'];
-        pathIds.forEach(id => {
-            let el = document.getElementById(id);
-            if (el) el.value = "";
-        });
+        // Clear Pathfinder inputs and ghosting
+        if (typeof clearInputsAndGhosting === 'function') {
+            clearInputsAndGhosting(['g9SilPathID1', 'g9SilPathID2', 'g9SilPathVD1', 'g9SilPathVD2', 'g9SilPathVLoad']);
+        }
     }
 
     // ==========================================
