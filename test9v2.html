@@ -4633,11 +4633,16 @@ function generateSiliconProblem() {
     }
     
     const scenario = scenarioTracker.silicon;
-    // Toggles between 0, 1, and 2!
-    scenarioTracker.silicon = (scenarioTracker.silicon + 1) % 3;
+    // Toggles between 0, 1, 2, and 3!
+    scenarioTracker.silicon = (scenarioTracker.silicon + 1) % 4;
 
-    // GENERATE A RANDOM SUPPLY VOLTAGE BETWEEN 5V and 24V
+    // GENERATE RANDOM SUPPLY VOLTAGE (5V to 24V) AND LOAD RESISTANCE (10 to 50 Ohms)
     const supplyVoltage = Math.floor(Math.random() * 20) + 5;
+    const loadR = Math.floor(Math.random() * 40) + 10; 
+    
+    // Select a random component for the math scenarios
+    const loadTypes = ['motor', 'bulb', 'variable'];
+    const loadType = loadTypes[Math.floor(Math.random() * loadTypes.length)];
 
     // UI TOGGLE LOGIC: Show dropdowns for Logic, show text boxes for Math
     const inputLogic = document.getElementById('inputGroupSilicon');
@@ -4647,32 +4652,30 @@ function generateSiliconProblem() {
     function clearInputState(el) {
         if (!el) return;
         el.value = "";
-        el.style.boxShadow = "none";  // Wipes out the green glow
-        el.style.borderColor = "";    // Wipes out inline border colors
-        el.classList.remove("correct", "is-valid", "success", "wrong", "is-invalid", "error"); // Wipes out classes
+        el.style.boxShadow = "none";  
+        el.style.borderColor = "";    
+        el.classList.remove("correct", "is-valid", "success", "wrong", "is-invalid", "error"); 
     }
     
-    if (scenario === 0 || scenario === 1) {
+    if (scenario === 0 || scenario === 2) { // LOGIC SCENARIOS
         if (inputLogic) inputLogic.style.display = 'flex'; 
         if (inputVoltage) inputVoltage.style.display = 'none';
         
-        // Apply the deep clear to the logic dropdowns
         clearInputState(document.getElementById('basicL1State'));
         clearInputState(document.getElementById('basicL2State'));
         clearInputState(document.getElementById('basicL3State'));
-    } else {
+    } else { // MATH SCENARIOS
         if (inputLogic) inputLogic.style.display = 'none'; 
         if (inputVoltage) inputVoltage.style.display = 'flex';
         
-        let tp1 = document.getElementById('siliconTP1');
-        let tp2 = document.getElementById('siliconTP2');
+        let tp1 = document.getElementById('siliconTP1'); // Used for Voltage
+        let tp2 = document.getElementById('siliconTP2'); // Used for Current
         
-        // Apply the deep clear to the math text boxes, then re-add placeholders
         clearInputState(tp1);
         if (tp1) tp1.placeholder = "e.g. 8.4 V"; 
         
         clearInputState(tp2);
-        if (tp2) tp2.placeholder = "e.g. 3.2 V";
+        if (tp2) tp2.placeholder = "e.g. 0.45 A"; // Updated placeholder for Current
     }
 
     const qText = document.getElementById('questionText');
@@ -4687,7 +4690,7 @@ function generateSiliconProblem() {
     ctx.strokeStyle = "black"; 
     ctx.lineWidth = 2;
 
-    // Top and Bottom Rails (Now uses dynamic supply voltage!)
+    // Top and Bottom Rails
     drawLine(ctx, 100, 40, 400, 40);
     ctx.font = "bold 16px Arial"; 
     ctx.fillText(supplyVoltage + "V (Supply)", 100, 30);
@@ -4712,7 +4715,7 @@ function generateSiliconProblem() {
 
         // Main Wire Top
         drawLine(ctx, 250, 40, 250, 80);
-        drawLine(ctx, 180, 80, 320, 80); // Split
+        drawLine(ctx, 180, 80, 320, 80); 
         
         // Left Branch (L1)
         drawLine(ctx, 180, 80, 180, 240);
@@ -4742,9 +4745,48 @@ function generateSiliconProblem() {
     }
 
     // ==========================================
-    // SCENARIO 1: Master Gate
+    // SCENARIO 1: Single Forward Diode + Load
     // ==========================================
     else if (scenario === 1) {
+        if (qText) {
+            if (typeof showDPinstruction === 'function') showDPinstruction();
+            qText.innerHTML = `A silicon diode is connected in series with a component.<br>Determine the <strong>voltage across the component</strong> and the <strong>current through it</strong>.`;
+            qText.style.display = 'block'; 
+        }
+
+        // Draw Line to D1
+        drawLine(ctx, 250, 40, 250, 85);
+        drawDiode(ctx, 250, 100, "down", 12); // Forward Biased
+        
+        // Draw Line to Component
+        drawLine(ctx, 250, 115, 250, 200);
+        
+        // Draw Random Component
+        if (loadType === 'variable') drawComponent(ctx, 'variable', 250, 225);
+        else if (loadType === 'bulb') drawFilamentBulb(ctx, 250, 225);
+        else drawMotor(ctx, 250, 225);
+        
+        // Draw Labels & Ground Wire
+        drawLabel(ctx, "R = " + loadR + " Ω", 290, 230, 16, pink);
+        drawLine(ctx, 250, 250, 250, 360);
+
+        // Math Calculations
+        let v_load = Number((supplyVoltage - 0.7).toFixed(1)); 
+        let current = Number((v_load / loadR).toFixed(2));
+
+        logicHTML += `<strong>Voltage:</strong> The diode is Forward-Biased. Because it is a silicon diode, it consumes 0.7V of the supply voltage.<br>`;
+        logicHTML += `${supplyVoltage}V - 0.7V = <strong>${v_load.toFixed(1)}V across the component</strong>.<br><br>`;
+        logicHTML += `<strong>Current:</strong> Apply Ohm's law (I = V / R) using the remaining voltage across the component.<br>`;
+        logicHTML += `I = ${v_load.toFixed(1)}V ÷ ${loadR}Ω = <strong>${current.toFixed(2)}A</strong>.`;
+        
+        // Map tp1 to Voltage, tp2 to Current for checking
+        currentAnswers = { tp1: v_load, tp2: current };
+    }
+
+    // ==========================================
+    // SCENARIO 2: Master Gate
+    // ==========================================
+    else if (scenario === 2) {
         if (qText) {
             qText.innerHTML = `Determine if lamps <strong>L1, L2, and L3</strong> are ON or OFF.`;
             qText.style.display = 'block'; 
@@ -4806,97 +4848,95 @@ function generateSiliconProblem() {
     }
 
     // ==========================================
-    // SCENARIO 2: Series Staircase (Voltage Math)
+    // SCENARIO 3: Single Reverse Diode + Load
     // ==========================================
-    else if (scenario === 2) {
+    else if (scenario === 3) {
+        if (qText) {
+            if (typeof showDPinstruction === 'function') showDPinstruction();
+            qText.innerHTML = `A silicon diode is connected in series with a component.<br>Determine the <strong>voltage across the component</strong> and the <strong>current through it</strong>.`;
+            qText.style.display = 'block'; 
+        }
+
+        // Draw Line to D1
+        drawLine(ctx, 250, 40, 250, 85);
+        drawDiode(ctx, 250, 100, "up", 12); // Reverse Biased!
+        
+        // Draw Line to Component
+        drawLine(ctx, 250, 115, 250, 200);
+        
+        // Draw Random Component
+        if (loadType === 'variable') drawComponent(ctx, 'variable', 250, 225);
+        else if (loadType === 'bulb') drawFilamentBulb(ctx, 250, 225);
+        else drawMotor(ctx, 250, 225);
+        
+        // Draw Labels & Ground Wire
+        drawLabel(ctx, "R = " + loadR + " Ω", 290, 230, 16, pink);
+        drawLine(ctx, 250, 250, 250, 360);
+
+        // Math Calculations (It's blocked!)
+        let v_load = 0; 
+        let current = 0;
+
+        logicHTML += `<strong>The Trick!</strong> The diode is pointing backwards against conventional current.<br><br>`;
+        logicHTML += `It is <strong>Reverse-Biased</strong> and acts as an open switch. Because the circuit is broken, no current can flow to the component.<br><br>`;
+        logicHTML += `<strong>Voltage = 0V</strong> and <strong>Current = 0A</strong>.`;
+        
+        currentAnswers = { tp1: v_load, tp2: current };
+    }
+
+    if (solText) solText.innerHTML = logicHTML;
+
+    /*
+    // ==========================================
+    // A-LEVEL DOUBLE DIODE SCENARIO (COMMENTED OUT FOR FUTURE USE)
+    // ==========================================
+    else if (scenario === 99) { // Disabled
         if (qText) {
             if (typeof showDPinstruction === 'function') showDPinstruction();
             qText.innerHTML = `Determine the voltage at test points TP1 and TP2.<br>` + qText.innerHTML;
             qText.style.display = 'block'; 
         }
 
-        // CORRECTED PHYSICS LOGIC! Both diodes can flip now
-        const d1Forward = Math.random() < 0.5; // Top diode twist
-        const d2Forward = Math.random() < 0.5; // Bottom diode twist
+        const d1Forward = Math.random() < 0.5; 
+        const d2Forward = Math.random() < 0.5; 
         let v_tp1, v_tp2;
 
         if (d1Forward && d2Forward) {
-            // Current flows! Both diodes drop 0.7V
             v_tp1 = Number((supplyVoltage - 0.7).toFixed(1)); 
             v_tp2 = Number((v_tp1 - 0.7).toFixed(1)); 
         } else if (!d1Forward) {
-            // Circuit is broken at the TOP diode. No current flows.
-            // TP1 and TP2 are completely isolated from the supply and pulled to ground.
             v_tp1 = 0; 
             v_tp2 = 0; 
         } else {
-            // Top is forward, Bottom is reverse. 
-            // Circuit is broken at the bottom! No current flows. 
-            // Top diode cannot drop voltage without current.
             v_tp1 = supplyVoltage; 
             v_tp2 = 0; 
         }
 
-        // Draw Line to D1 (Stops exactly at 85 - 12 = 73)
         drawLine(ctx, 250, 40, 250, 73);
-        drawDiode(ctx, 250, 85, d1Forward ? "down" : "up", 12); // Now dynamically drawn
-        
-        // Draw TP1 (Starts exactly at 85 + 12 = 97)
+        drawDiode(ctx, 250, 85, d1Forward ? "down" : "up", 12); 
         drawLine(ctx, 250, 97, 250, 140);
         
-        // Draw Pink Circle for TP1
-        ctx.beginPath();
-        ctx.arc(250, 140, 4, 0, 2 * Math.PI);
-        ctx.fillStyle = pink;
-        ctx.fill();
-        ctx.stroke(); 
-        
-        ctx.fillStyle = pink;
+        ctx.beginPath(); ctx.arc(250, 140, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = pink; ctx.fill(); ctx.stroke(); 
         ctx.fillText("TP1", 270, 145); 
         
-        // Draw Line to D2 (Stops exactly at 195 - 12 = 183)
         drawLine(ctx, 250, 140, 250, 183);
         drawDiode(ctx, 250, 195, d2Forward ? "down" : "up", 12); 
-        
-        // Draw TP2 (Starts exactly at 195 + 12 = 207)
         drawLine(ctx, 250, 207, 250, 250);
         
-        // Draw Pink Circle for TP2
-        ctx.beginPath();
-        ctx.arc(250, 250, 4, 0, 2 * Math.PI);
-        ctx.fillStyle = pink;
-        ctx.fill();
-        ctx.stroke(); 
-        
-        ctx.fillStyle = pink;
+        ctx.beginPath(); ctx.arc(250, 250, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = pink; ctx.fill(); ctx.stroke(); 
         ctx.fillText("TP2", 270, 255);
 
-        // Draw Load Resistor to Ground
         drawLine(ctx, 250, 250, 250, 280);
-        ctx.fillStyle = "white"; ctx.fillRect(235, 280, 30, 50); ctx.strokeRect(235, 280, 30, 50); // Resistor
+        ctx.fillStyle = "white"; ctx.fillRect(235, 280, 30, 50); ctx.strokeRect(235, 280, 30, 50); 
         ctx.fillStyle = "black"; ctx.fillText("Load", 280, 310);
         drawLine(ctx, 250, 330, 250, 360);
 
-        // CORRECTED SOLUTION TEXT
-        if (d1Forward && d2Forward) {
-            logicHTML += `<strong>TP1:</strong> The circuit is complete, and both diodes are forward-biased. The top diode consumes 0.7V of the supply voltage to operate.<br>`;
-            logicHTML += `${supplyVoltage}V - 0.7V = <strong>${v_tp1.toFixed(1)}V at TP1</strong>.<br><br>`;
-            logicHTML += `<strong>TP2:</strong> The second diode is also forward-biased and consumes another 0.7V.<br>`;
-            logicHTML += `${v_tp1.toFixed(1)}V - 0.7V = <strong>${v_tp2.toFixed(1)}V at TP2</strong>.`;
-        } else if (!d1Forward) {
-            logicHTML += `<strong>The Trick!</strong> The top diode is pointing backwards (Reverse-Biased) and acts as an open switch. Because the circuit is broken right at the start, <strong>no current flows</strong>.<br><br>`;
-            logicHTML += `<strong>TP1 & TP2:</strong> Since the top diode blocks the supply entirely, the rest of the circuit is pulled to ground through the load resistor. <strong>0V at TP1</strong> and <strong>0V at TP2</strong>.`;
-        } else {
-            logicHTML += `<strong>The Trick!</strong> The second diode is pointing backwards (Reverse-Biased) and acts as an open switch. Because the circuit is broken, <strong>no current flows</strong>.<br><br>`;
-            logicHTML += `<strong>TP1:</strong> Because absolutely no current flows through the top diode, it cannot drop 0.7V! An ideal voltmeter placed here would read the full supply voltage: <strong>${v_tp1}V at TP1</strong>.<br><br>`;
-            logicHTML += `<strong>TP2:</strong> Since the circuit is blocked by the reverse-biased second diode, no voltage reaches the load. <strong>0V at TP2</strong>.`;
-        }
-
-        // Store answers to be checked later
+        // ... logic HTML generation omitted to save space ...
         currentAnswers = { tp1: v_tp1, tp2: v_tp2 };
     }
-
-    if (solText) solText.innerHTML = logicHTML;
+    */
 }
 
 //*****************************************************************************************
