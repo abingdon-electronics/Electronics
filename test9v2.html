@@ -1079,14 +1079,14 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; width: 200px;">
         <label for="siliconTP1" style="margin-right: 10px; margin-bottom: 0;">
-            <span id="labelV" style="font-weight: bold; color: #E64097; font-size: 16px;">V<sub>R</sub> =</span>
+            <span id="siliconLabelV" style="font-weight: bold; color: #E64097; font-size: 16px;">V<sub>R</sub> =</span>
         </label>
         <input type="text" id="siliconTP1" style="width: 90px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid #ccc;">
     </div>
 
     <div style="display: flex; justify-content: space-between; align-items: center; width: 200px;">
         <label for="siliconTP2" style="margin-right: 10px; margin-bottom: 0;">
-            <span id="labelI" style="font-weight: bold; color: #E64097; font-size: 16px;">I<sub>R</sub> =</span>
+             <span id="siliconLabelI" style="font-weight: bold; color: #E64097; font-size: 16px;">I<sub>R</sub> =</span>
         </label>
         <input type="text" id="siliconTP2" style="width: 90px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid #ccc;">
     </div>
@@ -4699,8 +4699,8 @@ function generateSiliconProblem() {
         if (inputVoltage) inputVoltage.style.display = 'flex';
         
         // Update the pink labels dynamically based on component
-        const labelV = document.getElementById('labelV');
-        const labelI = document.getElementById('labelI');
+        const labelV = document.getElementById('siliconLabelV'); // Updated ID
+        const labelI = document.getElementById('siliconLabelI'); // Updated ID
         
         if (labelV && labelI) {
             labelV.innerHTML = 'V<sub style="color: #E64097; font-weight: bold;">' + compType + '</sub> =';
