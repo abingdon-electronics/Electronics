@@ -6549,16 +6549,21 @@ function provideHint() {
                 • <b>ON/OFF Logic:</b> Forward-biased diodes let current flow. Reverse-biased diodes block the path completely.<br>
                 • <b>Voltage Math:</b> Every forward-biased diode uses up exactly 0.7V. If a reverse-biased diode breaks the circuit, no current reaches the load!
             </div>`;
-    } else if (currentMode === 'grade9silicon_orgate') {
-        helpText = `
-            <div style="${blueBox}">
-                <strong>💡 Hint:</strong> When the switch is CLOSED, the battery with the highest voltage takes over and blocks the other. If the switch is OPEN, the main power is disconnected—which battery is left? (Don't forget the 0.7V diode drop!)
-            </div>`;
-    } else if (currentMode === 'grade9silicon_pathfinder') {
-        helpText = `
-            <div style="${blueBox}">
-                <strong>💡 Hint:</strong> Current takes the path of least resistance. A forward-biased diode drops 0.7V. To find the voltage across the blocked diode, figure out the voltage at the wire above it and the wire below it first!
-            </div>`;
+    } else if (currentMode === 'grade9silicon') {
+        // If OR-Gate is visible
+        if (document.getElementById('inputGroupGrade9Silicon') && document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> When the switch is CLOSED, the battery with the highest voltage takes over and blocks the other. If the switch is OPEN, the main power is disconnected—which battery is left? (Don't forget the 0.7V diode drop!)
+                </div>`;
+        } 
+        // If Pathfinder is visible
+        else if (document.getElementById('inputGroupGrade9SiliconPath') && document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> Current takes the path of least resistance. A forward-biased diode drops 0.7V. To find the voltage across the blocked diode, figure out the voltage at the wire above it and the wire below it first!
+                </div>`;
+        }
     } else {
         // Potential Divider & General
         helpText = `
