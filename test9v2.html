@@ -6112,17 +6112,21 @@ function checkAnswers() {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('siliconTP2').value)), currentAnswers.tp2, 'V'));
         }
 
-    } else if (currentMode === 'grade9silicon_orgate') {
-        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPayload').value)), currentAnswers.vLoad, 'V'));
-        results.push(document.getElementById('g9SilD1').value.trim().toUpperCase() === currentAnswers.d1State.toUpperCase() ? 'correct' : 'wrongval');
-        results.push(document.getElementById('g9SilD2').value.trim().toUpperCase() === currentAnswers.d2State.toUpperCase() ? 'correct' : 'wrongval');
-        
-    } else if (currentMode === 'grade9silicon_pathfinder') {
-        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathID1').value)), currentAnswers.iD1, 'mA'));
-        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathID2').value)), currentAnswers.iD2, 'mA'));
-        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVD1').value)), currentAnswers.vD1, 'V'));
-        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVD2').value)), currentAnswers.vD2, 'V'));
-        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVLoad').value)), currentAnswers.vLoad, 'V'));
+    } else if (currentMode === 'grade9silicon') {
+        // Grade OR-Gate if it's visible
+        if (document.getElementById('inputGroupGrade9Silicon') && document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPayload').value)), currentAnswers.vLoad, 'V'));
+            results.push(document.getElementById('g9SilD1').value.trim().toUpperCase() === currentAnswers.d1State.toUpperCase() ? 'correct' : 'wrongval');
+            results.push(document.getElementById('g9SilD2').value.trim().toUpperCase() === currentAnswers.d2State.toUpperCase() ? 'correct' : 'wrongval');
+        } 
+        // Grade Pathfinder if it's visible
+        else if (document.getElementById('inputGroupGrade9SiliconPath') && document.getElementById('inputGroupGrade9SiliconPath').style.display !== 'none') {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathID1').value)), currentAnswers.iD1, 'mA'));
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathID2').value)), currentAnswers.iD2, 'mA'));
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVD1').value)), currentAnswers.vD1, 'V'));
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVD2').value)), currentAnswers.vD2, 'V'));
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVLoad').value)), currentAnswers.vLoad, 'V'));
+        }
     }
 
 // 5. Final Feedback and Scoring (BORDERS ONLY)
