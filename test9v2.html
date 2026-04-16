@@ -7167,13 +7167,12 @@ async function processSubmission() {
         if (typeof updateScoreboard === 'function') updateScoreboard();
         
         // Trigger a new problem based on current mode
-        if (currentMode === 'logic_boolean') {
+        if (currentMode === 'logic_boolean' || currentMode === 'grade9boolean') {
             // Boolean logic needs the canvas context passed to it!
             const canvas = document.getElementById('circuitCanvas'); 
             const ctx = canvas.getContext('2d');
-            if (typeof generateBooleanProblem === 'function') {
-                generateBooleanProblem(ctx, canvas);
-            }
+            if (currentMode === 'logic_boolean') generateBooleanProblem(ctx, canvas);
+            if (currentMode === 'grade9boolean') generateGrade9booleanProblem(ctx, canvas);
         } else if (typeof window['generate' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1) + 'Problem'] === 'function') {
             // Standard fallback for other modules
             window['generate' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1) + 'Problem']();
