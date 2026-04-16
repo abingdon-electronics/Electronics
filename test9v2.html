@@ -1259,8 +1259,8 @@
 </div>
 
 <!-- GRADE 9 BOOLEAN: Sum of Products -->
-  <div id="inputGroupGrade9BooleanSOP" style="display: none; flex-direction: column !important; gap: 5px !important; width: 100%; text-align: left; margin-top: -35px !important; margin-bottom: 0px !important; position: relative;"> 
-   <!-- <div style="background-color: #f8f9fa !important; padding: 8px !important; border-radius: 8px; border: 1px solid #dee2e6;">
+  <!--<div id="inputGroupGrade9BooleanSOP" style="display: none; flex-direction: column !important; gap: 5px !important; width: 100%; text-align: left; margin-top: -35px !important; margin-bottom: 0px !important; position: relative;"> 
+    <div style="background-color: #f8f9fa !important; padding: 8px !important; border-radius: 8px; border: 1px solid #dee2e6;">
         <p style="margin-top: 0 !important; margin-bottom: 5px !important; font-weight: 600; font-size: 14px; color: #333; line-height: 1.2 !important;">
             1. Select the correct Boolean equation for each row where Q = 1 (Top to Bottom):
         </p>
@@ -1282,7 +1282,7 @@
         </select>
     </div>
 
-</div>--> 
+</div>
 <div style="background-color: #f8f9fa !important; padding: 8px !important; border-radius: 8px; border: 1px solid #dee2e6;">
         <p style="margin-top: 0 !important; margin-bottom: 5px !important; font-weight: 600; font-size: 14px; color: #333; line-height: 1.2 !important;">
             1. Select the correct Boolean equation for each row where Q = 1 (Top to Bottom):
@@ -1303,6 +1303,37 @@
             <option value="AND">Multiply them together (AND / .)</option>
             <option value="OR">Add them together (OR / +)</option>
         </select>
+    </div>
+
+</div>--> 
+
+<div id="inputGroupGrade9BooleanSOP" style="display: none; flex-direction: column !important; gap: 5px !important; width: 100%; text-align: left; margin-top: -35px !important; margin-bottom: 0px !important; position: relative;">
+    
+    <div style="background-color: #f8f9fa !important; padding: 8px !important; border-radius: 8px; border: 1px solid #dee2e6;">
+        <p style="margin-top: 0 !important; margin-bottom: 5px !important; font-weight: 600; font-size: 14px; color: #333; line-height: 1.2 !important;">
+            1. Select the correct Boolean equation for each row where Q = 1:
+        </p>
+        <div style="display: flex; flex-direction: column !important; gap: 4px !important;">
+            <select id="g9boolRow1" style="width: 100%; padding: 4px !important; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; margin: 0 !important; height: auto !important;"></select>
+            <select id="g9boolRow2" style="width: 100%; padding: 4px !important; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; margin: 0 !important; height: auto !important;"></select>
+            <select id="g9boolRow3" style="width: 100%; padding: 4px !important; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; margin: 0 !important; height: auto !important;"></select>
+        </div>
+    </div>
+
+    <div style="background-color: #f8f9fa !important; padding: 8px !important; border-radius: 8px; border: 1px solid #dee2e6;">
+        <p style="margin-top: 0 !important; margin-bottom: 5px !important; font-weight: 600; font-size: 14px; color: #333; line-height: 1.2 !important;">
+            2. Select the final system equation:
+        </p>
+        <div style="display: flex; flex-direction: column !important; gap: 6px !important; font-size: 13px; font-family: monospace; padding-left: 5px;">
+            <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+                <input type="radio" name="g9boolCombineRadio" value="OR" style="margin-top: 2px;">
+                <span style="line-height: 1.4;">Q = (<span id="sopPlaceholder1a" style="color: #d63384;">___</span>) + (<span id="sopPlaceholder2a" style="color: #d63384;">___</span>) + (<span id="sopPlaceholder3a" style="color: #d63384;">___</span>)</span>
+            </label>
+            <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
+                <input type="radio" name="g9boolCombineRadio" value="AND" style="margin-top: 2px;">
+                <span style="line-height: 1.4;">Q = (<span id="sopPlaceholder1b" style="color: #d63384;">___</span>) . (<span id="sopPlaceholder2b" style="color: #d63384;">___</span>) . (<span id="sopPlaceholder3b" style="color: #d63384;">___</span>)</span>
+            </label>
+        </div>
     </div>
 
 </div>
@@ -3932,6 +3963,48 @@ function generateBooleanProblem(ctx, canvas) {
 
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = logicHTML;
+    
+    // ==========================================
+    // LIVE EQUATION BUILDER LOGIC
+    // ==========================================
+    const drop1 = document.getElementById('g9boolRow1');
+    const drop2 = document.getElementById('g9boolRow2');
+    const drop3 = document.getElementById('g9boolRow3');
+
+    // Clear the radio buttons from previous questions
+    document.querySelectorAll('input[name="g9boolCombineRadio"]').forEach(radio => radio.checked = false);
+
+    // This function runs every time a dropdown is changed
+    function updateLiveEquations() {
+        // Helper to grab text or return "___" if nothing is selected
+        const getText = (dropdown) => {
+            if (!dropdown || dropdown.selectedIndex <= 0) return '___';
+            // Grabs the actual equation text instead of the 'row1_1' value
+            return dropdown.options[dropdown.selectedIndex].text; 
+        };
+
+        const t1 = getText(drop1);
+        const t2 = getText(drop2);
+        const t3 = getText(drop3);
+
+        // Update the OR equation (+) placeholders
+        if (document.getElementById('sopPlaceholder1a')) document.getElementById('sopPlaceholder1a').innerText = t1;
+        if (document.getElementById('sopPlaceholder2a')) document.getElementById('sopPlaceholder2a').innerText = t2;
+        if (document.getElementById('sopPlaceholder3a')) document.getElementById('sopPlaceholder3a').innerText = t3;
+
+        // Update the AND equation (.) placeholders
+        if (document.getElementById('sopPlaceholder1b')) document.getElementById('sopPlaceholder1b').innerText = t1;
+        if (document.getElementById('sopPlaceholder2b')) document.getElementById('sopPlaceholder2b').innerText = t2;
+        if (document.getElementById('sopPlaceholder3b')) document.getElementById('sopPlaceholder3b').innerText = t3;
+    }
+
+    // Attach the tripwires to the dropdowns
+    if (drop1) drop1.addEventListener('change', updateLiveEquations);
+    if (drop2) drop2.addEventListener('change', updateLiveEquations);
+    if (drop3) drop3.addEventListener('change', updateLiveEquations);
+
+    // Run it once immediately to reset the blanks to "___" on new question load
+    updateLiveEquations();
 }
 //*****************************************************************************************
 
