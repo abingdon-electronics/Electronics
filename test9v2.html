@@ -1232,8 +1232,8 @@
             </div>
         </div>
     </div>
-<!-- Input group Boolean -->   
 
+<!-- Input group Boolean -->   
 <div id="inputGroupBoolean" style="display: none; text-align: center; margin-top: 15px;">
     <div id="booleanDropdownContainer" style="display:none; margin-bottom: 10px;">
         <label for="booleanSelect" style="font-weight: bold; margin-right: 10px; color: #E64097;">Select the correct equation:</label>
@@ -1257,14 +1257,6 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
 
                 
 <!-- Input group colour code-->  
@@ -1482,15 +1474,15 @@ function handleNewQuestionClick() {
     const canvasIPOWorkstation = document.getElementById('canvasIPOWorkstation');
     if (canvasIPOWorkstation) canvasIPOWorkstation.style.display = 'none';
 
-    // 👇 ---> NEW FIX: REMOVE THE GRADE 9 CSS LOCKS <--- 👇 ********************
+    // ---> NEW FIX: REMOVE THE GRADE 9 CSS LOCKS <--- 
     // This stops the Pathfinder/Master UI from permanently blocking standard questions
     const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
     const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
     if (g9Master) g9Master.style.removeProperty("display");
     if (g9Path) g9Path.style.removeProperty("display");
-    // 👆 ------------------------------------------------ 👆
+   
 
-    // ---> ESCAPE THE GRADE 9 LOOPS & RESET SCORE <--- ********************
+    // ---> ESCAPE THE GRADE 9 LOOPS & RESET SCORE <--- 
     let escapedGrade9 = false;
     let previousMode = currentMode; // Remember where we were just in case they cancel!
 
@@ -5850,6 +5842,16 @@ function hubController(ctx, canvas) {
         // Hide rocket because we are already in Grade 9
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
         if (typeof generateGrade9PowerProblem === "function") generateGrade9PowerProblem(ctx, canvas);
+
+    } else if (currentMode === 'logic_boolean') {
+        // *** NEW LOGIC BOOLEAN ROUTING ***
+        if (document.getElementById('inputGroupBoolean')) document.getElementById('inputGroupBoolean').style.display = 'block';
+        
+        // Setup buttons for a new question
+        if (document.getElementById('btnCheck')) document.getElementById('btnCheck').style.display = 'inline-block';
+        if (document.getElementById('btnNext')) document.getElementById('btnNext').style.display = 'none';
+        
+        if (typeof generateBooleanProblem === "function") generateBooleanProblem(ctx, canvas);
     }
 }
 
