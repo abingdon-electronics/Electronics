@@ -3704,7 +3704,7 @@ function generateGrade9PowerProblem() {
 function generateBooleanProblem(ctx, canvas) {
     // 1. Clear Canvas and Setup
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if(document.getElementById('feedback')) document.getElementById('feedback').innerHTML = '';
+    if(document.getElementById('feedback')) document.getElementById('feedback').innerHTML = '&nbsp;';
     
     currentBooleanMode = 'old'; // Starting with Old Spec style
 
@@ -3713,29 +3713,48 @@ function generateBooleanProblem(ctx, canvas) {
     document.getElementById('booleanCheckboxContainer').style.display = 'none';
     document.getElementById('booleanSelect').value = ''; 
 
-    // 2. Define the Gates (Expanded for Old Spec NOT variations)
+    // 2. Define the Gates (Expanded for Old Spec AND De Morgan's variants)
     const gates = [
-        { name: 'AND', text: 'A . B', overlineAll: false, overlineA: false, overlineB: false, outputs: [0, 0, 0, 1] },
-        { name: 'OR', text: 'A + B', overlineAll: false, overlineA: false, overlineB: false, outputs: [0, 1, 1, 1] },
-        { name: 'NAND', text: 'A . B', overlineAll: true, overlineA: false, overlineB: false, outputs: [1, 1, 1, 0] },
-        { name: 'NOR', text: 'A + B', overlineAll: true, overlineA: false, overlineB: false, outputs: [1, 0, 0, 0] },
-        { name: 'NOT_A_AND_B', text: 'A . B', overlineAll: false, overlineA: true, overlineB: false, outputs: [0, 1, 0, 0] },
-        { name: 'A_AND_NOT_B', text: 'A . B', overlineAll: false, overlineA: false, overlineB: true, outputs: [0, 0, 1, 0] },
-        { name: 'NOT_A_OR_B', text: 'A + B', overlineAll: false, overlineA: true, overlineB: false, outputs: [1, 1, 0, 1] },
-        { name: 'A_OR_NOT_B', text: 'A + B', overlineAll: false, overlineA: false, overlineB: true, outputs: [1, 0, 1, 1] }
+        { id: 'AND', text: 'A . B', overlineAll: false, overlineA: false, overlineB: false, outputs: [0, 0, 0, 1] },
+        { id: 'OR', text: 'A + B', overlineAll: false, overlineA: false, overlineB: false, outputs: [0, 1, 1, 1] },
+        { id: 'NAND', text: 'A . B', overlineAll: true, overlineA: false, overlineB: false, outputs: [1, 1, 1, 0] },
+        { id: 'NOR', text: 'A + B', overlineAll: true, overlineA: false, overlineB: false, outputs: [1, 0, 0, 0] },
+        { id: 'NOT_A_AND_B', text: 'A . B', overlineAll: false, overlineA: true, overlineB: false, outputs: [0, 1, 0, 0] },
+        { id: 'A_AND_NOT_B', text: 'A . B', overlineAll: false, overlineA: false, overlineB: true, outputs: [0, 0, 1, 0] },
+        { id: 'NOT_A_OR_B', text: 'A + B', overlineAll: false, overlineA: true, overlineB: false, outputs: [1, 1, 0, 1] },
+        { id: 'A_OR_NOT_B', text: 'A + B', overlineAll: false, overlineA: false, overlineB: true, outputs: [1, 0, 1, 1] },
+        // De Morgan's Equivalents:
+        { id: 'DEMORGAN_NOR', text: 'A . B', overlineAll: false, overlineA: true, overlineB: true, outputs: [1, 0, 0, 0] }, // Equivalent to NOR
+        { id: 'DEMORGAN_NAND', text: 'A + B', overlineAll: false, overlineA: true, overlineB: true, outputs: [1, 1, 1, 0] }  // Equivalent to NAND
     ];
 
-    // 3. Shuffle and pick 4 random options
+    // 3. Shuffle and pick the Target Question
     const shuffledGates = gates.sort(() => 0.5 - Math.random());
-    const options = shuffledGates.slice(0, 4);
+    const targetGate = shuffledGates[0];
+
+    // 4. Double Answer Safeguard: Filter out equivalent equations!
+    let filteredPool = shuffledGates.filter(g => g.id !== targetGate.id); // Remove target itself
+    if (targetGate.id === 'NOR') filteredPool = filteredPool.filter(g => g.id !== 'DEMORGAN_NOR');
+    if (targetGate.id === 'DEMORGAN_NOR') filteredPool = filteredPool.filter(g => g.id !== 'NOR');
+    if (targetGate.id === 'NAND') filteredPool = filteredPool.filter(g => g.id !== 'DEMORGAN_NAND');
+    if (targetGate.id === 'DEMORGAN_NAND') filteredPool = filteredPool.filter(g => g.id !== 'NAND');
+
+    // Pick 3 wrong options from the safe pool
+    const wrongOptions = filteredPool.slice(0, 3);
+    const finalOptions = [targetGate, ...wrongOptions].sort(() => 0.5 - Math.random());
     
-    // Pick one of those 4 to be the actual question
-    const targetGate = options[Math.floor(Math.random() * 4)];
     const labels = ['A', 'B', 'C', 'D'];
-    currentBooleanAnswer = labels[options.indexOf(targetGate)]; // Save correct letter
+    currentBooleanAnswer = labels[finalOptions.indexOf(targetGate)]; // Save correct letter
+
+    // 5. Generate Dynamic Hint
+    if (targetGate.id.includes('DEMORGAN')) {
+        currentBooleanHint = "Tip: You might know the standard name for this truth table, but the answer uses an alternative expression. Check the De Morgan's Laws section on your Data Sheet!";
+    } else {
+        currentBooleanHint = "Tip: Look closely at the output column. Does it output a 1 when BOTH are 1? Or when ANY are 1? Don't forget to check if the whole output is inverted (NOT).";
+    }
 
     // ==========================================
-    // 4. DRAWING: The Truth Table (Left Side)
+    // 6. DRAWING: The Truth Table (Left Side)
     // ==========================================
     ctx.fillStyle = "#333";
     ctx.font = "bold 20px Arial";
@@ -3746,33 +3765,31 @@ function generateBooleanProblem(ctx, canvas) {
     ctx.fillText("B", 90, 80);
     ctx.fillText("Q", 140, 80);
 
-    // Draw table lines
     ctx.beginPath();
-    ctx.moveTo(30, 90); ctx.lineTo(170, 90); // Horizontal line
-    ctx.moveTo(80, 60); ctx.lineTo(80, 220); // Vertical line 1
-    ctx.moveTo(120, 60); ctx.lineTo(120, 220); // Vertical line 2
+    ctx.moveTo(30, 90); ctx.lineTo(170, 90); 
+    ctx.moveTo(80, 60); ctx.lineTo(80, 220); 
+    ctx.moveTo(120, 60); ctx.lineTo(120, 220); 
     ctx.lineWidth = 2;
     ctx.strokeStyle = "#333";
     ctx.stroke();
 
-    // Fill in the 1s and 0s
     const inputsA = [0, 0, 1, 1];
     const inputsB = [0, 1, 0, 1];
-    ctx.font = "18px Arial";
     for(let i = 0; i < 4; i++) {
         let y = 120 + (i * 30);
+        ctx.fillStyle = "#333";
         ctx.fillText(inputsA[i], 50, y);
         ctx.fillText(inputsB[i], 90, y);
-        ctx.fillStyle = "#E64097"; // Highlight output column
+        ctx.fillStyle = "#E64097"; 
         ctx.font = "bold 18px Arial";
         ctx.fillText(targetGate.outputs[i], 140, y);
-        ctx.fillStyle = "#333";
         ctx.font = "18px Arial";
     }
 
     // ==========================================
-    // 5. DRAWING: The Options (Right Side)
+    // 7. DRAWING: The Options (Right Side)
     // ==========================================
+    ctx.fillStyle = "#333";
     ctx.font = "bold 20px Arial";
     ctx.fillText("Options:", 220, 40);
     ctx.font = "18px Arial";
@@ -3780,22 +3797,22 @@ function generateBooleanProblem(ctx, canvas) {
     for(let i = 0; i < 4; i++) {
         let y = 90 + (i * 40);
         let prefix = labels[i] + ")   Q = ";
-        ctx.fillText(prefix + options[i].text, 220, y);
+        ctx.fillText(prefix + finalOptions[i].text, 220, y);
         
         let startX = 220 + ctx.measureText(prefix).width;
         ctx.lineWidth = 2;
 
-        // Draw line over EVERYTHING (NAND / NOR)
-        if (options[i].overlineAll) {
-            let textWidth = ctx.measureText(options[i].text).width;
+        // Line over everything
+        if (finalOptions[i].overlineAll) {
+            let textWidth = ctx.measureText(finalOptions[i].text).width;
             ctx.beginPath();
             ctx.moveTo(startX, y - 16);
             ctx.lineTo(startX + textWidth, y - 16);
             ctx.stroke();
         }
         
-        // Draw line over just 'A'
-        if (options[i].overlineA) {
+        // Line over just 'A'
+        if (finalOptions[i].overlineA) {
             let textWidth = ctx.measureText("A").width;
             ctx.beginPath();
             ctx.moveTo(startX, y - 16);
@@ -3803,10 +3820,9 @@ function generateBooleanProblem(ctx, canvas) {
             ctx.stroke();
         }
 
-        // Draw line over just 'B'
-        if (options[i].overlineB) {
-            // Measure the space up to the 'B' so we know exactly where to start drawing
-            let offset = ctx.measureText(options[i].text.substring(0, options[i].text.indexOf('B'))).width;
+        // Line over just 'B'
+        if (finalOptions[i].overlineB) {
+            let offset = ctx.measureText(finalOptions[i].text.substring(0, finalOptions[i].text.indexOf('B'))).width;
             let textWidth = ctx.measureText("B").width;
             ctx.beginPath();
             ctx.moveTo(startX + offset, y - 16);
