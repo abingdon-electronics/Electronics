@@ -1436,6 +1436,7 @@ let currentAnswers = {};
 // ---> NEW BOOLEAN GLOBAL VARIABLES <---
 let currentBooleanAnswer = "";
 let currentBooleanMode = "";
+let isDeMorganQuestion = false;
 //*****************************************************
 // --- 2. MAIN CONTROLLER --- 
 //*****************************************************
@@ -3746,12 +3747,8 @@ function generateBooleanProblem(ctx, canvas) {
     const labels = ['A', 'B', 'C', 'D'];
     currentBooleanAnswer = labels[finalOptions.indexOf(targetGate)]; // Save correct letter
 
-    // 5. Generate Dynamic Hint
-    if (targetGate.id.includes('DEMORGAN')) {
-        currentBooleanHint = "Tip: You might know the standard name for this truth table, but the answer uses an alternative expression. Check the De Morgan's Laws section on your Data Sheet!";
-    } else {
-        currentBooleanHint = "Tip: Look closely at the output column. Does it output a 1 when BOTH are 1? Or when ANY are 1? Don't forget to check if the whole output is inverted (NOT).";
-    }
+    // 5. Set De Morgan Flag for Hints
+    isDeMorganQuestion = targetGate.id.includes('DEMORGAN');
 
     // ==========================================
     // 6. DRAWING: The Truth Table (Left Side)
@@ -6735,6 +6732,18 @@ function provideHint() {
             helpText = `
                 <div style="${blueBox}">
                     <strong>💡 Hint:</strong> Current takes the path of least resistance. A forward-biased diode drops 0.7V. To find the voltage across the blocked diode, figure out the voltage at the wire above it and the wire below it first!
+                </div>`;
+        }
+   } else if (currentMode === 'logic_boolean') {
+        if (isDeMorganQuestion) {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> You might know the standard name for this truth table, but the answer uses an alternative expression. Check the De Morgan's Laws section on your Data Sheet!
+                </div>`;
+        } else {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> Look closely at the output column. Does it output a 1 when BOTH are 1? Or when ANY are 1? Don't forget to check if the whole output is inverted (NOT).
                 </div>`;
         }
     } else {
