@@ -3713,13 +3713,16 @@ function generateBooleanProblem(ctx, canvas) {
     document.getElementById('booleanCheckboxContainer').style.display = 'none';
     document.getElementById('booleanSelect').value = ''; 
 
-    // 2. Define the Gates
+    // 2. Define the Gates (Expanded for Old Spec NOT variations)
     const gates = [
-        { name: 'AND', text: 'A . B', overline: false, outputs: [0, 0, 0, 1] },
-        { name: 'OR', text: 'A + B', overline: false, outputs: [0, 1, 1, 1] },
-        { name: 'NAND', text: 'A . B', overline: true, outputs: [1, 1, 1, 0] },
-        { name: 'NOR', text: 'A + B', overline: true, outputs: [1, 0, 0, 0] },
-        { name: 'XOR', text: 'A ⊕ B', overline: false, outputs: [0, 1, 1, 0] }
+        { name: 'AND', text: 'A . B', overlineAll: false, overlineA: false, overlineB: false, outputs: [0, 0, 0, 1] },
+        { name: 'OR', text: 'A + B', overlineAll: false, overlineA: false, overlineB: false, outputs: [0, 1, 1, 1] },
+        { name: 'NAND', text: 'A . B', overlineAll: true, overlineA: false, overlineB: false, outputs: [1, 1, 1, 0] },
+        { name: 'NOR', text: 'A + B', overlineAll: true, overlineA: false, overlineB: false, outputs: [1, 0, 0, 0] },
+        { name: 'NOT_A_AND_B', text: 'A . B', overlineAll: false, overlineA: true, overlineB: false, outputs: [0, 1, 0, 0] },
+        { name: 'A_AND_NOT_B', text: 'A . B', overlineAll: false, overlineA: false, overlineB: true, outputs: [0, 0, 1, 0] },
+        { name: 'NOT_A_OR_B', text: 'A + B', overlineAll: false, overlineA: true, overlineB: false, outputs: [1, 1, 0, 1] },
+        { name: 'A_OR_NOT_B', text: 'A + B', overlineAll: false, overlineA: false, overlineB: true, outputs: [1, 0, 1, 1] }
     ];
 
     // 3. Shuffle and pick 4 random options
@@ -3779,14 +3782,35 @@ function generateBooleanProblem(ctx, canvas) {
         let prefix = labels[i] + ")   Q = ";
         ctx.fillText(prefix + options[i].text, 220, y);
         
-        // If it's NAND or NOR, draw the overline!
-        if (options[i].overline) {
-            let startX = 220 + ctx.measureText(prefix).width;
+        let startX = 220 + ctx.measureText(prefix).width;
+        ctx.lineWidth = 2;
+
+        // Draw line over EVERYTHING (NAND / NOR)
+        if (options[i].overlineAll) {
             let textWidth = ctx.measureText(options[i].text).width;
             ctx.beginPath();
-            ctx.moveTo(startX, y - 16); // 16px above the text baseline
+            ctx.moveTo(startX, y - 16);
             ctx.lineTo(startX + textWidth, y - 16);
-            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        // Draw line over just 'A'
+        if (options[i].overlineA) {
+            let textWidth = ctx.measureText("A").width;
+            ctx.beginPath();
+            ctx.moveTo(startX, y - 16);
+            ctx.lineTo(startX + textWidth, y - 16);
+            ctx.stroke();
+        }
+
+        // Draw line over just 'B'
+        if (options[i].overlineB) {
+            // Measure the space up to the 'B' so we know exactly where to start drawing
+            let offset = ctx.measureText(options[i].text.substring(0, options[i].text.indexOf('B'))).width;
+            let textWidth = ctx.measureText("B").width;
+            ctx.beginPath();
+            ctx.moveTo(startX + offset, y - 16);
+            ctx.lineTo(startX + offset + textWidth, y - 16);
             ctx.stroke();
         }
     }
