@@ -5931,6 +5931,11 @@ function switchTab(mode) {
     }
 
     // 3. UI CLEANUP: Hide all input groups
+    // Pro-Tip: We call your master hide function first just to be perfectly safe
+    if (typeof hideAllInputGroups === "function") {
+        hideAllInputGroups();
+    }
+
     const elementsToHide = [
         'inputGroupV', 'inputGroupI', 'inputGroupR', 
         'inputGroupOscAmp', 'inputGroupOscMark', 'inputGroupOscSpace', 
@@ -5943,7 +5948,10 @@ function switchTab(mode) {
         'inputGroupGrade9Zener', 'g9ZenerClosed', 'g9ZenerOpen',
         'inputGroupIPOSort', 'inputGroupSilicon', 'inputGroupSiliconVoltage', 
         'inputGroupGrade9Silicon', 'inputGroupGrade9SiliconReverse', 'inputGroupGrade9SiliconParallel',
-        'inputGroupBoolean' // <-- ADDED THIS FOR LOGIC GATES
+        'inputGroupBoolean',
+        'booleanDropdownContainer',       // <-- ADDED to clear standard Boolean
+        'booleanCheckboxContainer',       // <-- ADDED to clear standard Boolean
+        'inputGroupGrade9BooleanSOP'      // <-- ADDED to clear Grade 9 Boolean!
     ];
 
     elementsToHide.forEach(id => {
@@ -5959,17 +5967,17 @@ function switchTab(mode) {
         else if (mode === 'iposort') subtitle.innerText = "Module 4: Systems";
         else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) subtitle.innerText = "Module 3: Timing Circuits";
         else if (['silicon', 'zener', 'grade9zener', 'grade9silicon'].includes(mode)) subtitle.innerText = "Module 8: Diodes"; 
-        else if (['logic_ic', 'logic_system', 'logic_boolean', 'logic_nand'].includes(mode)) subtitle.innerText = "Module 2: Logic Gates"; // <-- ADDED THIS!
+        else if (['logic_ic', 'logic_system', 'logic_boolean', 'logic_nand', 'grade9boolean'].includes(mode)) subtitle.innerText = "Module 2: Logic Gates"; // <-- ADDED grade9boolean!
     }
 
     // 5. Global Cleanup
-    if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = '';
+    if (document.getElementById('feedback')) document.getElementById('feedback').innerHTML = '&nbsp;'; // Improved layout stability
     if (document.getElementById('solutions')) document.getElementById('solutions').style.display = 'none';
     
     document.querySelectorAll('input').forEach(i => {
         i.value = '';
         i.style.backgroundColor = ''; 
-        if(i.type === 'radio' || i.type === 'checkbox') i.checked = false; // Added checkbox clearing
+        if(i.type === 'radio' || i.type === 'checkbox') i.checked = false; 
     });
 
     document.querySelectorAll('select').forEach(s => {
