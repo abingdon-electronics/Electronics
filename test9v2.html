@@ -1575,6 +1575,10 @@ function handleGrade9Click() {
         hideAllInputGroups();
     }
 
+    // 👇 MOVED TO THE TOP: Now everyone can use them! 👇
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+
     // 2. Routing Logic (Restored exact explicit matches)
     if (currentMode === 'divider' || currentMode === 'potentialDivider' || currentMode === 'grade9divider') {
         generateGrade9DividerProblem(); 
@@ -1592,14 +1596,13 @@ function handleGrade9Click() {
     else if (currentMode === 'logic_boolean' || currentMode === 'grade9boolean') {
         currentMode = 'grade9boolean';
         if (typeof generateGrade9booleanProblem === "function") {
-            generateGrade9booleanProblem(ctx, canvas);
+            generateGrade9booleanProblem(ctx, canvas); // Now it knows what ctx and canvas are!
         }
     }
     // 👇 UNIFIED SILICON ROUTING 👇
     else if (currentMode === 'silicon' || currentMode === 'grade9silicon') { 
         currentMode = 'grade9silicon';
         
-
         // 3. THE OVERRIDE: Set BEFORE generator runs
         const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
         const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
@@ -1612,9 +1615,7 @@ function handleGrade9Click() {
         }
 
         // 4. Trigger the circuit drawing/logic AFTER UI is prepped
-        const canvas = document.getElementById('circuitCanvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
-        
+        // (Removed the canvas/ctx declarations from here since they are at the top now)
         if (typeof hubController === "function") {
             hubController(ctx, canvas);
         } else if (typeof generateGrade9SiliconProblem === "function") {
