@@ -6883,7 +6883,8 @@ const topicMap = {
     'grade9zener': 'G9 Zener',
     'silicon': 'Silicon Diodes',
     'grade9silicon': 'Grade 9 Silicon Diodes',
-    'iposort': 'IPO Sort'    
+    'iposort': 'IPO Sort',  
+    'logic_boolean': 'Boolean Logic'
 };
 
 async function processSubmission() {
@@ -6985,13 +6986,21 @@ async function processSubmission() {
         if (typeof updateScoreboard === 'function') updateScoreboard();
         
         // Trigger a new problem based on current mode
-        if (typeof window['generate' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1) + 'Problem'] === 'function') {
+        if (currentMode === 'logic_boolean') {
+            // Boolean logic needs the canvas context passed to it!
+            const canvas = document.getElementById('circuitCanvas'); 
+            const ctx = canvas.getContext('2d');
+            if (typeof generateBooleanProblem === 'function') {
+                generateBooleanProblem(ctx, canvas);
+            }
+        } else if (typeof window['generate' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1) + 'Problem'] === 'function') {
+            // Standard fallback for other modules
             window['generate' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1) + 'Problem']();
         }
     }
 }
 
-window.processSubmission = processSubmission;
+http://googleusercontent.com/immersive_entry_chip/0
 
 // **********************************************************************   
 // ==========================================
@@ -7058,7 +7067,9 @@ function hideAllInputGroups() {
         'inputGroupGrade9SiliconPath',      // Grade 9 Pathfinder
         'inputGroupGrade9SiliconMaster',
         'oscilloscopeInputs',               // Oscilloscope wrapper
-        'inputGroupMonostable'              // Monostable wrapper
+        'inputGroupMonostable',             // Monostable wrapper
+        'booleanDropdownContainer',         // NEW: Boolean Logic Dropdown
+        'booleanCheckboxContainer'          // NEW: Boolean Logic Checkboxes
     ];
 
     ghostGroups.forEach(id => {
