@@ -3739,19 +3739,24 @@ function generateBooleanProblem(ctx, canvas) {
     const shuffledGates = gates.sort(() => 0.5 - Math.random());
     const targetGate = shuffledGates[0];
 
-    // 4. Double Answer Safeguard: Filter out equivalent equations!
-    let filteredPool = shuffledGates.filter(g => g.id !== targetGate.id); // Remove target itself
+    // 4. Double Answer Safeguard & True Random Shuffle
+    let filteredPool = shuffledGates.filter(g => g.id !== targetGate.id); 
     if (targetGate.id === 'NOR') filteredPool = filteredPool.filter(g => g.id !== 'DEMORGAN_NOR');
     if (targetGate.id === 'DEMORGAN_NOR') filteredPool = filteredPool.filter(g => g.id !== 'NOR');
     if (targetGate.id === 'NAND') filteredPool = filteredPool.filter(g => g.id !== 'DEMORGAN_NAND');
     if (targetGate.id === 'DEMORGAN_NAND') filteredPool = filteredPool.filter(g => g.id !== 'NAND');
 
-    // Pick 3 wrong options from the safe pool
     const wrongOptions = filteredPool.slice(0, 3);
-    const finalOptions = [targetGate, ...wrongOptions].sort(() => 0.5 - Math.random());
+    const finalOptions = [targetGate, ...wrongOptions];
+    
+    // Fisher-Yates Shuffle for true randomness
+    for (let i = finalOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [finalOptions[i], finalOptions[j]] = [finalOptions[j], finalOptions[i]];
+    }
     
     const labels = ['A', 'B', 'C', 'D'];
-    currentBooleanAnswer = labels[finalOptions.indexOf(targetGate)]; // Save correct letter
+    currentBooleanAnswer = labels[finalOptions.indexOf(targetGate)];
 
     // 5. Set De Morgan Flag for Hints
     isDeMorganQuestion = targetGate.id.includes('DEMORGAN');
@@ -6094,9 +6099,9 @@ function checkAnswers() {
 
     // BOOLEAN LOGIC GRADING INTERCEPTOR
     if (currentMode === 'logic_boolean') {
-        const selected = document.getElementById('booleanSelect').value;
+        const selectedDropdownValue = document.getElementById('booleanSelect').value;
         
-        if (selected === "") {
+        if (selectedDropdownValue === "") {
             feedback.innerHTML = "<span style='color: #dc3545;'>Please select an option from the dropdown.</span>";
             return;
         }
@@ -6107,25 +6112,32 @@ function checkAnswers() {
         }
 
         const checkansBtn = document.getElementById('checkansBtn');
+        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
 
-        if (selected === currentBooleanAnswer) {
+        // Robust check: Matches exact letter OR strings like "Equation B"
+        const isCorrect = selectedDropdownValue === currentBooleanAnswer || 
+                          selectedDropdownValue.endsWith(currentBooleanAnswer);
+
+        if (isCorrect) {
             // SUCCESS
             isCurrentProblemSolved = true;
             if (canEarnPoints) { problemsCorrect++; }
             feedback.innerHTML = "<span style='color: #198754;'>Correct! Well done. Click 'New Problem' to continue.</span>";
             canEarnPoints = false;
             
-            if (checkansBtn) checkansBtn.style.display = 'none';
-            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-            
         } else {
             // FAILURE
             canEarnPoints = false; 
-            feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. The correct answer was ${currentBooleanAnswer}. Click 'New Problem' to try another.</span>`;
+            feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. The correct answer was ${currentBooleanAnswer}.</span>`;
             
-            if (checkansBtn) checkansBtn.style.display = 'none';
-            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+            // REVEAL SOLUTIONS
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) solDiv.style.display = 'block';
+            if (typeof viewedSolution !== 'undefined') viewedSolution = true;
         }
+        
+        if (checkansBtn) checkansBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
         
         if (typeof updateScoreboard === "function") updateScoreboard();
         return; 
