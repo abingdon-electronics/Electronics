@@ -1258,54 +1258,7 @@
     </div>
 </div>
 
-<!-- GRADE 9 BOOLEAN: Sum of Products -->
-  <!--<div id="inputGroupGrade9BooleanSOP" style="display: none; flex-direction: column !important; gap: 5px !important; width: 100%; text-align: left; margin-top: -35px !important; margin-bottom: 0px !important; position: relative;"> 
-    <div style="background-color: #f8f9fa !important; padding: 8px !important; border-radius: 8px; border: 1px solid #dee2e6;">
-        <p style="margin-top: 0 !important; margin-bottom: 5px !important; font-weight: 600; font-size: 14px; color: #333; line-height: 1.2 !important;">
-            1. Select the correct Boolean expression for each row where Q = 1 (Top to Bottom):
-        </p>
-        <div style="display: flex; flex-direction: column !important; gap: 4px !important;">
-            <select id="g9boolRow1" style="width: 100%; padding: 4px !important; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; margin: 0 !important; height: auto !important;"></select>
-            <select id="g9boolRow2" style="width: 100%; padding: 4px !important; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; margin: 0 !important; height: auto !important;"></select>
-            <select id="g9boolRow3" style="width: 100%; padding: 4px !important; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; margin: 0 !important; height: auto !important;"></select>
-        </div>
-    </div>
-
-    <div style="background-color: #f8f9fa !important; padding: 8px !important; border-radius: 8px; border: 1px solid #dee2e6;">
-        <p style="margin-top: 0 !important; margin-bottom: 5px !important; font-weight: 600; font-size: 14px; color: #333; line-height: 1.2 !important;">
-            2. How do you combine these to make the final system equation?
-        </p>
-        <select id="g9boolCombine" style="width: 100%; padding: 4px !important; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; margin: 0 !important; height: auto !important;">
-            <option value="">Select final combination...</option>
-            <option value="AND">Multiply them together (AND / .)</option>
-            <option value="OR">Add them together (OR / +)</option>
-        </select>
-    </div>
-
-</div>
-<div style="background-color: #f8f9fa !important; padding: 8px !important; border-radius: 8px; border: 1px solid #dee2e6;">
-        <p style="margin-top: 0 !important; margin-bottom: 5px !important; font-weight: 600; font-size: 14px; color: #333; line-height: 1.2 !important;">
-            1. Select the correct Boolean expression for each row where Q = 1 (Top to Bottom):
-        </p>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <select id="g9boolRow1" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;"></select>
-            <select id="g9boolRow2" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;"></select>
-            <select id="g9boolRow3" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;"></select>
-        </div>
-    </div>
-
-    <div style="background-color: #f8f9fa !important; padding: 8px !important; border-radius: 8px; border: 1px solid #dee2e6;">
-        <p style="margin-top: 0 !important; margin-bottom: 5px !important; font-weight: 600; font-size: 14px; color: #333; line-height: 1.2 !important;">
-            2. How do you combine these to make the final system equation?
-        </p>
-        <select id="g9boolCombine" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;">
-            <option value="">Select final combination...</option>
-            <option value="AND">Multiply them together (AND / .)</option>
-            <option value="OR">Add them together (OR / +)</option>
-        </select>
-    </div>
-
-</div>--> 
+<!-- GRADE 9 BOOLEAN: Sum of Products --> 
 
 <div id="inputGroupGrade9BooleanSOP" style="display: none; flex-direction: column !important; gap: 5px !important; width: 100%; text-align: left; margin-top: -35px !important; margin-bottom: 0px !important; position: relative;">
     
@@ -6365,7 +6318,6 @@ function checkAnswers() {
         }
 
         const checkansBtn = document.getElementById('checkansBtn');
-        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
 
         // Robust check: Matches exact letter OR strings like "Equation B"
         const isCorrect = selectedDropdownValue === currentBooleanAnswer || 
@@ -6403,10 +6355,12 @@ function checkAnswers() {
         const r1 = document.getElementById('g9boolRow1');
         const r2 = document.getElementById('g9boolRow2');
         const r3 = document.getElementById('g9boolRow3');
-        const finalEq = document.getElementById('g9boolFinal');
+        // Grab the checked radio button
+        const finalEqRadio = document.querySelector('input[name="g9boolCombineRadio"]:checked');
 
-        if (!r1.value || !r2.value || !r3.value || !finalEq.value) {
-            feedback.innerHTML = "<span style='color: #dc3545;'>Please select an option for all 4 dropdowns.</span>";
+        // Check if all 3 rows have values AND a radio button is selected
+        if (!r1.value || !r2.value || !r3.value || !finalEqRadio) {
+            feedback.innerHTML = "<span style='color: #dc3545;'>Please select an option for all 3 rows and select a final equation.</span>";
             return;
         }
         
@@ -6419,18 +6373,24 @@ function checkAnswers() {
         let r1Correct = r1.value === window.g9boolAnswers[0];
         let r2Correct = r2.value === window.g9boolAnswers[1];
         let r3Correct = r3.value === window.g9boolAnswers[2];
-        let finalCorrect = finalEq.value === "OR"; // Sum of Products uses OR (+)
+        let finalCorrect = finalEqRadio.value === "OR"; // Sum of Products uses OR (+)
 
         let allCorrect = r1Correct && r2Correct && r3Correct && finalCorrect;
 
-        // Apply visual feedback borders
+        // Apply visual feedback borders to the row dropdowns
         r1.style.border = r1Correct ? "2px solid #28a745" : "2px solid #dc3545";
         r2.style.border = r2Correct ? "2px solid #28a745" : "2px solid #dc3545";
         r3.style.border = r3Correct ? "2px solid #28a745" : "2px solid #dc3545";
-        finalEq.style.border = finalCorrect ? "2px solid #28a745" : "2px solid #dc3545";
+
+        // Apply visual feedback border to the radio button container
+        const radioContainer = document.querySelector('input[name="g9boolCombineRadio"]').closest('div');
+        if (radioContainer) {
+            radioContainer.style.border = finalCorrect ? "2px solid #28a745" : "2px solid #dc3545";
+            radioContainer.style.borderRadius = "8px";
+            radioContainer.style.padding = "5px";
+        }
 
         const checkansBtn = document.getElementById('checkansBtn');
-        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
 
         if (allCorrect) {
             isCurrentProblemSolved = true;
