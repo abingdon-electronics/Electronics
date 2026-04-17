@@ -2129,6 +2129,117 @@ function drawCanvasSubscript(ctx, mainStr, subStr, suffixStr, x, y, size, color)
     ctx.font = "bold " + size + "px Arial";
     ctx.fillText(suffixStr, x + w1 + w2, y); // Perfectly placed suffix
 }
+
+// ==========================================
+// LOGIC GATE DRAWING HELPERS
+// ==========================================
+
+// Helper to draw the little inversion bubble for NOT, NAND, and NOR
+function drawInversionBubble(ctx, x, y) {
+    ctx.beginPath();
+    ctx.arc(x + 55, y + 25, 5, 0, 2 * Math.PI); // 5px radius bubble at the output
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.stroke();
+}
+
+// 1. AND GATE
+function drawANDGate(ctx, x, y) {
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    
+    // Gate body
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 25, y); // Top straight
+    ctx.arc(x + 25, y + 25, 25, -Math.PI / 2, Math.PI / 2); // Right curve
+    ctx.lineTo(x, y + 50); // Bottom straight
+    ctx.closePath(); // Back straight edge
+    ctx.stroke();
+
+    // Input wire stubs (Two inputs)
+    ctx.beginPath();
+    ctx.moveTo(x - 10, y + 15); ctx.lineTo(x, y + 15); // Top input
+    ctx.moveTo(x - 10, y + 35); ctx.lineTo(x, y + 35); // Bottom input
+    // Output wire stub
+    ctx.moveTo(x + 50, y + 25); ctx.lineTo(x + 60, y + 25);
+    ctx.stroke();
+}
+
+// 2. OR GATE
+function drawORGate(ctx, x, y) {
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+
+    // Gate body (curves)
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + 35, y, x + 50, y + 25);      // Top curve to point
+    ctx.quadraticCurveTo(x + 35, y + 50, x, y + 50);      // Bottom curve from point
+    ctx.quadraticCurveTo(x + 15, y + 25, x, y);           // Inner back curve
+    ctx.stroke();
+
+    // Input wire stubs
+    ctx.beginPath();
+    ctx.moveTo(x - 10, y + 15); ctx.lineTo(x + 5, y + 15); // Top input (reaches into the curve)
+    ctx.moveTo(x - 10, y + 35); ctx.lineTo(x + 5, y + 35); // Bottom input
+    // Output wire stub
+    ctx.moveTo(x + 50, y + 25); ctx.lineTo(x + 60, y + 25);
+    ctx.stroke();
+}
+
+// 3. NOT GATE
+function drawNOTGate(ctx, x, y) {
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+
+    // Triangle body
+    ctx.moveTo(x, y + 5);
+    ctx.lineTo(x + 50, y + 25); // Tip
+    ctx.lineTo(x, y + 45);
+    ctx.closePath();
+    ctx.stroke();
+
+    drawInversionBubble(ctx, x, y);
+
+    // Input wire stub (Single input centered)
+    ctx.beginPath();
+    ctx.moveTo(x - 10, y + 25); ctx.lineTo(x, y + 25);
+    // Output wire stub (starts after the bubble)
+    ctx.moveTo(x + 60, y + 25); ctx.lineTo(x + 70, y + 25);
+    ctx.stroke();
+}
+
+// 4. NAND GATE (AND + Bubble)
+function drawNANDGate(ctx, x, y) {
+    drawANDGate(ctx, x, y); 
+    
+    // Erase the standard output stub to make room for the bubble
+    ctx.clearRect(x + 50, y + 20, 10, 10); 
+    
+    drawInversionBubble(ctx, x, y);
+    
+    // Redraw the output stub extending from the bubble
+    ctx.beginPath();
+    ctx.moveTo(x + 60, y + 25); ctx.lineTo(x + 70, y + 25);
+    ctx.stroke();
+}
+
+// 5. NOR GATE (OR + Bubble)
+function drawNORGate(ctx, x, y) {
+    drawORGate(ctx, x, y);
+    
+    // Erase the standard output stub to make room for the bubble
+    ctx.clearRect(x + 50, y + 20, 10, 10); 
+    
+    drawInversionBubble(ctx, x, y);
+    
+    // Redraw the output stub extending from the bubble
+    ctx.beginPath();
+    ctx.moveTo(x + 60, y + 25); ctx.lineTo(x + 70, y + 25);
+    ctx.stroke();
+}
   
 // =========================================================================================================      
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
@@ -3965,104 +4076,193 @@ function generateBooleanProblem(ctx, canvas) {
 function generateGrade9booleanProblem(ctx, canvas) {
     // 1. Setup UI
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
-    
-    // Show the SOP container we added in Task 2
-    const sopContainer = document.getElementById('inputGroupGrade9BooleanSOP');
-    if (sopContainer) sopContainer.style.display = 'flex';
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // 2. Logic: Create the Truth Table Data
-    const rows = [
-        [0,0,0], [0,0,1], [0,1,0], [0,1,1],
-        [1,0,0], [1,0,1], [1,1,0], [1,1,1]
-    ];
-    
-    // Randomly pick 3 rows to be '1'
-    let activeIndices = [];
-    while(activeIndices.length < 3) {
-        let r = Math.floor(Math.random() * 8);
-        if(!activeIndices.includes(r)) activeIndices.push(r);
-    }
-    activeIndices.sort((a, b) => a - b); // Keep them in table order
 
-    // 3. Drawing: Render the Table on Canvas
-    ctx.fillStyle = "#333";
-    ctx.font = "bold 20px Arial";
-    ctx.fillText("Truth Table", 40, 40);
+    // ==========================================
+    // THE MODE SWITCHER
+    // Randomly pick between Truth Table (SOP) or Circuit Diagram (Pathfinder)
+    // ==========================================
+    const isPathfinder = Math.random() > 0.5;
 
-    ctx.font = "bold 18px Arial";
-    ctx.fillText("A", 40, 80); 
-    ctx.fillText("B", 80, 80); 
-    ctx.fillText("C", 120, 80); 
-    ctx.fillText("Q", 170, 80);
+    if (!isPathfinder) {
+        // ==========================================
+        // MODE 1: TRUTH TABLE (Sum of Products)
+        // ==========================================
+        const sopContainer = document.getElementById('inputGroupGrade9BooleanSOP');
+        if (sopContainer) sopContainer.style.display = 'flex';
 
-    // Draw the grid lines (Updated to solid black, 2px thickness)
-    ctx.beginPath();
-    ctx.moveTo(30, 90); ctx.lineTo(200, 90);   // Horizontal Header line
-    ctx.moveTo(70, 60); ctx.lineTo(70, 340);   // Vertical A|B
-    ctx.moveTo(110, 60); ctx.lineTo(110, 340); // Vertical B|C
-    ctx.moveTo(150, 60); ctx.lineTo(150, 340); // Vertical C|Q
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "#333"; 
-    ctx.stroke();
-
-    let correctStrings = [];
-
-    // Draw the 1s and 0s
-    rows.forEach((row, i) => {
-        // Matched standard Y-start and 30px spacing
-        let y = 120 + (i * 30); 
+        // 2. Logic: Create the Truth Table Data
+        const rows = [
+            [0,0,0], [0,0,1], [0,1,0], [0,1,1],
+            [1,0,0], [1,0,1], [1,1,0], [1,1,1]
+        ];
         
-        ctx.fillStyle = "#333";
-        ctx.font = "18px Arial";
-        ctx.fillText(row[0], 40, y);
-        ctx.fillText(row[1], 80, y);
-        ctx.fillText(row[2], 120, y);
-
-        let isOne = activeIndices.includes(i);
-        if (isOne) {
-            ctx.fillStyle = "#E64097"; // Brand pink for 1s
-            ctx.font = "bold 18px Arial"; // Bumped to 18px
-            
-            // Create the answer string (e.g., A̅ . B . C̅)
-            let aPart = row[0] ? "A" : "A\u0305";
-            let bPart = row[1] ? "B" : "B\u0305";
-            let cPart = row[2] ? "C" : "C\u0305";
-            correctStrings.push(`${aPart} . ${bPart} . ${cPart}`);
-        } else {
-            ctx.fillStyle = "#999"; // Keeping the 0s gray
-            ctx.font = "18px Arial"; // Keeping 0s at 18px
+        // Randomly pick 3 rows to be '1'
+        let activeIndices = [];
+        while(activeIndices.length < 3) {
+            let r = Math.floor(Math.random() * 8);
+            if(!activeIndices.includes(r)) activeIndices.push(r);
         }
-        ctx.fillText(isOne ? "1" : "0", 170, y);
-    });
+        activeIndices.sort((a, b) => a - b); // Keep them in table order
 
-    // Save correct answers to a global variable for the checker
-    window.g9boolAnswers = correctStrings;
+        // 3. Drawing: Render the Table on Canvas
+        ctx.fillStyle = "#333";
+        ctx.font = "bold 20px Arial";
+        ctx.fillText("Truth Table", 40, 40);
 
-    // 4. Populate the Dropdowns
-    const allPossibleCombos = [
-        "A\u0305 . B\u0305 . C\u0305", "A\u0305 . B\u0305 . C", "A\u0305 . B . C\u0305", "A\u0305 . B . C",
-        "A . B\u0305 . C\u0305", "A . B\u0305 . C", "A . B . C\u0305", "A . B . C"
-    ];
+        ctx.font = "bold 18px Arial";
+        ctx.fillText("A", 40, 80); 
+        ctx.fillText("B", 80, 80); 
+        ctx.fillText("C", 120, 80); 
+        ctx.fillText("Q", 170, 80);
 
-    ['g9boolRow1', 'g9boolRow2', 'g9boolRow3'].forEach(id => {
-        let sel = document.getElementById(id);
-        sel.innerHTML = '<option value="">Select Row...</option>';
-        allPossibleCombos.forEach(opt => {
-            let el = document.createElement("option");
-            el.textContent = opt;
-            el.value = opt;
-            sel.appendChild(el);
+        // Draw the grid lines
+        ctx.beginPath();
+        ctx.moveTo(30, 90); ctx.lineTo(200, 90);   
+        ctx.moveTo(70, 60); ctx.lineTo(70, 340);   
+        ctx.moveTo(110, 60); ctx.lineTo(110, 340); 
+        ctx.moveTo(150, 60); ctx.lineTo(150, 340); 
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#333"; 
+        ctx.stroke();
+
+        let correctStrings = [];
+
+        // Draw the 1s and 0s
+        rows.forEach((row, i) => {
+            let y = 120 + (i * 30); 
+            
+            ctx.fillStyle = "#333";
+            ctx.font = "18px Arial";
+            ctx.fillText(row[0], 40, y);
+            ctx.fillText(row[1], 80, y);
+            ctx.fillText(row[2], 120, y);
+
+            let isOne = activeIndices.includes(i);
+            if (isOne) {
+                ctx.fillStyle = "#E64097"; // Brand pink for 1s
+                ctx.font = "bold 18px Arial"; 
+                
+                // Create the answer string
+                let aPart = row[0] ? "A" : "A\u0305";
+                let bPart = row[1] ? "B" : "B\u0305";
+                let cPart = row[2] ? "C" : "C\u0305";
+                correctStrings.push(`${aPart} . ${bPart} . ${cPart}`);
+            } else {
+                ctx.fillStyle = "#999"; 
+                ctx.font = "18px Arial"; 
+            }
+            ctx.fillText(isOne ? "1" : "0", 170, y);
         });
-    });
 
-    // 5. Build Solution Text
-    let solHTML = `1. Identify rows where Q=1.<br>`;
-    solHTML += `2. For each row, write the inputs as a product (AND). Use a bar if the input is 0.<br>`;
-    solHTML += `Rows found: <b>${correctStrings.join(", ")}</b><br>`;
-    solHTML += `3. Combine them with + (OR) for the final system equation.`;
-    document.getElementById('solText').innerHTML = solHTML;
+        // Save correct answers to a global variable for the checker
+        window.g9boolAnswers = correctStrings;
+        window.g9boolActiveMode = 'sop'; // Tag the active mode
+
+        // 4. Populate the Dropdowns
+        const allPossibleCombos = [
+            "A\u0305 . B\u0305 . C\u0305", "A\u0305 . B\u0305 . C", "A\u0305 . B . C\u0305", "A\u0305 . B . C",
+            "A . B\u0305 . C\u0305", "A . B\u0305 . C", "A . B . C\u0305", "A . B . C"
+        ];
+
+        ['g9boolRow1', 'g9boolRow2', 'g9boolRow3'].forEach(id => {
+            let sel = document.getElementById(id);
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Select Row...</option>';
+            allPossibleCombos.forEach(opt => {
+                let el = document.createElement("option");
+                el.textContent = opt;
+                el.value = opt;
+                sel.appendChild(el);
+            });
+        });
+
+        // Reset radio buttons explicitly here just in case
+        document.querySelectorAll('input[name="g9boolCombineRadio"]').forEach(radio => radio.checked = false);
+
+        // 5. Build Solution Text
+        let solHTML = `1. Identify rows where Q=1.<br>`;
+        solHTML += `2. For each row, write the inputs as a product (AND). Use a bar if the input is 0.<br>`;
+        solHTML += `Rows found: <b>${correctStrings.join(", ")}</b><br>`;
+        solHTML += `3. Combine them with + (OR) for the final system equation.`;
+        document.getElementById('solText').innerHTML = solHTML;
+
+    } else {
+        // ==========================================
+        // MODE 2: CIRCUIT PATHFINDER (Expressions)
+        // ==========================================
+        // Note: We will need to build the HTML for this ID next!
+        const pathContainer = document.getElementById('inputGroupGrade9BooleanPath');
+        if (pathContainer) pathContainer.style.display = 'flex';
+
+        // 1. Logic: Randomize the gates
+        const topGateIsOR = Math.random() > 0.5;
+        const finalGateIsOR = Math.random() > 0.5;
+
+        // 2. Drawing: Labels & Wires
+        ctx.fillStyle = "#333";
+        ctx.font = "bold 20px Arial";
+        ctx.fillText("A", 20, 62);
+        ctx.fillText("B", 20, 82);
+        ctx.fillText("C", 20, 172);
+
+        // Draw Input Wires
+        drawLine(ctx, 40, 55, 110, 55); // Wire A
+        drawLine(ctx, 40, 75, 110, 75); // Wire B
+        drawLine(ctx, 40, 165, 110, 165); // Wire C
+
+        // 3. Drawing: Gates
+        if (topGateIsOR) drawORGate(ctx, 120, 40);
+        else drawANDGate(ctx, 120, 40);
+
+        drawNOTGate(ctx, 120, 140); // Bottom gate is always NOT C for this topology
+
+        if (finalGateIsOR) drawORGate(ctx, 230, 95);
+        else drawANDGate(ctx, 230, 95);
+
+        // 4. Drawing: Intermediate Wires & Nodes
+        // Top Gate Output (180, 65) to Final Gate Top Input (220, 110)
+        drawLine(ctx, 180, 65, 205, 65);
+        drawLine(ctx, 205, 65, 205, 110);
+        drawLine(ctx, 205, 110, 220, 110);
+        
+        // Bottom Gate Output (190, 165) to Final Gate Bottom Input (220, 130)
+        drawLine(ctx, 190, 165, 205, 165);
+        drawLine(ctx, 205, 165, 205, 130);
+        drawLine(ctx, 205, 130, 220, 130);
+
+        // Final Output Wire
+        drawLine(ctx, 290, 120, 330, 120);
+
+        // Draw Wire Labels (X, Y, Q)
+        ctx.fillStyle = "#E64097"; // Brand pink for intermediate test points
+        ctx.fillText("X", 185, 55);
+        ctx.fillText("Y", 195, 155);
+        ctx.fillStyle = "#333";
+        ctx.fillText("Q", 340, 127);
+
+        // 5. Calculate the Correct Answers
+        let topSym = topGateIsOR ? "+" : ".";
+        let finalSym = finalGateIsOR ? "+" : ".";
+
+        let ansX = `A ${topSym} B`;
+        let ansY = `C\u0305`; // Overline C
+        let ansQ = `(A ${topSym} B) ${finalSym} C\u0305`;
+
+        // Store them globally for checkAnswers
+        window.g9boolPathAnswers = { x: ansX, y: ansY, q: ansQ };
+        window.g9boolActiveMode = 'pathfinder'; // Tag the active mode
+
+        // 6. Build Solution Text
+        let solHTML = `<b>Step 1:</b> Gate X is an ${topGateIsOR ? 'OR' : 'AND'} gate with inputs A and B. So, X = ${ansX}.<br>`;
+        solHTML += `<b>Step 2:</b> Gate Y is a NOT gate with input C. So, Y = ${ansY}.<br>`;
+        solHTML += `<b>Step 3:</b> Final gate Q is an ${finalGateIsOR ? 'OR' : 'AND'} gate combining X and Y.<br>`;
+        solHTML += `<b>Final:</b> Q = X ${finalSym} Y = <b>${ansQ}</b>.`;
+        document.getElementById('solText').innerHTML = solHTML;
+        
+        // Setup dropdowns for Mode 2
+        setupPathfinderDropdowns(ansX, ansY, ansQ);
+    }
 }
     
 //******************************************************************************************
