@@ -7633,15 +7633,15 @@ function hideAllInputGroups() {
     if (document.getElementById('solText')) document.getElementById('solText').innerHTML = "";
     if (document.getElementById('hintText')) document.getElementById('hintText').innerHTML = ""; 
 
-    // 4. Hide and wipe Question Text
+    // 4. Hide Question Text (Do NOT wipe it!)
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.style.display = 'none';
-        qText.innerHTML = "";
+        // qText.innerHTML = "";  <-- DELETED
     }
 
     // 5. Clear all instruction prompts
-    document.querySelectorAll('.instruction-text').forEach(p => p.innerHTML = "");
+    //document.querySelectorAll('.instruction-text').forEach(p => p.innerHTML = "");
 
     // 6. THE ULTIMATE WIPER (Text boxes)
     document.querySelectorAll('input').forEach(input => {
