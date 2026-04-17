@@ -4106,7 +4106,7 @@ function generateGrade9booleanProblem(ctx, canvas) {
 
     // Unhide the Master Container!
     const masterContainer = document.getElementById('inputGroupGrade9BooleanMaster');
-    if (masterContainer) masterContainer.style.display = 'flex';
+    if (masterContainer) masterContainer.style.display = 'block';
 
     // Hide both sub-modes initially so we can turn on just the one we need
     const sopContainer = document.getElementById('inputGroupGrade9BooleanSOP');
@@ -4126,7 +4126,7 @@ function generateGrade9booleanProblem(ctx, canvas) {
         // ==========================================
         if (sopContainer) {
             sopContainer.style.display = 'block'; 
-            sopContainer.style.marginTop = '-10px'; // Change from 20 px to -10px to reduce spacing below data sheet btn
+            sopContainer.style.marginTop = '-35px'; // Change to -35px to reduce spacing below data sheet btn
         }
 
         // 2. Logic: Create the Truth Table Data
@@ -4231,7 +4231,7 @@ function generateGrade9booleanProblem(ctx, canvas) {
         // ==========================================
         if (pathContainer) {
             pathContainer.style.display = 'block';
-            pathContainer.style.marginTop = '-10px'; // Change from 20 px to -10px to reduce spacing below data sheet btn
+            pathContainer.style.marginTop = '-35px'; // Change to -35px to reduce spacing below data sheet btn
         }
 
         // 1. Logic: Randomize the gates
