@@ -7593,7 +7593,9 @@ function hideAllInputGroups() {
         'inputGroupBoolean',                // NEW: Parent Boolean wrapper
         'booleanDropdownContainer',         // NEW: Boolean Logic Dropdown
         'booleanCheckboxContainer',         // NEW: Boolean Logic Checkboxes
-        'inputGroupGrade9BooleanSOP'        // NEW: Grade 9 Boolean SOP
+        'inputGroupGrade9BooleanSOP',       // NEW: Grade 9 Boolean SOP
+        'inputGroupGrade9BooleanPath',      // NEW: Grade 9 Boolean Path
+        'inputGroupGrade9BooleanMaster'     // NEW: Grade 9 Boolean Master
     ];
 
     ghostGroups.forEach(id => {
@@ -7630,7 +7632,7 @@ function hideAllInputGroups() {
     document.querySelectorAll('input').forEach(input => {
         if (input.type === 'text' || input.type === 'number') {
             input.value = "";                      
-            input.style.border = "";           
+            input.style.border = "";            
             input.style.borderColor = "#ccc";      
             input.style.borderWidth = "1px";      
             input.style.backgroundColor = "";     
@@ -7646,7 +7648,7 @@ function hideAllInputGroups() {
             select.style.border = "";          
             select.style.borderColor = "#ccc"; 
             select.style.backgroundColor = ""; 
-            select.style.color = "";           
+            select.style.color = "";            
         }
     });
 
@@ -7667,6 +7669,7 @@ function hideAllInputGroups() {
     if (checkansBtn) checkansBtn.style.display = 'block';
     if (showsolutionsBtn) showsolutionsBtn.style.display = 'block';
 }
+
 // Master Switch on Load
 window.onload = function() {
     hideAllInputGroups(); 
