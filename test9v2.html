@@ -4036,28 +4036,34 @@ function generateGrade9booleanProblem(ctx, canvas) {
 
     // 3. Drawing: Render the Table on Canvas
     ctx.fillStyle = "#333";
+    ctx.font = "bold 20px Arial";
+    ctx.fillText("Truth Table", 40, 40);
+
     ctx.font = "bold 18px Arial";
-    ctx.fillText("Truth Table", 40, 30);
+    ctx.fillText("A", 40, 80); 
+    ctx.fillText("B", 80, 80); 
+    ctx.fillText("C", 120, 80); 
+    ctx.fillText("Q", 170, 80);
 
-    ctx.font = "bold 15px Arial";
-    ctx.fillText("A", 40, 65); ctx.fillText("B", 80, 65); 
-    ctx.fillText("C", 120, 65); ctx.fillText("Q", 170, 65);
-
-    // Draw the grid lines
+    // Draw the grid lines (Updated to solid black, 2px thickness)
     ctx.beginPath();
-    ctx.moveTo(30, 75); ctx.lineTo(200, 75); // Header line
-    ctx.moveTo(65, 50); ctx.lineTo(65, 330); // Vertical A|B
-    ctx.moveTo(105, 50); ctx.lineTo(105, 330); // Vertical B|C
-    ctx.moveTo(145, 50); ctx.lineTo(145, 330); // Vertical C|Q
-    ctx.strokeStyle = "#ccc"; ctx.lineWidth = 1; ctx.stroke();
+    ctx.moveTo(30, 90); ctx.lineTo(200, 90);   // Horizontal Header line
+    ctx.moveTo(70, 60); ctx.lineTo(70, 340);   // Vertical A|B
+    ctx.moveTo(110, 60); ctx.lineTo(110, 340); // Vertical B|C
+    ctx.moveTo(150, 60); ctx.lineTo(150, 340); // Vertical C|Q
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#333"; 
+    ctx.stroke();
 
     let correctStrings = [];
 
     // Draw the 1s and 0s
     rows.forEach((row, i) => {
-        let y = 100 + (i * 28);
+        // Matched standard Y-start and 30px spacing
+        let y = 120 + (i * 30); 
+        
         ctx.fillStyle = "#333";
-        ctx.font = "15px Arial";
+        ctx.font = "18px Arial";
         ctx.fillText(row[0], 40, y);
         ctx.fillText(row[1], 80, y);
         ctx.fillText(row[2], 120, y);
@@ -4065,15 +4071,16 @@ function generateGrade9booleanProblem(ctx, canvas) {
         let isOne = activeIndices.includes(i);
         if (isOne) {
             ctx.fillStyle = "#E64097"; // Brand pink for 1s
-            ctx.font = "bold 16px Arial";
+            ctx.font = "bold 18px Arial"; // Bumped to 18px
+            
             // Create the answer string (e.g., A̅ . B . C̅)
-            // \u0305 is the Unicode overline
             let aPart = row[0] ? "A" : "A\u0305";
             let bPart = row[1] ? "B" : "B\u0305";
             let cPart = row[2] ? "C" : "C\u0305";
             correctStrings.push(`${aPart} . ${bPart} . ${cPart}`);
         } else {
-            ctx.fillStyle = "#999";
+            ctx.fillStyle = "#999"; // Keeping the 0s gray
+            ctx.font = "18px Arial"; // Keeping 0s at 18px
         }
         ctx.fillText(isOne ? "1" : "0", 170, y);
     });
