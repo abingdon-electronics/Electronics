@@ -4124,7 +4124,10 @@ function generateGrade9booleanProblem(ctx, canvas) {
         // ==========================================
         // MODE 1: TRUTH TABLE (Sum of Products)
         // ==========================================
-        if (sopContainer) sopContainer.style.display = 'flex'; // Turn on SOP UI
+        if (sopContainer) {
+            sopContainer.style.display = 'block'; 
+            sopContainer.style.marginTop = '20px'; // Added spacing
+        }
 
         // 2. Logic: Create the Truth Table Data
         const rows = [
@@ -4226,7 +4229,10 @@ function generateGrade9booleanProblem(ctx, canvas) {
         // ==========================================
         // MODE 2: CIRCUIT PATHFINDER (Expressions)
         // ==========================================
-        if (pathContainer) pathContainer.style.display = 'flex'; // Turn on Path UI
+        if (pathContainer) {
+            pathContainer.style.display = 'block';
+            pathContainer.style.marginTop = '20px'; // Added spacing
+        }
 
         // 1. Logic: Randomize the gates
         const topGateIsOR = Math.random() > 0.5;
