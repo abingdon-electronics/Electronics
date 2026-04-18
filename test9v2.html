@@ -4307,6 +4307,16 @@ function generateGrade9booleanProblem(ctx, canvas) {
         else if (finalGate === 'NAND' && typeof drawNANDGate === 'function') drawNANDGate(ctx, 230, 95);
         else if (finalGate === 'NOR' && typeof drawNORGate === 'function') drawNORGate(ctx, 230, 95);
         
+        // ==========================================
+        // NEW: Draw Pink Canvas Labels for X, Y, Q
+        // ==========================================
+        ctx.font = "bold 18px Arial"; 
+        ctx.fillStyle = "#c83377"; 
+        ctx.fillText("X", 180, 55);  
+        ctx.fillText("Y", 180, 150); 
+        ctx.fillText("Q", 290, 110); 
+        // ==========================================
+
         // 1. Populate standard dropdowns for X and Y
         const xOptions = ["A . B", "A + B", "A\u0305 . B\u0305", "A\u0305 + B\u0305"];
         const yOptions = ["C", "C\u0305", "A", "B"];
