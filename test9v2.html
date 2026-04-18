@@ -169,13 +169,13 @@
         height: auto; 
     }
     
-/* FORCE PANEL VISIBILITY */
+/* --- The Right Panel (The Pink Container) --- */
 .right-panel {
     flex: 1 1 300px;
     display: flex !important;
     flex-direction: column !important;
-    background-color: #fdf4f8 !important; /* This is your pink background */
-    padding: 20px !important;
+    background-color: #fdf4f8 !important; 
+    padding: 10px 20px 20px 20px !important; /* CHANGED: Top padding from 20px to 10px */
     border-radius: 12px !important;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
     min-height: 520px;
@@ -203,12 +203,14 @@
     appearance: auto !important;
 }
     
+    /* --- 2. The Quiz Header (Area above the scoreboard) --- */
     .quiz-header { 
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
         border-bottom: 2px solid #f2c7db; 
         padding-bottom: 10px; 
+        margin-top: 0px !important;    /* ADDED: Ensures no hidden gap at the top */
         margin-bottom: 10px; 
         flex-wrap: wrap; 
         gap: 10px; 
