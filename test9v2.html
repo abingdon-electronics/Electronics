@@ -1232,7 +1232,10 @@
             </div>
         </div>
     </div>
-
+<!-- Input group LOGIC SYSTEM -->  
+<div id="inputGroupLogicSystem" style="display: none; width: 100%; margin-top: 10px;">
+    <div id="logicSystemTableContainer"></div>
+</div>
 <!-- Input group Boolean -->   
 <div id="inputGroupBoolean" style="display: none; text-align: left; margin-top: 15px;">
     <div id="booleanDropdownContainer" style="display:none; margin-bottom: 10px;">
@@ -1509,7 +1512,6 @@ function handleNewQuestionClick() {
     canEarnPoints = true;      // Student can earn points again
     viewedSolution = false;    // Reset the peek flag
     
-    // ... the rest of the code stays exactly the same ...
     // Hide the solution box
     const sol = document.getElementById('solutions');
     if (sol) sol.style.display = 'none';
@@ -1568,7 +1570,7 @@ function handleNewQuestionClick() {
     } else if (currentMode === 'grade9silicon') {  
         currentMode = 'silicon';
         escapedGrade9 = true;
-    } else if (currentMode === 'grade9boolean') {  // 👇 NEW BOOLEAN ESCAPE
+    } else if (currentMode === 'grade9boolean') {  
         currentMode = 'logic_boolean';
         escapedGrade9 = true;
     }
@@ -1604,6 +1606,9 @@ function handleNewQuestionClick() {
         if (typeof generateAnalysisProblem === "function") generateAnalysisProblem(ctx, canvas); 
     } else if (currentMode === 'power' || currentMode === 'grade9power') { 
         if (typeof generatePowerProblem === "function") generatePowerProblem(ctx, canvas);
+    } else if (currentMode === 'logic_system') { 
+        // 👇 NEW BLOCK FOR LOGIC SYSTEMS
+        if (typeof generateLogicSystemProblem === "function") generateLogicSystemProblem(ctx, canvas);
     } else {
         // Handles Astable, Monostable, Oscilloscope, Divider, Resistance, Silicon, AND Grade 9 Silicon
         // We route them to hubController so it can perfectly clean up the UI menus!
@@ -3923,6 +3928,75 @@ function generateGrade9PowerProblem() {
         `;
     }
 }
+
+
+//****************************************************************************************
+
+// ==========================================
+    // LOGIC SYSTEMS INTERCEPTOR (TRUTH TABLE)
+    // ==========================================
+    if (currentMode === 'logic_system') {
+        let allCorrect = true;
+        let hasEmpty = false;
+
+        // 1. Safety Check: Did they fill out all 24 boxes?
+        for (let i = 0; i < 8; i++) {
+            let dVal = document.getElementById(`sysD_${i}`).value.trim();
+            let eVal = document.getElementById(`sysE_${i}`).value.trim();
+            let qVal = document.getElementById(`sysQ_${i}`).value.trim();
+            if (dVal === "" || eVal === "" || qVal === "") {
+                hasEmpty = true;
+                break;
+            }
+        }
+
+        if (hasEmpty) {
+            feedback.innerHTML = "<span style='color: #dc3545;'>Please fill in all 0s and 1s in the table!</span>";
+            return;
+        }
+
+        if (!hasCheckedCurrentProblem) { 
+            problemsAttempted++; 
+            hasCheckedCurrentProblem = true; 
+        }
+
+        // 2. Grade every single cell independently
+        for (let i = 0; i < 8; i++) {
+            ['D', 'E', 'Q'].forEach(col => {
+                let inputEl = document.getElementById(`sys${col}_${i}`);
+                let correctAns = window.logicSystemAnswers[col.toLowerCase()][i]; // Pulls from the array we saved earlier
+                
+                if (inputEl.value == correctAns) {
+                    inputEl.style.backgroundColor = "#d4edda"; // Light Green Background
+                    inputEl.style.borderColor = "#28a745";
+                } else {
+                    inputEl.style.backgroundColor = "#f8d7da"; // Light Red Background
+                    inputEl.style.borderColor = "#dc3545";
+                    allCorrect = false;
+                }
+            });
+        }
+
+        const checkansBtn = document.getElementById('checkansBtn');
+
+        if (allCorrect) {
+            isCurrentProblemSolved = true;
+            if (canEarnPoints) { problemsCorrect++; }
+            feedback.innerHTML = "<span style='color: #198754;'>Perfect! You successfully mapped the entire logic system!</span>";
+            canEarnPoints = false;
+            if (checkansBtn) checkansBtn.style.display = 'none';
+            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+        } else {
+            canEarnPoints = false; 
+            feedback.innerHTML = "<span style='color: #dc3545;'>Some outputs are incorrect. Trace the red boxes back to the circuit diagram to fix your errors!</span>";
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) solDiv.style.display = 'block';
+            if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+        }
+        
+        if (typeof updateScoreboard === "function") updateScoreboard();
+        return; 
+    }
 //*****************************************************************************************
 
 function generateBooleanProblem(ctx, canvas) {
@@ -6298,6 +6372,8 @@ function openModule(module) {
  
 // TAB SWITCHER & GLOBAL CLEANUP
 //switchTab runs when you click the navigation menu at the very top of the page   
+// TAB SWITCHER & GLOBAL CLEANUP
+//switchTab runs when you click the navigation menu at the very top of the page   
 function switchTab(mode) {
     // 1. FORCE THE MODE
     currentMode = mode;
@@ -6344,7 +6420,9 @@ function switchTab(mode) {
         'inputGroupBoolean',
         'booleanDropdownContainer',       // <-- ADDED to clear standard Boolean
         'booleanCheckboxContainer',       // <-- ADDED to clear standard Boolean
-        'inputGroupGrade9BooleanSOP'      // <-- ADDED to clear Grade 9 Boolean!
+        'inputGroupGrade9BooleanSOP',     // <-- ADDED to clear Grade 9 Boolean!
+        'inputGroupGrade9BooleanPath',    // <-- Ensure pathfinder hides too
+        'inputGroupLogicSystem'           // 👇 NEW: Clears the Truth Table UI!
     ];
 
     elementsToHide.forEach(id => {
@@ -6360,7 +6438,7 @@ function switchTab(mode) {
         else if (mode === 'iposort') subtitle.innerText = "Module 4: Systems";
         else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) subtitle.innerText = "Module 3: Timing Circuits";
         else if (['silicon', 'zener', 'grade9zener', 'grade9silicon'].includes(mode)) subtitle.innerText = "Module 8: Diodes"; 
-        else if (['logic_ic', 'logic_system', 'logic_boolean', 'logic_nand', 'grade9boolean'].includes(mode)) subtitle.innerText = "Module 2: Logic Gates"; // <-- ADDED grade9boolean!
+        else if (['logic_ic', 'logic_system', 'logic_boolean', 'logic_nand', 'grade9boolean'].includes(mode)) subtitle.innerText = "Module 2: Logic Gates"; 
     }
 
     // 5. Global Cleanup
@@ -6520,7 +6598,7 @@ function hubController(ctx, canvas) {
             console.error("Hub: generateSiliconProblem is not defined!");
         }
         
-        } else if (currentMode === 'grade9silicon') {
+    } else if (currentMode === 'grade9silicon') {
         
         // 1. Keep rocket VISIBLE so they can cycle through the Grade 9 problems
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
@@ -6550,7 +6628,6 @@ function hubController(ctx, canvas) {
         if (typeof generateGrade9PowerProblem === "function") generateGrade9PowerProblem(ctx, canvas);
 
     } else if (currentMode === 'logic_boolean') {
-        // *** NEW LOGIC BOOLEAN ROUTING ***
         if (document.getElementById('inputGroupBoolean')) document.getElementById('inputGroupBoolean').style.display = 'block';
         
         // Setup buttons for a new question
@@ -6558,6 +6635,10 @@ function hubController(ctx, canvas) {
         if (document.getElementById('btnNext')) document.getElementById('btnNext').style.display = 'none';
         
         if (typeof generateBooleanProblem === "function") generateBooleanProblem(ctx, canvas);
+        
+    } else if (currentMode === 'logic_system') {
+        // *** NEW LOGIC SYSTEMS ROUTING ***
+        if (typeof generateLogicSystemProblem === "function") generateLogicSystemProblem(ctx, canvas);
     }
 }
 
@@ -6806,6 +6887,81 @@ function checkAnswers() {
             return; 
         }
     }
+
+
+    // ==========================================
+    // LOGIC SYSTEMS INTERCEPTOR (TRUTH TABLE)
+    // ==========================================
+    if (currentMode === 'logic_system') {
+        let allCorrect = true;
+        let hasEmpty = false;
+
+        const feedback = document.getElementById('feedback');
+
+        // 1. Safety Check: Did they fill out all 24 boxes?
+        for (let i = 0; i < 8; i++) {
+            let dVal = document.getElementById(`sysD_${i}`).value.trim();
+            let eVal = document.getElementById(`sysE_${i}`).value.trim();
+            let qVal = document.getElementById(`sysQ_${i}`).value.trim();
+            if (dVal === "" || eVal === "" || qVal === "") {
+                hasEmpty = true;
+                break;
+            }
+        }
+
+        if (hasEmpty) {
+            if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>Please fill in all 0s and 1s in the table!</span>";
+            return; // Stops grading until they fill everything out
+        }
+
+        if (!hasCheckedCurrentProblem) { 
+            problemsAttempted++; 
+            hasCheckedCurrentProblem = true; 
+        }
+
+        // 2. Grade every single cell independently
+        for (let i = 0; i < 8; i++) {
+            ['D', 'E', 'Q'].forEach(col => {
+                let inputEl = document.getElementById(`sys${col}_${i}`);
+                let correctAns = window.logicSystemAnswers[col.toLowerCase()][i]; // Pulls from the array we saved earlier
+                
+                if (inputEl.value == correctAns) {
+                    inputEl.style.backgroundColor = "#d4edda"; // Light Green Background
+                    inputEl.style.borderColor = "#28a745";
+                } else {
+                    inputEl.style.backgroundColor = "#f8d7da"; // Light Red Background
+                    inputEl.style.borderColor = "#dc3545";
+                    allCorrect = false;
+                }
+            });
+        }
+
+        const checkansBtn = document.getElementById('checkansBtn');
+        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+
+        if (allCorrect) {
+            isCurrentProblemSolved = true;
+            if (canEarnPoints) { problemsCorrect++; }
+            if (feedback) feedback.innerHTML = "<span style='color: #198754;'>Perfect! You successfully mapped the entire logic system!</span>";
+            canEarnPoints = false;
+            
+            // Hide the buttons because they beat the level!
+            if (checkansBtn) checkansBtn.style.display = 'none';
+            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+        } else {
+            canEarnPoints = false; 
+            if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>Some outputs are incorrect. Trace the red boxes back to the circuit diagram to fix your errors!</span>";
+            
+            // Show the solutions box if they get it wrong
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) solDiv.style.display = 'block';
+            if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+        }
+        
+        if (typeof updateScoreboard === "function") updateScoreboard();
+        return; // Exits the checkAnswers function so it doesn't accidentally run anything else
+    }
+
 
     // 2. Identify which inputs are currently active
     let activeInputs = [];
@@ -7505,8 +7661,15 @@ function provideHint() {
                 2. If an input is 0, it gets a NOT bar (e.g. A̅). If it's 1, it stays normal (A).<br>
                 3. Combine the individual rows together using OR logic (+).
             </div>`;
-    } 
-    else {
+    } else if (currentMode === 'logic_system') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint:</strong> Work through the table one column at a time:<br>
+                • <b>Column D:</b> Look at the top gate. What do inputs A and B make?<br>
+                • <b>Column E:</b> Look at the bottom path. What happens to input C?<br>
+                • <b>Column Q:</b> Look at the final gate. What do D and E make together?
+            </div>`;
+    } else {
         // Potential Divider & General
         helpText = `
             <div style="${blueBox}">
