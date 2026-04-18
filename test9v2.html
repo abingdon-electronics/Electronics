@@ -6734,9 +6734,11 @@ function checkAnswers() {
         } else if (window.g9boolActiveMode === 'pathfinder') {
             const x = document.getElementById('g9boolPathX');
             const y = document.getElementById('g9boolPathY');
-            const q = document.getElementById('g9boolPathQ');
+            
+            // Look for the checked radio button instead of the old dropdown
+            const qRadio = document.querySelector('input[name="g9boolPathQ_RadioGroup"]:checked');
 
-            if (!x.value || !y.value || !q.value) {
+            if (!x.value || !y.value || !qRadio) {
                 feedback.innerHTML = "<span style='color: #dc3545;'>Please select an option for Output X, Y, and Q.</span>";
                 return;
             }
@@ -6748,14 +6750,22 @@ function checkAnswers() {
 
             let xCorrect = x.value === window.g9boolPathAnswers.x;
             let yCorrect = y.value === window.g9boolPathAnswers.y;
-            let qCorrect = q.value === window.g9boolPathAnswers.q;
+            // Check the value of the selected radio button
+            let qCorrect = qRadio.value === window.g9boolPathAnswers.q;
             
             let allCorrect = xCorrect && yCorrect && qCorrect;
 
             // Apply visual feedback borders
             x.style.border = xCorrect ? "2px solid #28a745" : "2px solid #dc3545";
             y.style.border = yCorrect ? "2px solid #28a745" : "2px solid #dc3545";
-            q.style.border = qCorrect ? "2px solid #28a745" : "2px solid #dc3545";
+            
+            // Apply visual feedback border to the Q Radio Container
+            const qRadioContainer = document.getElementById('g9boolPathQRadioContainer');
+            if (qRadioContainer) {
+                qRadioContainer.style.border = qCorrect ? "2px solid #28a745" : "2px solid #dc3545";
+                qRadioContainer.style.borderRadius = "8px";
+                qRadioContainer.style.padding = "5px";
+            }
 
             const checkansBtn = document.getElementById('checkansBtn');
 
