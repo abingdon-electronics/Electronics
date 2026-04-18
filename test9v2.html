@@ -2162,17 +2162,29 @@ function drawCanvasSubscript(ctx, mainStr, subStr, suffixStr, x, y, size, color)
 }
 
 // Helper to add an overbar to an entire expression using Unicode \u0305
+
 const applyOverbar = (str) => {
     if (!str) return "";
-    // Remove existing outer brackets for the bar if they exist
     let clean = str.replace(/^\((.*)\)$/, '$1');
     let result = "";
     
-    // Loop through characters safely
     for (let i = 0; i < clean.length; i++) {
-        result += clean[i];
-        // Only add an overbar if the character isn't ALREADY an overbar
-        if (clean[i] !== '\u0305') {
+        let char = clean[i];
+        
+        // 1. If the character is ALREADY an overbar, just keep it and move on
+        if (char === '\u0305') {
+            result += char;
+            continue;
+        }
+        
+        result += char;
+        
+        // 2. Look ahead: is the NEXT character an overbar? 
+        // If yes, don't add a new one here.
+        if (i + 1 < clean.length && clean[i+1] === '\u0305') {
+            continue; 
+        } else {
+            // It is safe to add our overbar
             result += '\u0305';
         }
     }
@@ -6605,76 +6617,126 @@ function checkAnswers() {
         return; 
     }
 
-   // ==========================================
-    // GRADE 9 BOOLEAN INTERCEPTOR (Sum of Products)
+    // ==========================================
+    // GRADE 9 BOOLEAN INTERCEPTOR (SOP & Pathfinder)
     // ==========================================
     if (currentMode === 'grade9boolean') {
-        const r1 = document.getElementById('g9boolRow1');
-        const r2 = document.getElementById('g9boolRow2');
-        const r3 = document.getElementById('g9boolRow3');
         
-        // Find ALL checked radio buttons with this name, in case of hidden 'ghost' elements
-        const checkedRadios = document.querySelectorAll('input[name="g9boolCombineRadio"]:checked');
-        
-        // Grab the LAST one found (which will be the one actively visible on screen)
-        const finalEqRadio = checkedRadios.length > 0 ? checkedRadios[checkedRadios.length - 1] : null;
+        // --- MODE 1: SUM OF PRODUCTS (SOP) ---
+        if (window.g9boolActiveMode === 'sop') {
+            const r1 = document.getElementById('g9boolRow1');
+            const r2 = document.getElementById('g9boolRow2');
+            const r3 = document.getElementById('g9boolRow3');
+            
+            // Find ALL checked radio buttons with this name, in case of hidden 'ghost' elements
+            const checkedRadios = document.querySelectorAll('input[name="g9boolCombineRadio"]:checked');
+            // Grab the LAST one found (which will be the one actively visible on screen)
+            const finalEqRadio = checkedRadios.length > 0 ? checkedRadios[checkedRadios.length - 1] : null;
 
-        if (!r1.value || !r2.value || !r3.value || !finalEqRadio) {
-            feedback.innerHTML = "<span style='color: #dc3545;'>Please select an option for all 3 rows and select a final equation.</span>";
-            return;
+            if (!r1.value || !r2.value || !r3.value || !finalEqRadio) {
+                feedback.innerHTML = "<span style='color: #dc3545;'>Please select an option for all 3 rows and select a final equation.</span>";
+                return;
+            }
+            
+            if (!hasCheckedCurrentProblem) { 
+                problemsAttempted++; 
+                hasCheckedCurrentProblem = true; 
+            }
+
+            // Check against the global array (Top to Bottom)
+            let r1Correct = r1.value === window.g9boolAnswers[0];
+            let r2Correct = r2.value === window.g9boolAnswers[1];
+            let r3Correct = r3.value === window.g9boolAnswers[2];
+            
+            // Bulletproof check: removes spaces and ignores capitalization
+            let radioValue = finalEqRadio.value.trim().toUpperCase();
+            
+            let finalCorrect = (radioValue === "OR" || radioValue === "+"); 
+
+            let allCorrect = r1Correct && r2Correct && r3Correct && finalCorrect;
+
+            // Apply visual feedback borders to the row dropdowns
+            r1.style.border = r1Correct ? "2px solid #28a745" : "2px solid #dc3545";
+            r2.style.border = r2Correct ? "2px solid #28a745" : "2px solid #dc3545";
+            r3.style.border = r3Correct ? "2px solid #28a745" : "2px solid #dc3545";
+
+            // Apply visual feedback border to the radio button container
+            const radioContainer = finalEqRadio.closest('div');
+            if (radioContainer) {
+                radioContainer.style.border = finalCorrect ? "2px solid #28a745" : "2px solid #dc3545";
+                radioContainer.style.borderRadius = "8px";
+                radioContainer.style.padding = "5px";
+            }
+
+            const checkansBtn = document.getElementById('checkansBtn');
+
+            if (allCorrect) {
+                isCurrentProblemSolved = true;
+                if (canEarnPoints) { problemsCorrect++; }
+                feedback.innerHTML = "<span style='color: #198754;'>Perfect! You successfully derived the Sum of Products equation!</span>";
+                canEarnPoints = false;
+            } else {
+                canEarnPoints = false; 
+                feedback.innerHTML = `<span style='color: #dc3545;'>Not quite. Look at the red boxes. (Hint: A '0' means you need a NOT bar. Combine using OR.)</span>`;
+                const solDiv = document.getElementById('solutions');
+                if (solDiv) solDiv.style.display = 'block';
+                if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+            }
+            
+            if (checkansBtn && isCurrentProblemSolved) checkansBtn.style.display = 'none';
+            if (showsolutionsBtn && isCurrentProblemSolved) showsolutionsBtn.style.display = 'none';
+            
+            if (typeof updateScoreboard === "function") updateScoreboard();
+            return; 
+
+        // --- MODE 2: PATHFINDER ---
+        } else if (window.g9boolActiveMode === 'pathfinder') {
+            const x = document.getElementById('g9boolPathX');
+            const y = document.getElementById('g9boolPathY');
+            const q = document.getElementById('g9boolPathQ');
+
+            if (!x.value || !y.value || !q.value) {
+                feedback.innerHTML = "<span style='color: #dc3545;'>Please select an option for Output X, Y, and Q.</span>";
+                return;
+            }
+
+            if (!hasCheckedCurrentProblem) { 
+                problemsAttempted++; 
+                hasCheckedCurrentProblem = true; 
+            }
+
+            let xCorrect = x.value === window.g9boolPathAnswers.x;
+            let yCorrect = y.value === window.g9boolPathAnswers.y;
+            let qCorrect = q.value === window.g9boolPathAnswers.q;
+            
+            let allCorrect = xCorrect && yCorrect && qCorrect;
+
+            // Apply visual feedback borders
+            x.style.border = xCorrect ? "2px solid #28a745" : "2px solid #dc3545";
+            y.style.border = yCorrect ? "2px solid #28a745" : "2px solid #dc3545";
+            q.style.border = qCorrect ? "2px solid #28a745" : "2px solid #dc3545";
+
+            const checkansBtn = document.getElementById('checkansBtn');
+
+            if (allCorrect) {
+                isCurrentProblemSolved = true;
+                if (canEarnPoints) { problemsCorrect++; }
+                feedback.innerHTML = "<span style='color: #198754;'>Perfect! You mapped the logic path correctly!</span>";
+                canEarnPoints = false;
+            } else {
+                canEarnPoints = false; 
+                feedback.innerHTML = `<span style='color: #dc3545;'>Not quite. Look at the red boxes. Check the logic gates carefully!</span>`;
+                const solDiv = document.getElementById('solutions');
+                if (solDiv) solDiv.style.display = 'block';
+                if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+            }
+            
+            if (checkansBtn && isCurrentProblemSolved) checkansBtn.style.display = 'none';
+            if (showsolutionsBtn && isCurrentProblemSolved) showsolutionsBtn.style.display = 'none';
+            
+            if (typeof updateScoreboard === "function") updateScoreboard();
+            return; 
         }
-        
-        if (!hasCheckedCurrentProblem) { 
-            problemsAttempted++; 
-            hasCheckedCurrentProblem = true; 
-        }
-
-        // Check against the global array (Top to Bottom)
-        let r1Correct = r1.value === window.g9boolAnswers[0];
-        let r2Correct = r2.value === window.g9boolAnswers[1];
-        let r3Correct = r3.value === window.g9boolAnswers[2];
-        
-        // Bulletproof check: removes spaces and ignores capitalization
-        let radioValue = finalEqRadio.value.trim().toUpperCase();
-        console.log("JS is reading the radio value as:", radioValue); // <-- Check your browser console!
-        
-        let finalCorrect = (radioValue === "OR" || radioValue === "+"); 
-
-        let allCorrect = r1Correct && r2Correct && r3Correct && finalCorrect;
-
-        // Apply visual feedback borders to the row dropdowns
-        r1.style.border = r1Correct ? "2px solid #28a745" : "2px solid #dc3545";
-        r2.style.border = r2Correct ? "2px solid #28a745" : "2px solid #dc3545";
-        r3.style.border = r3Correct ? "2px solid #28a745" : "2px solid #dc3545";
-
-        // Apply visual feedback border to the radio button container
-        const radioContainer = finalEqRadio.closest('div');
-        if (radioContainer) {
-            radioContainer.style.border = finalCorrect ? "2px solid #28a745" : "2px solid #dc3545";
-            radioContainer.style.borderRadius = "8px";
-            radioContainer.style.padding = "5px";
-        }
-
-        const checkansBtn = document.getElementById('checkansBtn');
-
-        if (allCorrect) {
-            isCurrentProblemSolved = true;
-            if (canEarnPoints) { problemsCorrect++; }
-            feedback.innerHTML = "<span style='color: #198754;'>Perfect! You successfully derived the Sum of Products equation!</span>";
-            canEarnPoints = false;
-        } else {
-            canEarnPoints = false; 
-            feedback.innerHTML = `<span style='color: #dc3545;'>Not quite. Look at the red boxes. (Hint: A '0' means you need a NOT bar. Combine using OR.)</span>`;
-            const solDiv = document.getElementById('solutions');
-            if (solDiv) solDiv.style.display = 'block';
-            if (typeof viewedSolution !== 'undefined') viewedSolution = true;
-        }
-        
-        if (checkansBtn && isCurrentProblemSolved) checkansBtn.style.display = 'none';
-        if (showsolutionsBtn && isCurrentProblemSolved) showsolutionsBtn.style.display = 'none';
-        
-        if (typeof updateScoreboard === "function") updateScoreboard();
-        return; 
     }
 
     // 2. Identify which inputs are currently active
