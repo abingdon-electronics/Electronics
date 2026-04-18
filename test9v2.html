@@ -3959,19 +3959,20 @@ function generateLogicSystemProblem(ctx, canvas) {
         if (gate === 'WIRE') return in1; // Passes the value straight through
     };
 
-    // Calculate Answers for all 8 rows
+// Calculate Answers for all 8 rows
     window.logicSystemAnswers = { d: [], e: [], q: [] };
     
+    // UPDATED TABLE: Added 'border-collapse' and explicit borders/padding to every cell
     let tableHTML = `
-        <table class="table table-bordered text-center" style="width:100%; max-width: 380px; margin: 0 auto; background: white;">
+        <table style="width:100%; max-width: 380px; margin: 0 auto; background: white; border-collapse: collapse; text-align: center;">
             <thead style="background-color: #f8f9fa;">
                 <tr>
-                    <th style="color: #c83377;">C</th>
-                    <th style="color: #c83377;">B</th>
-                    <th style="color: #c83377;">A</th>
-                    <th style="color: #c83377;">D</th>
-                    <th style="color: #c83377;">E</th>
-                    <th style="color: #c83377;">Q</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">C</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">B</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">A</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">D</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">E</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">Q</th>
                 </tr>
             </thead>
             <tbody>
@@ -3992,14 +3993,21 @@ function generateLogicSystemProblem(ctx, canvas) {
         window.logicSystemAnswers.e.push(e);
         window.logicSystemAnswers.q.push(q);
 
+        // UPDATED ROWS: Added borders to the <td> elements so CBA get separated into boxes
         tableHTML += `
             <tr>
-                <td style="vertical-align: middle; font-weight: bold;">${c}</td>
-                <td style="vertical-align: middle; font-weight: bold;">${b}</td>
-                <td style="vertical-align: middle; font-weight: bold;">${a}</td>
-                <td style="padding: 4px;"><input type="text" id="sysD_${i}" maxlength="1" style="width: 40px; height: 30px; text-align: center; color: #c83377; font-weight: bold; border: 1px solid #ccc; border-radius: 4px;"></td>
-                <td style="padding: 4px;"><input type="text" id="sysE_${i}" maxlength="1" style="width: 40px; height: 30px; text-align: center; color: #c83377; font-weight: bold; border: 1px solid #ccc; border-radius: 4px;"></td>
-                <td style="padding: 4px;"><input type="text" id="sysQ_${i}" maxlength="1" style="width: 40px; height: 30px; text-align: center; color: #c83377; font-weight: bold; border: 1px solid #ccc; border-radius: 4px;"></td>
+                <td style="vertical-align: middle; font-weight: bold; border: 1px solid #ccc; padding: 4px;">${c}</td>
+                <td style="vertical-align: middle; font-weight: bold; border: 1px solid #ccc; padding: 4px;">${b}</td>
+                <td style="vertical-align: middle; font-weight: bold; border: 1px solid #ccc; padding: 4px;">${a}</td>
+                <td style="padding: 4px; border: 1px solid #ccc;">
+                    <input type="text" id="sysD_${i}" maxlength="1" style="width: 40px; height: 30px; text-align: center; color: #c83377; font-weight: bold; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </td>
+                <td style="padding: 4px; border: 1px solid #ccc;">
+                    <input type="text" id="sysE_${i}" maxlength="1" style="width: 40px; height: 30px; text-align: center; color: #c83377; font-weight: bold; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </td>
+                <td style="padding: 4px; border: 1px solid #ccc;">
+                    <input type="text" id="sysQ_${i}" maxlength="1" style="width: 40px; height: 30px; text-align: center; color: #c83377; font-weight: bold; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </td>
             </tr>
         `;
     }
