@@ -1278,14 +1278,14 @@
             <p style="margin-top: 0 !important; margin-bottom: 8px !important; font-weight: 600; font-size: 16px; color: #333; line-height: 1.2 !important;">
                 2. Select (click on button) the full Boolean equation for the system:
             </p>
-            <div style="display: flex; flex-direction: column !important; gap: 8px !important; font-size: 16px; font-family: monospace; padding-left: 5px;">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="radio" name="g9boolCombineRadio" value="OR" style="margin: 0;">
+            <div style="display: flex; flex-direction: column !important; gap: 12px !important; font-size: 16px; font-family: monospace; padding: 12px 15px; margin-top: 5px; background-color: #f8f9fa; border-radius: 8px; border: 2px solid transparent; box-shadow: inset 0 0 0 1px #e9ecef;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                    <input type="radio" name="g9boolCombineRadio" value="OR" style="margin: 0; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;">
                     <span style="line-height: 1;">Q = (<span id="sopPlaceholder1a" style="color: #d63384;">___</span>) + (<span id="sopPlaceholder2a" style="color: #d63384;">___</span>) + (<span id="sopPlaceholder3a" style="color: #d63384;">___</span>)</span>
                 </label>
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="radio" name="g9boolCombineRadio" value="AND" style="margin: 0;">
-                    <span style="line-height: 1;">Q = (<span id="sopPlaceholder1b" style="color: #d63384;">___</span>) . (<span id="sopPlaceholder2b" style="color: #d63384;">___</span>) . (<span id="sopPlaceholder3b" style="color: #d63384;">___</span>)</span>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                    <input type="radio" name="g9boolCombineRadio" value="AND" style="margin: 0; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;">
+                    <span style="line-height: 1;">Q = (<span id="sopPlaceholder1b" style="color: #d63384;">___</span>) &middot; (<span id="sopPlaceholder2b" style="color: #d63384;">___</span>) &middot; (<span id="sopPlaceholder3b" style="color: #d63384;">___</span>)</span>
                 </label>
             </div>
         </div>
@@ -6626,17 +6626,20 @@ function checkAnswers() {
         return; 
     }
 
-    // ==========================================
+   // ==========================================
     // GRADE 9 BOOLEAN INTERCEPTOR (Sum of Products)
     // ==========================================
     if (currentMode === 'grade9boolean') {
         const r1 = document.getElementById('g9boolRow1');
         const r2 = document.getElementById('g9boolRow2');
         const r3 = document.getElementById('g9boolRow3');
-        // Grab the checked radio button
-        const finalEqRadio = document.querySelector('input[name="g9boolCombineRadio"]:checked');
+        
+        // Find ALL checked radio buttons with this name, in case of hidden 'ghost' elements
+        const checkedRadios = document.querySelectorAll('input[name="g9boolCombineRadio"]:checked');
+        
+        // Grab the LAST one found (which will be the one actively visible on screen)
+        const finalEqRadio = checkedRadios.length > 0 ? checkedRadios[checkedRadios.length - 1] : null;
 
-        // Check if all 3 rows have values AND a radio button is selected
         if (!r1.value || !r2.value || !r3.value || !finalEqRadio) {
             feedback.innerHTML = "<span style='color: #dc3545;'>Please select an option for all 3 rows and select a final equation.</span>";
             return;
@@ -6651,7 +6654,12 @@ function checkAnswers() {
         let r1Correct = r1.value === window.g9boolAnswers[0];
         let r2Correct = r2.value === window.g9boolAnswers[1];
         let r3Correct = r3.value === window.g9boolAnswers[2];
-        let finalCorrect = finalEqRadio.value === "OR"; // Sum of Products uses OR (+)
+        
+        // Bulletproof check: removes spaces and ignores capitalization
+        let radioValue = finalEqRadio.value.trim().toUpperCase();
+        console.log("JS is reading the radio value as:", radioValue); // <-- Check your browser console!
+        
+        let finalCorrect = (radioValue === "OR" || radioValue === "+"); 
 
         let allCorrect = r1Correct && r2Correct && r3Correct && finalCorrect;
 
@@ -6661,7 +6669,7 @@ function checkAnswers() {
         r3.style.border = r3Correct ? "2px solid #28a745" : "2px solid #dc3545";
 
         // Apply visual feedback border to the radio button container
-        const radioContainer = document.querySelector('input[name="g9boolCombineRadio"]').closest('div');
+        const radioContainer = finalEqRadio.closest('div');
         if (radioContainer) {
             radioContainer.style.border = finalCorrect ? "2px solid #28a745" : "2px solid #dc3545";
             radioContainer.style.borderRadius = "8px";
