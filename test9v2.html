@@ -3963,16 +3963,17 @@ function generateLogicSystemProblem(ctx, canvas) {
     window.logicSystemAnswers = { d: [], e: [], q: [] };
     
     // UPDATED TABLE: Added 'border-collapse' and explicit borders/padding to every cell
+    // UPDATED TABLE: Added margin-top: -15px to pull it up closer to the buttons
     let tableHTML = `
-        <table style="width:100%; max-width: 380px; margin: 0 auto; background: white; border-collapse: collapse; text-align: center;">
+        <table style="width:100%; max-width: 380px; margin: -15px auto 0 auto; background: white; border-collapse: collapse; text-align: center; font-size: 0.9em;">
             <thead style="background-color: #f8f9fa;">
                 <tr>
-                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">C</th>
-                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">B</th>
-                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">A</th>
-                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">D</th>
-                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">E</th>
-                    <th style="color: #c83377; border: 1px solid #ccc; padding: 8px;">Q</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 4px;">C</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 4px;">B</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 4px;">A</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 4px;">D</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 4px;">E</th>
+                    <th style="color: #c83377; border: 1px solid #ccc; padding: 4px;">Q</th>
                 </tr>
             </thead>
             <tbody>
