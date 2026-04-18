@@ -4231,7 +4231,15 @@ function generateGrade9booleanProblem(ctx, canvas) {
             });
         });
 
-        document.querySelectorAll('input[name="g9boolCombineRadio"]').forEach(radio => radio.checked = false);
+        // ---------------------------------------------------------
+        // BULLETPROOF RADIO RESET & VALUE INJECTION
+        // ---------------------------------------------------------
+        const boolRadios = document.querySelectorAll('input[name="g9boolCombineRadio"]');
+        if (boolRadios.length >= 2) {
+            boolRadios[0].value = "OR";  // Force the first button to equal OR
+            boolRadios[1].value = "AND"; // Force the second button to equal AND
+        }
+        boolRadios.forEach(radio => radio.checked = false);
 
         // 5. Build Solution Text
         let solHTML = `1. Identify rows where Q=1.<br>`;
