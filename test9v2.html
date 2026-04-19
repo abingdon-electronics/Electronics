@@ -4027,7 +4027,7 @@ function generateLogic_icProblem(ctx, canvas) {
     ctx.arc(icX + 15, icY + icH - 15, 3, 0, Math.PI*2);
     ctx.fill();
 
-    // 4. Draw Internal Logic Gates & Routing
+    // 4. Draw Internal Logic Gates & Routing (Pixel-Perfect Alignment)
     ctx.strokeStyle = "#000000"; 
     ctx.lineWidth = 1.5;
     ctx.fillStyle = "#000000";
@@ -4043,7 +4043,7 @@ function generateLogic_icProblem(ctx, canvas) {
         if (typeof fn === 'function') {
             ctx.save();
             ctx.translate(x, y);
-            ctx.scale(0.55, 0.55); // <-- Reduced to 0.55 for better proportions
+            ctx.scale(0.55, 0.55); 
             ctx.strokeStyle = "#000000";
             ctx.lineWidth = 2.5; 
             fn(ctx, 0, 0);
@@ -4057,13 +4057,16 @@ function generateLogic_icProblem(ctx, canvas) {
             const px0 = pinXs[pair[0]];
             const px1 = pinXs[pair[1]];
             
-            drawWire(px0, icY+icH, px0, icY+icH-27); // In up
-            drawWire(px0, icY+icH-27, px0+8, icY+icH-27); // In right
-            
-            drawGateSymbol('NOT', px0 + 8, icY+icH-36); 
+            const outY = icY+icH - 25;
+            const gateY = icY+icH - 33.25;
 
-            drawWire(px0+28, icY+icH-27, px1, icY+icH-27); // Out right
-            drawWire(px1, icY+icH-27, px1, icY+icH); // Out down
+            drawWire(px0, icY+icH, px0, outY); 
+            drawWire(px0, outY, px0+8, outY); 
+            
+            drawGateSymbol('NOT', px0 + 8, gateY); 
+
+            drawWire(px0+23, outY, px1, outY); 
+            drawWire(px1, outY, px1, icY+icH); 
         });
         
         const notPairsTop = [[1,2], [3,4], [5,6]]; 
@@ -4071,59 +4074,70 @@ function generateLogic_icProblem(ctx, canvas) {
             const px0 = pinXs[pair[0]];
             const px1 = pinXs[pair[1]];
 
-            drawWire(px0, icY, px0, icY+27); // In down
-            drawWire(px0, icY+27, px0+8, icY+27); // In right
-            
-            drawGateSymbol('NOT', px0 + 8, icY+18); 
+            const outY = icY + 25;
+            const gateY = icY + 16.75;
 
-            drawWire(px0+28, icY+27, px1, icY+27); // Out right
-            drawWire(px1, icY+27, px1, icY); // Out up
+            drawWire(px0, icY, px0, outY); 
+            drawWire(px0, outY, px0+8, outY); 
+            
+            drawGateSymbol('NOT', px0 + 8, gateY); 
+
+            drawWire(px0+23, outY, px1, outY); 
+            drawWire(px1, outY, px1, icY); 
         });
     } else {
         const quadBottom = [[0,1,2], [3,4,5]];
         quadBottom.forEach(group => {
-            const px0 = pinXs[group[0]];
-            const px1 = pinXs[group[1]];
-            const px2 = pinXs[group[2]];
+            const px0 = pinXs[group[0]]; // e.g. Pin 1
+            const px1 = pinXs[group[1]]; // e.g. Pin 2
+            const px2 = pinXs[group[2]]; // e.g. Pin 3
 
-            // Pin A (Top Input)
-            drawWire(px0, icY+icH, px0, icY+icH-35); 
-            drawWire(px0, icY+icH-35, px0+15, icY+icH-35); 
-            
-            // Pin B (Bottom Input)
-            drawWire(px1, icY+icH, px1, icY+icH-10); // Up from pin
-            drawWire(px1, icY+icH-10, px0+8, icY+icH-10); // Left, under the gate
-            drawWire(px0+8, icY+icH-10, px0+8, icY+icH-20); // Up to input level
-            drawWire(px0+8, icY+icH-20, px0+15, icY+icH-20); // Right into bottom input
-            
-            drawGateSymbol(type, px0 + 15, icY+icH-40); // Adjusted Y for new scale
+            // Exact offsets accounting for 0.55 scaling
+            const outY = icY+icH - 25;
+            const topInY = icY+icH - 30.5;
+            const botInY = icY+icH - 19.5;
+            const gateY = icY+icH - 33.25;
 
-            // Output Pin
-            drawWire(px0+38, icY+icH-27.5, px2, icY+icH-27.5); 
-            drawWire(px2, icY+icH-27.5, px2, icY+icH); 
+            // Pin A -> Top Input
+            drawWire(px0, icY+icH, px0, topInY); 
+            drawWire(px0, topInY, px0+15, topInY); 
+            
+            // Pin B -> Bottom Input (Clean left-turn under the gate)
+            drawWire(px1, icY+icH, px1, botInY); 
+            drawWire(px1, botInY, px0+15, botInY); 
+            
+            drawGateSymbol(type, px0 + 15, gateY); 
+
+            // Output
+            drawWire(px0+34.5, outY, px2, outY); 
+            drawWire(px2, outY, px2, icY+icH); 
         });
         
         const quadTop = [[1,2,3], [4,5,6]]; 
         quadTop.forEach(group => {
-            const px0 = pinXs[group[0]];
-            const px1 = pinXs[group[1]];
-            const px2 = pinXs[group[2]];
+            const px0 = pinXs[group[0]]; // e.g. Pin 13
+            const px1 = pinXs[group[1]]; // e.g. Pin 12
+            const px2 = pinXs[group[2]]; // e.g. Pin 11
 
-            // Pin A (Top Input)
-            drawWire(px0, icY, px0, icY+20); 
-            drawWire(px0, icY+20, px0+15, icY+20); 
-            
-            // Pin B (Bottom Input)
-            drawWire(px1, icY, px1, icY+10); // Down from pin
-            drawWire(px1, icY+10, px0+8, icY+10); // Left, over the gate
-            drawWire(px0+8, icY+10, px0+8, icY+35); // Down to input level
-            drawWire(px0+8, icY+35, px0+15, icY+35); // Right into bottom input
-            
-            drawGateSymbol(type, px0 + 15, icY+15); // Adjusted Y for new scale
+            // Exact offsets accounting for 0.55 scaling
+            const outY = icY + 25;
+            const topInY = icY + 19.5;
+            const botInY = icY + 30.5;
+            const gateY = icY + 16.75;
 
-            // Output Pin
-            drawWire(px0+38, icY+27.5, px2, icY+27.5); 
-            drawWire(px2, icY+27.5, px2, icY); 
+            // Pin 13 / 10 -> Bottom Input (eliminates crossover!)
+            drawWire(px0, icY, px0, botInY); 
+            drawWire(px0, botInY, px0+15, botInY); 
+            
+            // Pin 12 / 9 -> Top Input (Clean left-turn over the gate)
+            drawWire(px1, icY, px1, topInY); 
+            drawWire(px1, topInY, px0+15, topInY); 
+            
+            drawGateSymbol(type, px0 + 15, gateY); 
+
+            // Output
+            drawWire(px0+34.5, outY, px2, outY); 
+            drawWire(px2, outY, px2, icY); 
         });
     }
     ctx.restore();
