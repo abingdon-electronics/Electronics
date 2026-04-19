@@ -6735,11 +6735,12 @@ function switchTab(mode) {
         'inputGroupIPOSort', 'inputGroupSilicon', 'inputGroupSiliconVoltage', 
         'inputGroupGrade9Silicon', 'inputGroupGrade9SiliconReverse', 'inputGroupGrade9SiliconParallel',
         'inputGroupBoolean',
-        'booleanDropdownContainer',       // <-- ADDED to clear standard Boolean
-        'booleanCheckboxContainer',       // <-- ADDED to clear standard Boolean
-        'inputGroupGrade9BooleanSOP',     // <-- ADDED to clear Grade 9 Boolean!
-        'inputGroupGrade9BooleanPath',    // <-- Ensure pathfinder hides too
-        'inputGroupLogicSystem'           // 👇 NEW: Clears the Truth Table UI!
+        'booleanDropdownContainer',       
+        'booleanCheckboxContainer',       
+        'inputGroupGrade9BooleanSOP',     
+        'inputGroupGrade9BooleanPath',    
+        'inputGroupLogicSystem',          
+        'inputGroupLogic_ic'              // 👇 NEW: Clears the IC Logic Gates UI!
     ];
 
     elementsToHide.forEach(id => {
@@ -6954,8 +6955,11 @@ function hubController(ctx, canvas) {
         if (typeof generateBooleanProblem === "function") generateBooleanProblem(ctx, canvas);
         
     } else if (currentMode === 'logic_system') {
-        // *** NEW LOGIC SYSTEMS ROUTING ***
         if (typeof generateLogicSystemProblem === "function") generateLogicSystemProblem(ctx, canvas);
+        
+    } else if (currentMode === 'logic_ic') {
+        // *** NEW IC LOGIC GATES ROUTING ***
+        if (typeof generateLogic_icProblem === "function") generateLogic_icProblem(ctx, canvas);
     }
 }
 
