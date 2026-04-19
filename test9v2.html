@@ -1234,6 +1234,36 @@
             </div>
         </div>
     </div>
+
+<!-- Input group LOGIC GATES -->  
+
+<div id="inputGroupLogic_ic" class="input-group" style="display: none; padding: 10px;">
+    <h3 style="color: #c83377; margin-top: 0;">IC Logic Gates</h3>
+    
+    <div style="text-align: left; font-size: 14px; margin-bottom: 10px;">
+        <p style="margin: 5px 0;"><b>1. Power:</b> Which pin connects to +V (Vcc)? 
+            <input type="text" id="ic_vcc" maxlength="2" style="width: 35px; text-align: center; border: 1px solid #ccc; border-radius: 4px;">
+        </p>
+        
+        <p style="margin: 5px 0;"><b>2. Identify:</b> Name the logic gate shown inside the IC:
+            <select id="ic_gateType" style="padding: 2px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="">-- Select Gate --</option>
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
+                <option value="NOT">NOT</option>
+                <option value="NAND">NAND</option>
+                <option value="NOR">NOR</option>
+            </select>
+        </p>
+
+        <p style="margin: 5px 0;"><b>3. Trace:</b> <span id="ic_probeText">If logic 1 is on Pin X...</span>
+            <input type="text" id="ic_probeAns" maxlength="1" style="width: 30px; text-align: center; border: 1px solid #ccc; border-radius: 4px;">
+        </p>
+    </div>
+
+    <div id="ic_tableContainer"></div>
+</div>
+                
 <!-- Input group LOGIC SYSTEM -->  
 <div id="inputGroupLogicSystem" style="display: none; width: 100%; margin-top: 10px;">
     <div id="logicSystemTableContainer"></div>
