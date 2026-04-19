@@ -3982,8 +3982,6 @@ function generateLogic_icProblem(ctx, canvas) {
     ctx.fillStyle = "#ccc";
     ctx.strokeStyle = "#000";
     ctx.lineWidth = 1;
-    ctx.font = "bold 12px Arial";
-    ctx.textAlign = "center";
     const pinSpacing = icW / 8;
     const pinXs = [];
     
@@ -3991,19 +3989,13 @@ function generateLogic_icProblem(ctx, canvas) {
         let px = icX + pinSpacing * (i + 1);
         pinXs.push(px);
         
-        // Bottom Pins (1-7)
+        // Bottom Pins (1-7) - Numbers removed
         ctx.fillRect(px - 6, icY + icH, 12, 20);
         ctx.strokeRect(px - 6, icY + icH, 12, 20);
-        ctx.fillStyle = "#333";
-        ctx.fillText(i + 1, px, icY + icH + 35);
-        ctx.fillStyle = "#ccc";
         
-        // Top Pins (14-8)
+        // Top Pins (14-8) - Numbers removed
         ctx.fillRect(px - 6, icY - 20, 12, 20);
         ctx.strokeRect(px - 6, icY - 20, 12, 20);
-        ctx.fillStyle = "#333";
-        ctx.fillText(14 - i, px, icY - 25);
-        ctx.fillStyle = "#ccc"; 
     }
 
     // Draw Chip Body
@@ -4059,7 +4051,7 @@ function generateLogic_icProblem(ctx, canvas) {
             const px1 = pinXs[pair[1]];
             
             const gateX = px0 + 10;
-            const gateY = icY + icH - 40;
+            const gateY = icY + icH - 30; // Pushed higher up into the body
 
             drawWire(px0, icY + icH, px0, gateY); 
             drawWire(px0, gateY, gateX, gateY);
@@ -4074,7 +4066,7 @@ function generateLogic_icProblem(ctx, canvas) {
             const px1 = pinXs[pair[1]];
 
             const gateX = px0 + 10;
-            const gateY = icY + 40;
+            const gateY = icY + 30; // Pushed higher up into the body
 
             drawWire(px0, icY, px0, gateY); 
             drawWire(px0, gateY, gateX, gateY);
@@ -4089,18 +4081,18 @@ function generateLogic_icProblem(ctx, canvas) {
             const px1 = pinXs[group[1]]; // e.g., Pin 2 (Right Input)
             const px2 = pinXs[group[2]]; // e.g., Pin 3 (Output)
 
-            const gateX = px0 + 15; 
-            const gateY = icY + icH - 40; // Y-center = 140
-            const topInY = gateY - 5.5;   // Y-Top In = 134.5
-            const botInY = gateY + 5.5;   // Y-Bot In = 145.5
-            const outY = gateY;           // Y-Out = 140
+            const gateX = px0 + 22; // Shifted right
+            const gateY = icY + icH - 30; // Pushed higher up into the body
+            const topInY = gateY - 5.5;   
+            const botInY = gateY + 5.5;   
+            const outY = gateY;           
 
             // Pin A (Left) -> Top Input (1 bend)
             drawWire(px0, icY + icH, px0, topInY); 
             drawWire(px0, topInY, gateX, topInY); 
             
-            // Pin B (Right) -> Bottom Input (Closest to Edge, 3 bends: UP, LEFT, UP, RIGHT)
-            const turnY_B = icY + icH - 15; // Point below the gate to pass cleanly
+            // Pin B (Right) -> Bottom Input 
+            const turnY_B = icY + icH - 12; // Point below the gate to pass cleanly
             const routeX_B = gateX - 8;     // Point left of the gate
             
             drawWire(px1, icY + icH, px1, turnY_B); 
@@ -4122,18 +4114,18 @@ function generateLogic_icProblem(ctx, canvas) {
             const px1 = pinXs[group[1]]; // e.g., Pin 12 (Right Input)
             const px2 = pinXs[group[2]]; // e.g., Pin 11 (Output)
 
-            const gateX = px0 + 15; 
-            const gateY = icY + 40;       // Y-center = 120
-            const topInY = gateY - 5.5;   // Y-Top In = 114.5
-            const botInY = gateY + 5.5;   // Y-Bot In = 125.5
-            const outY = gateY;           // Y-Out = 120
+            const gateX = px0 + 22; // Shifted right
+            const gateY = icY + 30;       // Pushed higher up into the body
+            const topInY = gateY - 5.5;   
+            const botInY = gateY + 5.5;   
+            const outY = gateY;           
 
             // Pin 13 (Left) -> Bottom Input (1 bend)
             drawWire(px0, icY, px0, botInY); 
             drawWire(px0, botInY, gateX, botInY); 
             
-            // Pin 12 (Right) -> Top Input (Closest to Edge, 3 bends: DOWN, LEFT, DOWN, RIGHT)
-            const turnY_T = icY + 15;     // Point above the gate to pass cleanly
+            // Pin 12 (Right) -> Top Input 
+            const turnY_T = icY + 12;     // Point above the gate to pass cleanly
             const routeX_T = gateX - 8;   // Point left of the gate
             
             drawWire(px1, icY, px1, turnY_T); 
