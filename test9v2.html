@@ -3961,6 +3961,216 @@ function generateGrade9PowerProblem() {
     }
 }
 
+//****************************************************************************************
+
+function generateLogic_icProblem(ctx, canvas) {
+    // 1. Topic Map & Progress Tracking
+    if (typeof updateTopicMap === 'function') updateTopicMap('logic_ic');
+    if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const container = document.getElementById('inputGroupLogic_ic');
+    if (container) container.style.display = 'block';
+
+    // 2. Select Random Gate Type
+    const gateTypes = ['AND', 'OR', 'NAND', 'NOR', 'NOT'];
+    const type = gateTypes[Math.floor(Math.random() * gateTypes.length)];
+
+    // 3. DRAW THE IC (Dual In-line Package)
+    ctx.save();
+    const icX = 60, icY = 80, icW = 280, icH = 100;
+    
+    // Draw Pins (Silver rectangles)
+    ctx.fillStyle = "#ccc";
+    ctx.font = "bold 12px Arial";
+    ctx.textAlign = "center";
+    const pinSpacing = icW / 8;
+    const pinXs = [];
+    
+    for (let i = 0; i < 7; i++) {
+        let px = icX + pinSpacing * (i + 1);
+        pinXs.push(px);
+        // Bottom Pins (1-7)
+        ctx.fillRect(px - 6, icY + icH - 5, 12, 25);
+        ctx.fillStyle = "#333";
+        ctx.fillText(i + 1, px, icY + icH + 35);
+        
+        // Top Pins (14-8)
+        ctx.fillStyle = "#ccc";
+        ctx.fillRect(px - 6, icY - 20, 12, 25);
+        ctx.fillStyle = "#333";
+        ctx.fillText(14 - i, px, icY - 25);
+        ctx.fillStyle = "#ccc"; // reset for next loop
+    }
+
+    // Draw Chip Body (Dark Grey)
+    ctx.fillStyle = "#222";
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(icX, icY, icW, icH, 5) : ctx.fillRect(icX, icY, icW, icH);
+    ctx.fill();
+
+    // Draw Notch (Left Edge)
+    ctx.fillStyle = "#fff"; // Matches canvas background to look cut out
+    ctx.beginPath();
+    ctx.arc(icX, icY + (icH / 2), 15, -Math.PI/2, Math.PI/2);
+    ctx.fill();
+
+    // Draw Pin 1 Dot (Bottom Left)
+    ctx.fillStyle = "#888";
+    ctx.beginPath();
+    ctx.arc(icX + 15, icY + icH - 15, 4, 0, Math.PI*2);
+    ctx.fill();
+
+// 4. Draw Internal Logic Gates & Wiring
+    ctx.strokeStyle = "#00ff00"; // Neon green internal wiring
+    ctx.lineWidth = 2;
+    ctx.fillStyle = "#00ff00";
+    ctx.lineCap = "round";
+
+    // Helper to draw lines
+    const drawWire = (x1, y1, x2, y2) => {
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    };
+
+    // Helper to draw YOUR existing gates, shrunk down to fit the IC!
+    const drawGateSymbol = (gateType, x, y) => {
+        const fn = window[`draw${gateType}Gate`];
+        if (typeof fn === 'function') {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(0.4, 0.4); // Shrink to 40% size
+            
+            // Ensure the stroke matches the green wire thickness when scaled
+            ctx.strokeStyle = "#00ff00";
+            ctx.lineWidth = 5; 
+            
+            fn(ctx, 0, 0);
+            ctx.restore();
+        } else {
+            // Fallback just in case a function is missing
+            ctx.font = "bold 12px Arial";
+            ctx.fillText(gateType, x + 15, y + 15);
+        }
+    };
+
+    if (type === 'NOT') {
+        // Hex Inverter (6 gates): 1->2, 3->4, 5->6, 13->12, 11->10, 9->8
+        const notPairs = [[0,1], [2,3], [4,5]]; // Bottom
+        notPairs.forEach(pair => {
+            drawWire(pinXs[pair[0]], icY+icH, pinXs[pair[0]], icY+icH-20); // In up
+            drawWire(pinXs[pair[0]], icY+icH-20, pinXs[pair[0]]+10, icY+icH-20); // In right
+            drawWire(pinXs[pair[1]], icY+icH-20, pinXs[pair[1]], icY+icH); // Out down
+            
+            drawGateSymbol('NOT', pinXs[pair[0]] + 2, icY+icH-35); 
+        });
+        
+        const notPairsTop = [[0,1], [2,3], [4,5]]; // Top (14-13, 12-11, 10-9)
+        notPairsTop.forEach(pair => {
+            drawWire(pinXs[pair[0]], icY, pinXs[pair[0]], icY+20); // In down
+            drawWire(pinXs[pair[0]], icY+20, pinXs[pair[0]]+10, icY+20); // In right
+            drawWire(pinXs[pair[1]], icY+20, pinXs[pair[1]], icY); // Out up
+            
+            drawGateSymbol('NOT', pinXs[pair[0]] + 2, icY+5); 
+        });
+    } else {
+        // Quad 2-Input (4 gates): 1,2->3 | 4,5->6 | 13,12->11 | 10,9->8
+        const quadBottom = [[0,1,2], [3,4,5]];
+        quadBottom.forEach(group => {
+            drawWire(pinXs[group[0]], icY+icH, pinXs[group[0]], icY+icH-30); // Pin A up
+            drawWire(pinXs[group[1]], icY+icH, pinXs[group[1]], icY+icH-15); // Pin B up
+            drawWire(pinXs[group[0]], icY+icH-30, pinXs[group[1]]+5, icY+icH-30); // Pin A over
+            drawWire(pinXs[group[1]], icY+icH-15, pinXs[group[1]]+5, icY+icH-15); // Pin B over
+            drawWire(pinXs[group[2]], icY+icH-22, pinXs[group[2]], icY+icH); // Output down
+            
+            drawGateSymbol(type, pinXs[group[1]] - 5, icY+icH-40);
+        });
+        
+        const quadTop = [[0,1,2], [3,4,5]]; // Mapping to pins 14-8 array indices
+        quadTop.forEach(group => {
+            drawWire(pinXs[group[0]+1], icY, pinXs[group[0]+1], icY+30); // Pin A down
+            drawWire(pinXs[group[1]+1], icY, pinXs[group[1]+1], icY+15); // Pin B down
+            drawWire(pinXs[group[0]+1], icY+30, pinXs[group[1]+1]+5, icY+30); // Pin A over
+            drawWire(pinXs[group[1]+1], icY+15, pinXs[group[1]+1]+5, icY+15); // Pin B over
+            drawWire(pinXs[group[2]+1], icY+22, pinXs[group[2]+1], icY); // Output up
+            
+            drawGateSymbol(type, pinXs[group[1]+1] - 5, icY+5);
+        });
+    }
+    
+    // Power & GND Labels (Drawn last so they stay crisp)
+    ctx.fillStyle = "#ff4444"; ctx.fillText("Vcc", pinXs[0], icY+15);
+    ctx.fillStyle = "#4444ff"; ctx.fillText("GND", pinXs[6], icY+icH-5);
+    ctx.restore();
+
+    // 5. Generate Probe Question & Answers
+    const probeAnsEl = document.getElementById('ic_probeAns');
+    const vccEl = document.getElementById('ic_vcc');
+    const typeEl = document.getElementById('ic_gateType');
+    if(probeAnsEl) { probeAnsEl.value = ""; probeAnsEl.style.backgroundColor = "white"; }
+    if(vccEl) { vccEl.value = ""; vccEl.style.backgroundColor = "white"; }
+    if(typeEl) { typeEl.value = ""; typeEl.style.backgroundColor = "white"; }
+
+    let in1 = Math.random() > 0.5 ? 1 : 0;
+    let in2 = Math.random() > 0.5 ? 1 : 0;
+    let outVal = 0;
+
+    let probeText = "";
+    if (type === 'NOT') {
+        outVal = in1 === 1 ? 0 : 1;
+        probeText = `If logic ${in1} is applied to Pin 1, what logic state will be on Pin 2?`;
+    } else {
+        if (type === 'AND') outVal = (in1 & in2);
+        if (type === 'OR') outVal = (in1 | in2);
+        if (type === 'NAND') outVal = !(in1 & in2) ? 1 : 0;
+        if (type === 'NOR') outVal = !(in1 | in2) ? 1 : 0;
+        probeText = `If logic ${in1} is on Pin 4, and logic ${in2} is on Pin 5, what outputs on Pin 6?`;
+    }
+    document.getElementById('ic_probeText').textContent = probeText;
+
+    // 6. Generate Truth Table UI
+    window.logic_icAnswers = { vcc: "14", type: type, probe: outVal.toString(), table: [] };
+    
+    let tableHTML = `<table style="width: 100%; max-width: 250px; margin: 10px 0; background: white; border-collapse: collapse; text-align: center; font-size: 0.9em;">
+        <thead style="background-color: #f8f9fa;">
+            <tr>
+                <th style="color: #c83377; border: 1px solid #ccc; padding: 4px;">A</th>
+                ${type !== 'NOT' ? `<th style="color: #c83377; border: 1px solid #ccc; padding: 4px;">B</th>` : ''}
+                <th style="color: #c83377; border: 1px solid #ccc; padding: 4px;">Q</th>
+            </tr>
+        </thead><tbody>`;
+
+    const rows = type === 'NOT' ? [[0], [1]] : [[0,0], [0,1], [1,0], [1,1]];
+    
+    rows.forEach((row, i) => {
+        let expectedQ;
+        if (type === 'NOT') expectedQ = row[0] ? 0 : 1;
+        if (type === 'AND') expectedQ = row[0] & row[1];
+        if (type === 'OR') expectedQ = row[0] | row[1];
+        if (type === 'NAND') expectedQ = !(row[0] & row[1]) ? 1 : 0;
+        if (type === 'NOR') expectedQ = !(row[0] | row[1]) ? 1 : 0;
+        window.logic_icAnswers.table.push(expectedQ.toString());
+
+        tableHTML += `<tr>
+            <td style="font-weight:bold; border:1px solid #ccc; padding:2px;">${row[0]}</td>
+            ${type !== 'NOT' ? `<td style="font-weight:bold; border:1px solid #ccc; padding:2px;">${row[1]}</td>` : ''}
+            <td style="padding:2px; border:1px solid #ccc;">
+                <input type="text" id="icQ_${i}" maxlength="1" style="width:30px !important; text-align:center; color:#c83377; font-weight:bold; border:1px solid #ccc; border-radius:4px; margin:0 auto; display:block;">
+            </td>
+        </tr>`;
+    });
+    
+    document.getElementById('ic_tableContainer').innerHTML = tableHTML + "</tbody></table>";
+
+    // Enforce 0/1 inputs
+    rows.forEach((_, i) => {
+        let el = document.getElementById(`icQ_${i}`);
+        if(el) { el.addEventListener('input', function() { this.value = this.value.replace(/[^01]/g, ''); this.style.backgroundColor = 'white'; }); }
+    });
+    let probeEl = document.getElementById('ic_probeAns');
+    if (probeEl) probeEl.addEventListener('input', function() { this.value = this.value.replace(/[^01]/g, ''); this.style.backgroundColor = 'white'; });
+}
 
 //****************************************************************************************
 
