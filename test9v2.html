@@ -4075,10 +4075,10 @@ function generateLogic_icProblem(ctx, canvas) {
             drawWire(px0, gateY, gateX, gateY);
             drawWire(px1, gateY, px1, icY + icH); 
             
-            // 2. Draw horizontal output wire slightly short (-1) to hide the rounded line cap
+            // 2. Draw horizontal output wire slightly short (-4) to hide the rounded line cap
             const outX = gateX + 27; 
             if (outX < px1) {
-                drawWire(outX, gateY, px1 - 1, gateY); 
+                drawWire(outX, gateY, px1 - 4, gateY); 
             }
             
             // 3. Draw Gate Symbol LAST 
@@ -4098,10 +4098,10 @@ function generateLogic_icProblem(ctx, canvas) {
             drawWire(px0, gateY, gateX, gateY);
             drawWire(px1, gateY, px1, icY); 
 
-            // 2. Draw horizontal output wire slightly short (-1) to hide the rounded line cap
+            // 2. Draw horizontal output wire slightly short (-4) to hide the rounded line cap
             const outX = gateX + 27;
             if (outX < px1) {
-                drawWire(outX, gateY, px1 - 1, gateY); 
+                drawWire(outX, gateY, px1 - 4, gateY); 
             }
 
             // 3. Draw Gate Symbol LAST 
