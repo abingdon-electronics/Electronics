@@ -4031,7 +4031,7 @@ function generateLogic_icProblem(ctx, canvas) {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     };
 
-    const drawGateSymbol = (gateType, x, y) => {
+const drawGateSymbol = (gateType, x, y) => {
         const fn = window[`draw${gateType}Gate`];
         if (typeof fn === 'function') {
             ctx.save();
@@ -4040,9 +4040,10 @@ function generateLogic_icProblem(ctx, canvas) {
             
             if (gateType === 'NOT') {
                 // --- THE MAGIC SCISSORS (CLIPPING MASK) ---
-                // Cuts off the built-in tail from the base drawNOTGate exactly at the end of the bubble (x=55)
                 ctx.beginPath();
-                ctx.rect(-50, -50, 105, 100); 
+                // The third number (108) is the width of the cutout. 
+                // Tweak this up or down by 1-2 pixels if the bubble is clipped or the tail returns!
+                ctx.rect(-50, -50, 108, 100); 
                 ctx.clip();
 
                 // --- MANUALLY FORCE WHITE FILL BEHIND NOT GATE ---
