@@ -4114,7 +4114,7 @@ const drawGateSymbol = (gateType, x, y) => {
             // 3. Draw Gate Symbol LAST 
             drawGateSymbol('NOT', gateX, gateY); 
         });
-    } else {
+} else {
         // --- QUAD GATE ALIGNMENT ---
         const quadBottom = [[0,1,2], [3,4,5]];
         quadBottom.forEach(group => {
@@ -4122,24 +4122,32 @@ const drawGateSymbol = (gateType, x, y) => {
             const px1 = pinXs[group[1]]; 
             const px2 = pinXs[group[2]]; 
 
-            const gateX = px0 + 19; 
-            const gateY = icY + icH - 35; 
+            // --- ADJUST BOTTOM GATE POSITION HERE ---
+            // Increase '26' to move gate further right
+            const gateX = px0 + 26; 
+            // Increase '42' to move the gate further UP (away from the bottom edge)
+            const gateY = icY + icH - 42; 
+
             const topInY = gateY - 5.5;   
             const botInY = gateY + 5.5;   
 
+            // Route Pin 1 (Top Input)
             drawWire(px0, icY + icH, px0, topInY); 
             drawWire(px0, topInY, gateX, topInY); 
             
-            const turnY_B = icY + icH - 12;                
-            const routeX_B = px0 + (pinSpacing / 2); 
+            // Route Pin 2 (Bottom Input)
+            const turnY_B = icY + icH - 10; // How close the wire drops to the bottom edge before turning               
+            const routeX_B = px0 + (pinSpacing / 2); // Routes exactly between pin 1 and 2
             
             drawWire(px1, icY + icH, px1, turnY_B); 
             drawWire(px1, turnY_B, routeX_B, turnY_B); 
             drawWire(routeX_B, turnY_B, routeX_B, botInY); 
             drawWire(routeX_B, botInY, gateX, botInY); 
             
+            // Route Pin 3 (Output vertical drop)
             drawWire(px2, gateY, px2, icY + icH); 
             
+            // Output horizontal connection
             const outX = gateX + 34.5;
             if (outX < px2) {
                 drawWire(outX, gateY, px2, gateY); 
@@ -4154,15 +4162,21 @@ const drawGateSymbol = (gateType, x, y) => {
             const px1 = pinXs[group[1]]; 
             const px2 = pinXs[group[2]]; 
 
-            const gateX = px0 + 19; 
-            const gateY = icY + 35;       
+            // --- ADJUST TOP GATE POSITION HERE ---
+            // Increase '26' to move gate further right (should match bottom gateX offset)
+            const gateX = px0 + 26; 
+            // Decrease '22' to move the gate further UP (closer to the top edge)
+            const gateY = icY + 22;       
+
             const topInY = gateY - 5.5;   
             const botInY = gateY + 5.5;   
 
+            // Route Top Input (from leftmost pin of the group)
             drawWire(px0, icY, px0, botInY); 
             drawWire(px0, botInY, gateX, botInY); 
             
-            const turnY_T = icY + 12;                 
+            // Route Bottom Input (from middle pin of the group)
+            const turnY_T = icY + 10; // How close the wire drops to the top edge before turning                 
             const routeX_T = px0 + (pinSpacing / 2);  
             
             drawWire(px1, icY, px1, turnY_T); 
@@ -4170,8 +4184,10 @@ const drawGateSymbol = (gateType, x, y) => {
             drawWire(routeX_T, turnY_T, routeX_T, topInY); 
             drawWire(routeX_T, topInY, gateX, topInY); 
             
+            // Route Output vertical drop
             drawWire(px2, gateY, px2, icY); 
             
+            // Output horizontal connection
             const outX = gateX + 34.5;
             if (outX < px2) {
                 drawWire(outX, gateY, px2, gateY); 
