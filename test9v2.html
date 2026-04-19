@@ -4045,20 +4045,20 @@ function generateLogic_icProblem(ctx, canvas) {
     };
 
     if (type === 'NOT') {
-        // --- HEX INVERTER ALIGNMENT (Reverted to "Perfect" +6 placement) ---
+        // --- HEX INVERTER ALIGNMENT ---
         const notPairsBottom = [[0,1], [2,3], [4,5]]; 
         notPairsBottom.forEach(pair => {
             const px0 = pinXs[pair[0]];
             const px1 = pinXs[pair[1]];
             
-            const gateX = px0 + 6; // Back to your "Perfect" position
+            const gateX = px0 + 6; // Perfect +6 placement
             const gateY = icY + icH - 35; 
 
             drawWire(px0, icY + icH, px0, gateY); 
             drawWire(px0, gateY, gateX, gateY);
             drawGateSymbol('NOT', gateX, gateY); 
             
-            // Offset increased to 40.5 to visibly shorten the output wire
+            // Output wire shortened (starting at 40.5 instead of 38.5)
             drawWire(gateX + 40.5, gateY, px1, gateY); 
             drawWire(px1, gateY, px1, icY + icH); 
         });
@@ -4066,7 +4066,7 @@ function generateLogic_icProblem(ctx, canvas) {
         const notPairsTop = [[1,2], [3,4], [5,6]]; 
         notPairsTop.forEach(pair => {
             const px0 = pinXs[pair[0]];
-            const px1 = pxXs[pair[1]];
+            const px1 = pinXs[pair[1]]; // FIXED: Changed pxXs back to pinXs
 
             const gateX = px0 + 6; 
             const gateY = icY + 35; 
@@ -4075,7 +4075,7 @@ function generateLogic_icProblem(ctx, canvas) {
             drawWire(px0, gateY, gateX, gateY);
             drawGateSymbol('NOT', gateX, gateY); 
             
-            // Offset increased to 40.5 to visibly shorten the output wire
+            // Output wire shortened (starting at 40.5 instead of 38.5)
             drawWire(gateX + 40.5, gateY, px1, gateY); 
             drawWire(px1, gateY, px1, icY); 
         });
