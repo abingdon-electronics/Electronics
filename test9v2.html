@@ -3985,13 +3985,8 @@ function generateLogicSystemProblem(ctx, canvas) {
     `;
 
     for (let i = 0; i < 8; i++) {
-        let c = (i >> 2) & 1;
-        let b = (i >> 1) & 1;
-        let a = i & 1;
-
-        let d = compute(topGate, a, b);
-        let e = compute(bottomGate, c, 0); 
-        let q = compute(finalGate, d, e);
+        let c = (i >> 2) & 1, b = (i >> 1) & 1, a = i & 1;
+        let d = compute(topGate, a, b), e = compute(bottomGate, c, 0), q = compute(finalGate, d, e);
 
         window.logicSystemAnswers.d.push(d);
         window.logicSystemAnswers.e.push(e);
@@ -4042,8 +4037,8 @@ function generateLogicSystemProblem(ctx, canvas) {
         drawLine(ctx, 40, 55, 120, 55);  // A
         drawLine(ctx, 40, 75, 120, 75);  // B
         
-        // FIXED CONNECTION POINT D (165 instead of 170 closes the gap)
-        drawLine(ctx, 165, 65, 205, 65);   
+        // FIXED: Backed out slightly to 169 to flush perfectly without piercing!
+        drawLine(ctx, 169, 65, 205, 65);   
         drawLine(ctx, 205, 65, 205, 105);  
         drawLine(ctx, 205, 105, 230, 105); 
 
