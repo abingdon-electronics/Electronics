@@ -3978,12 +3978,14 @@ function generateLogic_icProblem(ctx, canvas) {
     const gateTypes = ['AND', 'OR', 'NAND', 'NOR', 'NOT'];
     const type = gateTypes[Math.floor(Math.random() * gateTypes.length)];
 
-    // 3. DRAW THE IC (Dual In-line Package)
+// 3. DRAW THE IC (Dual In-line Package) - Wireframe Style
     ctx.save();
     const icX = 60, icY = 80, icW = 280, icH = 100;
     
-    // Draw Pins (Silver rectangles)
+    // Draw Pins (Silver/Grey rectangles)
     ctx.fillStyle = "#ccc";
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 1;
     ctx.font = "bold 12px Arial";
     ctx.textAlign = "center";
     const pinSpacing = icW / 8;
@@ -3993,40 +3995,47 @@ function generateLogic_icProblem(ctx, canvas) {
         let px = icX + pinSpacing * (i + 1);
         pinXs.push(px);
         // Bottom Pins (1-7)
-        ctx.fillRect(px - 6, icY + icH - 5, 12, 25);
+        ctx.fillRect(px - 6, icY + icH, 12, 20);
+        ctx.strokeRect(px - 6, icY + icH, 12, 20);
         ctx.fillStyle = "#333";
         ctx.fillText(i + 1, px, icY + icH + 35);
+        ctx.fillStyle = "#ccc";
         
         // Top Pins (14-8)
-        ctx.fillStyle = "#ccc";
-        ctx.fillRect(px - 6, icY - 20, 12, 25);
+        ctx.fillRect(px - 6, icY - 20, 12, 20);
+        ctx.strokeRect(px - 6, icY - 20, 12, 20);
         ctx.fillStyle = "#333";
         ctx.fillText(14 - i, px, icY - 25);
-        ctx.fillStyle = "#ccc"; // reset for next loop
+        ctx.fillStyle = "#ccc"; 
     }
 
-    // Draw Chip Body (Dark Grey)
-    ctx.fillStyle = "#222";
-    ctx.beginPath();
-    ctx.roundRect ? ctx.roundRect(icX, icY, icW, icH, 5) : ctx.fillRect(icX, icY, icW, icH);
-    ctx.fill();
+    // Draw Chip Body (Wireframe Outline with Notch)
+    ctx.fillStyle = "#ffffff"; // White inside
+    ctx.strokeStyle = "#000000"; // Black border
+    ctx.lineWidth = 2;
 
-    // Draw Notch (Left Edge)
-    ctx.fillStyle = "#fff"; // Matches canvas background to look cut out
     ctx.beginPath();
-    ctx.arc(icX, icY + (icH / 2), 15, -Math.PI/2, Math.PI/2);
+    ctx.moveTo(icX, icY); // Top Left
+    ctx.lineTo(icX + icW, icY); // Top Edge
+    ctx.lineTo(icX + icW, icY + icH); // Right Edge
+    ctx.lineTo(icX, icY + icH); // Bottom Edge
+    ctx.lineTo(icX, icY + (icH / 2) + 15); // Up to bottom of notch
+    ctx.arc(icX, icY + (icH / 2), 15, Math.PI/2, -Math.PI/2, true); // The Notch
+    ctx.lineTo(icX, icY); // Up to Top Left
+    
     ctx.fill();
+    ctx.stroke();
 
     // Draw Pin 1 Dot (Bottom Left)
-    ctx.fillStyle = "#888";
+    ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.arc(icX + 15, icY + icH - 15, 4, 0, Math.PI*2);
+    ctx.arc(icX + 15, icY + icH - 15, 3, 0, Math.PI*2);
     ctx.fill();
 
-// 4. Draw Internal Logic Gates & Wiring
-    ctx.strokeStyle = "#00ff00"; // Neon green internal wiring
+// 4. Draw Internal Logic Gates & Wiring (Exam-Style Black & White)
+    ctx.strokeStyle = "#000000"; 
     ctx.lineWidth = 2;
-    ctx.fillStyle = "#00ff00";
+    ctx.fillStyle = "#000000";
     ctx.lineCap = "round";
 
     // Helper to draw lines
@@ -4034,16 +4043,16 @@ function generateLogic_icProblem(ctx, canvas) {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     };
 
-    // Helper to draw YOUR existing gates, shrunk down to fit the IC!
+    // Helper to draw your existing gates, shrunk down to fit the IC
     const drawGateSymbol = (gateType, x, y) => {
         const fn = window[`draw${gateType}Gate`];
         if (typeof fn === 'function') {
             ctx.save();
             ctx.translate(x, y);
-            ctx.scale(0.4, 0.4); // Shrink to 40% size
+            ctx.scale(0.35, 0.35); // Shrunk to 35% size to fit perfectly inside the wireframe
             
-            // Ensure the stroke matches the green wire thickness when scaled
-            ctx.strokeStyle = "#00ff00";
+            // Ensure the stroke matches the black wire thickness when scaled
+            ctx.strokeStyle = "#000000";
             ctx.lineWidth = 5; 
             
             fn(ctx, 0, 0);
@@ -4099,9 +4108,10 @@ function generateLogic_icProblem(ctx, canvas) {
         });
     }
     
-    // Power & GND Labels (Drawn last so they stay crisp)
-    ctx.fillStyle = "#ff4444"; ctx.fillText("Vcc", pinXs[0], icY+15);
-    ctx.fillStyle = "#4444ff"; ctx.fillText("GND", pinXs[6], icY+icH-5);
+    // Power & GND Labels (Now in standard black)
+    ctx.font = "bold 12px Arial";
+    ctx.fillStyle = "#000000"; ctx.fillText("Vcc", pinXs[0], icY+15);
+    ctx.fillStyle = "#000000"; ctx.fillText("GND", pinXs[6], icY+icH-5);
     ctx.restore();
 
     // 5. Generate Probe Question & Answers
