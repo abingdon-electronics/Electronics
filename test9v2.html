@@ -4039,7 +4039,6 @@ function generateLogic_icProblem(ctx, canvas) {
             ctx.scale(0.55, 0.55); 
             
             // --- MANUALLY FORCE WHITE FILL BEHIND NOT GATE ---
-            // This guarantees the triangle and bubble completely overwrite any wires beneath!
             if (gateType === 'NOT') {
                 ctx.fillStyle = "#FFFFFF";
                 ctx.beginPath();
@@ -4076,13 +4075,13 @@ function generateLogic_icProblem(ctx, canvas) {
             drawWire(px0, gateY, gateX, gateY);
             drawWire(px1, gateY, px1, icY + icH); 
             
-            // 2. ONLY draw horizontal output wire if the gate doesn't already overhang px1
-            const outX = gateX + 27; // Approximate right edge of the bubble
+            // 2. Draw horizontal output wire slightly short (-1) to hide the rounded line cap
+            const outX = gateX + 27; 
             if (outX < px1) {
-                drawWire(outX, gateY, px1, gateY); 
+                drawWire(outX, gateY, px1 - 1, gateY); 
             }
             
-            // 3. Draw Gate Symbol LAST (with white mask to overwrite vertical line)
+            // 3. Draw Gate Symbol LAST 
             drawGateSymbol('NOT', gateX, gateY); 
         });
         
@@ -4099,13 +4098,13 @@ function generateLogic_icProblem(ctx, canvas) {
             drawWire(px0, gateY, gateX, gateY);
             drawWire(px1, gateY, px1, icY); 
 
-            // 2. ONLY draw horizontal output wire if the gate doesn't already overhang px1
+            // 2. Draw horizontal output wire slightly short (-1) to hide the rounded line cap
             const outX = gateX + 27;
             if (outX < px1) {
-                drawWire(outX, gateY, px1, gateY); 
+                drawWire(outX, gateY, px1 - 1, gateY); 
             }
 
-            // 3. Draw Gate Symbol LAST (with white mask to overwrite vertical line)
+            // 3. Draw Gate Symbol LAST 
             drawGateSymbol('NOT', gateX, gateY); 
         });
     } else {
