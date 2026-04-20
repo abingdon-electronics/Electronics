@@ -3966,10 +3966,65 @@ function generateGrade9PowerProblem() {
 function generateLogic_icProblem(ctx, canvas) {
     currentProblem = { type: 'logic_ic' };
     
+    // --- Global Theme Color ---
+    const themePink = "#d65093"; 
+    
     // 1. Pick a random gate type (STRICTLY NO XOR)
     const gates = ['AND', 'OR', 'NOT', 'NAND', 'NOR'];
     const type = gates[Math.floor(Math.random() * gates.length)];
     currentProblem.gateType = type;
+
+    // --- DYNAMIC QUESTION 2 SETUP ---
+    const isStyle1 = Math.random() < 0.5; // True = Gate Labels, False = Corner Pin Labels
+    let q2Text = "";
+    let q2CorrectAnswer = "";
+    let style2Map = {};
+
+    if (!isStyle1) {
+        // STYLE 2: Corner Labels
+        const labels = ['A', 'B', 'C', 'D'].sort(() => Math.random() - 0.5); // Shuffle A,B,C,D
+        style2Map = { 1: labels[0], 7: labels[1], 8: labels[2], 14: labels[3] };
+        
+        const corners = [1, 7, 8, 14];
+        const qPin = corners[Math.floor(Math.random() * corners.length)];
+        
+        q2Text = `2. State which Pin (A, B, C, or D) is Pin <b>${qPin}</b> on this IC.`;
+        q2CorrectAnswer = style2Map[qPin];
+    } else {
+        // STYLE 1: Gate Labels
+        const isInput = Math.random() < 0.5;
+        let selectedGate, pinToAsk;
+        
+        if (type === 'NOT') {
+            const hexGates = [
+                {label: 'A', in: [1], out: [2]},
+                {label: 'B', in: [3], out: [4]},
+                {label: 'C', in: [5], out: [6]},
+                {label: 'D', in: [13], out: [12]},
+                {label: 'E', in: [11], out: [10]},
+                {label: 'F', in: [9], out: [8]}
+            ];
+            selectedGate = hexGates[Math.floor(Math.random() * hexGates.length)];
+        } else {
+            const quadGates = [
+                {label: 'A', in: [1, 2], out: [3]},
+                {label: 'B', in: [4, 5], out: [6]},
+                {label: 'C', in: [13, 12], out: [11]},
+                {label: 'D', in: [10, 9], out: [8]}
+            ];
+            selectedGate = quadGates[Math.floor(Math.random() * quadGates.length)];
+        }
+        
+        const pinArray = isInput ? selectedGate.in : selectedGate.out;
+        pinToAsk = pinArray[Math.floor(Math.random() * pinArray.length)];
+        const connText = isInput ? "input" : "output";
+        
+        q2Text = `2. Which logic gate has an <b>${connText}</b> connection on Pin <b>${pinToAsk}</b>?`;
+        q2CorrectAnswer = selectedGate.label;
+    }
+    
+    // Save the correct answer if your external grading script needs it
+    currentProblem.q2CorrectAnswer = q2CorrectAnswer;
 
     // 2. Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -4021,7 +4076,18 @@ function generateLogic_icProblem(ctx, canvas) {
     ctx.arc(icX + 15, icY + icH - 15, 3, 0, Math.PI*2);
     ctx.fill();
 
-// 4. Draw Internal Logic Gates & Routing
+    // --- DRAW STYLE 2 CORNER LABELS ---
+    if (!isStyle1) {
+        ctx.font = "bold 18px 'Segoe UI', sans-serif";
+        ctx.fillStyle = themePink;
+        ctx.textAlign = "center";
+        ctx.fillText(style2Map[1], pinXs[0], icY + icH + 38);   // Bottom Left
+        ctx.fillText(style2Map[7], pinXs[6], icY + icH + 38);   // Bottom Right
+        ctx.fillText(style2Map[8], pinXs[6], icY - 28);         // Top Right
+        ctx.fillText(style2Map[14], pinXs[0], icY - 28);        // Top Left
+    }
+
+    // 4. Draw Internal Logic Gates & Routing
     ctx.strokeStyle = "#000000"; 
     ctx.lineWidth = 1.5;
     ctx.lineCap = "round";
@@ -4031,271 +4097,193 @@ function generateLogic_icProblem(ctx, canvas) {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
     };
 
-const drawGateSymbol = (gateType, x, y) => {
-    const fn = window[`draw${gateType}Gate`];
-    if (typeof fn === 'function') {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.scale(0.55, 0.55); 
-        
-        if (gateType === 'NOT') {
-            // --- THE MAGIC SCISSORS (CLIPPING MASK) ---
-            ctx.beginPath();
-            // The third number (111) is the width of the cutout. 
-            // Tweak this up or down by 1-2 pixels if the bubble is clipped or the tail returns!
-            ctx.rect(-50, -50, 111, 100); 
-            ctx.clip();
-
-            // --- MANUALLY FORCE WHITE FILL BEHIND NOT GATE ---
-            ctx.fillStyle = "#FFFFFF";
-            ctx.beginPath();
-            ctx.moveTo(-2, -20);
-            ctx.lineTo(40, 0);
-            ctx.lineTo(-2, 20);
-            ctx.closePath();
-            ctx.fill();
+    const drawGateSymbol = (gateType, x, y) => {
+        const fn = window[`draw${gateType}Gate`];
+        if (typeof fn === 'function') {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(0.55, 0.55); 
             
-            ctx.beginPath();
-            ctx.arc(46, 0, 8, 0, Math.PI * 2); // The bubble mask
-            ctx.fill();
-        } 
-        // --- NEW CLIPPING FOR NAND AND NOR ---
-        else if (gateType === 'NAND' || gateType === 'NOR') {
-            ctx.beginPath();
-            // This rectangle clips the gate tip so it doesn't bleed into the vertical wire.
-            // Tweak '112' down (e.g., 110) if the bubble still pokes through the wire.
-            // Tweak '112' up (e.g., 114) if there is a gap between the bubble and wire.
-            ctx.rect(-50, -50, 112, 100); 
-            ctx.clip();
-        }
+            if (gateType === 'NOT') {
+                ctx.beginPath();
+                ctx.rect(-50, -50, 111, 100); 
+                ctx.clip();
 
-        ctx.strokeStyle = "#000000";
-        ctx.lineWidth = 2.5; 
-        fn(ctx, 0, 0);
-        ctx.restore();
-    }
-};
+                ctx.fillStyle = "#FFFFFF";
+                ctx.beginPath();
+                ctx.moveTo(-2, -20);
+                ctx.lineTo(40, 0);
+                ctx.lineTo(-2, 20);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(46, 0, 8, 0, Math.PI * 2); 
+                ctx.fill();
+            } 
+            else if (gateType === 'NAND' || gateType === 'NOR') {
+                ctx.beginPath();
+                ctx.rect(-50, -50, 112, 100); 
+                ctx.clip();
+            }
+
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 2.5; 
+            fn(ctx, 0, 0);
+            ctx.restore();
+        }
+    };
 
     if (type === 'NOT') {
         // --- HEX INVERTER ALIGNMENT ---
         const notPairsBottom = [[0,1], [2,3], [4,5]]; 
-        notPairsBottom.forEach(pair => {
+        notPairsBottom.forEach((pair, i) => {
             const px0 = pinXs[pair[0]];
             const px1 = pinXs[pair[1]];
             
             const gateX = px0 + 6; 
             const gateY = icY + icH - 35; 
 
-            // 1. Draw input/vertical wires first
             drawWire(px0, icY + icH, px0, gateY); 
             drawWire(px0, gateY, gateX, gateY);
             drawWire(px1, gateY, px1, icY + icH); 
             
-            // 2. Draw horizontal output wire slightly short (-1) for a clean corner
             const outX = gateX + 27; 
             if (outX < px1) {
                 drawWire(outX, gateY, px1 - 1, gateY); 
             }
             
-            // 3. Draw Gate Symbol LAST 
             drawGateSymbol('NOT', gateX, gateY); 
+
+            if (isStyle1) {
+                ctx.font = "bold 16px 'Segoe UI', sans-serif";
+                ctx.fillStyle = themePink;
+                ctx.textAlign = "center";
+                ctx.fillText(['A', 'B', 'C'][i], gateX + 15, gateY - 18);
+            }
         });
         
         const notPairsTop = [[1,2], [3,4], [5,6]]; 
-        notPairsTop.forEach(pair => {
+        notPairsTop.forEach((pair, i) => {
             const px0 = pinXs[pair[0]];
             const px1 = pinXs[pair[1]];
 
             const gateX = px0 + 6; 
             const gateY = icY + 35; 
 
-            // 1. Draw input/vertical wires first
             drawWire(px0, icY, px0, gateY); 
             drawWire(px0, gateY, gateX, gateY);
             drawWire(px1, gateY, px1, icY); 
 
-            // 2. Draw horizontal output wire slightly short (-1) for a clean corner
             const outX = gateX + 27;
             if (outX < px1) {
                 drawWire(outX, gateY, px1 - 1, gateY); 
             }
 
-            // 3. Draw Gate Symbol LAST 
             drawGateSymbol('NOT', gateX, gateY); 
+
+            if (isStyle1) {
+                ctx.font = "bold 16px 'Segoe UI', sans-serif";
+                ctx.fillStyle = themePink;
+                ctx.textAlign = "center";
+                ctx.fillText(['D', 'E', 'F'][i], gateX + 15, gateY - 18);
+            }
         });
-} else {
+    } else {
         // --- QUAD GATE ALIGNMENT ---
         const quadBottom = [[0,1,2], [3,4,5]];
-        quadBottom.forEach(group => {
+        quadBottom.forEach((group, i) => {
             const px0 = pinXs[group[0]]; 
             const px1 = pinXs[group[1]]; 
             const px2 = pinXs[group[2]]; 
 
-            // --- ADJUST BOTTOM GATE POSITION HERE ---
-            // Increase '46' to move gate further right
             const gateX = px0 + 46; 
-            // Increase '48' to move the gate further UP (away from the bottom edge)
             const gateY = icY + icH - 48; 
 
-            // --- INPUT WIRE HEIGHT ADJUSTMENTS ---
-            // These determine exactly where the wires plug into the gate symbol.
-            // Change 5.5 to a higher number to spread the wires further apart.
             const topInY = gateY - 5.5;   
             const botInY = gateY + 5.5;   
 
-            // ==========================================
-            // --- INPUT WIRE ADJUSTMENTS (BOTTOM) ---
-            // ==========================================
-
-            // 1. ROUTE PIN 1 (Top Input)
-            // Vertical line from pin up to topInY
-            // To shorten the vertical line DOWN into TOP PIN INcrease topInY
             drawWire(px0, icY + icH, px0, topInY + 14); 
-            
-            // Top Horizontal line into the gate
-            // To move the top horizontal line into TOP Pin of bottom gates vertically DOWN INcrease topInY
             drawWire(px0, topInY + 14, gateX, topInY + 14); 
             
-            // 2. ROUTE PIN 2 (Bottom Input - The "S-Shape")
-            
-            // --- Tweak 'turnY_B': Controls the first horizontal turn after leaving the pin ---
-            // To move the turn vertically UP (deeper into the chip): INCREASE the '10' (e.g., - 20)
-            // To move the turn vertically DOWN (closer to the pin): DECREASE the '10' (e.g., - 5)
             const turnY_B = icY + icH - 10; 
-            
-            // --- Tweak 'routeX_B': Controls the vertical "jog" position between pins ---
-            // To move the jog horizontally RIGHT: INCREASE the fraction (e.g., pinSpacing / 1.5)
-            // To move the jog horizontally LEFT: DECREASE the fraction (e.g., pinSpacing / 3)
-            // Or use a hard number: px0 + 15;
             const routeX_B = px0 + (pinSpacing / 2); 
             
-            // Vertical up from pin to the turn point
             drawWire(px1, icY + icH, px1, turnY_B); 
-            
-            // Horizontal over to the "jog" position
             drawWire(px1, turnY_B, routeX_B, turnY_B); 
-            
-            // Vertical up to the horizontal wire into the bottom PIN input height
             drawWire(routeX_B, turnY_B, routeX_B, botInY + 13.5); 
+            drawWire(routeX_B, botInY + 13.5 , gateX, botInY + 13.5);
             
-            // Horizontal into the gate
-            // To move the BOTTOM horizontal line into BOTTOM Pin vertically DOWN INcrease botInY
-            drawWire(routeX_B, botInY +13.5 , gateX, botInY +13.5);
-            
-            // ==========================================
-            // --- OUTPUT WIRE ADJUSTMENTS (BOTTOM) ---
-            // ==========================================
-            
-            // 1. VERTICAL DROP
-            // Change 'gateY' to 'gateY + 10' to start the wire 10px lower.
-            // This draws the line straight down from the gate's center (gateY) to the pin.
-            // If you want to shift this vertical line slightly left or right, change `px2` below 
-            // (e.g., to `px2 + 2` or `px2 - 2`).
             drawWire(px2, gateY + 14, px2, icY + icH); 
             
-            // 2. HORIZONTAL CONNECTION
-            // 'outX' is the starting point of the horizontal line coming off the gate.
-            // TWEAK '34.5':
-            // - Decrease it (e.g., 30) if there's a gap between the gate tip and the wire.
-            // - Increase it (e.g., 38) if the wire is drawing backwards into the gate symbol.
-    
             const outX = gateX + 34.5;
-            
             if (outX < px2) {
-                // This draws the line from the gate tip to the vertical drop.
-                // If you shifted the vertical line above, make sure you match the change to `px2` or "gate Y + 14" here!
                 drawWire(outX, gateY + 14, px2, gateY + 14); 
             }
-            // ==========================================
             
             drawGateSymbol(type, gateX, gateY); 
+
+            if (isStyle1) {
+                ctx.font = "bold 16px 'Segoe UI', sans-serif";
+                ctx.fillStyle = themePink;
+                ctx.textAlign = "center";
+                ctx.fillText(['A', 'B'][i], gateX + 22, gateY - 18);
+            }
         });
         
         const quadTop = [[1,2,3], [4,5,6]]; 
-        quadTop.forEach(group => {
+        quadTop.forEach((group, i) => {
             const px0 = pinXs[group[0]]; 
             const px1 = pinXs[group[1]]; 
             const px2 = pinXs[group[2]]; 
 
-            // --- ADJUST TOP GATE POSITION HERE ---
-            // Increase '46' to move gate further right (should match bottom gateX offset)
             const gateX = px0 + 46; 
-            // Decrease '20' to move the gate further UP (closer to the top edge)
             const gateY = icY + 20;       
 
-            // --- INPUT WIRE HEIGHT ADJUSTMENTS ---
             const topInY = gateY - 5.5;   
             const botInY = gateY + 5.5;   
 
-            // ==========================================
-            // --- INPUT WIRE ADJUSTMENTS (TOP) ---
-            // ==========================================
-
-            // 1. ROUTE PIN 1 (Bottom Input - Leftmost pin of group)
-            // Vertical down from pin to botInY
-            // To increase the vertical line DOWN into bottom PIN INcrease botInY
-            drawWire(px0, icY, px0, botInY +13.5); 
-            // To increase the y value of the bottom of the vertical line into bottom PIN INcrease botInY
-            // Horizontal into the gate
-            drawWire(px0, botInY +13.5, gateX, botInY +13.5); 
+            drawWire(px0, icY, px0, botInY + 13.5); 
+            drawWire(px0, botInY + 13.5, gateX, botInY + 13.5); 
             
-            // 2. ROUTE PIN 2 (The "S-Shape") (Top Input - Middle pin of group)
-            // Tweak '10': Controls how far the wire drops before turning.
             const turnY_T = icY + 10; 
-            // Controls the X position of the "jog"
             const routeX_T = px0 + (pinSpacing / 2);  
             
-            // Vertical down from pin to turn point
             drawWire(px1, icY, px1, turnY_T); 
-            // Horizontal over to jog position
             drawWire(px1, turnY_T, routeX_T, turnY_T); 
-            // Vertical down to top input height
-            drawWire(routeX_T, turnY_T, routeX_T, topInY +13.5); 
-            // To increase the y value of the bottom of the vertical line into bottom top INcrease topInY
-            // Horizontal into the gate
-            drawWire(routeX_T, topInY +13.5, gateX, topInY +13.5); 
+            drawWire(routeX_T, turnY_T, routeX_T, topInY + 13.5); 
+            drawWire(routeX_T, topInY + 13.5, gateX, topInY + 13.5); 
             
-            // ==========================================
-            // --- OUTPUT WIRE ADJUSTMENTS (TOP) ---
-            // ==========================================
-            
-            // 1. VERTICAL DROP
-            // Draws straight UP from the gate's center (gateY) to the pin (icY).
-            // Tweak `px2` (e.g., `px2 - 1`) if you need to budge the vertical line left/right.
-            // Change 'gateY' to 'gateY + 10' to start the wire 10px lower.
             drawWire(px2, gateY + 14, px2, icY); 
             
-            // 2. HORIZONTAL CONNECTION
-            // TWEAK '34.5': Controls where the wire starts relative to the gate.
             const outX = gateX + 34.5;
-            
             if (outX < px2) {
-                // Draws from the gate tip to the vertical drop.
-                // Match any tweaks to `px2` here as well.
                 drawWire(outX, gateY + 14, px2, gateY + 14); 
             }
-            // ==========================================
             
             drawGateSymbol(type, gateX, gateY); 
+
+            if (isStyle1) {
+                ctx.font = "bold 16px 'Segoe UI', sans-serif";
+                ctx.fillStyle = themePink;
+                ctx.textAlign = "center";
+                ctx.fillText(['C', 'D'][i], gateX + 22, gateY - 18);
+            }
         });
     }
     ctx.restore();
 
-// 5. Build the UI
+    // 5. Build the UI
     const qContainer = document.getElementById('inputGroupLogic_ic');
-    
-    const themePink = "#d65093"; 
 
-    // --- FIX 1: Aggressive pull-up to kill the top gap ---
     qContainer.style.width = "100%";
-    qContainer.style.maxWidth = "680px"; // Slightly tighter to ensure it fits split-screens
-    qContainer.style.margin = "-15px auto 0 auto"; // -15px to forcefully pull it up
-    qContainer.style.position = "relative"; // Ensures the negative margin works visually
+    qContainer.style.maxWidth = "680px"; 
+    qContainer.style.margin = "-15px auto 0 auto"; 
+    qContainer.style.position = "relative"; 
     qContainer.style.zIndex = "10";
-    qContainer.style.padding = "0 15px"; // Horizontal padding to protect edges
+    qContainer.style.padding = "0 15px"; 
     qContainer.style.boxSizing = "border-box";
 
-    // --- FIX 2: Replaced Flexbox with CSS Grid to prevent left-side clipping ---
     qContainer.innerHTML = `
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; align-items: start; font-family: 'Segoe UI', sans-serif;">
             
@@ -4313,23 +4301,13 @@ const drawGateSymbol = (gateType, x, y) => {
                 </div>
 
                 <div>
-                    <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 8px;">2. How many of these gates are inside the IC?</label>
-                    <input type="number" id="icGateCount" min="1" max="6" placeholder="e.g. 4" style="padding: 10px; width: 120px; border: 1.5px solid #eee; border-radius: 10px; color: #555; outline: none;">
-                </div>
-
-                <div>
-                    <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 8px;">3. Which pins are used for Power and Ground?</label>
-                    <select id="icPowerSelect" style="padding: 10px; width: 100%; border: 1.5px solid #eee; border-radius: 10px; background: white; color: #555; outline: none;">
-                        <option value="">-- Select Pins --</option>
-                        <option value="14,7">Vcc = 14, GND = 7</option>
-                        <option value="1,8">Vcc = 1, GND = 8</option>
-                        <option value="16,8">Vcc = 16, GND = 8</option>
-                    </select>
+                    <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 8px;">${q2Text}</label>
+                    <input type="text" id="icDynamicAnswer" maxlength="1" placeholder="e.g. A" style="padding: 10px; width: 100px; text-transform: uppercase; border: 1.5px solid #eee; border-radius: 10px; color: #555; outline: none; text-align: center; font-weight: bold;">
                 </div>
             </div>
 
             <div style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #f0f0f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin: 0 auto; width: 100%; max-width: 300px; box-sizing: border-box;">
-                <label style="display: block; text-align: left; margin-bottom: 15px; color: ${themePink}; font-weight: bold; font-size: 1.1rem;">4. Truth Table</label>
+                <label style="display: block; text-align: left; margin-bottom: 15px; color: ${themePink}; font-weight: bold; font-size: 1.1rem;">3. Truth Table</label>
                 
                 <table style="margin: 0 auto; background: white; border-collapse: collapse; text-align: center; font-size: 0.9em; width: 100%; border: 1px solid #ccc;">
                     <thead style="background-color: #f8f9fa;">
@@ -4377,7 +4355,7 @@ const drawGateSymbol = (gateType, x, y) => {
     `;
     qContainer.style.display = 'block';
 
-    // --- Input Safety Lock for Truth Table Boxes ---
+    // --- Input Safety Locks ---
     for (let i = 1; i <= 4; i++) {
         let el = document.getElementById(`tt_row${i}`);
         if (el) {
@@ -4387,6 +4365,16 @@ const drawGateSymbol = (gateType, x, y) => {
                 this.style.borderColor = '#ccc';
             });
         }
+    }
+    
+    // Safety lock for the A/B/C/D dynamic input box
+    const dynamicInput = document.getElementById('icDynamicAnswer');
+    if (dynamicInput) {
+        dynamicInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^A-Fa-f]/g, '').toUpperCase(); 
+            this.style.backgroundColor = 'white'; 
+            this.style.borderColor = '#eee';
+        });
     }
 }
 
