@@ -8328,27 +8328,34 @@ function toggleSolutions() {
 // 1. Move the topicMap OUTSIDE the function for better performance
 // It will only load once when the script runs, rather than every time a student clicks submit.
 const topicMap = {
+    // --- Core Circuits & Fundamentals ---
+    'colorcode': 'Colour Codes', 
+    'resistance': 'Tot Resistance',
+    'grade9resistance': 'G9 Resistance',
+    'power': 'Power',
+    'grade9power': 'G9 Power',
     'analysis': 'Cct Analysis',
     'divider': 'Pot Divider',
     'grade9divider': 'G9 Divider',
-    'resistance': 'Tot Resistance',
-    'grade9resistance': 'G9 Resistance',
-    'colorcode': 'Colour Codes', 
-    'power': 'Power',
-    'grade9power': 'G9 Power',
+    
+    // --- Signals & Timing ---
     'oscilloscope': 'Oscilloscopes',
     'astable': 'Astable', 
     'monostable': 'Monostable',
+    
+    // --- Diodes ---
+    'silicon': 'Silicon Diodes',
+    'grade9silicon': 'G9 Silicon Diodes',
     'zener': 'Zener Diodes',
     'grade9zener': 'G9 Zener',
-    'silicon': 'Silicon Diodes',
-    'grade9silicon': 'Grade 9 Silicon Diodes',
+    
+    // --- Logic & Systems ---
     'iposort': 'IPO Sort',  
     'boolean': 'Boolean Logic',          
     'logic_boolean': 'Boolean Logic',
     'grade9boolean': 'G9 Boolean Logic',
     'logic_system': 'Logic Systems',
-    'logic_ic': 'Logic Gates ICs'
+    'logic_ic': 'Logic Gate ICs'
 };
 
 async function processSubmission() {
