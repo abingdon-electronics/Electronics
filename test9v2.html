@@ -4211,6 +4211,11 @@ function generateLogic_icProblem(ctx, canvas) {
     qContainer.style.width = "100%";
     qContainer.style.display = 'block';
 
+    // --- AGGRESSIVE PULL UP ---
+    // Eat up that massive blank space below the Data Sheet button! 
+    // Feel free to change -35px to -40px or -25px to get it pixel-perfect.
+    qContainer.style.marginTop = "-35px"; 
+
     qContainer.innerHTML = `
         <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-around; align-items: flex-start; font-family: 'Segoe UI', sans-serif; width: 100%; box-sizing: border-box;">
             
@@ -4218,7 +4223,8 @@ function generateLogic_icProblem(ctx, canvas) {
                 
                 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
                     <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; flex: 1 0 auto; text-align: right;">IC logic gate =</label>
-                    <select id="icGateSelect" style="padding: 8px; flex: 1 1 120px; min-width: 120px; border: 1.5px solid #eee; border-radius: 8px; background: white; color: #555; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
+                    
+                    <select id="icGateSelect" style="padding: 8px; flex: 0 0 100px; width: 100px; border: 1.5px solid #eee; border-radius: 8px; background: white; color: #555; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
                         <option value="">-- Select --</option>
                         <option value="AND">AND</option>
                         <option value="OR">OR</option>
@@ -4230,7 +4236,8 @@ function generateLogic_icProblem(ctx, canvas) {
 
                 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
                     <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; flex: 1 0 auto; text-align: right;">${q2Text}</label>
-                    <select id="icPinAnswer" style="padding: 8px; flex: 1 1 120px; min-width: 120px; border: 1.5px solid #eee; border-radius: 8px; background: white; color: #555; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
+                    
+                    <select id="icPinAnswer" style="padding: 8px; flex: 0 0 100px; width: 100px; border: 1.5px solid #eee; border-radius: 8px; background: white; color: #555; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
                         <option value="">-- Select --</option>
                         <option value="VCC">VCC</option>
                         <option value="Ground">Ground</option>
