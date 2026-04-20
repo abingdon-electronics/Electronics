@@ -4123,8 +4123,8 @@ const drawGateSymbol = (gateType, x, y) => {
             const px2 = pinXs[group[2]]; 
 
             // --- ADJUST BOTTOM GATE POSITION HERE ---
-            // Increase '26' to move gate further right
-            const gateX = px0 + 26; 
+            // Increase '36' to move gate further right
+            const gateX = px0 + 36; 
             // Increase '42' to move the gate further UP (away from the bottom edge)
             const gateY = icY + icH - 42; 
 
@@ -4163,10 +4163,10 @@ const drawGateSymbol = (gateType, x, y) => {
             const px2 = pinXs[group[2]]; 
 
             // --- ADJUST TOP GATE POSITION HERE ---
-            // Increase '26' to move gate further right (should match bottom gateX offset)
-            const gateX = px0 + 26; 
-            // Decrease '22' to move the gate further UP (closer to the top edge)
-            const gateY = icY + 22;       
+            // Increase '36' to move gate further right (should match bottom gateX offset)
+            const gateX = px0 + 36; 
+            // Decrease '20' to move the gate further UP (closer to the top edge)
+            const gateY = icY + 20;       
 
             const topInY = gateY - 5.5;   
             const botInY = gateY + 5.5;   
