@@ -4149,16 +4149,19 @@ const drawGateSymbol = (gateType, x, y) => {
 
             // 1. ROUTE PIN 1 (Top Input)
             // Vertical line from pin up to topInY
-            drawWire(px0, icY + icH, px0, topInY); 
+            // To shorten the line DOWN increase topInY
+            drawWire(px0, icY + icH, px0, topInY + 10); 
+            
             // Horizontal line into the gate
-            drawWire(px0, topInY, gateX, topInY); 
+            // To move the line vertically DOWN increase topInY
+            drawWire(px0, topInY + 10, gateX, topInY + 10); 
             
             // 2. ROUTE PIN 2 (Bottom Input - The "S-Shape")
             
             // --- Tweak 'turnY_B': Controls the first horizontal turn after leaving the pin ---
             // To move the turn vertically UP (deeper into the chip): INCREASE the '10' (e.g., - 20)
             // To move the turn vertically DOWN (closer to the pin): DECREASE the '10' (e.g., - 5)
-            const turnY_B = icY + icH - 1; 
+            const turnY_B = icY + icH - 10; 
             
             // --- Tweak 'routeX_B': Controls the vertical "jog" position between pins ---
             // To move the jog horizontally RIGHT: INCREASE the fraction (e.g., pinSpacing / 1.5)
