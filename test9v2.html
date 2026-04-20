@@ -4286,21 +4286,23 @@ const drawGateSymbol = (gateType, x, y) => {
     
     const themePink = "#d65093"; 
 
-    // --- FIX 1: Pull the container up and fix the left clipping ---
+    // --- FIX 1: Aggressive pull-up to kill the top gap ---
     qContainer.style.width = "100%";
-    qContainer.style.maxWidth = "750px"; // Tightened slightly to keep it centered
-    qContainer.style.margin = "-30px auto 0 auto"; // Negative top margin to eat the empty space!
-    qContainer.style.padding = "10px"; // Reduced outer padding
+    qContainer.style.maxWidth = "680px"; // Slightly tighter to ensure it fits split-screens
+    qContainer.style.margin = "-60px auto 0 auto"; // -60px to forcefully pull it up
+    qContainer.style.position = "relative"; // Ensures the negative margin works visually
+    qContainer.style.zIndex = "10";
+    qContainer.style.padding = "0 15px"; // Horizontal padding to protect edges
     qContainer.style.boxSizing = "border-box";
-    // Removed overflow-x: hidden so it never artificially chops the left edge
 
+    // --- FIX 2: Replaced Flexbox with CSS Grid to prevent left-side clipping ---
     qContainer.innerHTML = `
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; align-items: flex-start; font-family: 'Segoe UI', sans-serif;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; align-items: start; font-family: 'Segoe UI', sans-serif;">
             
-            <div style="flex: 1 1 260px; min-width: 260px; max-width: 320px; display: flex; flex-direction: column; gap: 20px; text-align: left;">
+            <div style="display: flex; flex-direction: column; gap: 20px; text-align: left;">
                 <div>
-                    <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 8px; text-align: left;">1. Which logic gate is inside this IC?</label>
-                    <select id="icGateSelect" style="padding: 10px; width: 100%; max-width: 220px; border: 1.5px solid #eee; border-radius: 10px; background: white; color: #555; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
+                    <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 8px;">1. Which logic gate is inside this IC?</label>
+                    <select id="icGateSelect" style="padding: 10px; width: 100%; border: 1.5px solid #eee; border-radius: 10px; background: white; color: #555; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
                         <option value="">-- Select Gate --</option>
                         <option value="AND">AND</option>
                         <option value="OR">OR</option>
@@ -4311,13 +4313,13 @@ const drawGateSymbol = (gateType, x, y) => {
                 </div>
 
                 <div>
-                    <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 8px; text-align: left;">2. How many of these gates are inside the IC?</label>
+                    <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 8px;">2. How many of these gates are inside the IC?</label>
                     <input type="number" id="icGateCount" min="1" max="6" placeholder="e.g. 4" style="padding: 10px; width: 120px; border: 1.5px solid #eee; border-radius: 10px; color: #555; outline: none;">
                 </div>
 
                 <div>
-                    <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 8px; text-align: left;">3. Which pins are used for Power and Ground?</label>
-                    <select id="icPowerSelect" style="padding: 10px; width: 100%; max-width: 220px; border: 1.5px solid #eee; border-radius: 10px; background: white; color: #555; outline: none;">
+                    <label style="color: ${themePink}; font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 8px;">3. Which pins are used for Power and Ground?</label>
+                    <select id="icPowerSelect" style="padding: 10px; width: 100%; border: 1.5px solid #eee; border-radius: 10px; background: white; color: #555; outline: none;">
                         <option value="">-- Select Pins --</option>
                         <option value="14,7">Vcc = 14, GND = 7</option>
                         <option value="1,8">Vcc = 1, GND = 8</option>
@@ -4326,7 +4328,7 @@ const drawGateSymbol = (gateType, x, y) => {
                 </div>
             </div>
 
-            <div style="flex: 1 1 240px; min-width: 240px; max-width: 300px; background: white; padding: 20px; border-radius: 15px; border: 1px solid #f0f0f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+            <div style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #f0f0f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin: 0 auto; width: 100%; max-width: 300px; box-sizing: border-box;">
                 <label style="display: block; text-align: left; margin-bottom: 15px; color: ${themePink}; font-weight: bold; font-size: 1.1rem;">4. Truth Table</label>
                 
                 <table style="margin: 0 auto; background: white; border-collapse: collapse; text-align: center; font-size: 0.9em; width: 100%; border: 1px solid #ccc;">
