@@ -4149,10 +4149,11 @@ const drawGateSymbol = (gateType, x, y) => {
             // ==========================================
             
             // 1. VERTICAL DROP
+            // Change 'gateY' to 'gateY + 10' to start the wire 10px lower.
             // This draws the line straight down from the gate's center (gateY) to the pin.
             // If you want to shift this vertical line slightly left or right, change `px2` below 
             // (e.g., to `px2 + 2` or `px2 - 2`).
-            drawWire(px2, gateY, px2, icY + icH); 
+            drawWire(px2, gateY + 10, px2, icY + icH); 
             
             // 2. HORIZONTAL CONNECTION
             // 'outX' is the starting point of the horizontal line coming off the gate.
