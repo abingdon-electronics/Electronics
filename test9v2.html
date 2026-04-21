@@ -5143,15 +5143,20 @@ function generateLogic_nandProblem(ctx, canvas) {
         overlay.appendChild(zone);
     };
 
-// 8. Draw the Blueprints (Dynamically sized and compressed horizontally)
+// 8. Draw the Blueprints
     const quadW = canvas.width / 2;
     const quadH = canvas.height / 2;
     
+    // Shift the right-hand quadrants to the left to prevent cutting off the 'Q'
+    const rightShift = 40; 
+    // Add a tiny bit of padding to the left quadrants so they don't hug the wall
+    const leftPad = 10; 
+
     const quadrantOffsets = [
-        { x: 0, y: 0 }, 
-        { x: quadW, y: 0 }, 
-        { x: 0, y: quadH }, 
-        { x: quadW, y: quadH }
+        { x: leftPad, y: 0 },                   // Top-Left
+        { x: quadW - rightShift, y: 0 },        // Top-Right (pulled left)
+        { x: leftPad, y: quadH },               // Bottom-Left
+        { x: quadW - rightShift, y: quadH }     // Bottom-Right (pulled left)
     ];
 
     blueprints.forEach((bp, i) => {
