@@ -5056,11 +5056,10 @@ function generateLogic_nandProblem(ctx, canvas) {
     ctx.stroke();
 
     // --- EMBEDDED GRAPHICS FOR THE GATES ---
-    // These perfectly match an 80x50 box. 
-    // Standard pins at y=15 and y=35. Joined pin at y=25. Output at y=25.
-    const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none;"><line x1="0" y1="15" x2="15" y2="15" stroke="black" stroke-width="2"/><line x1="0" y1="35" x2="15" y2="35" stroke="black" stroke-width="2"/><path d="M 15,5 L 35,5 A 20,20 0 0,1 35,45 L 15,45 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="60" cy="25" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="64" y1="25" x2="80" y2="25" stroke="black" stroke-width="2"/></svg>`;
+    // Added display: block to prevent SVG inline descender gaps!
+    const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="15" x2="15" y2="15" stroke="black" stroke-width="2"/><line x1="0" y1="35" x2="15" y2="35" stroke="black" stroke-width="2"/><path d="M 15,5 L 35,5 A 20,20 0 0,1 35,45 L 15,45 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="60" cy="25" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="64" y1="25" x2="80" y2="25" stroke="black" stroke-width="2"/></svg>`;
     
-    const svgJoined = `<svg width="100%" height="100%" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none;"><line x1="0" y1="25" x2="8" y2="25" stroke="black" stroke-width="2"/><line x1="8" y1="15" x2="8" y2="35" stroke="black" stroke-width="2"/><line x1="8" y1="15" x2="15" y2="15" stroke="black" stroke-width="2"/><line x1="8" y1="35" x2="15" y2="35" stroke="black" stroke-width="2"/><path d="M 15,5 L 35,5 A 20,20 0 0,1 35,45 L 15,45 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="60" cy="25" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="64" y1="25" x2="80" y2="25" stroke="black" stroke-width="2"/></svg>`;
+    const svgJoined = `<svg width="100%" height="100%" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="25" x2="8" y2="25" stroke="black" stroke-width="2"/><line x1="8" y1="15" x2="8" y2="35" stroke="black" stroke-width="2"/><line x1="8" y1="15" x2="15" y2="15" stroke="black" stroke-width="2"/><line x1="8" y1="35" x2="15" y2="35" stroke="black" stroke-width="2"/><path d="M 15,5 L 35,5 A 20,20 0 0,1 35,45 L 15,45 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="60" cy="25" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="64" y1="25" x2="80" y2="25" stroke="black" stroke-width="2"/></svg>`;
 
     // 4. Create UI Container in Right Panel
     let qContainer = document.getElementById('inputGroupLogic_NAND');
@@ -5095,7 +5094,7 @@ function generateLogic_nandProblem(ctx, canvas) {
         </div>
     `;
 
-    // 6. Canvas Overlay Setup
+    // 6. Canvas Overlay Setup (Bulletproof Positioning)
     let circuitContainer = document.getElementById('circuitContainer');
     circuitContainer.style.position = 'relative'; 
     let oldOverlay = document.getElementById('nandCanvasOverlay');
@@ -5104,8 +5103,9 @@ function generateLogic_nandProblem(ctx, canvas) {
     let overlay = document.createElement('div');
     overlay.id = 'nandCanvasOverlay';
     overlay.style.position = 'absolute';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
+    // Forces the overlay to snap exactly to the canvas coordinates regardless of container padding
+    overlay.style.top = canvas.offsetTop + 'px';
+    overlay.style.left = canvas.offsetLeft + 'px';
     overlay.style.width = canvas.width + 'px';
     overlay.style.height = canvas.height + 'px';
     overlay.style.pointerEvents = 'none'; 
@@ -5131,6 +5131,7 @@ function generateLogic_nandProblem(ctx, canvas) {
         zone.style.top = y + 'px';
         zone.style.width = w + 'px';
         zone.style.height = h + 'px';
+        zone.style.boxSizing = 'border-box'; // THE MAGIC FIX! Keeps it exactly 80x50
         zone.style.border = '2px dashed #d65093';
         zone.style.backgroundColor = 'rgba(214, 80, 147, 0.05)';
         zone.style.pointerEvents = 'auto'; 
@@ -5152,39 +5153,96 @@ function generateLogic_nandProblem(ctx, canvas) {
         ctx.fillText(bp + " Blueprint", offsetX + 10, offsetY + 20);
 
         if (bp === 'NOT') {
-            // NOT expects a Joined NAND (1 input in the middle)
             let boxX = offsetX + 100, boxY = offsetY + 75;
             ctx.fillText("A", offsetX + 10, boxY + 30);
             
-            // Single wire hitting exactly at Y+25 (middle)
             drawWire(offsetX + 25, boxY + 25, boxX, boxY + 25); 
             createDropZone(bp, 1, boxX, boxY, 80, 50);
             
-            // Output wire at Y+25
             drawWire(boxX + 80, boxY + 25, boxX + 160, boxY + 25);
             ctx.fillText("Q", boxX + 170, boxY + 30);
         } 
         
         else if (bp === 'AND') {
-            // AND expects Box 1 (Standard) feeding into Box 2 (Joined)
             let box1X = offsetX + 60, boxY = offsetY + 70;
             let box2X = offsetX + 190;
 
             ctx.fillText("A", offsetX + 10, boxY + 20);
             ctx.fillText("B", offsetX + 10, boxY + 40);
             
-            // Twin wires hitting Box 1 at Y+15 and Y+35
             drawWire(offsetX + 25, boxY + 15, box1X, boxY + 15);
             drawWire(offsetX + 25, boxY + 35, box1X, boxY + 35);
             createDropZone(bp, 1, box1X, boxY, 80, 50);
             
-            // Output of Box 1 (Y+25) connects straight to Input of Box 2 (Y+25)
             drawWire(box1X + 80, boxY + 25, box2X, boxY + 25); 
             createDropZone(bp, 2, box2X, boxY, 80, 50);
             
-            // Output of Box 2 (Y+25)
             drawWire(box2X + 80, boxY + 25, box2X + 110, boxY + 25);
             ctx.fillText("Q", box2X + 115, boxY + 30);
+        }
+
+        else if (bp === 'OR') {
+            let box1X = offsetX + 40, box1Y = offsetY + 40;
+            let box2X = offsetX + 40, box2Y = offsetY + 100;
+            let box3X = offsetX + 160, box3Y = offsetY + 70;
+
+            ctx.fillText("A", offsetX + 10, box1Y + 30);
+            ctx.fillText("B", offsetX + 10, box2Y + 30);
+
+            drawWire(offsetX + 25, box1Y + 25, box1X, box1Y + 25);
+            drawWire(offsetX + 25, box2Y + 25, box2X, box2Y + 25);
+
+            createDropZone(bp, 1, box1X, box1Y, 80, 50);
+            createDropZone(bp, 2, box2X, box2Y, 80, 50);
+
+            // Orthogonal "Elbow" Wires to Box 3
+            let midX = box1X + 100; 
+            drawWire(box1X + 80, box1Y + 25, midX, box1Y + 25);
+            drawWire(midX, box1Y + 25, midX, box3Y + 15);
+            drawWire(midX, box3Y + 15, box3X, box3Y + 15);
+
+            drawWire(box2X + 80, box2Y + 25, midX, box2Y + 25);
+            drawWire(midX, box2Y + 25, midX, box3Y + 35);
+            drawWire(midX, box3Y + 35, box3X, box3Y + 35);
+
+            createDropZone(bp, 3, box3X, box3Y, 80, 50);
+
+            drawWire(box3X + 80, box3Y + 25, box3X + 110, box3Y + 25);
+            ctx.fillText("Q", box3X + 115, box3Y + 30);
+        }
+
+        else if (bp === 'NOR') {
+            let box1X = offsetX + 30, box1Y = offsetY + 40;
+            let box2X = offsetX + 30, box2Y = offsetY + 100;
+            let box3X = offsetX + 130, box3Y = offsetY + 70;
+            let box4X = offsetX + 215, box4Y = offsetY + 70;
+
+            ctx.fillText("A", offsetX + 5, box1Y + 30);
+            ctx.fillText("B", offsetX + 5, box2Y + 30);
+
+            drawWire(offsetX + 20, box1Y + 25, box1X, box1Y + 25);
+            drawWire(offsetX + 20, box2Y + 25, box2X, box2Y + 25);
+
+            createDropZone(bp, 1, box1X, box1Y, 80, 50);
+            createDropZone(bp, 2, box2X, box2Y, 80, 50);
+
+            // Orthogonal "Elbow" Wires to Box 3
+            let midX = box1X + 90; 
+            drawWire(box1X + 80, box1Y + 25, midX, box1Y + 25);
+            drawWire(midX, box1Y + 25, midX, box3Y + 15);
+            drawWire(midX, box3Y + 15, box3X, box3Y + 15);
+
+            drawWire(box2X + 80, box2Y + 25, midX, box2Y + 25);
+            drawWire(midX, box2Y + 25, midX, box3Y + 35);
+            drawWire(midX, box3Y + 35, box3X, box3Y + 35);
+
+            createDropZone(bp, 3, box3X, box3Y, 80, 50);
+
+            drawWire(box3X + 80, box3Y + 25, box4X, box4Y + 25);
+            createDropZone(bp, 4, box4X, box4Y, 80, 50);
+
+            drawWire(box4X + 80, box4Y + 25, offsetX + 295, box4Y + 25);
+            ctx.fillText("Q", offsetX + 285, box4Y + 20); // Moved Q slightly up to clear bounds
         }
     });
 
