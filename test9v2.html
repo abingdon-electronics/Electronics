@@ -5188,9 +5188,10 @@ function generateLogic_nandProblem(ctx, canvas) {
             let box1X = offsetX + 40 + shift;
             let boxY = offsetY + 65;
             let box2X = offsetX + 115 + shift; 
-            
-            let pinTopY = boxY + 12; 
-            let pinBotY = boxY + 28; 
+
+            //INPUT WIRE Y coordinates
+            let pinTopY = boxY + 14; 
+            let pinBotY = boxY + 27; 
             let pinMidY = boxY + 20; 
 
             ctx.fillText("A", offsetX + 10 + shift, pinTopY);
