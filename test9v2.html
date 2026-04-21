@@ -5171,7 +5171,8 @@ function generateLogic_nandProblem(ctx, canvas) {
         if (bp === 'NOT') {
             let boxX = offsetX + 60 + shift;
             let boxY = offsetY + 65; 
-            let pinY = boxY + 20; 
+            // this next line adjusts the y position of teh NOT gate wires. Increasing means moving down 
+            let pinY = boxY + 23; 
             
             ctx.fillText("A", offsetX + 15 + shift, pinY);
             drawWire(offsetX + 30 + shift, pinY, boxX, pinY); 
