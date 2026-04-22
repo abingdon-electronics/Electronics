@@ -5075,24 +5075,43 @@ function generateLogic_nandProblem(ctx, canvas) {
     }
     qContainer.style.display = 'block';
 
-    // 5. Build Parts Bin
-    qContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: -20px;">
-            <div style="text-align: center; width: 100%; margin-bottom: 10px;">
-                <h3 style="color: black; margin: 0; font-size: 1.1em;">Task: Construct a(n) <span style="color: ${themePink};">${targetGate}</span> Gate</h3>
-                <p style="color: #666; font-size: 0.8em; margin: 2px 0;">Drag the correct gates to the blueprint. Double-click to remove.</p>
-            </div>
-            
-            <div id="nandPartsBin" style="display: flex; flex-direction: row; justify-content: center; gap: 8px; padding: 10px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 8px;">
-                <div class="nand-draggable" draggable="true" data-gatetype="standard" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">${svgStandard}</div>
-                <div class="nand-draggable" draggable="true" data-gatetype="joined" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">${svgJoined}</div>
-                <div class="nand-draggable" draggable="true" data-gatetype="false-single" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">${svgFalseSingle}</div>
-                <div class="nand-draggable" draggable="true" data-gatetype="false-and" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">${svgFalseAND}</div>
-                <div class="nand-draggable" draggable="true" data-gatetype="false-and-joined" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">${svgFalseANDJoined}</div>
-                <div class="nand-draggable" draggable="true" data-gatetype="false-and-single" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">${svgFalseANDSingle}</div>
-            </div>
+// 5. Build Parts Bin with Shuffled Icons
+// Define the gates as an array of objects
+let gateOptions = [
+    { type: 'standard', svg: svgStandard },
+    { type: 'joined', svg: svgJoined },
+    { type: 'false-single', svg: svgFalseSingle },
+    { type: 'false-and', svg: svgFalseAND },
+    { type: 'false-and-joined', svg: svgFalseANDJoined },
+    { type: 'false-and-single', svg: svgFalseANDSingle }
+];
+
+// Shuffle the gate icons
+for (let i = gateOptions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [gateOptions[i], gateOptions[j]] = [gateOptions[j], gateOptions[i]];
+}
+
+// Generate the HTML for the icons using a map
+const gateIconsHTML = gateOptions.map(gate => `
+    <div class="nand-draggable" draggable="true" data-gatetype="${gate.type}" 
+         style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+        ${gate.svg}
+    </div>
+`).join('');
+
+qContainer.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: -20px;">
+        <div style="text-align: center; width: 100%; margin-bottom: 10px;">
+            <h3 style="color: black; margin: 0; font-size: 1.1em;">Task: Construct a(n) <span style="color: ${themePink};">${targetGate}</span> Gate</h3>
+            <p style="color: #666; font-size: 0.8em; margin: 2px 0;">Drag the correct gates to the blueprint. Double-click to remove.</p>
         </div>
-    `;
+        
+        <div id="nandPartsBin" style="display: flex; flex-direction: row; justify-content: center; gap: 8px; padding: 10px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 8px;">
+            ${gateIconsHTML}
+        </div>
+    </div>
+`;
 
     // 6. Canvas Overlay Setup 
     let circuitContainer = document.getElementById('circuitContainer');
