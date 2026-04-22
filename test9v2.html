@@ -1575,108 +1575,82 @@ let isDeMorganQuestion = false;
 function handleNewQuestionClick() {
     console.log("1. New Question Button Clicked. Starting Mode:", currentMode);
 
-    // 1. RESET SCORING & UI FOR THE NEW PROBLEM ************
-    canEarnPoints = true;      // Student can earn points again
-    viewedSolution = false;    // Reset the peek flag
+    // 1. RESET SCORING & UI FOR THE NEW PROBLEM
+    canEarnPoints = true;
+    viewedSolution = false;
     
-    // Hide the solution box
     const sol = document.getElementById('solutions');
     if (sol) sol.style.display = 'none';
     
-    // Bring back the Help Button
     const showsolutionsBtn = document.getElementById('showsolutionsBtn');
     if (showsolutionsBtn) {
         showsolutionsBtn.style.display = 'block'; 
         showsolutionsBtn.innerText = "🛟 Help"; 
     }
 
-    // Bring back the Check Answer button for the new problem
     const checkansBtn = document.getElementById('checkansBtn');
     if (checkansBtn) checkansBtn.style.display = 'block'; 
 
-    // ---> DO NOT COLLAPSE THE HEIGHT <---
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "&nbsp;";
 
-    // ---> RE-SHOW THE CANVAS CONTAINER <--- ********************
     const circuitContainer = document.getElementById('circuitContainer');
     if (circuitContainer) circuitContainer.style.display = 'block';
     
     const circuitCanvas = document.getElementById('circuitCanvas');
     if (circuitCanvas) circuitCanvas.style.display = 'block';
 
-    // Hide the IPO workstation just in case it was left open
     const canvasIPOWorkstation = document.getElementById('canvasIPOWorkstation');
     if (canvasIPOWorkstation) canvasIPOWorkstation.style.display = 'none';
 
-    // ---> REMOVE THE GRADE 9 CSS LOCKS <--- 
-    const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
-    const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
-    const g9Nand = document.getElementById('inputGroupGrade9Nand'); // Added for NAND
-    if (g9Master) g9Master.style.removeProperty("display");
-    if (g9Path) g9Path.style.removeProperty("display");
-    if (g9Nand) g9Nand.style.removeProperty("display"); // Clean up NAND conversion UI
+    // REMOVE THE GRADE 9 CSS LOCKS 
+    const g9Nand = document.getElementById('inputGroupGrade9Nand');
+    if (g9Nand) g9Nand.style.removeProperty("display");
 
-    // ---> ESCAPE THE GRADE 9 LOOPS & RESET SCORE <--- 
+    // ESCAPE THE GRADE 9 LOOPS
     let escapedGrade9 = false;
     let previousMode = currentMode; 
 
-    if (currentMode === 'grade9zener') {
-        currentMode = 'zener';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9divider') {
-        currentMode = 'divider';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9resistance') {
-        currentMode = 'resistance';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9power') {
-        currentMode = 'power';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9silicon') {  
-        currentMode = 'silicon';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9boolean') {  
-        currentMode = 'logic_boolean';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9nand') {  // 👇 NEW: Returns to standard NAND
-        currentMode = 'logic_nand';
-        escapedGrade9 = true;
-    }
+    if (currentMode === 'grade9zener') { currentMode = 'zener'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9divider') { currentMode = 'divider'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9resistance') { currentMode = 'resistance'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9power') { currentMode = 'power'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9silicon') { currentMode = 'silicon'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9boolean') { currentMode = 'logic_boolean'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9nand') { currentMode = 'logic_nand'; escapedGrade9 = true; }
 
-    // If we are dropping out of a Grade 9 mode AND they have a score, warn them!
     if (escapedGrade9 && (typeof problemsAttempted !== 'undefined' && problemsAttempted > 0)) {
         const wantsToProceed = confirm("Warning: Returning to standard mode will reset your Grade 9 score to 0. Do you want to continue?");
-        
-        if (!wantsToProceed) {
-            currentMode = previousMode; 
-            return; 
-        }
+        if (!wantsToProceed) { currentMode = previousMode; return; }
     }
 
-    // If they clicked "OK", wipe the score
     if (escapedGrade9) {
         problemsAttempted = 0;
         problemsCorrect = 0;
-        if (typeof updateScoreboard === 'function') {
-            updateScoreboard();
-        }
+        if (typeof updateScoreboard === 'function') updateScoreboard();
     }
 
-    // 2. GENERATE THE NEW PROBLEM ********************************
+    // 2. GENERATE THE NEW PROBLEM
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas ? canvas.getContext('2d') : null;
 
-    // 👇 CRITICAL: CLEAR THE VISUAL CANVAS AND THE MEMORY 👇
     if (ctx && canvas) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Erases old standard question wires
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
     
-    // 👇 CRITICAL: KILL GHOST WIRES BEFORE GENERATING 👇
-    window.currentNandTarget = null;
+    // 👇 THE "GHOST BUSTER" SECTION 👇
+    // We must wipe EVERY array that could contain wires or gates
     window.nandWires = [];
     window.nandGates = [];
+    window.currentNandTarget = null;
+    
+    // Wipe standard logic arrays (Checks for common names used in your other modules)
+    if (window.allWires) window.allWires = [];
+    if (window.allGates) window.allGates = [];
+    if (window.logicWires) window.logicWires = [];
+    if (window.gateList) window.gateList = [];
 
+    // 3. ROUTING
     if (currentMode === 'colorcode') {
         if (typeof generateColorCodeProblem === "function") generateColorCodeProblem(ctx, canvas);
     } else if (currentMode === 'zener') {
@@ -1688,12 +1662,10 @@ function handleNewQuestionClick() {
     } else if (currentMode === 'logic_system') { 
         if (typeof generateLogicSystemProblem === "function") generateLogicSystemProblem(ctx, canvas);
     } else {
-        // Handles Astable, Monostable, Oscilloscope, Divider, Resistance, Silicon, AND Logic/NAND
-        // This triggers hubController which handles the UI cleaning perfectly
+        // This calls hubController which does the final ctx.clearRect
         if (typeof hubController === "function") hubController(ctx, canvas);
     }
 }
-
 // *********************************************************************
     
 function handleGrade9Click() {
