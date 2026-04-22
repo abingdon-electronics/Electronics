@@ -1378,6 +1378,8 @@
     </div>
 
 </div>
+
+<!-- Input group G9 NAND--> 
 <div id="inputGroupGrade9Nand" style="display: none;">
     <div style="background: #fff3f8; padding: 15px; border-radius: 8px; border: 1px solid #e64097; margin-bottom: 15px;">
         <h4 style="margin-top: 0; color: #e64097;">NAND System Conversion</h4>
@@ -7378,11 +7380,26 @@ function hubController(ctx, canvas) {
         if (typeof generateLogic_icProblem === "function") generateLogic_icProblem(ctx, canvas);
         
     } else if (currentMode === 'logic_nand') {
-        // *** NEW NAND EQUIVALENTS ROUTING ***
-        // Show rocket so they can access Phase 2 later
+        // *** STANDARD NAND EQUIVALENTS ***
+        if (document.getElementById('inputGroupLogic_NAND')) document.getElementById('inputGroupLogic_NAND').style.display = 'block';
+        
+        // Show rocket to allow transition to Grade 9 Conversion
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         
         if (typeof generateLogic_nandProblem === "function") generateLogic_nandProblem(ctx, canvas);
+
+    } else if (currentMode === 'grade9nand') {
+        // *** NEW: GRADE 9 SYSTEM CONVERSION ***
+        if (document.getElementById('inputGroupGrade9Nand')) document.getElementById('inputGroupGrade9Nand').style.display = 'block';
+        
+        // Hide rocket or keep visible to cycle through different 3-input systems
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+        
+        if (typeof generateGrade9NandProblem === "function") {
+            generateGrade9NandProblem(ctx, canvas);
+        } else {
+            console.error("Hub: generateGrade9NandProblem is not defined!");
+        }
     }
 }
 
