@@ -1667,6 +1667,11 @@ function handleNewQuestionClick() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas ? canvas.getContext('2d') : null;
 
+    // 👇 CRITICAL: CLEAR THE VISUAL CANVAS AND THE MEMORY 👇
+    if (ctx && canvas) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Erases old standard question wires
+    }
+    
     // 👇 CRITICAL: KILL GHOST WIRES BEFORE GENERATING 👇
     window.currentNandTarget = null;
     window.nandWires = [];
