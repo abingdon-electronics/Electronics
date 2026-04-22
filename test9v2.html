@@ -5056,16 +5056,9 @@ function generateLogic_nandProblem(ctx, canvas) {
     ctx.stroke();
 
     // --- EMBEDDED GRAPHICS (60x40) ---
-    // Standard: Top input y=12, Bottom input y=28, Output y=20
     const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
-    
-    // Joined: Single Input y=20, Output y=20
     const svgJoined = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="20" x2="6" y2="20" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="6" y2="28" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="6" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
-
-    // NEW: Distractor 1 - Single Input NAND (Pins joined together)
     const svgFalseSingle = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="20" x2="10" y2="20" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
-
-    // NEW: Distractor 2 - Standard AND Gate (No bubble at the end)
     const svgFalseAND = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><line x1="41" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
 
     // 4. Create UI Container
@@ -5078,41 +5071,25 @@ function generateLogic_nandProblem(ctx, canvas) {
     }
     qContainer.style.display = 'block';
 
-    // 5. Build Parts Bin
+    // 5. Build Parts Bin (Compressed, No Labels, Horizontal)
     qContainer.innerHTML = `
-        <div style="text-align: center; margin-top: -20px; margin-bottom: 15px;">
+        <div style="text-align: center; margin-top: -30px; margin-bottom: 10px;">
             <h3 style="color: ${themePink}; margin: 0; font-size: 1.1em;">Task: Construct a(n) <strong>${targetGate}</strong> Gate</h3>
-            <p style="color: #666; font-size: 0.8em; margin-top: 2px;">Drag gates to the blueprint. Watch the inputs! <em>(Double-click to remove)</em></p>
+            <p style="color: #666; font-size: 0.8em; margin: 2px 0;">Drag the correct gates to the blueprint. Double-click to remove.</p>
         </div>
         
-        <div id="nandPartsBin" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 12px; padding: 12px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 8px;">
-            
-            <div style="text-align: center;">
-                <div class="nand-draggable" draggable="true" data-gatetype="standard" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); margin: 0 auto;">
-                    ${svgStandard}
-                </div>
-                <span style="font-size: 0.7em; color: #555; font-weight: bold;">Standard</span>
+        <div id="nandPartsBin" style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-evenly; align-items: center; gap: 8px; padding: 10px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 8px;">
+            <div class="nand-draggable" draggable="true" data-gatetype="standard" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+                ${svgStandard}
             </div>
-
-            <div style="text-align: center;">
-                <div class="nand-draggable" draggable="true" data-gatetype="joined" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); margin: 0 auto;">
-                    ${svgJoined}
-                </div>
-                <span style="font-size: 0.7em; color: #555; font-weight: bold;">Joined</span>
+            <div class="nand-draggable" draggable="true" data-gatetype="joined" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+                ${svgJoined}
             </div>
-
-            <div style="text-align: center;">
-                <div class="nand-draggable" draggable="true" data-gatetype="false-single" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); margin: 0 auto;">
-                    ${svgFalseSingle}
-                </div>
-                <span style="font-size: 0.7em; color: #555; font-weight: bold;">Single In</span>
+            <div class="nand-draggable" draggable="true" data-gatetype="false-single" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+                ${svgFalseSingle}
             </div>
-
-            <div style="text-align: center;">
-                <div class="nand-draggable" draggable="true" data-gatetype="false-and" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); margin: 0 auto;">
-                    ${svgFalseAND}
-                </div>
-                <span style="font-size: 0.7em; color: #555; font-weight: bold;">AND Gate</span>
+            <div class="nand-draggable" draggable="true" data-gatetype="false-and" style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+                ${svgFalseAND}
             </div>
         </div>
     `;
@@ -5134,12 +5111,8 @@ function generateLogic_nandProblem(ctx, canvas) {
     circuitContainer.appendChild(overlay);
 
     // 7. Drawing Helpers
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
-    ctx.fillStyle = "#000";
-    ctx.font = "14px Arial";
-    ctx.textBaseline = "middle"; 
-    ctx.textAlign = "left"; 
+    ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.fillStyle = "#000";
+    ctx.font = "14px Arial"; ctx.textBaseline = "middle"; ctx.textAlign = "left"; 
 
     const drawWire = (x1, y1, x2, y2) => {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
@@ -5151,180 +5124,88 @@ function generateLogic_nandProblem(ctx, canvas) {
         zone.dataset.blueprint = blueprintName;
         zone.dataset.boxindex = boxIndex;
         zone.style.position = 'absolute';
-        zone.style.left = x + 'px';
-        zone.style.top = y + 'px';
-        zone.style.width = w + 'px';
-        zone.style.height = h + 'px';
+        zone.style.left = x + 'px'; zone.style.top = y + 'px';
+        zone.style.width = w + 'px'; zone.style.height = h + 'px';
         zone.style.boxSizing = 'border-box'; 
         zone.style.border = '2px dashed #d65093';
         zone.style.backgroundColor = 'rgba(214, 80, 147, 0.05)';
         zone.style.pointerEvents = 'auto'; 
-        zone.style.display = 'flex';
-        zone.style.alignItems = 'center';
-        zone.style.justifyContent = 'center';
+        zone.style.display = 'flex'; zone.style.alignItems = 'center'; zone.style.justifyContent = 'center';
         overlay.appendChild(zone);
     };
 
-    // 8. Draw the Blueprints (Perfectly mirrored, uniformly shifted on the right)
+    // 8. Draw the Blueprints (All coordinate logic preserved exactly)
     const quadW = canvas.width / 2;
     const quadH = canvas.height / 2;
-    
-    // Anchors are exactly the left edge of each quadrant
-    const quadrantOffsets = [
-        { x: 0, y: 0 }, 
-        { x: quadW, y: 0 }, 
-        { x: 0, y: quadH }, 
-        { x: quadW, y: quadH }
-    ];
+    const quadrantOffsets = [{ x: 0, y: 0 }, { x: quadW, y: 0 }, { x: 0, y: quadH }, { x: quadW, y: quadH }];
 
     blueprints.forEach((bp, i) => {
         let offsetX = quadrantOffsets[i].x;
-        
-        // Shifts top quadrants (0 & 1) up by 2px, and bottom quadrants (2 & 3) up by 3px
         let shiftY = (i === 0 || i === 1) ? -2 : -3;
         let offsetY = quadrantOffsets[i].y + shiftY;
-        
-        // Shifts the ENTIRE right side drawing uniformly by 20px to the right.
         let shift = (i === 1 || i === 3) ? 20 : 0;
-        
-        // Shifts ONLY the pink dropzone boxes by 4px to the left in the right quadrants.
         let boxShift = (i === 1 || i === 3) ? -4 : 0;
 
         if (bp === 'NOT') {
             let boxX = offsetX + 60 + shift;
-            let boxY = offsetY + 65; 
-            // this next line adjusts the y position of teh NOT gate wires. Increasing means moving down 
-            let pinY = boxY + 22; 
-            
+            let boxY = offsetY + 65; let pinY = boxY + 22; 
             ctx.fillText("A", offsetX + 15 + shift, pinY);
             drawWire(offsetX + 30 + shift, pinY, boxX, pinY); 
-            
-            // Applied boxShift only to the dropzone
             createDropZone(bp, 1, boxX + boxShift, boxY, 60, 40);
-            
             let outEndX = offsetX + 150 + shift;
             drawWire(boxX + 60, pinY, outEndX, pinY);
             ctx.fillText("Q", outEndX + 10, pinY);
-        } 
-        
-        else if (bp === 'AND') {
-            let box1X = offsetX + 40 + shift;
-            let boxY = offsetY + 65;
-            let box2X = offsetX + 115 + shift; 
-
-            //INPUT WIRE Y coordinates
-            let pinTopY = boxY + 14; 
-            let pinBotY = boxY + 27.5; 
-            let pinMidY = boxY + 21; 
-
-            ctx.fillText("A", offsetX + 10 + shift, pinTopY);
-            ctx.fillText("B", offsetX + 10 + shift, pinBotY);
-
+        } else if (bp === 'AND') {
+            let box1X = offsetX + 40 + shift; let boxY = offsetY + 65; let box2X = offsetX + 115 + shift; 
+            let pinTopY = boxY + 14; let pinBotY = boxY + 27.5; let pinMidY = boxY + 21; 
+            ctx.fillText("A", offsetX + 10 + shift, pinTopY); ctx.fillText("B", offsetX + 10 + shift, pinBotY);
             drawWire(offsetX + 25 + shift, pinTopY, box1X + 1, pinTopY);
             drawWire(offsetX + 25 + shift, pinBotY, box1X + 1, pinBotY);
-            
-            // Applied boxShift only to the dropzones
             createDropZone(bp, 1, box1X + boxShift, boxY, 60, 40);
-            
             drawWire(box1X + 59, pinMidY, box2X + 1, pinMidY); 
             createDropZone(bp, 2, box2X + boxShift, boxY, 60, 40);
-            
             let outEndX = offsetX + 195 + shift;
             drawWire(box2X + 59, pinMidY, outEndX, pinMidY);
             ctx.fillText("Q", outEndX + 10, pinMidY);
-        }
-
-        else if (bp === 'OR') {
-            let box1X = offsetX + 30 + shift;
-            let box1Y = offsetY + 25; 
-            let box2X = offsetX + 30 + shift;
-            let box2Y = offsetY + 105; 
-            let box3X = offsetX + 105 + shift;
-            let box3Y = offsetY + 65; 
-
-            // Change nubers below to adjust wire Y coords on OR gate
-            let b1PinY = box1Y + 22;
-            let b2PinY = box2Y + 22;
-            let b3TopY = box3Y + 15;
-            let b3BotY = box3Y + 29;
-            let b3MidY = box3Y + 23;
-
-            ctx.fillText("A", offsetX + 5 + shift, b1PinY);
-            drawWire(offsetX + 15 + shift, b1PinY, box1X, b1PinY);
-            
-            ctx.fillText("B", offsetX + 5 + shift, b2PinY);
-            drawWire(offsetX + 15 + shift, b2PinY, box2X, b2PinY);
-
-            // Applied boxShift only to the dropzones
+        } else if (bp === 'OR') {
+            let box1X = offsetX + 30 + shift; let box1Y = offsetY + 25; 
+            let box2X = offsetX + 30 + shift; let box2Y = offsetY + 105; 
+            let box3X = offsetX + 105 + shift; let box3Y = offsetY + 65; 
+            let b1PinY = box1Y + 22; let b2PinY = box2Y + 22;
+            let b3TopY = box3Y + 15; let b3BotY = box3Y + 29; let b3MidY = box3Y + 23;
+            ctx.fillText("A", offsetX + 5 + shift, b1PinY); drawWire(offsetX + 15 + shift, b1PinY, box1X, b1PinY);
+            ctx.fillText("B", offsetX + 5 + shift, b2PinY); drawWire(offsetX + 15 + shift, b2PinY, box2X, b2PinY);
             createDropZone(bp, 1, box1X + boxShift, box1Y, 60, 40);
             createDropZone(bp, 2, box2X + boxShift, box2Y, 60, 40);
-
             let midX = offsetX + 95 + shift; 
-            drawWire(box1X + 60, b1PinY, midX, b1PinY);
-            drawWire(midX, b1PinY, midX, b3TopY);
-            drawWire(midX, b3TopY, box3X, b3TopY);
-
-            drawWire(box2X + 60, b2PinY, midX, b2PinY);
-            drawWire(midX, b2PinY, midX, b3BotY);
-            drawWire(midX, b3BotY, box3X, b3BotY);
-
-            // Applied boxShift only to the dropzone
+            drawWire(box1X + 60, b1PinY, midX, b1PinY); drawWire(midX, b1PinY, midX, b3TopY); drawWire(midX, b3TopY, box3X, b3TopY);
+            drawWire(box2X + 60, b2PinY, midX, b2PinY); drawWire(midX, b2PinY, midX, b3BotY); drawWire(midX, b3BotY, box3X, b3BotY);
             createDropZone(bp, 3, box3X + boxShift, box3Y, 60, 40);
-
             let outEndX = offsetX + 185 + shift;
-            drawWire(box3X + 60, b3MidY, outEndX, b3MidY);
-            ctx.fillText("Q", outEndX + 10, b3MidY);
-        }
-
-        else if (bp === 'NOR') {
-            let box1X = offsetX + 20 + shift;
-            let box1Y = offsetY + 25;  
-            let box2X = offsetX + 20 + shift;
-            let box2Y = offsetY + 105; 
-            let box3X = offsetX + 95 + shift;
-            let box3Y = offsetY + 65;  
-            let box4X = offsetX + 170 + shift; 
-            let box4Y = offsetY + 65; 
-            
-            let b1PinY = box1Y + 21; 
-            let b2PinY = box2Y + 21; 
-            let b3TopY = box3Y + 13; 
-            let b3BotY = box3Y + 28; 
-            let pinMidY = box3Y + 21; 
-
-            ctx.fillText("A", offsetX + 5 + shift, b1PinY);
-            ctx.fillText("B", offsetX + 5 + shift, b2PinY);
-
+            drawWire(box3X + 60, b3MidY, outEndX, b3MidY); ctx.fillText("Q", outEndX + 10, b3MidY);
+        } else if (bp === 'NOR') {
+            let box1X = offsetX + 20 + shift; let box1Y = offsetY + 25;  
+            let box2X = offsetX + 20 + shift; let box2Y = offsetY + 105; 
+            let box3X = offsetX + 95 + shift; let box3Y = offsetY + 65;  
+            let box4X = offsetX + 170 + shift; let box4Y = offsetY + 65; 
+            let b1PinY = box1Y + 21; let b2PinY = box2Y + 21; 
+            let b3TopY = box3Y + 13; let b3BotY = box3Y + 28; let pinMidY = box3Y + 21; 
+            ctx.fillText("A", offsetX + 5 + shift, b1PinY); ctx.fillText("B", offsetX + 5 + shift, b2PinY);
             drawWire(offsetX + 15 + shift, b1PinY, box1X + 1, b1PinY);
             drawWire(offsetX + 15 + shift, b2PinY, box2X + 1, b2PinY);
-
-            // Applied boxShift only to the dropzones
             createDropZone(bp, 1, box1X + boxShift, box1Y, 60, 40);
             createDropZone(bp, 2, box2X + boxShift, box2Y, 60, 40);
-
             let midX = offsetX + 85 + shift; 
-            drawWire(box1X + 59, b1PinY, midX, b1PinY);
-            drawWire(midX, b1PinY, midX, b3TopY);
-            drawWire(midX, b3TopY, box3X + 1, b3TopY);
-
-            drawWire(box2X + 59, b2PinY, midX, b2PinY);
-            drawWire(midX, b2PinY, midX, b3BotY);
-            drawWire(midX, b3BotY, box3X + 1, b3BotY);
-
-            // Applied boxShift only to the dropzone
+            drawWire(box1X + 59, b1PinY, midX, b1PinY); drawWire(midX, b1PinY, midX, b3TopY); drawWire(midX, b3TopY, box3X + 1, b3TopY);
+            drawWire(box2X + 59, b2PinY, midX, b2PinY); drawWire(midX, b2PinY, midX, b3BotY); drawWire(midX, b3BotY, box3X + 1, b3BotY);
             createDropZone(bp, 3, box3X + boxShift, box3Y, 60, 40);
-
             drawWire(box3X + 59, pinMidY, box4X + 1, pinMidY);
-            
-            // Applied boxShift only to the dropzone
             createDropZone(bp, 4, box4X + boxShift, box4Y, 60, 40);
-
             let outEndX = offsetX + 240 + shift;
-            drawWire(box4X + 59, pinMidY, outEndX, pinMidY);
-            ctx.fillText("Q", outEndX + 10, pinMidY); 
+            drawWire(box4X + 59, pinMidY, outEndX, pinMidY); ctx.fillText("Q", outEndX + 10, pinMidY); 
         }
     });
-    
+
     // 9. DRAG AND DROP GRAPHICS LOGIC
     const draggables = document.querySelectorAll('.nand-draggable');
     const dropzones = document.querySelectorAll('.nand-dropzone');
@@ -5343,15 +5224,12 @@ function generateLogic_nandProblem(ctx, canvas) {
             const gateType = e.dataTransfer.getData('text/plain');
             if (gateType) {
                 zone.dataset.filled = gateType;
-                
-                // Map the dropped string to the correct graphic
                 const graphicsMap = {
                     'standard': svgStandard,
                     'joined': svgJoined,
                     'false-single': svgFalseSingle,
                     'false-and': svgFalseAND
                 };
-                
                 zone.innerHTML = graphicsMap[gateType] || "";
             }
         });
