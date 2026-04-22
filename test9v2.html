@@ -576,8 +576,31 @@
     .btn-grade9:active {
         transform: scale(0.96);
     }
-    
-    
+ /* ============================================================
+       Grade 9 NAND
+       ============================================================ */   
+  .nand-module-item {
+    padding: 8px 12px;
+    background: #ffffff;
+    border: 2px solid #333;
+    border-radius: 4px;
+    cursor: grab;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 14px;
+    user-select: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.nand-module-item:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+}
+
+.nand-module-item:hover {
+    background: #f0f0f0;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}  
 
     /* ============================================================
        6. IPO DRAG & DROP STYLES
@@ -1355,7 +1378,17 @@
     </div>
 
 </div>
-         
+<div id="inputGroupGrade9Nand" style="display: none;">
+    <div style="background: #fff3f8; padding: 15px; border-radius: 8px; border: 1px solid #e64097; margin-bottom: 15px;">
+        <h4 style="margin-top: 0; color: #e64097;">NAND System Conversion</h4>
+        <p style="font-size: 0.9em; margin-bottom: 10px;">
+            <strong>Task:</strong> Drag the correct NAND modules from the bank below into the dashed slots on the canvas to convert the standard logic circuit.
+        </p>
+        
+        <div id="nandModuleBank" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 5px;">
+            </div>
+    </div>
+</div>         
 <!-- Input group colour code-->  
                 <div class="input-group" id="inputGroupColorVal" style="display: none; justify-content: center; gap: 5px;">
                     <input type="number" id="inputResValue" placeholder="Value" style="width: 80px;"> <strong>Ω ±</strong> 
@@ -7123,7 +7156,8 @@ function switchTab(mode) {
         'inputGroupGrade9BooleanPath',    
         'inputGroupLogicSystem',          
         'inputGroupLogic_ic',             
-        'inputGroupLogic_NAND'            // 👇 NEW: Clears the NAND Equivalents UI!
+        'inputGroupLogic_NAND',            // 👇 NEW: Clears the NAND Equivalents UI!
+        'inputGroupGrade9Nand'
     ];
 
     elementsToHide.forEach(id => {
