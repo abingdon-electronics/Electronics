@@ -4788,6 +4788,15 @@ function generateBooleanProblem(ctx, canvas) {
 //*****************************************************************************************
 
 function generateGrade9booleanProblem(ctx, canvas) {
+    // Helper function to jumble arrays
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
     // 1. Setup UI & Global Reset
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -4853,10 +4862,11 @@ function generateGrade9booleanProblem(ctx, canvas) {
         window.g9boolAnswers = correctStrings;
         window.g9boolActiveMode = 'sop'; 
 
-        const allPossibleCombos = [
+        // Jumble the possible combinations for the dropdowns
+        const allPossibleCombos = shuffleArray([
             "A\u0305.B\u0305.C\u0305", "A\u0305.B\u0305.C", "A\u0305.B.C\u0305", "A\u0305.B.C",
             "A.B\u0305.C\u0305", "A.B\u0305.C", "A.B.C\u0305", "A.B.C"
-        ];
+        ]);
 
         ['g9boolRow1', 'g9boolRow2', 'g9boolRow3'].forEach(id => {
             let sel = document.getElementById(id);
@@ -4887,42 +4897,101 @@ function generateGrade9booleanProblem(ctx, canvas) {
 
     } else {
         // ==========================================
-        // MODE 2: CIRCUIT PATHFINDER (Radio Overbars)
+        // MODE 2: CIRCUIT PATHFINDER
         // ==========================================
         if (pathContainer) pathContainer.style.display = 'block';
 
-        // Constrained First Column (Only AND/OR)
         const topGates = ['AND', 'OR'];
         const topGate = topGates[Math.floor(Math.random() * topGates.length)];
-        
-        // Second column can have any
         const finalGates = ['AND', 'OR', 'NAND', 'NOR'];
         const finalGate = finalGates[Math.floor(Math.random() * finalGates.length)];
 
-        // Generate X and Y strings directly
         let ansX = topGate === 'AND' ? "A . B" : "A + B";
         let ansY = "C\u0305"; 
 
-        // Helper to generate perfectly formatted HTML for the radio labels
         function getHTMLFormattedExp(gate, x, y) {
             let bracketX = `(${x})`;
             if (gate === 'AND') return `${bracketX} . ${y}`;
             if (gate === 'OR') return `${bracketX} + ${y}`;
-            // CSS overline renders a flawless continuous bar
             if (gate === 'NAND') return `<span style="text-decoration: overline; display: inline-block;">${bracketX} . ${y}</span>`;
             if (gate === 'NOR') return `<span style="text-decoration: overline; display: inline-block;">${bracketX} + ${y}</span>`;
         }
 
         let ansQHTML = getHTMLFormattedExp(finalGate, ansX, ansY);
-        
-        // Save raw unformatted string to window logic check if needed, or pass the HTML
         window.g9boolPathAnswers = { x: ansX, y: ansY, q: ansQHTML };
         window.g9boolActiveMode = 'pathfinder'; 
 
-        let sol = document.getElementById('solText');
-        if(sol) sol.innerHTML = `<b>X:</b> ${ansX}<br><b>Y:</b> ${ansY}<br><b>Q:</b> ${ansQHTML}`;
+        // Jumble X and Y dropdown options
+        const xOptions = shuffleArray(["A . B", "A + B", "A\u0305 . B\u0305", "A\u0305 + B\u0305"]);
+        const yOptions = shuffleArray(["C", "C\u0305", "A", "B"]);
+        
+        const fillSelect = (id, options) => {
+            let el = document.getElementById(id);
+            if(!el) return;
+            el.innerHTML = '<option value="">Select expression...</option>';
+            options.forEach(o => el.innerHTML += `<option value="${o}">${o}</option>`);
+        };
+        fillSelect('g9boolPathX', xOptions);
+        fillSelect('g9boolPathY', yOptions);
 
-        // Draw inputs and wires
+        // Radio Distractors for Q - Jumbled
+        let qSetHTML = new Set();
+        qSetHTML.add(ansQHTML);
+        
+        while(qSetHTML.size < 4) {
+            let rTop = topGates[Math.floor(Math.random() * topGates.length)];
+            let rFin = finalGates[Math.floor(Math.random() * finalGates.length)];
+            let tX = rTop === 'AND' ? "A . B" : "A + B";
+            let tY = Math.random() > 0.5 ? "C\u0305" : "C";
+            qSetHTML.add(getHTMLFormattedExp(rFin, tX, tY));
+        }
+
+        // Convert set to array and shuffle
+        let qArray = shuffleArray(Array.from(qSetHTML));
+
+        let oldSelectQ = document.getElementById('g9boolPathQ');
+        let radioContainer = document.getElementById('g9boolPathQRadioContainer');
+        
+        if (!radioContainer && oldSelectQ) {
+            radioContainer = document.createElement('div');
+            radioContainer.id = 'g9boolPathQRadioContainer';
+            radioContainer.style.display = 'flex';
+            radioContainer.style.flexDirection = 'column';
+            radioContainer.style.gap = '8px';
+            radioContainer.style.marginTop = '10px';
+            oldSelectQ.parentNode.insertBefore(radioContainer, oldSelectQ);
+            oldSelectQ.style.display = 'none';
+        }
+
+        if (radioContainer) {
+            radioContainer.innerHTML = '';
+            radioContainer.style.border = 'none'; 
+            radioContainer.style.backgroundColor = 'transparent';
+            radioContainer.className = '';
+
+            qArray.forEach((htmlExp) => {
+                let wrapper = document.createElement('label');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.gap = '10px';
+                wrapper.style.cursor = 'pointer';
+                wrapper.style.fontSize = '16px';
+                
+                let radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'g9boolPathQ_RadioGroup';
+                radio.value = htmlExp;
+                
+                let span = document.createElement('span');
+                span.innerHTML = htmlExp; 
+                
+                wrapper.appendChild(radio);
+                wrapper.appendChild(span);
+                radioContainer.appendChild(wrapper);
+            });
+        }
+
+        // Draw Logic (Lines and Gates)
         ctx.fillStyle = "#333"; ctx.font = "bold 20px Arial";
         ctx.fillText("A", 20, 62); ctx.fillText("B", 20, 82); ctx.fillText("C", 20, 167);
         if(typeof drawLine === 'function') {
@@ -4941,90 +5010,9 @@ function generateGrade9booleanProblem(ctx, canvas) {
         else if (finalGate === 'AND' && typeof drawANDGate === 'function') drawANDGate(ctx, 230, 95);
         else if (finalGate === 'NAND' && typeof drawNANDGate === 'function') drawNANDGate(ctx, 230, 95);
         else if (finalGate === 'NOR' && typeof drawNORGate === 'function') drawNORGate(ctx, 230, 95);
-        
-        // ==========================================
-        // NEW: Draw Pink Canvas Labels for X, Y, Q
-        // ==========================================
-        ctx.font = "bold 18px Arial"; 
-        ctx.fillStyle = "#c83377"; 
-        ctx.fillText("X", 180, 55);  
-        ctx.fillText("Y", 180, 150); 
-        ctx.fillText("Q", 290, 110); 
-        // ==========================================
 
-        // 1. Populate standard dropdowns for X and Y
-        const xOptions = ["A . B", "A + B", "A\u0305 . B\u0305", "A\u0305 + B\u0305"];
-        const yOptions = ["C", "C\u0305", "A", "B"];
-        
-        const fillSelect = (id, options) => {
-            let el = document.getElementById(id);
-            if(!el) return;
-            el.innerHTML = '<option value="">Select expression...</option>';
-            options.forEach(o => el.innerHTML += `<option value="${o}">${o}</option>`);
-        };
-        fillSelect('g9boolPathX', xOptions);
-        fillSelect('g9boolPathY', yOptions);
-
-        // 2. Generate Radio Distractors for Q
-        let qSetHTML = new Set();
-        qSetHTML.add(ansQHTML); // ensure right answer exists
-        
-        while(qSetHTML.size < 4) {
-            let rTop = topGates[Math.floor(Math.random() * topGates.length)];
-            let rFin = finalGates[Math.floor(Math.random() * finalGates.length)];
-            let tX = rTop === 'AND' ? "A . B" : "A + B";
-            let tY = Math.random() > 0.5 ? "C\u0305" : "C";
-            qSetHTML.add(getHTMLFormattedExp(rFin, tX, tY));
-        }
-
-        let qArray = Array.from(qSetHTML).sort();
-
-        // 3. Inject Radio Buttons dynamically over the old dropdown
-        let oldSelectQ = document.getElementById('g9boolPathQ');
-        let radioContainer = document.getElementById('g9boolPathQRadioContainer');
-        
-        if (!radioContainer && oldSelectQ) {
-            // Create container if it doesn't exist yet
-            radioContainer = document.createElement('div');
-            radioContainer.id = 'g9boolPathQRadioContainer';
-            radioContainer.style.display = 'flex';
-            radioContainer.style.flexDirection = 'column';
-            radioContainer.style.gap = '8px';
-            radioContainer.style.marginTop = '10px';
-            oldSelectQ.parentNode.insertBefore(radioContainer, oldSelectQ);
-            oldSelectQ.style.display = 'none'; // Hide the old faulty dropdown
-        }
-
-        if (radioContainer) {
-            radioContainer.innerHTML = ''; // Clear old radios
-            
-            // --- NEW: Reset any grading styles from the previous question ---
-            radioContainer.style.border = 'none'; 
-            radioContainer.style.backgroundColor = 'transparent';
-            radioContainer.className = ''; // Clears any custom CSS classes like 'correct' or 'incorrect'
-            // ----------------------------------------------------------------
-
-            qArray.forEach((htmlExp, idx) => {
-                let wrapper = document.createElement('label');
-                wrapper.style.display = 'flex';
-                wrapper.style.alignItems = 'center';
-                wrapper.style.gap = '10px';
-                wrapper.style.cursor = 'pointer';
-                wrapper.style.fontSize = '16px';
-                
-                let radio = document.createElement('input');
-                radio.type = 'radio';
-                radio.name = 'g9boolPathQ_RadioGroup';
-                radio.value = htmlExp; // Store the exact string for validation
-                
-                let span = document.createElement('span');
-                span.innerHTML = htmlExp; 
-                
-                wrapper.appendChild(radio);
-                wrapper.appendChild(span);
-                radioContainer.appendChild(wrapper);
-            });
-        }
+        ctx.font = "bold 18px Arial"; ctx.fillStyle = "#c83377"; 
+        ctx.fillText("X", 180, 55); ctx.fillText("Y", 180, 150); ctx.fillText("Q", 290, 110); 
     }
 }
     
