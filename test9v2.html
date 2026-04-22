@@ -7952,9 +7952,13 @@ function checkAnswers() {
                 feedback.innerHTML = `<span style='color: #dc3545;'>The circuit is incomplete. Build the ${targetGate} gate blueprint!</span>`;
             }
             
-            // Optional: Reveal solution box on failure
+            // Generate and reveal solution box on failure
+            const solText = getNandSolutionText(targetGate);
             const solDiv = document.getElementById('solutions');
-            if (solDiv) solDiv.style.display = 'block';
+            if (solDiv) {
+                solDiv.style.display = 'block';
+                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; border:1px solid #ccc; background:#eee;">${solText}</div>`;
+            }
         }
 
         if (typeof updateScoreboard === "function") updateScoreboard();
@@ -8024,6 +8028,7 @@ function checkAnswers() {
     // 3. Check for empty boxes
     let hasEmptyBox = activeInputs.some(id => !document.getElementById(id) || document.getElementById(id)?.value.trim() === '');
     if (hasEmptyBox) {
+        const feedback = document.getElementById('feedback');
         feedback.innerHTML = "<span style='color: #dc3545;'>Please enter a value!</span>";
         return; 
     }
@@ -8230,6 +8235,9 @@ function checkAnswers() {
     const isPass = results.every(r => r === 'correct' || r === 'manydecimals');
     const hasLongDecimals = results.includes('manydecimals');
 
+    const feedback = document.getElementById('feedback');
+    const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+
     if (isPass) {
         isCurrentProblemSolved = true;
         
@@ -8240,9 +8248,9 @@ function checkAnswers() {
                 feedback.innerHTML = "<span style='color: #198754;'>Correct! Great job!</span>";
             }
             problemsCorrect++; 
-        } else if (viewedSolution) {
+        } else if (typeof viewedSolution !== 'undefined' && viewedSolution) {
             feedback.innerHTML = "<span style='color: #E64097;'>Correct! (Solution viewed, 0 points).</span>";
-        } else if (unitErrorMade) {
+        } else if (typeof unitErrorMade !== 'undefined' && unitErrorMade) {
             feedback.innerHTML = "<span style='color: #fd7e14;'>Correct! (Unit fixed, 0 points).</span>";
         } else {
             feedback.innerHTML = "<span style='color: #dc3545;'>Correct! (Took multiple tries, 0 points).</span>";
@@ -8256,7 +8264,7 @@ function checkAnswers() {
         const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
         
         if (results.includes('wrongunit')) {
-            unitErrorMade = true;
+            if (typeof unitErrorMade !== 'undefined') unitErrorMade = true;
             feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost). See solution.</span>";
         } else if (correctCount > 0) {
             feedback.innerHTML = `<span style='color: #dc3545;'>Partially correct (${correctCount}/${results.length}). (Mark lost). See solution.</span>`;
@@ -8274,7 +8282,6 @@ function checkAnswers() {
     if (checkansBtn) checkansBtn.style.display = 'none';
     
     if (typeof updateScoreboard === "function") updateScoreboard();
-}
     
 // **********************************************************************
 /**
