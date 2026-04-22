@@ -598,9 +598,10 @@
 }
 
 .nand-module-item:hover {
-    background: #f0f0f0;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-}  
+    background: #fff3f8;      /* Very light pink tint */
+    border-color: #e64097;   /* Your theme pink */
+    box-shadow: 2px 2px 5px rgba(230, 64, 151, 0.2);
+}
 
     /* ============================================================
        6. IPO DRAG & DROP STYLES
@@ -1380,17 +1381,17 @@
 </div>
 
 <!-- Input group G9 NAND--> 
-<div id="inputGroupGrade9Nand" style="display: none;">
+<div id="inputGroupGrade9Nand" class="input-group" style="display:none;">
     <div style="background: #fff3f8; padding: 15px; border-radius: 8px; border: 1px solid #e64097; margin-bottom: 15px;">
         <h4 style="margin-top: 0; color: #e64097;">NAND System Conversion</h4>
         <p style="font-size: 0.9em; margin-bottom: 10px;">
             <strong>Task:</strong> Drag the correct NAND modules from the bank below into the dashed slots on the canvas to convert the standard logic circuit.
         </p>
         
-        <div id="nandModuleBank" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 5px;">
+        <div id="nandModuleBank" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 5px; min-height: 50px;">
             </div>
     </div>
-</div>         
+</div>       
 <!-- Input group colour code-->  
                 <div class="input-group" id="inputGroupColorVal" style="display: none; justify-content: center; gap: 5px;">
                     <input type="number" id="inputResValue" placeholder="Value" style="width: 80px;"> <strong>Ω ±</strong> 
@@ -5411,17 +5412,52 @@ function drawStandardReference(ctx, schema) {
 
 // 7. Draws the dashed drop zones on the canvas
 function renderGhostSlots(ctx, slots) {
-    ctx.setLineDash([5, 5]);
     slots.forEach(slot => {
-        ctx.strokeStyle = "#999";
-        ctx.strokeRect(slot.x, slot.y, slot.w, slot.h);
-        ctx.fillStyle = "#f9f9f9";
-        ctx.fillRect(slot.x, slot.y, slot.w, slot.h);
-        ctx.fillStyle = "#999";
-        ctx.font = "12px Arial";
-        ctx.fillText("Drop " + slot.targetType, slot.x + 5, slot.y + slot.h / 2);
+        if (slot.filledWith) {
+            // 1. DRAW FILLED STATE (The "Module" is snapped in)
+            ctx.setLineDash([]); // Solid lines for filled slots
+            
+            // Background of the module
+            ctx.fillStyle = "#fff"; 
+            ctx.fillRect(slot.x, slot.y, slot.w, slot.h);
+            
+            // Border (matching your CSS: 2px solid #333)
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(slot.x, slot.y, slot.w, slot.h);
+            
+            // Left Accent Bar (Visual cue that it's a NAND module)
+            ctx.fillStyle = "#e64097"; // Your theme pink
+            ctx.fillRect(slot.x, slot.y, 6, slot.h);
+
+            // Label Text
+            ctx.fillStyle = "#333";
+            ctx.font = "bold 13px monospace"; // Matching your CSS font
+            ctx.textAlign = "center";
+            ctx.fillText("NAND-" + slot.filledWith, slot.x + (slot.w / 2) + 3, slot.y + (slot.h / 2) + 5);
+            
+        } else {
+            // 2. DRAW EMPTY STATE (The "Ghost" Slot)
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = "#bbb";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(slot.x, slot.y, slot.w, slot.h);
+            
+            // Subtle placeholder background
+            ctx.fillStyle = "rgba(0, 0, 0, 0.02)";
+            ctx.fillRect(slot.x, slot.y, slot.w, slot.h);
+            
+            // Placeholder text
+            ctx.fillStyle = "#aaa";
+            ctx.font = "italic 11px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Drop " + slot.targetType + " here", slot.x + (slot.w / 2), slot.y + (slot.h / 2) + 4);
+        }
     });
+    
+    // Reset global canvas state so it doesn't affect other drawing functions
     ctx.setLineDash([]);
+    ctx.textAlign = "left"; 
 }
     
 //*****************************************************************************************
