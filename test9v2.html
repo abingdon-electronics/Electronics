@@ -5471,28 +5471,62 @@ function generateGrade9NandProblem(ctx, canvas) {
                 if (checkBtn && checkBtn.parentNode && !document.getElementById('nandInstructions')) checkBtn.parentNode.insertBefore(instDiv, checkBtn);
                 instDiv.innerHTML = instructionHTML;
 
-                // Absolute Layout Definition ensuring NO shared wires to inverters
-                // Adjusted Y-coordinates to fit within the canvas boundaries!
-                const gateDefs = [
-                    // Layer 0 (Inputs)
-                    { id: 'L0_0', layer: 0, x: 80, y: 20, type: 'inverter', inputs: ['A'] },
-                    { id: 'L0_1', layer: 0, x: 80, y: 80, type: 'standard', inputs: ['B', 'C'] },
-                    { id: 'L0_2', layer: 0, x: 80, y: 140, type: 'inverter', inputs: ['D'] },
-                    { id: 'L0_3', layer: 0, x: 80, y: 200, type: 'standard', inputs: ['E', 'F'] },
-                    { id: 'L0_4', layer: 0, x: 80, y: 260, type: 'inverter', inputs: ['G'] },
-                    { id: 'L0_5', layer: 0, x: 80, y: 320, type: 'inverter', inputs: ['H'] }, // Now safely inside the canvas
+// =================================================================
+                // DYNAMIC RANDOMIZED GENERATOR (216 Possible Configurations)
+                // =================================================================
+                let gateDefs = [];
+                let inputCharCounter = 65; // Start at 'A'
+                
+                function getChar() {
+                    let char = String.fromCharCode(inputCharCounter++);
+                    return char;
+                }
 
-                    // Layer 1 (Isolated mid-chains)
-                    { id: 'L1_0', layer: 1, x: 260, y: 20, type: 'inverter', parents: ['L0_0'] }, 
-                    { id: 'L1_1', layer: 1, x: 260, y: 140, type: 'inverter', parents: ['L0_2'] }, 
-                    { id: 'L1_2', layer: 1, x: 260, y: 200, type: 'inverter', parents: ['L0_3'] }, 
-                    { id: 'L1_3', layer: 1, x: 260, y: 260, type: 'inverter', parents: ['L0_4'] }, 
+                // Generate 3 distinct horizontal zones (Q1, Q2, Q3)
+                for (let i = 0; i < 3; i++) {
+                    let baseY = 20 + (i * 120); // Spacing for Zone 0, 1, 2
+                    let template = Math.floor(Math.random() * 6); // Pick 1 of 6 layouts
 
-                    // Layer 2 (Triple Outputs)
-                    { id: 'L2_0', layer: 2, x: 440, y: 50, type: 'standard', parents: ['L1_0', 'L0_1'], output: 'Q1' },
-                    { id: 'L2_1', layer: 2, x: 440, y: 170, type: 'standard', parents: ['L1_1', 'L1_2'], output: 'Q2' },
-                    { id: 'L2_2', layer: 2, x: 440, y: 290, type: 'standard', parents: ['L1_3', 'L0_5'], output: 'Q3' }
-                ];
+                    if (template === 0) {
+                        // Layout 0: Top redundancy, 2-input NAND output
+                        gateDefs.push({ id: `Z${i}_L0_T`, layer: 0, x: 80, y: baseY, type: 'inverter', inputs: [getChar()] });
+                        gateDefs.push({ id: `Z${i}_L1_T`, layer: 1, x: 260, y: baseY, type: 'inverter', parents: [`Z${i}_L0_T`] }); // REDUNDANT
+                        gateDefs.push({ id: `Z${i}_L0_B`, layer: 0, x: 80, y: baseY+60, type: 'standard', inputs: [getChar(), getChar()] });
+                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L1_T`, `Z${i}_L0_B`], output: `Q${i+1}` });
+                    
+                    } else if (template === 1) {
+                        // Layout 1: Straight chain redundancy, 1-input NOT output
+                        gateDefs.push({ id: `Z${i}_L0`, layer: 0, x: 80, y: baseY+30, type: 'inverter', inputs: [getChar()] });
+                        gateDefs.push({ id: `Z${i}_L1`, layer: 1, x: 260, y: baseY+30, type: 'inverter', parents: [`Z${i}_L0`] }); // REDUNDANT
+                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'inverter', parents: [`Z${i}_L1`], output: `Q${i+1}` });
+                    
+                    } else if (template === 2) {
+                        // Layout 2: Bottom redundancy, 2-input NAND output
+                        gateDefs.push({ id: `Z${i}_L0_T`, layer: 0, x: 80, y: baseY, type: 'standard', inputs: [getChar(), getChar()] });
+                        gateDefs.push({ id: `Z${i}_L0_B`, layer: 0, x: 80, y: baseY+60, type: 'inverter', inputs: [getChar()] });
+                        gateDefs.push({ id: `Z${i}_L1_B`, layer: 1, x: 260, y: baseY+60, type: 'inverter', parents: [`Z${i}_L0_B`] }); // REDUNDANT
+                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L0_T`, `Z${i}_L1_B`], output: `Q${i+1}` });
+                    
+                    } else if (template === 3) {
+                        // Layout 3: NAND to NOT chain, 1-input NOT output (No direct redundancy to click, just logical)
+                        gateDefs.push({ id: `Z${i}_L0`, layer: 0, x: 80, y: baseY+30, type: 'standard', inputs: [getChar(), getChar()] });
+                        gateDefs.push({ id: `Z${i}_L1`, layer: 1, x: 260, y: baseY+30, type: 'inverter', parents: [`Z${i}_L0`] });
+                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'inverter', parents: [`Z${i}_L1`], output: `Q${i+1}` });
+                    
+                    } else if (template === 4) {
+                        // Layout 4: Short inputs (missing L0), 2-input NAND output
+                        gateDefs.push({ id: `Z${i}_L1_T`, layer: 1, x: 260, y: baseY, type: 'inverter', inputs: [getChar()] });
+                        gateDefs.push({ id: `Z${i}_L1_B`, layer: 1, x: 260, y: baseY+60, type: 'standard', inputs: [getChar(), getChar()] });
+                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L1_T`, `Z${i}_L1_B`], output: `Q${i+1}` });
+                    
+                    } else {
+                        // Layout 5: Long wire jump, 2-input NAND output
+                        gateDefs.push({ id: `Z${i}_L1_T`, layer: 1, x: 260, y: baseY, type: 'standard', inputs: [getChar(), getChar()] });
+                        gateDefs.push({ id: `Z${i}_L0_B`, layer: 0, x: 80, y: baseY+60, type: 'inverter', inputs: [getChar()] }); // Jumps over L1 empty space
+                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L1_T`, `Z${i}_L0_B`], output: `Q${i+1}` });
+                    }
+                }
+                // =================================================================
 
                 ctx.lineWidth = 1.5;
                 ctx.strokeStyle = "#333";
