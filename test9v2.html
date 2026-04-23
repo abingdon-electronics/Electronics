@@ -5316,133 +5316,50 @@ function generateLogic_nandProblem(ctx, canvas) {
 
 //******************************************************************************************
     
-function generateGrade9NandProblem(ctx, canvas) {
-    // --- 1. SVG DEFINITIONS ---
-    const svgNOT = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
-        <path d="M 20,45 L 40,45 M 40,30 L 40,60 M 40,30 L 50,30 M 40,60 L 50,60" fill="none" stroke="black" stroke-width="3"/>
-        <path d="M 50,15 L 65,15 A 30,30 0 0,1 65,75 L 50,75 Z" fill="white" stroke="black" stroke-width="3"/>
-        <circle cx="100" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/>
-        <line x1="105" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/>
-    </svg>`;
-    
-    const svgAND = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
-        <path d="M 0,30 L 10,30 M 0,60 L 10,60" fill="none" stroke="black" stroke-width="3"/>
-        <path d="M 10,15 L 25,15 A 30,30 0 0,1 25,75 L 10,75 Z" fill="white" stroke="black" stroke-width="3"/>
-        <circle cx="60" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/>
-        <path d="M 65,45 L 75,45 M 75,30 L 75,60 M 75,30 L 80,30 M 75,60 L 80,60" fill="none" stroke="black" stroke-width="3"/>
-        <path d="M 80,15 L 95,15 A 30,30 0 0,1 95,75 L 80,75 Z" fill="white" stroke="black" stroke-width="3"/>
-        <circle cx="130" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/>
-        <line x1="135" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/>
-    </svg>`;
-    
-    const svgOR = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
-        <path d="M 0,22.5 L 10,22.5 M 10,12.5 L 10,32.5 M 10,12.5 L 20,12.5 M 10,32.5 L 20,32.5" fill="none" stroke="black" stroke-width="3"/>
-        <path d="M 20,2.5 L 35,2.5 A 20,20 0 0,1 35,42.5 L 20,42.5 Z" fill="white" stroke="black" stroke-width="3"/>
-        <circle cx="60" cy="22.5" r="5" fill="white" stroke="black" stroke-width="3"/>
-        <path d="M 65,22.5 L 75,22.5 L 75,30 L 80,30" fill="none" stroke="black" stroke-width="3"/>
-        <path d="M 0,67.5 L 10,67.5 M 10,57.5 L 10,77.5 M 10,57.5 L 20,57.5 M 10,77.5 L 20,77.5" fill="none" stroke="black" stroke-width="3"/>
-        <path d="M 20,47.5 L 35,47.5 A 20,20 0 0,1 35,87.5 L 20,47.5 Z" fill="white" stroke="black" stroke-width="3"/>
-        <circle cx="60" cy="67.5" r="5" fill="white" stroke="black" stroke-width="3"/>
-        <path d="M 65,67.5 L 75,67.5 L 75,60 L 80,60" fill="none" stroke="black" stroke-width="3"/>
-        <path d="M 80,15 L 95,15 A 30,30 0 0,1 95,75 L 80,75 Z" fill="white" stroke="black" stroke-width="3"/>
-        <circle cx="130" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/>
-        <line x1="135" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/>
-    </svg>`;
+// --- 1. FIXED SVG DEFINITION FOR OR-EQUIVALENT ---
+const svgOR = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
+    <path d="M 10,25 L 20,25 M 20,15 L 20,35 M 20,15 L 30,15 M 20,35 L 30,35" fill="none" stroke="black" stroke-width="3"/>
+    <path d="M 30,5 L 45,5 A 20,20 0 0,1 45,45 L 30,45 Z" fill="white" stroke="black" stroke-width="3"/>
+    <circle cx="70" cy="25" r="5" fill="white" stroke="black" stroke-width="3"/>
+    <path d="M 75,25 L 85,25 L 85,35 L 90,35" fill="none" stroke="black" stroke-width="3"/>
 
-    const svgWIRE = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
-        <line x1="0" y1="45" x2="140" y2="45" stroke="black" stroke-width="4"/>
-    </svg>`;
-    
-    const graphicsMap = { 'AND': svgAND, 'OR': svgOR, 'NOT': svgNOT, 'WIRE': svgWIRE };
+    <path d="M 10,65 L 20,65 M 20,55 L 20,75 M 20,55 L 30,55 M 20,75 L 30,75" fill="none" stroke="black" stroke-width="3"/>
+    <path d="M 30,45 L 45,45 A 20,20 0 0,1 45,85 L 30,85 Z" fill="white" stroke="black" stroke-width="3"/>
+    <circle cx="70" cy="65" r="5" fill="white" stroke="black" stroke-width="3"/>
+    <path d="M 75,65 L 85,65 L 85,55 L 90,55" fill="none" stroke="black" stroke-width="3"/>
 
-    // --- 2. RESET ---
-    const oldOverlay = document.getElementById('nandCanvasOverlay');
-    if (oldOverlay) oldOverlay.remove(); 
-    const oldTray = document.getElementById('nandBottomTray');
-    if (oldTray) oldTray.remove();
-    ctx.clearRect(0, 0, canvas.width, canvas.height); 
-    
-    let overlay = document.createElement('div');
-    overlay.id = 'nandCanvasOverlay';
-    overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none;`;
-    document.getElementById('circuitContainer').appendChild(overlay);
+    <path d="M 90,20 L 105,20 A 30,30 0 0,1 105,70 L 90,70 Z" fill="white" stroke="black" stroke-width="3"/>
+    <circle cx="130" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/>
+    <line x1="135" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/>
+</svg>`;
 
-    // --- 3. UPDATED LOGIC POOL ---
-    const topPool = ["AND", "OR"];
-    const box3Pool = ["AND", "OR", "NOR"]; // Occasional NOR is back
-    const s1Target = topPool[Math.floor(Math.random() * topPool.length)];
-    const b3Target = box3Pool[Math.floor(Math.random() * box3Pool.length)];
-    
-    const blueprint = [
-        { id: "s1", target: s1Target, x: 80, y: 45,  w: 140, h: 90, ghost: true },
-        { id: "s2", target: "NOT",    x: 80, y: 185, w: 140, h: 90, ghost: true },
-        { id: "s3", target: b3Target, x: 280, y: 115, w: 140, h: 90, ghost: true },
-        { id: "s4", target: "ANY",    x: 460, y: 115, w: 140, h: 90, ghost: false } 
-    ];
-
-    // --- 4. GHOST DRAWING (WITH NOR SUPPORT) ---
-    const drawGhost = (type, x, y) => {
-        ctx.save();
-        ctx.globalAlpha = 0.15; ctx.strokeStyle = "black"; ctx.lineWidth = 2;
-        ctx.translate(x, y);
-        if (type === "AND") {
-            ctx.beginPath(); ctx.moveTo(35, 20); ctx.lineTo(75, 20);
-            ctx.arc(75, 45, 25, -Math.PI/2, Math.PI/2); ctx.lineTo(35, 70); ctx.closePath(); ctx.stroke();
-        } else if (type === "OR" || type === "NOR") {
-            ctx.beginPath(); ctx.moveTo(30, 20); ctx.quadraticCurveTo(50, 45, 30, 70);
-            ctx.quadraticCurveTo(90, 70, 115, 45); ctx.quadraticCurveTo(90, 20, 30, 20); ctx.stroke();
-            if (type === "NOR") { // Add the inversion bubble for NOR
-                ctx.beginPath(); ctx.arc(120, 45, 5, 0, Math.PI*2); ctx.stroke();
-            }
-        } else if (type === "NOT") {
-            ctx.beginPath(); ctx.moveTo(45, 25); ctx.lineTo(85, 45); ctx.lineTo(45, 65); ctx.closePath();
-            ctx.stroke(); ctx.beginPath(); ctx.arc(90, 45, 5, 0, Math.PI*2); ctx.stroke();
+// --- 4. GHOST DRAWING (RE-CALIBRATED) ---
+const drawGhost = (type, x, y) => {
+    ctx.save();
+    ctx.globalAlpha = 0.15; ctx.strokeStyle = "black"; ctx.lineWidth = 2;
+    ctx.translate(x, y);
+    if (type === "AND") {
+        ctx.beginPath(); ctx.moveTo(35, 20); ctx.lineTo(75, 20);
+        ctx.arc(75, 45, 25, -Math.PI/2, Math.PI/2); ctx.lineTo(35, 70); 
+        ctx.closePath(); ctx.stroke();
+    } else if (type === "OR" || type === "NOR") {
+        ctx.beginPath(); 
+        // Using a more stable arc for the back of the OR gate
+        ctx.moveTo(30, 20); 
+        ctx.bezierCurveTo(45, 20, 45, 70, 30, 70); // Consistent back curve
+        ctx.quadraticCurveTo(80, 70, 110, 45); 
+        ctx.quadraticCurveTo(80, 20, 30, 20); 
+        ctx.stroke();
+        if (type === "NOR") {
+            ctx.beginPath(); ctx.arc(116, 45, 5, 0, Math.PI*2); ctx.stroke();
         }
-        ctx.restore();
-    };
-
-    // --- 5. FIXED WIRING ---
-    ctx.strokeStyle = "#333"; ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(20, 75); ctx.lineTo(80, 75); 
-    ctx.moveTo(20, 105); ctx.lineTo(80, 105); 
-    ctx.moveTo(20, 230); ctx.lineTo(80, 230); 
-    ctx.moveTo(220, 90); ctx.lineTo(250, 90); ctx.lineTo(250, 140); ctx.lineTo(280, 140);
-    ctx.moveTo(220, 230); ctx.lineTo(250, 230); ctx.lineTo(250, 180); ctx.lineTo(280, 180);
-    ctx.moveTo(420, 160); ctx.lineTo(460, 160);
-    ctx.moveTo(600, 160); ctx.lineTo(640, 160);
-    ctx.stroke();
-    ctx.fillStyle = "#333"; ctx.fillText("A", 10, 80); ctx.fillText("B", 10, 110); ctx.fillText("C", 10, 235); ctx.fillText("Q", 650, 165);
-
-    // --- 6. INTERACTIVE ZONES ---
-    blueprint.forEach(s => {
-        if(s.ghost) drawGhost(s.target, s.x, s.y);
-        let zone = document.createElement('div');
-        zone.style.cssText = `position:absolute; left:${s.x}px; top:${s.y}px; width:${s.w}px; height:${s.h}px; border:2px dashed #bbb; pointer-events:auto; display:flex; align-items:center; justify-content:center;`;
-        zone.ondragover = (e) => e.preventDefault();
-        zone.ondrop = (e) => {
-            const type = e.dataTransfer.getData("text");
-            zone.innerHTML = graphicsMap[type];
-            zone.style.border = "2px solid #444";
-        };
-        zone.ondblclick = () => { zone.innerHTML = ""; zone.style.border = "2px dashed #bbb"; };
-        overlay.appendChild(zone);
-    });
-
-    // --- 7. BOTTOM TRAY ---
-    let tray = document.createElement('div');
-    tray.id = 'nandBottomTray';
-    tray.style.cssText = `position:absolute; bottom:15px; width:100%; display:flex; justify-content:center; gap:25px;`;
-    ['AND','OR','NOT','WIRE'].forEach(type => {
-        let item = document.createElement('div');
-        item.style.cssText = "width:130px; height:85px; background:white; border:1px solid #ccc; cursor:grab; border-radius:5px;";
-        item.draggable = true;
-        item.innerHTML = graphicsMap[type];
-        item.ondragstart = (e) => e.dataTransfer.setData("text", type);
-        tray.appendChild(item);
-    });
-    document.getElementById('circuitContainer').appendChild(tray);
-}
+    } else if (type === "NOT") {
+        ctx.beginPath(); ctx.moveTo(45, 25); ctx.lineTo(85, 45); ctx.lineTo(45, 65); 
+        ctx.closePath(); ctx.stroke(); 
+        ctx.beginPath(); ctx.arc(90, 45, 5, 0, Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+};
     
 //*****************************************************************************************
 
