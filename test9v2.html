@@ -5460,12 +5460,12 @@ function generateGrade9NandProblem(ctx, canvas) {
         // =========================================================
         // MODE B: REDUNDANCY HUNTER
         // =========================================================
-        else {
-            // SVG Constants for Standard and Joined (Inverter) NANDs
+else {
+            // SVG Definitions
             const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 60 40"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
             const svgJoined = `<svg width="100%" height="100%" viewBox="0 0 60 40"><line x1="0" y1="20" x2="6" y2="20" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="6" y2="28" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="6" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
 
-            const instructionHTML = `<div style="padding: 15px; background: #fff8fb; border-left: 4px solid #d65093; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><h3>Dual-Stream Redundancy Hunter</h3><p>Trace signals from <b>A-H</b> across two funnels. Identify the NAND-based NOT-NOT pairs that cancel out. <b>Click to cross them out!</b></p></div>`;
+            const instructionHTML = `<div style="padding: 15px; background: #fff8fb; border-left: 4px solid #d65093; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><h3>Dual-Stream Redundancy Hunter</h3><p>Inputs <b>A-H</b> feed into a dual-funnel system. Find the NOT-NOT pairs. <b>Click to cross them out!</b></p></div>`;
             let instDiv = document.getElementById('nandInstructions') || document.createElement('div');
             instDiv.id = 'nandInstructions';
             const checkBtn = document.getElementById('checkansBtn');
@@ -5473,16 +5473,16 @@ function generateGrade9NandProblem(ctx, canvas) {
             instDiv.innerHTML = instructionHTML;
 
             const inputs = ["A", "B", "C", "D", "E", "F", "G", "H"];
-            let layers = [8, 4, 2]; 
+            let layers = [5, 4, 2]; // 5 Gates in Layer 1 to handle the 2+6 input split
             let gatePositions = [];
 
             layers.forEach((count, lIndex) => {
                 for (let i = 0; i < count; i++) {
-                    let gx = 60 + (lIndex * 180);
+                    let gx = 80 + (lIndex * 170);
                     let gy = (480 / (count + 1)) * (i + 1);
 
-                    // Creating redundant NOT-NOT chains in the middle layer
-                    let isInv = (lIndex === 1 && (i === 1 || i === 2)); 
+                    // Layer 0: 2 Inverters (Joined) and 3 Standard Gates
+                    let isInv = (lIndex === 0 && (i === 0 || i === 4)) || (lIndex === 1 && (i === 1 || i === 2));
 
                     let gateDiv = document.createElement('div');
                     gateDiv.dataset.selected = "false";
@@ -5503,26 +5503,42 @@ function generateGrade9NandProblem(ctx, canvas) {
 
                     overlay.appendChild(gateDiv);
                     gatePositions.push({ x: gx, y: gy, layer: lIndex, index: i, type: isInv ? 'inverter' : 'standard' });
-
-                    if (lIndex === 0) {
-                        ctx.fillStyle = "#333";
-                        ctx.font = "bold 14px Arial";
-                        ctx.fillText(inputs[i], gx - 25, gy + 25);
-                    }
                 }
             });
 
+            // --- Specialized Wiring ---
             ctx.lineWidth = 1.5;
-            ctx.strokeStyle = "#999";
+            ctx.strokeStyle = "#333";
+            ctx.font = "bold 14px Arial";
+
+            // Layer 0 Wiring (The 2 Single + 3 Pair Rule)
+            const l0Gates = gatePositions.filter(p => p.layer === 0);
+            let inputIdx = 0;
+            l0Gates.forEach((gate, gIdx) => {
+                if (gate.type === 'inverter') {
+                    // Single wire input
+                    let label = inputs[inputIdx++];
+                    ctx.fillText(label, gate.x - 25, gate.y + 25);
+                    ctx.beginPath(); ctx.moveTo(gate.x - 10, gate.y + 20); ctx.lineTo(gate.x, gate.y + 20); ctx.stroke();
+                } else {
+                    // Double wire input
+                    [12, 28].forEach(offset => {
+                        let label = inputs[inputIdx++];
+                        ctx.fillText(label, gate.x - 25, gate.y + offset + 5);
+                        ctx.beginPath(); ctx.moveTo(gate.x - 10, gate.y + offset); ctx.lineTo(gate.x, gate.y + offset); ctx.stroke();
+                    });
+                }
+            });
+
+            // Layer 1 & 2 Wiring
             gatePositions.forEach(gate => {
                 if (gate.layer > 0) {
                     const prevLayer = gatePositions.filter(p => p.layer === gate.layer - 1);
-                    let sourceIndices = [gate.index * 2, gate.index * 2 + 1];
+                    let sources = (gate.layer === 1) ? [gate.index, (gate.index + 1) % prevLayer.length] : [gate.index * 2, gate.index * 2 + 1];
                     
-                    sourceIndices.forEach((sIdx, pin) => {
+                    sources.forEach((sIdx, pin) => {
                         const src = prevLayer[sIdx];
                         if (!src) return;
-                        
                         const startX = src.x + 60;
                         const startY = src.y + 20;
                         const endX = gate.x;
@@ -5530,27 +5546,23 @@ function generateGrade9NandProblem(ctx, canvas) {
                         
                         ctx.beginPath();
                         ctx.moveTo(startX, startY);
-                        ctx.lineTo(startX + (endX - startX)/2, startY);
-                        ctx.lineTo(startX + (endX - startX)/2, endY);
+                        ctx.lineTo(startX + 20, startY);
+                        ctx.lineTo(startX + 20, endY);
                         ctx.lineTo(endX, endY);
                         ctx.stroke();
                     });
                 }
             });
 
+            // Outputs
             const finalLayer = gatePositions.filter(p => p.layer === 2);
             finalLayer.forEach((gate, idx) => {
-                ctx.fillStyle = "#333";
-                ctx.font = "bold 14px Arial";
                 ctx.fillText("Q" + (idx + 1), gate.x + 70, gate.y + 25);
-                ctx.beginPath();
-                ctx.moveTo(gate.x + 60, gate.y + 20);
-                ctx.lineTo(gate.x + 75, gate.y + 20);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(gate.x + 60, gate.y + 20); ctx.lineTo(gate.x + 75, gate.y + 20); ctx.stroke();
             });
         }
-    } catch (err) { 
-        console.error("Grade 9 NAND Error: ", err); 
+    } catch (err) {
+        console.error("Grade 9 NAND Error: ", err);
     }
 }
     
