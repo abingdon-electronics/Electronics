@@ -1731,20 +1731,26 @@ function handleGrade9Click() {
         }
     }
 
-    // 👇 NEW NAND SYSTEM CONVERSION ROUTING 👇
+// 👇 UPDATED NAND SYSTEM CONVERSION ROUTING 👇
     else if (currentMode === 'logic_nand' || currentMode === 'grade9nand') {
         currentMode = 'grade9nand';
         
-        // IMPORTANT: Clear standard NAND memory to stop "ghost wires"
+        // 1. Reset Internal State
         window.currentNandTarget = null;
         window.nandWires = []; 
         window.nandGates = [];
+        
+        // 2. Clear out any existing dropzone content manually before regenerating
+        // This ensures a "fresh" start even if the cleanup function missed a stray element
+        const overlay = document.getElementById('nandCanvasOverlay');
+        if (overlay) overlay.innerHTML = ''; 
 
+        // 3. Trigger the Generator
         if (typeof generateGrade9NandProblem === "function") {
+            // Passing ctx and canvas ensures the drawing logic has the tools it needs
             generateGrade9NandProblem(ctx, canvas);
-        } else {
-            // Fallback to hub if specific generator isn't ready
-            if (typeof hubController === "function") hubController(ctx, canvas);
+        } else if (typeof hubController === "function") {
+            hubController(ctx, canvas);
         }
     }
 
