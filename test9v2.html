@@ -5472,25 +5472,26 @@ function generateGrade9NandProblem(ctx, canvas) {
                 instDiv.innerHTML = instructionHTML;
 
                 // Absolute Layout Definition ensuring NO shared wires to inverters
+                // Adjusted Y-coordinates to fit within the canvas boundaries!
                 const gateDefs = [
                     // Layer 0 (Inputs)
-                    { id: 'L0_0', layer: 0, x: 80, y: 30, type: 'inverter', inputs: ['A'] },
-                    { id: 'L0_1', layer: 0, x: 80, y: 110, type: 'standard', inputs: ['B', 'C'] },
-                    { id: 'L0_2', layer: 0, x: 80, y: 190, type: 'inverter', inputs: ['D'] },
-                    { id: 'L0_3', layer: 0, x: 80, y: 270, type: 'standard', inputs: ['E', 'F'] },
-                    { id: 'L0_4', layer: 0, x: 80, y: 350, type: 'inverter', inputs: ['G'] },
-                    { id: 'L0_5', layer: 0, x: 80, y: 430, type: 'inverter', inputs: ['H'] },
+                    { id: 'L0_0', layer: 0, x: 80, y: 20, type: 'inverter', inputs: ['A'] },
+                    { id: 'L0_1', layer: 0, x: 80, y: 80, type: 'standard', inputs: ['B', 'C'] },
+                    { id: 'L0_2', layer: 0, x: 80, y: 140, type: 'inverter', inputs: ['D'] },
+                    { id: 'L0_3', layer: 0, x: 80, y: 200, type: 'standard', inputs: ['E', 'F'] },
+                    { id: 'L0_4', layer: 0, x: 80, y: 260, type: 'inverter', inputs: ['G'] },
+                    { id: 'L0_5', layer: 0, x: 80, y: 320, type: 'inverter', inputs: ['H'] }, // Now safely inside the canvas
 
                     // Layer 1 (Isolated mid-chains)
-                    { id: 'L1_0', layer: 1, x: 260, y: 30, type: 'inverter', parents: ['L0_0'] }, // Forms pure NOT-NOT with A
-                    { id: 'L1_1', layer: 1, x: 260, y: 190, type: 'inverter', parents: ['L0_2'] }, // Forms pure NOT-NOT with D
-                    { id: 'L1_2', layer: 1, x: 260, y: 270, type: 'inverter', parents: ['L0_3'] }, 
-                    { id: 'L1_3', layer: 1, x: 260, y: 350, type: 'inverter', parents: ['L0_4'] }, // Forms pure NOT-NOT with G
+                    { id: 'L1_0', layer: 1, x: 260, y: 20, type: 'inverter', parents: ['L0_0'] }, 
+                    { id: 'L1_1', layer: 1, x: 260, y: 140, type: 'inverter', parents: ['L0_2'] }, 
+                    { id: 'L1_2', layer: 1, x: 260, y: 200, type: 'inverter', parents: ['L0_3'] }, 
+                    { id: 'L1_3', layer: 1, x: 260, y: 260, type: 'inverter', parents: ['L0_4'] }, 
 
                     // Layer 2 (Triple Outputs)
-                    { id: 'L2_0', layer: 2, x: 440, y: 70, type: 'standard', parents: ['L1_0', 'L0_1'], output: 'Q1' },
-                    { id: 'L2_1', layer: 2, x: 440, y: 230, type: 'standard', parents: ['L1_1', 'L1_2'], output: 'Q2' },
-                    { id: 'L2_2', layer: 2, x: 440, y: 390, type: 'standard', parents: ['L1_3', 'L0_5'], output: 'Q3' }
+                    { id: 'L2_0', layer: 2, x: 440, y: 50, type: 'standard', parents: ['L1_0', 'L0_1'], output: 'Q1' },
+                    { id: 'L2_1', layer: 2, x: 440, y: 170, type: 'standard', parents: ['L1_1', 'L1_2'], output: 'Q2' },
+                    { id: 'L2_2', layer: 2, x: 440, y: 290, type: 'standard', parents: ['L1_3', 'L0_5'], output: 'Q3' }
                 ];
 
                 ctx.lineWidth = 1.5;
