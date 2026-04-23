@@ -5330,6 +5330,11 @@ function generateLogic_nandProblem(ctx, canvas) {
  * Full Version: Includes all UI safety checks, instructional text, 
  * and dual-mode logic (Conversion vs Redundancy Hunter - WALDO EDITION).
  */
+/**
+ * GENERATE GRADE 9 NAND PROBLEM
+ * Full Version: Includes all UI safety checks, instructional text, 
+ * and dual-mode logic (Conversion vs Redundancy Hunter - FUNNEL WALDO EDITION).
+ */
 function generateGrade9NandProblem(ctx, canvas) {
     try {
         // Track problem state
@@ -5453,7 +5458,7 @@ function generateGrade9NandProblem(ctx, canvas) {
 
         } 
         // =========================================================
-        // MODE B: REDUNDANCY HUNTER (WALDO MODE - DYNAMIC)
+        // MODE B: REDUNDANCY HUNTER (FUNNEL WALDO MODE - DYNAMIC)
         // =========================================================
         else {
             const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 60 40"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
@@ -5464,53 +5469,74 @@ function generateGrade9NandProblem(ctx, canvas) {
             const checkBtn = document.getElementById('checkansBtn');
             if (checkBtn && checkBtn.parentNode) checkBtn.parentNode.insertBefore(instDiv, checkBtn);
 
-            if (solBox) solBox.innerHTML = "Look for 2 NOT-configured NAND gates connected directly in a row.";
+            if (solBox) solBox.innerHTML = "Trace from the final gate backwards. Look for back-to-back NOT-configured NANDs.";
 
-            // Draw Chaotic Inputs
+            // Draw 5 Colored Inputs
             const inputs = ["A", "B", "C", "D", "E"];
+            const colors = ["#007bff", "#dc3545", "#28a745", "#ffc107", "#6f42c1"];
             const inputPos = inputs.map((l, i) => {
-                let y = 50 + (i * 70); ctx.fillText(l, 10, y); return { x: 30, y: y };
+                let y = 40 + (i * 70); 
+                ctx.fillStyle = colors[i]; ctx.font = "bold 16px Arial"; ctx.fillText(l, 10, y); 
+                return { x: 30, y: y, color: colors[i] };
             });
 
-            // Randomize Gate Matrix (4 Layers of 4 Gates)
+            // Funnel Matrix Definition
+            // Layer 0: Chaos (6 gates), Layer 1: Mix (4 gates), Layer 2: Pre-final (2 gates), Layer 3: Final (1 gate)
+            let layers = [6, 4, 2, 1];
             let gatePositions = [];
             let injectedCount = 0;
-            for (let i = 0; i < 16; i++) {
-                let layer = Math.floor(i / 4);
-                let isRed = (injectedCount < 4 && Math.random() < 0.2); // Potential redundant
-                let gx = 80 + (layer * 130) + (Math.random() * 15);
-                let gy = 30 + ((i % 4) * 80) + (Math.random() * 20);
 
-                let gateDiv = document.createElement('div');
-                gateDiv.className = 'nand-gate-clickable';
-                gateDiv.dataset.redundant = isRed;
-                gateDiv.dataset.selected = "false";
-                gateDiv.style.cssText = `position:absolute; left:${gx}px; top:${gy}px; width:60px; height:40px; cursor:pointer; pointer-events:auto;`;
-                gateDiv.innerHTML = isRed ? svgJoined : (Math.random() > 0.5 ? svgStandard : svgJoined);
+            layers.forEach((count, lIndex) => {
+                for (let i = 0; i < count; i++) {
+                    let isRed = (injectedCount < 3 && Math.random() < 0.2); 
+                    let gx = 80 + (lIndex * 140) + (Math.random() * 20);
+                    let gy = (400 / (count + 1)) * (i + 1) + (Math.random() * 15);
 
-                let xMark = document.createElement('div');
-                xMark.innerHTML = '❌'; xMark.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:24px; display:none; color:red; pointer-events:none;';
-                gateDiv.appendChild(xMark);
+                    let gateDiv = document.createElement('div');
+                    gateDiv.className = 'nand-gate-clickable';
+                    gateDiv.dataset.redundant = isRed;
+                    gateDiv.dataset.selected = "false";
+                    gateDiv.style.cssText = `position:absolute; left:${gx}px; top:${gy}px; width:60px; height:40px; cursor:pointer; pointer-events:auto;`;
+                    gateDiv.innerHTML = isRed ? svgJoined : (Math.random() > 0.5 ? svgStandard : svgJoined);
 
-                gateDiv.onclick = () => {
-                    let active = gateDiv.dataset.selected === "true";
-                    gateDiv.dataset.selected = !active ? "true" : "false";
-                    xMark.style.display = !active ? 'block' : 'none';
-                    gateDiv.style.opacity = !active ? '0.4' : '1';
-                };
-                overlay.appendChild(gateDiv);
-                gatePositions.push({ x: gx, y: gy, layer: layer });
-                if (isRed) injectedCount++;
-            }
+                    let xMark = document.createElement('div');
+                    xMark.innerHTML = '❌'; xMark.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:24px; display:none; color:red; pointer-events:none;';
+                    gateDiv.appendChild(xMark);
 
-            // Chaos Wiring
-            ctx.strokeStyle = "#888"; ctx.lineWidth = 1;
-            gatePositions.forEach(gate => {
-                let src = (gate.layer === 0) ? inputPos[Math.floor(Math.random()*5)] : gatePositions.filter(p => p.layer < gate.layer).sort(() => 0.5 - Math.random())[0];
-                let sX = (gate.layer === 0) ? src.x : src.x + 60;
-                let sY = (gate.layer === 0) ? src.y : src.y + 20;
-                ctx.beginPath(); ctx.moveTo(sX, sY); ctx.lineTo(sX + (gate.x - sX)/2, sY); ctx.lineTo(sX + (gate.x - sX)/2, gate.y + 20); ctx.lineTo(gate.x, gate.y + 20); ctx.stroke();
+                    gateDiv.onclick = () => {
+                        let active = gateDiv.dataset.selected === "true";
+                        gateDiv.dataset.selected = !active ? "true" : "false";
+                        xMark.style.display = !active ? 'block' : 'none';
+                        gateDiv.style.opacity = !active ? '0.4' : '1';
+                    };
+                    overlay.appendChild(gateDiv);
+                    gatePositions.push({ x: gx, y: gy, layer: lIndex, color: '#888' });
+                    if (isRed) injectedCount++;
+                }
             });
+
+            // Funnel Wiring with Input Colors
+            gatePositions.forEach(gate => {
+                ctx.lineWidth = 1.5;
+                if (gate.layer === 0) {
+                    let src = inputPos[Math.floor(Math.random() * 5)];
+                    ctx.strokeStyle = src.color;
+                    ctx.beginPath(); ctx.moveTo(src.x, src.y); 
+                    ctx.lineTo(src.x + 20, src.y); ctx.lineTo(src.x + 20, gate.y + 20); ctx.lineTo(gate.x, gate.y + 20); ctx.stroke();
+                } else {
+                    ctx.strokeStyle = "#888"; // Neutralize merged signals
+                    let possibleSources = gatePositions.filter(p => p.layer === gate.layer - 1);
+                    let src1 = possibleSources[i % possibleSources.length];
+                    ctx.beginPath(); ctx.moveTo(src1.x + 60, src1.y + 20);
+                    ctx.bezierCurveTo(src1.x + 100, src1.y + 20, gate.x - 40, gate.y + 20, gate.x, gate.y + 20);
+                    ctx.stroke();
+                }
+            });
+
+            // Label the final Q
+            const finalGate = gatePositions[gatePositions.length - 1];
+            ctx.fillStyle = "#333"; ctx.fillText("Q", finalGate.x + 75, finalGate.y + 25);
+            ctx.beginPath(); ctx.moveTo(finalGate.x + 60, finalGate.y + 20); ctx.lineTo(finalGate.x + 80, finalGate.y + 20); ctx.stroke();
         }
     } catch (err) { console.error(err); }
 }
