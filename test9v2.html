@@ -8217,16 +8217,17 @@ function checkAnswers() {
         return; // Stop here so it doesn't try to grade other modes
     }
 
-    // --- 2. NEW GRADE 9 SYSTEM NAND MODE ---
+// --- 2. NEW GRADE 9 SYSTEM NAND MODE ---
     if (currentMode === 'grade9nand') { 
         const feedback = document.getElementById('feedback');
         const dropzones = document.querySelectorAll('#nandCanvasOverlay > div');
         
+        // Ensure s4 grabs the dynamic target we exported in the generator
         const REQUIRED_LOGIC = {
             's1': window.nandTargets ? window.nandTargets.s1 : 'AND', 
             's2': 'NOT',                 
             's3': window.nandTargets ? window.nandTargets.s3 : 'OR', 
-            's4': ''                     
+            's4': window.nandTargets ? window.nandTargets.s4 : 'WIRE'                     
         };
 
         if (!hasCheckedCurrentProblem) { 
@@ -8243,22 +8244,22 @@ function checkAnswers() {
             
             const filledGate = zone.getAttribute('data-filled-type') || ""; 
 
-            if (targetGate !== "") {
-                if (filledGate === targetGate) {
-                    zone.style.backgroundColor = "rgba(40, 167, 69, 0.2)"; 
-                    zone.style.borderColor = "#28a745";
-                } else {
-                    allCorrect = false;
-                    anyWrongPlacement = true;
-                    zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
-                    zone.style.borderColor = "#dc3545";
-                }
+            // Standardized check for all 4 boxes
+            if (filledGate === targetGate) {
+                // Correct match
+                zone.style.backgroundColor = "rgba(40, 167, 69, 0.2)"; 
+                zone.style.borderColor = "#28a745";
+            } else if (filledGate !== "") {
+                // Wrong gate placed
+                allCorrect = false;
+                anyWrongPlacement = true;
+                zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
+                zone.style.borderColor = "#dc3545";
             } else {
-                // Box 4 should be empty or a wire
-                if (filledGate !== "" && filledGate !== "WIRE") {
-                    allCorrect = false;
-                    zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)";
-                }
+                // Box left empty
+                allCorrect = false;
+                zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
+                zone.style.borderColor = "#dc3545";
             }
         });
 
