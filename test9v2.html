@@ -5374,6 +5374,9 @@ function generateGrade9NandProblem(ctx, canvas) {
     const s1Target = ["AND", "OR"][Math.floor(Math.random() * 2)];
     const b3Target = ["AND", "OR", "NOR"][Math.floor(Math.random() * 3)];
     
+    // EXPORT TARGETS SO THE CHECKER CAN READ THEM
+    window.nandTargets = { s1: s1Target, s3: b3Target };
+    
     const blueprint = [
         { id: "s1", target: s1Target, x: 80, y: 45,  w: 140, h: 90, ghost: true },
         { id: "s2", target: "NOT",    x: 80, y: 185, w: 140, h: 90, ghost: true },
@@ -5437,8 +5440,17 @@ function generateGrade9NandProblem(ctx, canvas) {
             const type = e.dataTransfer.getData("text");
             zone.innerHTML = graphicsMap[type];
             zone.style.border = "2px solid #444";
+            
+            // ADDED: SET ATTRIBUTE FOR THE CHECKER TO READ
+            zone.setAttribute('data-filled-type', type); 
         };
-        zone.ondblclick = () => { zone.innerHTML = ""; zone.style.border = "2px dashed #bbb"; };
+        zone.ondblclick = () => { 
+            zone.innerHTML = ""; 
+            zone.style.border = "2px dashed #bbb"; 
+            
+            // ADDED: REMOVE ATTRIBUTE SO CHECKER KNOWS IT IS EMPTY AGAIN
+            zone.removeAttribute('data-filled-type');
+        };
         overlay.appendChild(zone);
     });
 
