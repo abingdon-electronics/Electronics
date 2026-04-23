@@ -5335,7 +5335,8 @@ function generateGrade9NandProblem(ctx, canvas) {
         <line x1="135" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/>
     </svg>`;
     
-    // FIXED: The bottom path line L 20,47.5 was changed to L 20,87.5 to complete the D-shape correctly.
+    // FIXED: Bottom NOT gate in the OR set was "askew" due to incorrect Z-path coordinate. 
+    // Changed L 20,47.5 Z to L 20,87.5 Z to properly close the bottom of the D-shape.
     const svgOR = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
         <path d="M 0,22.5 L 10,22.5 M 10,12.5 L 10,32.5 M 10,12.5 L 20,12.5 M 10,32.5 L 20,32.5" fill="none" stroke="black" stroke-width="3"/>
         <path d="M 20,2.5 L 35,2.5 A 20,20 0 0,1 35,42.5 L 20,42.5 Z" fill="white" stroke="black" stroke-width="3"/>
@@ -5368,11 +5369,10 @@ function generateGrade9NandProblem(ctx, canvas) {
     overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none;`;
     document.getElementById('circuitContainer').appendChild(overlay);
 
-    // --- 3. UPDATED LOGIC POOL & INSTRUCTIONS ---
+    // --- 3. LOGIC POOL & INSTRUCTIONS ---
     const topPool = ["AND", "OR"];
-    const box3Pool = ["AND", "OR", "NOR"]; 
     const s1Target = topPool[Math.floor(Math.random() * topPool.length)];
-    const b3Target = box3Pool[Math.floor(Math.random() * box3Pool.length)];
+    const b3Target = ["AND", "OR", "NOR"][Math.floor(Math.random() * 3)];
     
     const blueprint = [
         { id: "s1", target: s1Target, x: 80, y: 45,  w: 140, h: 90, ghost: true },
@@ -5381,34 +5381,33 @@ function generateGrade9NandProblem(ctx, canvas) {
         { id: "s4", target: "ANY",    x: 460, y: 115, w: 140, h: 90, ghost: false } 
     ];
 
-    // Right Panel Instructions Injection
-    const rightPanel = document.getElementById('solText') || document.getElementById('rightPanel') || document.getElementById('solutions');
+    // INSTRUCTIONS LOGIC:
     const instructionHTML = `
-        <div style="padding: 10px;">
-            <h3 style="color: #d65093; margin-top: 0;">Circuit Construction Task</h3>
-            <p>Convert the logical system by dragging the correct NAND equivalent to each blueprint:</p>
+        <div style="padding: 15px; font-family: sans-serif;">
+            <h3 style="color: #d65093; margin-top: 0;">NAND Logic Construction</h3>
+            <p>Convert the logical system by dragging the correct NAND equivalent into each blueprint box:</p>
             <ul style="line-height: 1.6;">
-                <li><strong>Top Box:</strong> ${s1Target} Gate</li>
-                <li><strong>Bottom Box:</strong> NOT Gate</li>
-                <li><strong>Middle Box:</strong> ${b3Target} Gate</li>
+                <li><strong>Top Box:</strong> Build an <b>${s1Target}</b> Gate</li>
+                <li><strong>Bottom Box:</strong> Build a <b>NOT</b> Gate</li>
+                <li><strong>Middle Box:</strong> Build a <b>${b3Target}</b> Gate</li>
                 <li><strong>Right Box:</strong> (Leave Blank)</li>
             </ul>
-            <p style="font-size: 0.85em; color: #666;">Double-click a dropped gate to remove it.</p>
+            <p style="font-size: 0.85em; color: #666; font-style: italic;">Double-click a gate to remove it.</p>
         </div>
     `;
     
+    // Attempt to find your right panel
+    const rightPanel = document.getElementById('solText') || 
+                       document.getElementById('rightPanel') || 
+                       document.getElementById('instructions') ||
+                       document.getElementById('solutions');
+
     if (rightPanel) {
         rightPanel.innerHTML = instructionHTML;
         rightPanel.style.display = "block";
-    } else {
-        // Fallback if right panel missing: overlay box on the top right of canvas
-        let fallbackBox = document.createElement('div');
-        fallbackBox.style.cssText = "position:absolute; top:10px; right:10px; width:220px; background:white; border:2px solid #ccc; padding:15px; border-radius:5px; pointer-events:auto; font-family:Arial, sans-serif;";
-        fallbackBox.innerHTML = instructionHTML;
-        overlay.appendChild(fallbackBox);
     }
 
-    // --- 4. GHOST DRAWING (WITH NOR SUPPORT) ---
+    // --- 4. GHOST DRAWING ---
     const drawGhost = (type, x, y) => {
         ctx.save();
         ctx.globalAlpha = 0.15; ctx.strokeStyle = "black"; ctx.lineWidth = 2;
@@ -5419,9 +5418,7 @@ function generateGrade9NandProblem(ctx, canvas) {
         } else if (type === "OR" || type === "NOR") {
             ctx.beginPath(); ctx.moveTo(30, 20); ctx.quadraticCurveTo(50, 45, 30, 70);
             ctx.quadraticCurveTo(90, 70, 115, 45); ctx.quadraticCurveTo(90, 20, 30, 20); ctx.stroke();
-            if (type === "NOR") { // Add the inversion bubble for NOR
-                ctx.beginPath(); ctx.arc(120, 45, 5, 0, Math.PI*2); ctx.stroke();
-            }
+            if (type === "NOR") { ctx.beginPath(); ctx.arc(120, 45, 5, 0, Math.PI*2); ctx.stroke(); }
         } else if (type === "NOT") {
             ctx.beginPath(); ctx.moveTo(45, 25); ctx.lineTo(85, 45); ctx.lineTo(45, 65); ctx.closePath();
             ctx.stroke(); ctx.beginPath(); ctx.arc(90, 45, 5, 0, Math.PI*2); ctx.stroke();
@@ -5429,7 +5426,7 @@ function generateGrade9NandProblem(ctx, canvas) {
         ctx.restore();
     };
 
-    // --- 5. FIXED WIRING ---
+    // --- 5. WIRING ---
     ctx.strokeStyle = "#333"; ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(20, 75); ctx.lineTo(80, 75); 
