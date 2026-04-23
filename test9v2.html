@@ -5377,7 +5377,37 @@ function generateGrade9NandProblem(ctx, canvas) {
     
     // EXPORT ALL TARGETS FOR CHECKER
     window.nandTargets = { s1: s1Target, s3: b3Target, s4: s4Target };
+
+    // --- UI Reset & Update for Solutions ---
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none"; 
     
+    const solBox = document.getElementById('solText');
+    if (solBox) {
+        solBox.style.display = "block"; 
+        
+        // Dictionary of explanations
+        const solutionsMap = {
+            'NOT': "A <strong>NOT</strong> gate is made by joining the inputs of a single NAND gate.",
+            'AND': "An <strong>AND</strong> gate is a NAND gate followed by a NOT gate (NAND with inputs joined).",
+            'OR': "An <strong>OR</strong> gate uses two NOT gates (inputs joined) for A and B, feeding into a final NAND gate.",
+            'NOR': "A <strong>NOR</strong> gate is an OR gate construction followed by a final NOT gate.",
+            'WIRE': "A straight <strong>Wire</strong> is used to pass the signal directly through without modification."
+        };
+
+        // Build the solution text dynamically based on the current randomized targets
+        solBox.innerHTML = `
+            <div style="font-family: sans-serif; font-size: 14px;">
+                <strong>Grade 9 Circuit Solution:</strong><br>
+                <ul style="line-height: 1.6; margin-top: 8px; padding-left: 20px;">
+                    <li><strong>Top Box (${s1Target}):</strong> ${solutionsMap[s1Target]}</li>
+                    <li><strong>Bottom Box (NOT):</strong> ${solutionsMap['NOT']}</li>
+                    <li><strong>Middle Box (${b3Target}):</strong> ${solutionsMap[b3Target]}</li>
+                    <li><strong>Final Box (${s4Target}):</strong> ${solutionsMap[s4Target]}</li>
+                </ul>
+            </div>
+        `;
+    }
     // COMPRESSED COORDINATES (Shifted left to fit output Q)
     const blueprint = [
         { id: "s1", target: s1Target, x: 40,  y: 45,  w: 140, h: 90, ghost: true },
