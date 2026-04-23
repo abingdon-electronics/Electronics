@@ -9140,7 +9140,6 @@ function provideHint() {
                 </div>`;
         }
     } else if (currentMode === 'logic_ic') {
-        // --- NEW IC HINT BLOCK ---
         helpText = `
             <div style="${blueBox}">
                 <strong>💡 Hint:</strong><br>
@@ -9197,12 +9196,10 @@ function provideHint() {
             helpText = `
                 <div style="${blueBox}">
                     <strong>💡 Hint: Redundancy Hunter:</strong><br>
-                    • A double inversion ($\overline{\overline{A}}$) is a waste of hardware.<br>
+                    • A double inversion ($\\overline{\\overline{A}}$) is a waste of hardware.<br>
                     • Look for two NOT-configured NAND gates (gates with joined inputs) sitting side-by-side on the exact same wire path!
                 </div>`;
         }
-    }
-    
     } else {
         // Potential Divider & General
         helpText = `
