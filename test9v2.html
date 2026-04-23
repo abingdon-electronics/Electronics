@@ -8393,118 +8393,114 @@ function checkAnswers() {
     }
 
 // --- 2. NEW GRADE 9 SYSTEM NAND MODE ---
-    if (currentMode === 'grade9nand') { 
-        const feedback = document.getElementById('feedback');
-        
-        if (!hasCheckedCurrentProblem) { 
-            problemsAttempted++; 
-            hasCheckedCurrentProblem = true; 
-        }
-
-        const checkansBtn = document.getElementById('checkansBtn');
-        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
-
-        // ==========================================
-        // BRANCH A: SYSTEM CONVERSION (Drag & Drop)
-        // ==========================================
-        if (window.grade9NandMode === 'conversion') {
-            const dropzones = document.querySelectorAll('#nandCanvasOverlay > div');
-            
-            const REQUIRED_LOGIC = {
-                's1': window.nandTargets ? window.nandTargets.s1 : 'AND', 
-                's2': 'NOT', // Hardcoded as requested
-                's3': window.nandTargets ? window.nandTargets.s3 : 'OR', 
-                's4': window.nandTargets ? window.nandTargets.s4 : 'WIRE'                     
-            };
-
-            let allCorrect = true;
-            let anyWrongPlacement = false;
-
-            dropzones.forEach((zone, index) => {
-                const bpId = `s${index + 1}`;
-                const targetGate = REQUIRED_LOGIC[bpId];
-                const filledGate = zone.getAttribute('data-filled-type') || ""; 
-
-                if (filledGate === targetGate) {
-                    zone.style.backgroundColor = "rgba(40, 167, 69, 0.2)"; 
-                    zone.style.borderColor = "#28a745";
-                } else if (filledGate !== "") {
-                    allCorrect = false;
-                    anyWrongPlacement = true;
-                    zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
-                    zone.style.borderColor = "#dc3545";
-                } else {
-                    allCorrect = false;
-                    zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
-                    zone.style.borderColor = "#dc3545";
-                }
-            });
-
-            if (allCorrect) {
-                isCurrentProblemSolved = true;
-                if (canEarnPoints) { problemsCorrect++; }
-                feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> System converted correctly!</span>`;
-                canEarnPoints = false;
-                if (checkansBtn) checkansBtn.style.display = 'none';
-                if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-            } else {
-                canEarnPoints = false;
-                if (anyWrongPlacement) {
-                    feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. Check the red boxes for mismatched logic.</span>`;
-                } else {
-                    feedback.innerHTML = `<span style='color: #dc3545;'>Circuit incomplete. All blueprints must be filled.</span>`;
-                }
-                const solDiv = document.getElementById('solutions');
-                if (solDiv) solDiv.style.display = 'block';
-            }
-        } 
-// ==========================================
-        // BRANCH B: REDUNDANCY HUNTER (Click to Cross Out)
-        // ==========================================
-        else {
-            let allCorrect = true; 
-            let anythingSelected = false;
-            
-            // Grab all the clickable gates generated for this mode
-            const gates = document.querySelectorAll('.nand-gate-clickable');
-
-            // Check every single gate to make sure their selected state matches their redundant state
-            gates.forEach(gate => {
-                const isRedundant = gate.dataset.redundant === "true";
-                const isSelected = gate.dataset.selected === "true";
-                
-                if (isSelected) anythingSelected = true;
-
-                // If a redundant gate ISN'T selected, or a normal gate IS selected, they got it wrong
-                if (isRedundant !== isSelected) {
-                    allCorrect = false;
-                }
-            });
-
-            // Grading Logic
-            if (!anythingSelected) {
-                canEarnPoints = false;
-                feedback.innerHTML = `<span style='color: #dc3545;'>You haven't crossed out any gates! Click the redundant gates to eliminate them.</span>`;
-                const solDiv = document.getElementById('solutions');
-                if (solDiv) solDiv.style.display = 'block';
-            } else if (allCorrect) {
-                isCurrentProblemSolved = true;
-                if (canEarnPoints) { problemsCorrect++; }
-                feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> Redundancies eliminated!</span>`;
-                canEarnPoints = false;
-                if (checkansBtn) checkansBtn.style.display = 'none';
-                if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-            } else {
-                canEarnPoints = false;
-                feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. Check your logic—some necessary gates were crossed out, or redundant ones were left in!</span>`;
-                const solDiv = document.getElementById('solutions');
-                if (solDiv) solDiv.style.display = 'block';
-            }
-        }
-
-        if (typeof updateScoreboard === "function") updateScoreboard();
-        return; 
+if (currentMode === 'grade9nand') { 
+    const feedback = document.getElementById('feedback');
+    
+    if (!hasCheckedCurrentProblem) { 
+        problemsAttempted++; 
+        hasCheckedCurrentProblem = true; 
     }
+
+    const checkansBtn = document.getElementById('checkansBtn');
+    const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+
+    // ==========================================
+    // BRANCH A: SYSTEM CONVERSION (Drag & Drop)
+    // ==========================================
+    if (window.grade9NandMode === 'conversion') {
+        const dropzones = document.querySelectorAll('#nandCanvasOverlay > div');
+        
+        const REQUIRED_LOGIC = {
+            's1': window.nandTargets ? window.nandTargets.s1 : 'AND', 
+            's2': 'NOT', 
+            's3': window.nandTargets ? window.nandTargets.s3 : 'OR', 
+            's4': window.nandTargets ? window.nandTargets.s4 : 'WIRE'                     
+        };
+
+        let allCorrect = true;
+        let anyWrongPlacement = false;
+
+        dropzones.forEach((zone, index) => {
+            const bpId = `s${index + 1}`;
+            const targetGate = REQUIRED_LOGIC[bpId];
+            const filledGate = zone.getAttribute('data-filled-type') || ""; 
+
+            if (filledGate === targetGate) {
+                zone.style.backgroundColor = "rgba(40, 167, 69, 0.2)"; 
+                zone.style.borderColor = "#28a745";
+            } else if (filledGate !== "") {
+                allCorrect = false;
+                anyWrongPlacement = true;
+                zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
+                zone.style.borderColor = "#dc3545";
+            } else {
+                allCorrect = false;
+                zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
+                zone.style.borderColor = "#dc3545";
+            }
+        });
+
+        if (allCorrect) {
+            isCurrentProblemSolved = true;
+            if (canEarnPoints) { problemsCorrect++; }
+            feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> System converted correctly!</span>`;
+            canEarnPoints = false;
+            if (checkansBtn) checkansBtn.style.display = 'none';
+            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+        } else {
+            canEarnPoints = false;
+            if (anyWrongPlacement) {
+                feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. Check the red boxes for mismatched logic.</span>`;
+            } else {
+                feedback.innerHTML = `<span style='color: #dc3545;'>Circuit incomplete. All blueprints must be filled.</span>`;
+            }
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) solDiv.style.display = 'block';
+        }
+    } 
+    // ==========================================
+    // BRANCH B: REDUNDANCY HUNTER (Click to Cross Out)
+    // ==========================================
+    else {
+        let allCorrect = true; 
+        let anythingSelected = false;
+        
+        const gates = document.querySelectorAll('.nand-gate-clickable');
+
+        gates.forEach(gate => {
+            const isRedundant = gate.dataset.redundant === "true";
+            const isSelected = gate.dataset.selected === "true";
+            
+            if (isSelected) anythingSelected = true;
+
+            if (isRedundant !== isSelected) {
+                allCorrect = false;
+            }
+        });
+
+        if (!anythingSelected) {
+            canEarnPoints = false;
+            feedback.innerHTML = `<span style='color: #dc3545;'>You haven't crossed out any gates! Click the redundant gates to eliminate them.</span>`;
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) solDiv.style.display = 'block';
+        } else if (allCorrect) {
+            isCurrentProblemSolved = true;
+            if (canEarnPoints) { problemsCorrect++; }
+            feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> Redundancies eliminated!</span>`;
+            canEarnPoints = false;
+            if (checkansBtn) checkansBtn.style.display = 'none';
+            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+        } else {
+            canEarnPoints = false;
+            feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. Check your logic—some necessary gates were crossed out, or redundant ones were left in!</span>`;
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) solDiv.style.display = 'block';
+        }
+    }
+
+    if (typeof updateScoreboard === "function") updateScoreboard();
+    return; 
+}
     //New function code pasted above this line
     //********************************************************************
 
