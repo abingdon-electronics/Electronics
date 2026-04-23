@@ -576,8 +576,32 @@
     .btn-grade9:active {
         transform: scale(0.96);
     }
-    
-    
+ /* ============================================================
+       Grade 9 NAND
+       ============================================================ */   
+  .nand-module-item {
+    padding: 8px 12px;
+    background: #ffffff;
+    border: 2px solid #333;
+    border-radius: 4px;
+    cursor: grab;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 14px;
+    user-select: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.nand-module-item:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+}
+
+.nand-module-item:hover {
+    background: #fff3f8;      /* Very light pink tint */
+    border-color: #e64097;   /* Your theme pink */
+    box-shadow: 2px 2px 5px rgba(230, 64, 151, 0.2);
+}
 
     /* ============================================================
        6. IPO DRAG & DROP STYLES
@@ -1355,7 +1379,19 @@
     </div>
 
 </div>
-         
+
+<!-- Input group G9 NAND--> 
+<div id="inputGroupGrade9Nand" class="input-group" style="display:none;">
+    <div style="background: #fff3f8; padding: 15px; border-radius: 8px; border: 1px solid #e64097; margin-bottom: 15px;">
+        <h4 style="margin-top: 0; color: #e64097;">NAND System Conversion</h4>
+        <p style="font-size: 0.9em; margin-bottom: 10px;">
+            <strong>Task:</strong> Drag the correct NAND modules from the canvas bank (bottom gates) into the dashed slots on the canvas to convert the standard logic circuit into its NAND equivalent. <br>(Double click to remove any placed NAND gates.)
+        </p>
+        
+        <div id="nandModuleBank" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 5px; min-height: 50px;">
+            </div>
+    </div>
+</div>       
 <!-- Input group colour code-->  
                 <div class="input-group" id="inputGroupColorVal" style="display: none; justify-content: center; gap: 5px;">
                     <input type="number" id="inputResValue" placeholder="Value" style="width: 80px;"> <strong>Ω ±</strong> 
@@ -1540,96 +1576,90 @@ let isDeMorganQuestion = false;
 function handleNewQuestionClick() {
     console.log("1. New Question Button Clicked. Starting Mode:", currentMode);
 
-    // 1. RESET SCORING & UI FOR THE NEW PROBLEM ************
-    canEarnPoints = true;      // Student can earn points again
-    viewedSolution = false;    // Reset the peek flag
+    // 1. RESET SCORING & UI FOR THE NEW PROBLEM
+    canEarnPoints = true;
+    viewedSolution = false;
     
-    // Hide the solution box
     const sol = document.getElementById('solutions');
     if (sol) sol.style.display = 'none';
     
-    // Bring back the Help Button
     const showsolutionsBtn = document.getElementById('showsolutionsBtn');
     if (showsolutionsBtn) {
         showsolutionsBtn.style.display = 'block'; 
         showsolutionsBtn.innerText = "🛟 Help"; 
     }
 
-    // Bring back the Check Answer button for the new problem
     const checkansBtn = document.getElementById('checkansBtn');
     if (checkansBtn) checkansBtn.style.display = 'block'; 
 
-    // ---> DO NOT COLLAPSE THE HEIGHT <---
-    // Use &nbsp; instead of "" so the div stays exactly the same height!
     const feedback = document.getElementById('feedback');
     if (feedback) feedback.innerHTML = "&nbsp;";
 
-    // ---> RE-SHOW THE CANVAS CONTAINER <--- ********************
     const circuitContainer = document.getElementById('circuitContainer');
     if (circuitContainer) circuitContainer.style.display = 'block';
     
     const circuitCanvas = document.getElementById('circuitCanvas');
     if (circuitCanvas) circuitCanvas.style.display = 'block';
 
-    // Hide the IPO workstation just in case it was left open
     const canvasIPOWorkstation = document.getElementById('canvasIPOWorkstation');
     if (canvasIPOWorkstation) canvasIPOWorkstation.style.display = 'none';
 
-    // ---> NEW FIX: REMOVE THE GRADE 9 CSS LOCKS <--- 
-    // This stops the Pathfinder/Master UI from permanently blocking standard questions
-    const g9Master = document.getElementById('inputGroupGrade9SiliconMaster');
-    const g9Path = document.getElementById('inputGroupGrade9SiliconPath');
-    if (g9Master) g9Master.style.removeProperty("display");
-    if (g9Path) g9Path.style.removeProperty("display");
-   
+    // REMOVE THE GRADE 9 CSS LOCKS 
+    const g9Nand = document.getElementById('inputGroupGrade9Nand');
+    if (g9Nand) g9Nand.style.removeProperty("display");
 
-    // ---> ESCAPE THE GRADE 9 LOOPS & RESET SCORE <--- 
+    // ESCAPE THE GRADE 9 LOOPS
     let escapedGrade9 = false;
-    let previousMode = currentMode; // Remember where we were just in case they cancel!
+    let previousMode = currentMode; 
 
-    if (currentMode === 'grade9zener') {
-        currentMode = 'zener';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9divider') {
-        currentMode = 'divider';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9resistance') {
-        currentMode = 'resistance';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9power') {
-        currentMode = 'power';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9silicon') {  
-        currentMode = 'silicon';
-        escapedGrade9 = true;
-    } else if (currentMode === 'grade9boolean') {  
-        currentMode = 'logic_boolean';
-        escapedGrade9 = true;
-    }
+    if (currentMode === 'grade9zener') { currentMode = 'zener'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9divider') { currentMode = 'divider'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9resistance') { currentMode = 'resistance'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9power') { currentMode = 'power'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9silicon') { currentMode = 'silicon'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9boolean') { currentMode = 'logic_boolean'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9nand') { currentMode = 'logic_nand'; escapedGrade9 = true; }
 
-    // If we are dropping out of a Grade 9 mode AND they have a score, warn them!
-    if (escapedGrade9 && problemsAttempted > 0) {
+    if (escapedGrade9 && (typeof problemsAttempted !== 'undefined' && problemsAttempted > 0)) {
         const wantsToProceed = confirm("Warning: Returning to standard mode will reset your Grade 9 score to 0. Do you want to continue?");
-        
-        if (!wantsToProceed) {
-            currentMode = previousMode; // Put them back in Grade 9 mode
-            return; // Stop the rest of the function from running
-        }
+        if (!wantsToProceed) { currentMode = previousMode; return; }
     }
 
-    // If they clicked "OK" (or if their score was 0), wipe the score
     if (escapedGrade9) {
         problemsAttempted = 0;
         problemsCorrect = 0;
-        if (typeof updateScoreboard === 'function') {
-            updateScoreboard();
-        }
+        if (typeof updateScoreboard === 'function') updateScoreboard();
     }
 
-    // 2. GENERATE THE NEW PROBLEM ********************************
+// 2. GENERATE THE NEW PROBLEM ********************************
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas ? canvas.getContext('2d') : null;
 
+    if (ctx && canvas) {
+        // A. HARD PIXEL WIPE
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath(); // Reset any active drawing paths
+    }
+    
+    // B. REMOVE THE NAND OVERLAY (The source of the "clinging" wires)
+    const oldOverlay = document.getElementById('nandCanvasOverlay');
+    if (oldOverlay) {
+        oldOverlay.remove();
+    }
+
+    // C. THE "GHOST BUSTER" DATA PURGE
+    // Wipe every possible array that could contain wires or gates
+    window.nandWires = [];
+    window.nandGates = [];
+    window.currentNandTarget = null;
+    
+    // Wipe standard logic arrays used in other modules
+    if (window.allWires) window.allWires = [];
+    if (window.allGates) window.allGates = [];
+    if (window.logicWires) window.logicWires = [];
+    if (window.gateList) window.gateList = [];
+
+    // 3. ROUTING
     if (currentMode === 'colorcode') {
         if (typeof generateColorCodeProblem === "function") generateColorCodeProblem(ctx, canvas);
     } else if (currentMode === 'zener') {
@@ -1639,15 +1669,12 @@ function handleNewQuestionClick() {
     } else if (currentMode === 'power' || currentMode === 'grade9power') { 
         if (typeof generatePowerProblem === "function") generatePowerProblem(ctx, canvas);
     } else if (currentMode === 'logic_system') { 
-        // 👇 NEW BLOCK FOR LOGIC SYSTEMS
         if (typeof generateLogicSystemProblem === "function") generateLogicSystemProblem(ctx, canvas);
     } else {
-        // Handles Astable, Monostable, Oscilloscope, Divider, Resistance, Silicon, AND Grade 9 Silicon
-        // We route them to hubController so it can perfectly clean up the UI menus!
+        // This calls hubController which does the final ctx.clearRect
         if (typeof hubController === "function") hubController(ctx, canvas);
     }
 }
-
 // *********************************************************************
     
 function handleGrade9Click() {
@@ -1703,6 +1730,32 @@ function handleGrade9Click() {
             generateGrade9SiliconProblem();
         }
     }
+
+// 👇 UPDATED NAND SYSTEM CONVERSION ROUTING 👇
+    else if (currentMode === 'logic_nand' || currentMode === 'grade9nand') {
+        currentMode = 'grade9nand';
+        
+        // 1. Reset Internal State
+        window.currentNandTarget = null;
+        window.nandWires = []; 
+        window.nandGates = [];
+        
+        // 2. Clear out any existing dropzone content manually before regenerating
+        // This ensures a "fresh" start even if the cleanup function missed a stray element
+        const overlay = document.getElementById('nandCanvasOverlay');
+        if (overlay) overlay.innerHTML = ''; 
+
+        // 3. Trigger the Generator
+        if (typeof generateGrade9NandProblem === "function") {
+            // Passing ctx and canvas ensures the drawing logic has the tools it needs
+            generateGrade9NandProblem(ctx, canvas);
+        } else if (typeof hubController === "function") {
+            hubController(ctx, canvas);
+        }
+    }
+
+
+        
     else {
         console.warn("Rocket clicked, but currentMode was not recognized: " + currentMode);
     }
@@ -2347,6 +2400,7 @@ function drawNORGate(ctx, x, y) {
     ctx.lineTo(x + 70, y + 25);
     ctx.stroke();
 }
+
   
 // =========================================================================================================      
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
@@ -4788,6 +4842,15 @@ function generateBooleanProblem(ctx, canvas) {
 //*****************************************************************************************
 
 function generateGrade9booleanProblem(ctx, canvas) {
+    // Helper function to jumble arrays
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
     // 1. Setup UI & Global Reset
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -4853,10 +4916,11 @@ function generateGrade9booleanProblem(ctx, canvas) {
         window.g9boolAnswers = correctStrings;
         window.g9boolActiveMode = 'sop'; 
 
-        const allPossibleCombos = [
+        // Jumble the possible combinations for the dropdowns
+        const allPossibleCombos = shuffleArray([
             "A\u0305.B\u0305.C\u0305", "A\u0305.B\u0305.C", "A\u0305.B.C\u0305", "A\u0305.B.C",
             "A.B\u0305.C\u0305", "A.B\u0305.C", "A.B.C\u0305", "A.B.C"
-        ];
+        ]);
 
         ['g9boolRow1', 'g9boolRow2', 'g9boolRow3'].forEach(id => {
             let sel = document.getElementById(id);
@@ -4887,42 +4951,101 @@ function generateGrade9booleanProblem(ctx, canvas) {
 
     } else {
         // ==========================================
-        // MODE 2: CIRCUIT PATHFINDER (Radio Overbars)
+        // MODE 2: CIRCUIT PATHFINDER
         // ==========================================
         if (pathContainer) pathContainer.style.display = 'block';
 
-        // Constrained First Column (Only AND/OR)
         const topGates = ['AND', 'OR'];
         const topGate = topGates[Math.floor(Math.random() * topGates.length)];
-        
-        // Second column can have any
         const finalGates = ['AND', 'OR', 'NAND', 'NOR'];
         const finalGate = finalGates[Math.floor(Math.random() * finalGates.length)];
 
-        // Generate X and Y strings directly
         let ansX = topGate === 'AND' ? "A . B" : "A + B";
         let ansY = "C\u0305"; 
 
-        // Helper to generate perfectly formatted HTML for the radio labels
         function getHTMLFormattedExp(gate, x, y) {
             let bracketX = `(${x})`;
             if (gate === 'AND') return `${bracketX} . ${y}`;
             if (gate === 'OR') return `${bracketX} + ${y}`;
-            // CSS overline renders a flawless continuous bar
             if (gate === 'NAND') return `<span style="text-decoration: overline; display: inline-block;">${bracketX} . ${y}</span>`;
             if (gate === 'NOR') return `<span style="text-decoration: overline; display: inline-block;">${bracketX} + ${y}</span>`;
         }
 
         let ansQHTML = getHTMLFormattedExp(finalGate, ansX, ansY);
-        
-        // Save raw unformatted string to window logic check if needed, or pass the HTML
         window.g9boolPathAnswers = { x: ansX, y: ansY, q: ansQHTML };
         window.g9boolActiveMode = 'pathfinder'; 
 
-        let sol = document.getElementById('solText');
-        if(sol) sol.innerHTML = `<b>X:</b> ${ansX}<br><b>Y:</b> ${ansY}<br><b>Q:</b> ${ansQHTML}`;
+        // Jumble X and Y dropdown options
+        const xOptions = shuffleArray(["A . B", "A + B", "A\u0305 . B\u0305", "A\u0305 + B\u0305"]);
+        const yOptions = shuffleArray(["C", "C\u0305", "A", "B"]);
+        
+        const fillSelect = (id, options) => {
+            let el = document.getElementById(id);
+            if(!el) return;
+            el.innerHTML = '<option value="">Select expression...</option>';
+            options.forEach(o => el.innerHTML += `<option value="${o}">${o}</option>`);
+        };
+        fillSelect('g9boolPathX', xOptions);
+        fillSelect('g9boolPathY', yOptions);
 
-        // Draw inputs and wires
+        // Radio Distractors for Q - Jumbled
+        let qSetHTML = new Set();
+        qSetHTML.add(ansQHTML);
+        
+        while(qSetHTML.size < 4) {
+            let rTop = topGates[Math.floor(Math.random() * topGates.length)];
+            let rFin = finalGates[Math.floor(Math.random() * finalGates.length)];
+            let tX = rTop === 'AND' ? "A . B" : "A + B";
+            let tY = Math.random() > 0.5 ? "C\u0305" : "C";
+            qSetHTML.add(getHTMLFormattedExp(rFin, tX, tY));
+        }
+
+        // Convert set to array and shuffle
+        let qArray = shuffleArray(Array.from(qSetHTML));
+
+        let oldSelectQ = document.getElementById('g9boolPathQ');
+        let radioContainer = document.getElementById('g9boolPathQRadioContainer');
+        
+        if (!radioContainer && oldSelectQ) {
+            radioContainer = document.createElement('div');
+            radioContainer.id = 'g9boolPathQRadioContainer';
+            radioContainer.style.display = 'flex';
+            radioContainer.style.flexDirection = 'column';
+            radioContainer.style.gap = '8px';
+            radioContainer.style.marginTop = '10px';
+            oldSelectQ.parentNode.insertBefore(radioContainer, oldSelectQ);
+            oldSelectQ.style.display = 'none';
+        }
+
+        if (radioContainer) {
+            radioContainer.innerHTML = '';
+            radioContainer.style.border = 'none'; 
+            radioContainer.style.backgroundColor = 'transparent';
+            radioContainer.className = '';
+
+            qArray.forEach((htmlExp) => {
+                let wrapper = document.createElement('label');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.gap = '10px';
+                wrapper.style.cursor = 'pointer';
+                wrapper.style.fontSize = '16px';
+                
+                let radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'g9boolPathQ_RadioGroup';
+                radio.value = htmlExp;
+                
+                let span = document.createElement('span');
+                span.innerHTML = htmlExp; 
+                
+                wrapper.appendChild(radio);
+                wrapper.appendChild(span);
+                radioContainer.appendChild(wrapper);
+            });
+        }
+
+        // Draw Logic (Lines and Gates)
         ctx.fillStyle = "#333"; ctx.font = "bold 20px Arial";
         ctx.fillText("A", 20, 62); ctx.fillText("B", 20, 82); ctx.fillText("C", 20, 167);
         if(typeof drawLine === 'function') {
@@ -4941,112 +5064,41 @@ function generateGrade9booleanProblem(ctx, canvas) {
         else if (finalGate === 'AND' && typeof drawANDGate === 'function') drawANDGate(ctx, 230, 95);
         else if (finalGate === 'NAND' && typeof drawNANDGate === 'function') drawNANDGate(ctx, 230, 95);
         else if (finalGate === 'NOR' && typeof drawNORGate === 'function') drawNORGate(ctx, 230, 95);
-        
-        // ==========================================
-        // NEW: Draw Pink Canvas Labels for X, Y, Q
-        // ==========================================
-        ctx.font = "bold 18px Arial"; 
-        ctx.fillStyle = "#c83377"; 
-        ctx.fillText("X", 180, 55);  
-        ctx.fillText("Y", 180, 150); 
-        ctx.fillText("Q", 290, 110); 
-        // ==========================================
 
-        // 1. Populate standard dropdowns for X and Y
-        const xOptions = ["A . B", "A + B", "A\u0305 . B\u0305", "A\u0305 + B\u0305"];
-        const yOptions = ["C", "C\u0305", "A", "B"];
-        
-        const fillSelect = (id, options) => {
-            let el = document.getElementById(id);
-            if(!el) return;
-            el.innerHTML = '<option value="">Select expression...</option>';
-            options.forEach(o => el.innerHTML += `<option value="${o}">${o}</option>`);
-        };
-        fillSelect('g9boolPathX', xOptions);
-        fillSelect('g9boolPathY', yOptions);
-
-        // 2. Generate Radio Distractors for Q
-        let qSetHTML = new Set();
-        qSetHTML.add(ansQHTML); // ensure right answer exists
-        
-        while(qSetHTML.size < 4) {
-            let rTop = topGates[Math.floor(Math.random() * topGates.length)];
-            let rFin = finalGates[Math.floor(Math.random() * finalGates.length)];
-            let tX = rTop === 'AND' ? "A . B" : "A + B";
-            let tY = Math.random() > 0.5 ? "C\u0305" : "C";
-            qSetHTML.add(getHTMLFormattedExp(rFin, tX, tY));
-        }
-
-        let qArray = Array.from(qSetHTML).sort();
-
-        // 3. Inject Radio Buttons dynamically over the old dropdown
-        let oldSelectQ = document.getElementById('g9boolPathQ');
-        let radioContainer = document.getElementById('g9boolPathQRadioContainer');
-        
-        if (!radioContainer && oldSelectQ) {
-            // Create container if it doesn't exist yet
-            radioContainer = document.createElement('div');
-            radioContainer.id = 'g9boolPathQRadioContainer';
-            radioContainer.style.display = 'flex';
-            radioContainer.style.flexDirection = 'column';
-            radioContainer.style.gap = '8px';
-            radioContainer.style.marginTop = '10px';
-            oldSelectQ.parentNode.insertBefore(radioContainer, oldSelectQ);
-            oldSelectQ.style.display = 'none'; // Hide the old faulty dropdown
-        }
-
-        if (radioContainer) {
-            radioContainer.innerHTML = ''; // Clear old radios
-            
-            // --- NEW: Reset any grading styles from the previous question ---
-            radioContainer.style.border = 'none'; 
-            radioContainer.style.backgroundColor = 'transparent';
-            radioContainer.className = ''; // Clears any custom CSS classes like 'correct' or 'incorrect'
-            // ----------------------------------------------------------------
-
-            qArray.forEach((htmlExp, idx) => {
-                let wrapper = document.createElement('label');
-                wrapper.style.display = 'flex';
-                wrapper.style.alignItems = 'center';
-                wrapper.style.gap = '10px';
-                wrapper.style.cursor = 'pointer';
-                wrapper.style.fontSize = '16px';
-                
-                let radio = document.createElement('input');
-                radio.type = 'radio';
-                radio.name = 'g9boolPathQ_RadioGroup';
-                radio.value = htmlExp; // Store the exact string for validation
-                
-                let span = document.createElement('span');
-                span.innerHTML = htmlExp; 
-                
-                wrapper.appendChild(radio);
-                wrapper.appendChild(span);
-                radioContainer.appendChild(wrapper);
-            });
-        }
+        ctx.font = "bold 18px Arial"; ctx.fillStyle = "#c83377"; 
+        ctx.fillText("X", 180, 55); ctx.fillText("Y", 180, 150); ctx.fillText("Q", 290, 110); 
     }
 }
-    
+  
 //******************************************************************************************
-
+    
 function generateLogic_nandProblem(ctx, canvas) {
     currentProblem = { type: 'logic_nand' };
     const themePink = "#d65093"; 
     
-    // 1. Pick the target gate to build
+    // 1. UI Reset for Solutions
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none"; 
+    
+    const solBox = document.getElementById('solText');
+    if (solBox) {
+        solBox.innerHTML = "";
+        solBox.style.display = "block"; 
+    }
+
+    // 2. Pick the target gate to build
     const targetGates = ['NOT', 'AND', 'OR', 'NOR'];
     const targetGate = targetGates[Math.floor(Math.random() * targetGates.length)];
     window.currentNandAnswer = targetGate;
 
-    // 2. Shuffle the 4 Blueprints
+    // 3. Shuffle the 4 Blueprints
     let blueprints = ['NOT', 'AND', 'OR', 'NOR'];
     for (let i = blueprints.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [blueprints[i], blueprints[j]] = [blueprints[j], blueprints[i]];
     }
 
-    // 3. Clear canvas & Draw Grid Separators
+    // 4. Clear canvas & Draw Grid Separators
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "#eee";
     ctx.lineWidth = 2;
@@ -5055,14 +5107,15 @@ function generateLogic_nandProblem(ctx, canvas) {
     ctx.moveTo(0, canvas.height / 2); ctx.lineTo(canvas.width, canvas.height / 2);
     ctx.stroke();
 
-    // --- EMBEDDED GRAPHICS (60x40) ---
-    // Standard: Top input y=12, Bottom input y=28, Output y=20
+    // --- SVG DEFINITIONS ---
     const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
-    
-    // Joined: Single Input y=20, Output y=20
     const svgJoined = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="20" x2="6" y2="20" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="6" y2="28" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="6" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
+    const svgFalseSingle = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="20" x2="10" y2="20" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
+    const svgFalseAND = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><line x1="41" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
+    const svgFalseANDJoined = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="20" x2="6" y2="20" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="6" y2="28" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="6" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><line x1="41" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
+    const svgFalseANDSingle = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="20" x2="10" y2="20" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><line x1="41" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
 
-    // 4. Create UI Container
+    // 5. Create UI Container
     let qContainer = document.getElementById('inputGroupLogic_NAND');
     if (!qContainer) {
         qContainer = document.createElement('div');
@@ -5072,30 +5125,53 @@ function generateLogic_nandProblem(ctx, canvas) {
     }
     qContainer.style.display = 'block';
 
-    // 5. Build Parts Bin
-    qContainer.innerHTML = `
-        <div style="text-align: center; margin-bottom: 15px;">
-            <h3 style="color: ${themePink}; margin: 0;">Task: Construct a(n) <strong>${targetGate}</strong> Gate</h3>
-            <p style="color: #666; font-size: 0.85em; margin-top: 5px;">Drag the correct gates into the unlabelled blueprint. Leave the rest empty! <em>(Double-click to remove)</em></p>
+    // 6. Build Parts Bin
+    let gateOptions = [
+        { type: 'standard', svg: svgStandard },
+        { type: 'joined', svg: svgJoined },
+        { type: 'false-single', svg: svgFalseSingle },
+        { type: 'false-and', svg: svgFalseAND },
+        { type: 'false-and-joined', svg: svgFalseANDJoined },
+        { type: 'false-and-single', svg: svgFalseANDSingle }
+    ];
+
+    for (let i = gateOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [gateOptions[i], gateOptions[j]] = [gateOptions[j], gateOptions[i]];
+    }
+
+    const gateIconsHTML = gateOptions.map(gate => `
+        <div class="nand-draggable" draggable="true" data-gatetype="${gate.type}" 
+             style="width: 50px; height: 35px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+            ${gate.svg}
         </div>
-        
-        <div id="nandPartsBin" style="display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 8px;">
-            <div style="text-align: center;">
-                <div class="nand-draggable" draggable="true" data-gatetype="standard" style="width: 60px; height: 40px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
-                    ${svgStandard}
-                </div>
-                <span style="font-size: 0.8em; color: #555;">Standard</span>
+    `).join('');
+
+    qContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: -20px;">
+            <div style="text-align: center; width: 100%; margin-bottom: 10px;">
+                <h3 style="color: black; margin: 0; font-size: 1.1em;">Task: Construct a(n) <span style="color: ${themePink};">${targetGate}</span> Gate</h3>
+                <p style="color: #666; font-size: 0.8em; margin: 2px 0;">Drag the correct gates to the blueprint. Double-click to remove.</p>
+                <p style="color: #666; font-size: 0.8em; margin: 2px 0;"><strong>Leave all other blueprints blank</strong></p>
             </div>
-            <div style="text-align: center;">
-                <div class="nand-draggable" draggable="true" data-gatetype="joined" style="width: 60px; height: 40px; cursor: grab; background: white; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
-                    ${svgJoined}
-                </div>
-                <span style="font-size: 0.8em; color: #555;">Joined</span>
+            <div id="nandPartsBin" style="display: flex; flex-direction: row; justify-content: center; gap: 8px; padding: 10px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 8px;">
+                ${gateIconsHTML}
             </div>
         </div>
     `;
 
-    // 6. Canvas Overlay Setup 
+    // 7. Update solText (The Solution Logic)
+    if (solBox) {
+        const solutionsMap = {
+            'NOT': "A <strong>NOT</strong> gate is made by joining the inputs of a single NAND gate.",
+            'AND': "An <strong>AND</strong> gate is a NAND gate followed by a NOT gate (NAND with inputs joined).",
+            'OR': "An <strong>OR</strong> gate uses two NOT gates (inputs joined) for A and B, feeding into a final NAND gate.",
+            'NOR': "A <strong>NOR</strong> gate is an OR gate construction followed by a final NOT gate (inputs joined)."
+        };
+        solBox.innerHTML = `<strong>Target: ${targetGate} Gate</strong><br>${solutionsMap[targetGate]}`;
+    }
+
+    // 8. Canvas Overlay Setup 
     let circuitContainer = document.getElementById('circuitContainer');
     circuitContainer.style.position = 'relative'; 
     let oldOverlay = document.getElementById('nandCanvasOverlay');
@@ -5111,13 +5187,9 @@ function generateLogic_nandProblem(ctx, canvas) {
     overlay.style.pointerEvents = 'none'; 
     circuitContainer.appendChild(overlay);
 
-    // 7. Drawing Helpers
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
-    ctx.fillStyle = "#000";
-    ctx.font = "14px Arial";
-    ctx.textBaseline = "middle"; 
-    ctx.textAlign = "left"; 
+    // 9. Drawing Helpers & Blueprints
+    ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.fillStyle = "#000";
+    ctx.font = "14px Arial"; ctx.textBaseline = "middle"; ctx.textAlign = "left"; 
 
     const drawWire = (x1, y1, x2, y2) => {
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
@@ -5129,175 +5201,88 @@ function generateLogic_nandProblem(ctx, canvas) {
         zone.dataset.blueprint = blueprintName;
         zone.dataset.boxindex = boxIndex;
         zone.style.position = 'absolute';
-        zone.style.left = x + 'px';
-        zone.style.top = y + 'px';
-        zone.style.width = w + 'px';
-        zone.style.height = h + 'px';
+        zone.style.left = x + 'px'; zone.style.top = y + 'px';
+        zone.style.width = w + 'px'; zone.style.height = h + 'px';
         zone.style.boxSizing = 'border-box'; 
         zone.style.border = '2px dashed #d65093';
         zone.style.backgroundColor = 'rgba(214, 80, 147, 0.05)';
         zone.style.pointerEvents = 'auto'; 
-        zone.style.display = 'flex';
-        zone.style.alignItems = 'center';
-        zone.style.justifyContent = 'center';
+        zone.style.display = 'flex'; zone.style.alignItems = 'center'; zone.style.justifyContent = 'center';
         overlay.appendChild(zone);
     };
 
-// 8. Draw the Blueprints (Perfectly mirrored, uniformly shifted on the right)
     const quadW = canvas.width / 2;
     const quadH = canvas.height / 2;
-    
-    // Anchors are exactly the left edge of each quadrant
-    const quadrantOffsets = [
-        { x: 0, y: 0 }, 
-        { x: quadW, y: 0 }, 
-        { x: 0, y: quadH }, 
-        { x: quadW, y: quadH }
-    ];
+    const quadrantOffsets = [{ x: 0, y: 0 }, { x: quadW, y: 0 }, { x: 0, y: quadH }, { x: quadW, y: quadH }];
 
     blueprints.forEach((bp, i) => {
         let offsetX = quadrantOffsets[i].x;
-        let offsetY = quadrantOffsets[i].y;
-        
-        // Shifts the ENTIRE right side drawing uniformly by 20px to the right.
+        let shiftY = (i === 0 || i === 1) ? -2 : -3;
+        let offsetY = quadrantOffsets[i].y + shiftY;
         let shift = (i === 1 || i === 3) ? 20 : 0;
-        
-        // Shifts ONLY the pink dropzone boxes by 4px to the left in the right quadrants.
         let boxShift = (i === 1 || i === 3) ? -4 : 0;
 
         if (bp === 'NOT') {
             let boxX = offsetX + 60 + shift;
-            let boxY = offsetY + 65; 
-            let pinY = boxY + 20; 
-            
+            let boxY = offsetY + 65; let pinY = boxY + 22; 
             ctx.fillText("A", offsetX + 15 + shift, pinY);
             drawWire(offsetX + 30 + shift, pinY, boxX, pinY); 
-            
-            // Applied boxShift only to the dropzone
             createDropZone(bp, 1, boxX + boxShift, boxY, 60, 40);
-            
             let outEndX = offsetX + 150 + shift;
             drawWire(boxX + 60, pinY, outEndX, pinY);
             ctx.fillText("Q", outEndX + 10, pinY);
-        } 
-        
-        else if (bp === 'AND') {
-            let box1X = offsetX + 40 + shift;
-            let boxY = offsetY + 65;
-            let box2X = offsetX + 115 + shift; 
-            
-            let pinTopY = boxY + 12; 
-            let pinBotY = boxY + 28; 
-            let pinMidY = boxY + 20; 
-
-            ctx.fillText("A", offsetX + 10 + shift, pinTopY);
-            ctx.fillText("B", offsetX + 10 + shift, pinBotY);
-
+        } else if (bp === 'AND') {
+            let box1X = offsetX + 40 + shift; let boxY = offsetY + 65; let box2X = offsetX + 115 + shift; 
+            let pinTopY = boxY + 14; let pinBotY = boxY + 27.5; let pinMidY = boxY + 21; 
+            ctx.fillText("A", offsetX + 10 + shift, pinTopY); ctx.fillText("B", offsetX + 10 + shift, pinBotY);
             drawWire(offsetX + 25 + shift, pinTopY, box1X + 1, pinTopY);
             drawWire(offsetX + 25 + shift, pinBotY, box1X + 1, pinBotY);
-            
-            // Applied boxShift only to the dropzones
             createDropZone(bp, 1, box1X + boxShift, boxY, 60, 40);
-            
             drawWire(box1X + 59, pinMidY, box2X + 1, pinMidY); 
             createDropZone(bp, 2, box2X + boxShift, boxY, 60, 40);
-            
             let outEndX = offsetX + 195 + shift;
             drawWire(box2X + 59, pinMidY, outEndX, pinMidY);
             ctx.fillText("Q", outEndX + 10, pinMidY);
-        }
-
-        else if (bp === 'OR') {
-            let box1X = offsetX + 30 + shift;
-            let box1Y = offsetY + 25; 
-            let box2X = offsetX + 30 + shift;
-            let box2Y = offsetY + 105; 
-            let box3X = offsetX + 105 + shift;
-            let box3Y = offsetY + 65; 
-            
-            let b1PinY = box1Y + 20;
-            let b2PinY = box2Y + 20;
-            let b3TopY = box3Y + 12;
-            let b3BotY = box3Y + 28;
-            let b3MidY = box3Y + 20;
-
-            ctx.fillText("A", offsetX + 5 + shift, b1PinY);
-            drawWire(offsetX + 15 + shift, b1PinY, box1X, b1PinY);
-            
-            ctx.fillText("B", offsetX + 5 + shift, b2PinY);
-            drawWire(offsetX + 15 + shift, b2PinY, box2X, b2PinY);
-
-            // Applied boxShift only to the dropzones
+        } else if (bp === 'OR') {
+            let box1X = offsetX + 30 + shift; let box1Y = offsetY + 25; 
+            let box2X = offsetX + 30 + shift; let box2Y = offsetY + 105; 
+            let box3X = offsetX + 105 + shift; let box3Y = offsetY + 65; 
+            let b1PinY = box1Y + 22; let b2PinY = box2Y + 22;
+            let b3TopY = box3Y + 15; let b3BotY = box3Y + 29; let b3MidY = box3Y + 23;
+            ctx.fillText("A", offsetX + 5 + shift, b1PinY); drawWire(offsetX + 15 + shift, b1PinY, box1X, b1PinY);
+            ctx.fillText("B", offsetX + 5 + shift, b2PinY); drawWire(offsetX + 15 + shift, b2PinY, box2X, b2PinY);
             createDropZone(bp, 1, box1X + boxShift, box1Y, 60, 40);
             createDropZone(bp, 2, box2X + boxShift, box2Y, 60, 40);
-
             let midX = offsetX + 95 + shift; 
-            drawWire(box1X + 60, b1PinY, midX, b1PinY);
-            drawWire(midX, b1PinY, midX, b3TopY);
-            drawWire(midX, b3TopY, box3X, b3TopY);
-
-            drawWire(box2X + 60, b2PinY, midX, b2PinY);
-            drawWire(midX, b2PinY, midX, b3BotY);
-            drawWire(midX, b3BotY, box3X, b3BotY);
-
-            // Applied boxShift only to the dropzone
+            drawWire(box1X + 60, b1PinY, midX, b1PinY); drawWire(midX, b1PinY, midX, b3TopY); drawWire(midX, b3TopY, box3X, b3TopY);
+            drawWire(box2X + 60, b2PinY, midX, b2PinY); drawWire(midX, b2PinY, midX, b3BotY); drawWire(midX, b3BotY, box3X, b3BotY);
             createDropZone(bp, 3, box3X + boxShift, box3Y, 60, 40);
-
             let outEndX = offsetX + 185 + shift;
-            drawWire(box3X + 60, b3MidY, outEndX, b3MidY);
-            ctx.fillText("Q", outEndX + 10, b3MidY);
-        }
-
-        else if (bp === 'NOR') {
-            let box1X = offsetX + 20 + shift;
-            let box1Y = offsetY + 25;  
-            let box2X = offsetX + 20 + shift;
-            let box2Y = offsetY + 105; 
-            let box3X = offsetX + 95 + shift;
-            let box3Y = offsetY + 65;  
-            let box4X = offsetX + 170 + shift; 
-            let box4Y = offsetY + 65; 
-            
-            let b1PinY = box1Y + 20; 
-            let b2PinY = box2Y + 20; 
-            let b3TopY = box3Y + 12; 
-            let b3BotY = box3Y + 28; 
-            let pinMidY = box3Y + 20; 
-
-            ctx.fillText("A", offsetX + 5 + shift, b1PinY);
-            ctx.fillText("B", offsetX + 5 + shift, b2PinY);
-
+            drawWire(box3X + 60, b3MidY, outEndX, b3MidY); ctx.fillText("Q", outEndX + 10, b3MidY);
+        } else if (bp === 'NOR') {
+            let box1X = offsetX + 20 + shift; let box1Y = offsetY + 25;  
+            let box2X = offsetX + 20 + shift; let box2Y = offsetY + 105; 
+            let box3X = offsetX + 95 + shift; let box3Y = offsetY + 65;  
+            let box4X = offsetX + 170 + shift; let box4Y = offsetY + 65; 
+            let b1PinY = box1Y + 21; let b2PinY = box2Y + 21; 
+            let b3TopY = box3Y + 13; let b3BotY = box3Y + 28; let pinMidY = box3Y + 21; 
+            ctx.fillText("A", offsetX + 5 + shift, b1PinY); ctx.fillText("B", offsetX + 5 + shift, b2PinY);
             drawWire(offsetX + 15 + shift, b1PinY, box1X + 1, b1PinY);
             drawWire(offsetX + 15 + shift, b2PinY, box2X + 1, b2PinY);
-
-            // Applied boxShift only to the dropzones
             createDropZone(bp, 1, box1X + boxShift, box1Y, 60, 40);
             createDropZone(bp, 2, box2X + boxShift, box2Y, 60, 40);
-
             let midX = offsetX + 85 + shift; 
-            drawWire(box1X + 59, b1PinY, midX, b1PinY);
-            drawWire(midX, b1PinY, midX, b3TopY);
-            drawWire(midX, b3TopY, box3X + 1, b3TopY);
-
-            drawWire(box2X + 59, b2PinY, midX, b2PinY);
-            drawWire(midX, b2PinY, midX, b3BotY);
-            drawWire(midX, b3BotY, box3X + 1, b3BotY);
-
-            // Applied boxShift only to the dropzone
+            drawWire(box1X + 59, b1PinY, midX, b1PinY); drawWire(midX, b1PinY, midX, b3TopY); drawWire(midX, b3TopY, box3X + 1, b3TopY);
+            drawWire(box2X + 59, b2PinY, midX, b2PinY); drawWire(midX, b2PinY, midX, b3BotY); drawWire(midX, b3BotY, box3X + 1, b3BotY);
             createDropZone(bp, 3, box3X + boxShift, box3Y, 60, 40);
-
             drawWire(box3X + 59, pinMidY, box4X + 1, pinMidY);
-            
-            // Applied boxShift only to the dropzone
             createDropZone(bp, 4, box4X + boxShift, box4Y, 60, 40);
-
             let outEndX = offsetX + 240 + shift;
-            drawWire(box4X + 59, pinMidY, outEndX, pinMidY);
-            ctx.fillText("Q", outEndX + 10, pinMidY); 
+            drawWire(box4X + 59, pinMidY, outEndX, pinMidY); ctx.fillText("Q", outEndX + 10, pinMidY); 
         }
     });
-    
-    // 9. DRAG AND DROP GRAPHICS LOGIC
+
+    // 10. Drag and Drop Setup
     const draggables = document.querySelectorAll('.nand-draggable');
     const dropzones = document.querySelectorAll('.nand-dropzone');
 
@@ -5309,25 +5294,365 @@ function generateLogic_nandProblem(ctx, canvas) {
 
     dropzones.forEach(zone => {
         zone.addEventListener('dragover', (e) => e.preventDefault());
-
         zone.addEventListener('drop', (e) => {
             e.preventDefault();
             const gateType = e.dataTransfer.getData('text/plain');
             if (gateType) {
                 zone.dataset.filled = gateType;
-                zone.innerHTML = gateType === 'standard' ? svgStandard : svgJoined;
+                const graphicsMap = {
+                    'standard': svgStandard, 'joined': svgJoined, 'false-single': svgFalseSingle,
+                    'false-and': svgFalseAND, 'false-and-joined': svgFalseANDJoined, 'false-and-single': svgFalseANDSingle
+                };
+                zone.innerHTML = graphicsMap[gateType] || "";
             }
         });
-
         zone.addEventListener('dblclick', () => {
             zone.dataset.filled = "";
             zone.innerHTML = "";
+            zone.style.backgroundColor = 'rgba(214, 80, 147, 0.05)';
         });
     });
 }
 
-//*************************************************************************************************************************
+//******************************************************************************************
     
+function generateGrade9NandProblem(ctx, canvas) {
+    currentProblem = { type: 'grade9nand' };
+    const themePink = "#d65093"; 
+    
+    // THE COIN FLIP: Alternate between Drag & Drop and Redundancy Hunter
+    window.grade9NandMode = Math.random() < 0.5 ? 'conversion' : 'redundancy';
+
+    // --- 1. SHARED UI RESET & OVERLAY SETUP ---
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none"; 
+    
+    const solBox = document.getElementById('solText');
+    if (solBox) solBox.style.display = "block";
+
+    let qContainer = document.getElementById('inputGroupLogic_NAND');
+    if (!qContainer) {
+        qContainer = document.createElement('div');
+        qContainer.id = 'inputGroupLogic_NAND';
+        qContainer.className = 'input-group';
+        document.getElementById('inputArea').appendChild(qContainer);
+    }
+    qContainer.style.display = 'block';
+
+    let circuitContainer = document.getElementById('circuitContainer');
+    circuitContainer.style.position = 'relative'; 
+    
+    // Clean up ALL previous overlays, trays, and instructions
+    let oldOverlay = document.getElementById('nandCanvasOverlay');
+    if (oldOverlay) oldOverlay.remove();
+    const oldTray = document.getElementById('nandBottomTray');
+    if (oldTray) oldTray.remove();
+    let oldInstructions = document.getElementById('nandInstructions');
+    if (oldInstructions) oldInstructions.remove();
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Create a fresh overlay used by both modes
+    let overlay = document.createElement('div');
+    overlay.id = 'nandCanvasOverlay';
+    overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none;`;
+    circuitContainer.appendChild(overlay);
+
+
+    // =========================================================
+    // MODE A: SYSTEM CONVERSION (DRAG AND DROP)
+    // =========================================================
+    if (window.grade9NandMode === 'conversion') {
+        
+        // --- SVG DEFINITIONS ---
+        const svgNOT = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
+            <line x1="0" y1="45" x2="40" y2="45" stroke="black" stroke-width="3"/>
+            <path d="M 40,30 L 40,60 M 40,30 L 50,30 M 40,60 L 50,60" fill="none" stroke="black" stroke-width="3"/>
+            <path d="M 50,15 L 65,15 A 30,30 0 0,1 65,75 L 50,75 Z" fill="white" stroke="black" stroke-width="3"/>
+            <circle cx="100" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/>
+            <line x1="105" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/>
+        </svg>`;
+        
+        const svgAND = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
+            <path d="M 0,30 L 10,30 M 0,60 L 10,60" fill="none" stroke="black" stroke-width="3"/>
+            <path d="M 10,15 L 25,15 A 30,30 0 0,1 25,75 L 10,75 Z" fill="white" stroke="black" stroke-width="3"/>
+            <circle cx="60" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/>
+            <path d="M 65,45 L 75,45 M 75,30 L 75,60 M 75,30 L 80,30 M 75,60 L 80,60" fill="none" stroke="black" stroke-width="3"/>
+            <path d="M 80,15 L 95,15 A 30,30 0 0,1 95,75 L 80,75 Z" fill="white" stroke="black" stroke-width="3"/>
+            <circle cx="130" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/>
+            <line x1="135" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/>
+        </svg>`;
+        
+        const svgOR = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
+            <path d="M 0,22.5 L 10,22.5 M 10,12.5 L 10,32.5 M 10,12.5 L 20,12.5 M 10,32.5 L 20,32.5" fill="none" stroke="black" stroke-width="3"/>
+            <path d="M 20,2.5 L 35,2.5 A 20,20 0 0,1 35,42.5 L 20,42.5 Z" fill="white" stroke="black" stroke-width="3"/>
+            <circle cx="60" cy="22.5" r="5" fill="white" stroke="black" stroke-width="3"/>
+            <path d="M 65,22.5 L 75,22.5 L 75,30 L 80,30" fill="none" stroke="black" stroke-width="3"/>
+            <path d="M 0,67.5 L 10,67.5 M 10,57.5 L 10,77.5 M 10,57.5 L 20,57.5 M 10,77.5 L 20,77.5" fill="none" stroke="black" stroke-width="3"/>
+            <path d="M 20,47.5 L 35,47.5 A 20,20 0 0,1 35,87.5 L 20,87.5 Z" fill="white" stroke="black" stroke-width="3"/>
+            <circle cx="60" cy="67.5" r="5" fill="white" stroke="black" stroke-width="3"/>
+            <path d="M 65,67.5 L 75,67.5 L 75,60 L 80,60" fill="none" stroke="black" stroke-width="3"/>
+            <path d="M 80,15 L 95,15 A 30,30 0 0,1 95,75 L 80,75 Z" fill="white" stroke="black" stroke-width="3"/>
+            <circle cx="130" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/>
+            <line x1="135" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/>
+        </svg>`;
+
+        const svgWIRE = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet">
+            <line x1="0" y1="45" x2="140" y2="45" stroke="black" stroke-width="4"/>
+        </svg>`;
+        
+        const graphicsMap = { 'AND': svgAND, 'OR': svgOR, 'NOT': svgNOT, 'WIRE': svgWIRE };
+
+        // --- LOGIC POOL ---
+        const s1Target = ["AND", "OR"][Math.floor(Math.random() * 2)];
+        const b3Target = ["AND", "OR", "NOR"][Math.floor(Math.random() * 3)];
+        
+        // Determine Box 4 requirement: NOT if NOR, otherwise WIRE.
+        const s4Target = (b3Target === "NOR") ? "NOT" : "WIRE";
+        
+        // EXPORT ALL TARGETS FOR CHECKER
+        window.nandTargets = { s1: s1Target, s3: b3Target, s4: s4Target };
+
+        // --- UI & Solutions ---
+        if (solBox) { 
+            // Dictionary of explanations
+            const solutionsMap = {
+                'NOT': "A <strong>NOT</strong> gate is made by joining the inputs of a single NAND gate.",
+                'AND': "An <strong>AND</strong> gate is a NAND gate followed by a NOT gate (NAND with inputs joined).",
+                'OR': "An <strong>OR</strong> gate uses two NOT gates (inputs joined) for A and B, feeding into a final NAND gate.",
+                'NOR': "A <strong>NOR</strong> gate is an OR gate construction followed by a final NOT gate.",
+                'WIRE': "A straight <strong>Wire</strong> is used to pass the signal directly through without modification."
+            };
+
+            // Build the solution text dynamically based on the current randomized targets
+            solBox.innerHTML = `
+                <div style="font-family: sans-serif; font-size: 14px;">
+                    <strong>Grade 9 Circuit Solution:</strong><br>
+                    <ul style="line-height: 1.6; margin-top: 8px; padding-left: 20px;">
+                        <li><strong>Top Box (${s1Target}):</strong> ${solutionsMap[s1Target]}</li>
+                        <li><strong>Bottom Box (NOT):</strong> ${solutionsMap['NOT']}</li>
+                        <li><strong>Middle Box (${b3Target}):</strong> ${solutionsMap[b3Target]}</li>
+                        <li><strong>Final Box (${s4Target}):</strong> ${solutionsMap[s4Target]}</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        const blueprint = [
+            { id: "s1", target: s1Target, x: 40,  y: 45,  w: 140, h: 90, ghost: true },
+            { id: "s2", target: "NOT",    x: 40,  y: 185, w: 140, h: 90, ghost: true },
+            { id: "s3", target: b3Target, x: 220, y: 115, w: 140, h: 90, ghost: true },
+            { id: "s4", target: "ANY",    x: 400, y: 115, w: 140, h: 90, ghost: false } 
+        ];
+
+        const instructionHTML = `
+            <div style="padding: 15px; background: #fff8fb; border-left: 4px solid #d65093; margin-bottom: 15px; font-family: sans-serif; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <h3 style="color: #d65093; margin-top: 0; margin-bottom: 8px; font-size: 16px;">NAND Logic Construction</h3>
+                <p style="margin: 0; font-size: 14px; line-height: 1.6;">
+                    Drag and drop the NAND equivalent gates to connect the inputs to the output Q using only NAND gates.<br><br>
+                    The wire should be placed in the right box only when needed.<br><br>
+                    <i>(Double click to remove components from a box.)</i>
+                </p>
+            </div>`;
+        
+        let instructionsDiv = document.createElement('div');
+        instructionsDiv.id = 'nandInstructions';
+        instructionsDiv.innerHTML = instructionHTML;
+        
+        const checkBtn = document.getElementById('checkansBtn');
+        if (checkBtn && checkBtn.parentNode) {
+            checkBtn.parentNode.insertBefore(instructionsDiv, checkBtn);
+        } else {
+            const rightPanel = document.getElementById('rightPanel') || document.body;
+            rightPanel.appendChild(instructionsDiv);
+        }
+
+        // --- GHOST DRAWING ---
+        const drawGhost = (type, x, y) => {
+            ctx.save();
+            ctx.globalAlpha = 0.15; ctx.strokeStyle = "black"; ctx.lineWidth = 2;
+            ctx.translate(x, y);
+            if (type === "AND") {
+                ctx.beginPath(); ctx.moveTo(35, 20); ctx.lineTo(75, 20);
+                ctx.arc(75, 45, 25, -Math.PI/2, Math.PI/2); ctx.lineTo(35, 70); ctx.closePath(); ctx.stroke();
+            } else if (type === "OR" || type === "NOR") {
+                ctx.beginPath(); ctx.moveTo(30, 20); ctx.quadraticCurveTo(50, 45, 30, 70);
+                ctx.quadraticCurveTo(90, 70, 115, 45); ctx.quadraticCurveTo(90, 20, 30, 20); ctx.stroke();
+                if (type === "NOR") { ctx.beginPath(); ctx.arc(120, 45, 5, 0, Math.PI*2); ctx.stroke(); }
+            } else if (type === "NOT") {
+                ctx.beginPath(); ctx.moveTo(45, 25); ctx.lineTo(85, 45); ctx.lineTo(45, 65); ctx.closePath();
+                ctx.stroke(); ctx.beginPath(); ctx.arc(90, 45, 5, 0, Math.PI*2); ctx.stroke();
+            }
+            ctx.restore();
+        };
+
+        // --- COMPRESSED WIRING ---
+        ctx.strokeStyle = "#333"; ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(10, 75); ctx.lineTo(40, 75);  // A to s1
+        ctx.moveTo(10, 105); ctx.lineTo(40, 105); // B to s1
+        ctx.moveTo(10, 230); ctx.lineTo(40, 230); // C to s2
+        
+        ctx.moveTo(180, 90); ctx.lineTo(200, 90); ctx.lineTo(200, 140); ctx.lineTo(220, 140); // s1 to s3
+        ctx.moveTo(180, 230); ctx.lineTo(200, 230); ctx.lineTo(200, 180); ctx.lineTo(220, 180); // s2 to s3
+        
+        ctx.moveTo(360, 160); ctx.lineTo(400, 160); // s3 to s4
+        ctx.moveTo(540, 160); ctx.lineTo(570, 160); // s4 to Q
+        ctx.stroke();
+        
+        ctx.fillStyle = "#333"; ctx.font = "16px Arial"; ctx.textBaseline = "middle";
+        ctx.fillText("A", 0, 80); 
+        ctx.fillText("B", 0, 110); 
+        ctx.fillText("C", 0, 235); 
+        ctx.fillText("Q", 575, 165);
+
+        // --- INTERACTIVE ZONES ---
+        blueprint.forEach(s => {
+            if(s.ghost) drawGhost(s.target, s.x, s.y);
+            let zone = document.createElement('div');
+            zone.style.cssText = `position:absolute; left:${s.x}px; top:${s.y}px; width:${s.w}px; height:${s.h}px; border:2px dashed #bbb; pointer-events:auto; display:flex; align-items:center; justify-content:center;`;
+            zone.ondragover = (e) => e.preventDefault();
+            zone.ondrop = (e) => {
+                const type = e.dataTransfer.getData("text");
+                zone.innerHTML = graphicsMap[type];
+                zone.style.border = "2px solid #444";
+                zone.setAttribute('data-filled-type', type); 
+            };
+            zone.ondblclick = () => { 
+                zone.innerHTML = ""; 
+                zone.style.border = "2px dashed #bbb"; 
+                zone.removeAttribute('data-filled-type');
+            };
+            overlay.appendChild(zone);
+        });
+
+        // --- BOTTOM TRAY ---
+        let tray = document.createElement('div');
+        tray.id = 'nandBottomTray';
+        tray.style.cssText = `position:absolute; bottom:15px; width:100%; display:flex; justify-content:center; gap:25px;`;
+        ['AND','OR','NOT','WIRE'].forEach(type => {
+            let item = document.createElement('div');
+            item.style.cssText = "width:130px; height:85px; background:white; border:1px solid #ccc; cursor:grab; border-radius:5px;";
+            item.draggable = true;
+            item.innerHTML = graphicsMap[type];
+            item.ondragstart = (e) => e.dataTransfer.setData("text", type);
+            tray.appendChild(item);
+        });
+        document.getElementById('circuitContainer').appendChild(tray);
+
+    } 
+    // =========================================================
+    // MODE B: REDUNDANCY HUNTER (CLICK TO CROSS OUT)
+    // =========================================================
+    else {
+        // --- Redundancy SVGs ---
+        const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
+        const svgJoined = `<svg width="100%" height="100%" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="pointer-events: none; display: block;"><line x1="0" y1="20" x2="6" y2="20" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="6" y2="28" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="6" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
+
+        // UI Setup
+        qContainer.innerHTML = ""; // Ensure parts bin is hidden
+        
+        const instructionHTML = `
+            <div style="padding: 15px; background: #fff8fb; border-left: 4px solid #d65093; margin-bottom: 15px; font-family: sans-serif; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <h3 style="color: #d65093; margin-top: 0; margin-bottom: 8px; font-size: 16px;">Redundancy Hunter</h3>
+                <p style="margin: 0; font-size: 14px; line-height: 1.6;">
+                    This circuit calculates <b>(A AND B) OR C</b>, but it is unoptimized.<br><br>
+                    <b>Click on any redundant gates</b> to cross them out before the circuit goes to manufacturing!
+                </p>
+            </div>`;
+        
+        let instructionsDiv = document.createElement('div');
+        instructionsDiv.id = 'nandInstructions';
+        instructionsDiv.innerHTML = instructionHTML;
+        
+        const checkBtn = document.getElementById('checkansBtn');
+        if (checkBtn && checkBtn.parentNode) {
+            checkBtn.parentNode.insertBefore(instructionsDiv, checkBtn);
+        }
+
+        // Solution Box
+        if (solBox) {
+            solBox.innerHTML = `
+                <div style="font-family: sans-serif; font-size: 14px;">
+                    <strong>Redundancy Solution:</strong><br>
+                    <p style="margin-top: 8px;">Redundant gates are pairs of NOT-configured NAND gates connected directly in series (a double inversion: $\\overline{\\overline{A}} = A$).</p>
+                    <p>In this circuit, the NOT gate from the AND module and the top NOT gate from the OR module input cancel each other out and should be crossed out.</p>
+                </div>`;
+        }
+
+        // Draw Circuit Wires
+        ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.fillStyle = "#000";
+        ctx.font = "16px Arial"; ctx.textBaseline = "middle";
+
+        const drawWire = (x1, y1, x2, y2) => {
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        };
+
+        // Inputs
+        ctx.fillText("A", 10, 52); ctx.fillText("B", 10, 68); ctx.fillText("C", 10, 140);
+        drawWire(25, 52, 80, 52); drawWire(25, 68, 80, 68); drawWire(25, 140, 260, 140);
+        
+        // Intermediate wires
+        drawWire(140, 60, 170, 60); // Gate 1 to Gate 2
+        drawWire(230, 60, 260, 60); // Gate 2 to Gate 3
+        drawWire(320, 60, 340, 60); drawWire(340, 60, 340, 92); drawWire(340, 92, 360, 92); // Gate 3 to final
+        drawWire(320, 140, 340, 140); drawWire(340, 140, 340, 108); drawWire(340, 108, 360, 108); // Gate 4 to final
+        
+        // Output wire
+        drawWire(420, 100, 460, 100); ctx.fillText("Q", 465, 100);
+
+        // Create Clickable Gates
+        const createClickableGate = (id, type, x, y, isRedundant) => {
+            let gateDiv = document.createElement('div');
+            gateDiv.className = 'nand-gate-clickable';
+            gateDiv.dataset.id = id;
+            gateDiv.dataset.redundant = isRedundant;
+            gateDiv.dataset.selected = "false";
+            gateDiv.style.position = 'absolute';
+            gateDiv.style.left = x + 'px'; gateDiv.style.top = y + 'px';
+            gateDiv.style.width = '60px'; gateDiv.style.height = '40px';
+            gateDiv.style.cursor = 'pointer';
+            gateDiv.style.pointerEvents = 'auto';
+            gateDiv.style.transition = "opacity 0.2s";
+            gateDiv.innerHTML = (type === 'joined') ? svgJoined : svgStandard;
+
+            let xMark = document.createElement('div');
+            xMark.innerHTML = '❌';
+            xMark.style.position = 'absolute';
+            xMark.style.top = '50%'; xMark.style.left = '50%';
+            xMark.style.transform = 'translate(-50%, -50%)';
+            xMark.style.fontSize = '30px';
+            xMark.style.display = 'none';
+            xMark.style.pointerEvents = 'none'; 
+            gateDiv.appendChild(xMark);
+
+            gateDiv.addEventListener('click', () => {
+                let isSelected = gateDiv.dataset.selected === "true";
+                if (isSelected) {
+                    gateDiv.dataset.selected = "false";
+                    xMark.style.display = 'none';
+                    gateDiv.style.opacity = '1';
+                } else {
+                    gateDiv.dataset.selected = "true";
+                    xMark.style.display = 'block';
+                    gateDiv.style.opacity = '0.5';
+                }
+            });
+
+            overlay.appendChild(gateDiv);
+        };
+
+        // Draw the 5 logic gates. Gate 2 and 3 are the NOT gates cancelling each other out!
+        createClickableGate('g1', 'standard', 80, 40, false);
+        createClickableGate('g2', 'joined', 170, 40, true);   // REDUNDANT
+        createClickableGate('g3', 'joined', 260, 40, true);   // REDUNDANT
+        createClickableGate('g4', 'joined', 260, 120, false); 
+        createClickableGate('g5', 'standard', 360, 80, false);
+    }
+}
+    
+//*****************************************************************************************
+
 function generateAstableProblem() {
     // 1. UI RESET
     hideAllInputGroups();
@@ -5487,7 +5812,7 @@ function generateAstableProblem() {
 }
     
 //*****************************************************************************************
-    
+
 function drawMonostable(ctx, R, C, rUnit, cUnit) {
     ctx.clearRect(0, 0, 600, 420);
     
@@ -7283,7 +7608,8 @@ function switchTab(mode) {
         'inputGroupGrade9BooleanPath',    
         'inputGroupLogicSystem',          
         'inputGroupLogic_ic',             
-        'inputGroupLogic_NAND'            // 👇 NEW: Clears the NAND Equivalents UI!
+        'inputGroupLogic_NAND',            // 👇 NEW: Clears the NAND Equivalents UI!
+        'inputGroupGrade9Nand'
     ];
 
     elementsToHide.forEach(id => {
@@ -7504,11 +7830,26 @@ function hubController(ctx, canvas) {
         if (typeof generateLogic_icProblem === "function") generateLogic_icProblem(ctx, canvas);
         
     } else if (currentMode === 'logic_nand') {
-        // *** NEW NAND EQUIVALENTS ROUTING ***
-        // Show rocket so they can access Phase 2 later
+        // *** STANDARD NAND EQUIVALENTS ***
+        if (document.getElementById('inputGroupLogic_NAND')) document.getElementById('inputGroupLogic_NAND').style.display = 'block';
+        
+        // Show rocket to allow transition to Grade 9 Conversion
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         
         if (typeof generateLogic_nandProblem === "function") generateLogic_nandProblem(ctx, canvas);
+
+    } else if (currentMode === 'grade9nand') {
+        // *** NEW: GRADE 9 SYSTEM CONVERSION ***
+        if (document.getElementById('inputGroupGrade9Nand')) document.getElementById('inputGroupGrade9Nand').style.display = 'block';
+        
+        // Hide rocket or keep visible to cycle through different 3-input systems
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+        
+        if (typeof generateGrade9NandProblem === "function") {
+            generateGrade9NandProblem(ctx, canvas);
+        } else {
+            console.error("Hub: generateGrade9NandProblem is not defined!");
+        }
     }
 }
 
@@ -7516,6 +7857,51 @@ function hubController(ctx, canvas) {
 // ==============================================================
 // INPUT PROCESS AND SCORING SECTION (THE GRADERS) 
 // ==============================================================
+
+function checkLogicNand() {
+    const target = window.currentNandAnswer;
+    const dropzones = document.querySelectorAll('.nand-dropzone');
+    let isCorrect = true;
+
+    // Define the required gate types for each blueprint
+    // 'standard' = 2 inputs, 'joined' = 1 input (tied together)
+    const winningPatterns = {
+        'NOT': { 1: 'joined' },
+        'AND': { 1: 'standard', 2: 'joined' },
+        'OR':  { 1: 'joined', 2: 'joined', 3: 'standard' },
+        'NOR': { 1: 'joined', 2: 'joined', 3: 'standard', 4: 'joined' }
+    };
+
+    const pattern = winningPatterns[target];
+
+    dropzones.forEach(zone => {
+        const bp = zone.dataset.blueprint;
+        const idx = zone.dataset.boxindex;
+        const filled = zone.dataset.filled || "";
+
+        if (bp === target) {
+            // Check if the student put the right gate in the right box of the target blueprint
+            if (filled !== pattern[idx]) {
+                isCorrect = false;
+            }
+        } else {
+            // Strictly enforce that all other blueprints must be empty
+            if (filled !== "") {
+                isCorrect = false;
+            }
+        }
+    });
+
+    if (isCorrect) {
+        displayFeedback(true, `Correct! You built the ${target} gate perfectly.`);
+        // Turn the correctly filled zones green
+        dropzones.forEach(z => {
+            if(z.dataset.filled) z.style.backgroundColor = "rgba(40, 167, 69, 0.2)";
+        });
+    } else {
+        displayFeedback(false, "Incorrect. Check your gate choices or make sure the other blueprints are empty.");
+    }
+}
     
 function checkAnswers() {
     // 1. Prevent double-checking if already solved
@@ -7925,6 +8311,161 @@ function checkAnswers() {
         return; // Exits the checkAnswers function so it doesn't accidentally run anything else
     }
 
+// ==========================================
+    // NAND EQUIVALENTS INTERCEPTORS
+    // ==========================================
+
+    // --- 1. STANDARD NAND MODE (Your original code) ---
+    if (currentMode === 'logic_nand') {
+        const feedback = document.getElementById('feedback');
+        const targetGate = window.currentNandAnswer; 
+        const dropzones = document.querySelectorAll('.nand-dropzone');
+        
+        const NAND_LOGIC_KEY = {
+            'NOT': ['joined'],
+            'AND': ['standard', 'joined'],
+            'OR':  ['joined', 'joined', 'standard'],
+            'NOR': ['joined', 'joined', 'standard', 'joined']
+        };
+
+        if (!hasCheckedCurrentProblem) { 
+            problemsAttempted++; 
+            hasCheckedCurrentProblem = true; 
+        }
+
+        let allCorrect = true;
+        let studentAttemptedTarget = false;
+        let anyWrongPlacement = false;
+
+        dropzones.forEach(z => z.style.backgroundColor = "transparent");
+
+        dropzones.forEach(zone => {
+            const bpType = zone.dataset.blueprint;      
+            const boxIdx = parseInt(zone.dataset.boxindex) - 1; 
+            const filledGate = zone.dataset.filled || ""; 
+
+            if (bpType === targetGate) {
+                const correctType = NAND_LOGIC_KEY[bpType][boxIdx];
+                
+                if (filledGate === "") {
+                    allCorrect = false; 
+                } else if (filledGate !== correctType) {
+                    allCorrect = false;
+                    anyWrongPlacement = true;
+                    zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
+                } else {
+                    zone.style.backgroundColor = "rgba(40, 167, 69, 0.2)"; 
+                    studentAttemptedTarget = true;
+                }
+            } else {
+                if (filledGate !== "") {
+                    allCorrect = false;
+                    anyWrongPlacement = true;
+                    zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
+                }
+            }
+        });
+
+        const checkansBtn = document.getElementById('checkansBtn');
+        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+
+        if (allCorrect && studentAttemptedTarget) {
+            isCurrentProblemSolved = true;
+            if (canEarnPoints) { problemsCorrect++; }
+            feedback.innerHTML = `<span style='color: #198754;'>Perfect! You built the ${targetGate} gate correctly using NAND logic!</span>`;
+            canEarnPoints = false;
+            if (checkansBtn) checkansBtn.style.display = 'none';
+            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+            
+        } else {
+            canEarnPoints = false;
+            if (anyWrongPlacement) {
+                feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect logic. Look at the red boxes and try again!</span>`;
+            } else {
+                feedback.innerHTML = `<span style='color: #dc3545;'>The circuit is incomplete. Build the ${targetGate} gate blueprint!</span>`;
+            }
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) solDiv.style.display = 'block';
+        }
+
+        if (typeof updateScoreboard === "function") updateScoreboard();
+        return; // Stop here so it doesn't try to grade other modes
+    }
+
+// --- 2. NEW GRADE 9 SYSTEM NAND MODE ---
+    if (currentMode === 'grade9nand') { 
+        const feedback = document.getElementById('feedback');
+        const dropzones = document.querySelectorAll('#nandCanvasOverlay > div');
+        
+        // Ensure s4 grabs the dynamic target we exported in the generator
+        const REQUIRED_LOGIC = {
+            's1': window.nandTargets ? window.nandTargets.s1 : 'AND', 
+            's2': 'NOT',                 
+            's3': window.nandTargets ? window.nandTargets.s3 : 'OR', 
+            's4': window.nandTargets ? window.nandTargets.s4 : 'WIRE'                     
+        };
+
+        if (!hasCheckedCurrentProblem) { 
+            problemsAttempted++; 
+            hasCheckedCurrentProblem = true; 
+        }
+
+        let allCorrect = true;
+        let anyWrongPlacement = false;
+
+        dropzones.forEach((zone, index) => {
+            const bpId = `s${index + 1}`;
+            const targetGate = REQUIRED_LOGIC[bpId];
+            
+            const filledGate = zone.getAttribute('data-filled-type') || ""; 
+
+            // Standardized check for all 4 boxes
+            if (filledGate === targetGate) {
+                // Correct match
+                zone.style.backgroundColor = "rgba(40, 167, 69, 0.2)"; 
+                zone.style.borderColor = "#28a745";
+            } else if (filledGate !== "") {
+                // Wrong gate placed
+                allCorrect = false;
+                anyWrongPlacement = true;
+                zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
+                zone.style.borderColor = "#dc3545";
+            } else {
+                // Box left empty
+                allCorrect = false;
+                zone.style.backgroundColor = "rgba(220, 53, 69, 0.2)"; 
+                zone.style.borderColor = "#dc3545";
+            }
+        });
+
+        const checkansBtn = document.getElementById('checkansBtn');
+        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+
+        if (allCorrect) {
+            isCurrentProblemSolved = true;
+            if (canEarnPoints) { problemsCorrect++; }
+            feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> System converted correctly!</span>`;
+            canEarnPoints = false;
+
+            if (checkansBtn) checkansBtn.style.display = 'none';
+            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+        } else {
+            canEarnPoints = false;
+            if (anyWrongPlacement) {
+                feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. Check the red boxes for mismatched logic.</span>`;
+            } else {
+                feedback.innerHTML = `<span style='color: #dc3545;'>Circuit incomplete. All blueprints must be filled.</span>`;
+            }
+            
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) solDiv.style.display = 'block';
+        }
+
+        if (typeof updateScoreboard === "function") updateScoreboard();
+        return; // Stop here so it doesn't try to grade other modes
+    }
+    //New function code pasted above this line
+    //********************************************************************
 
     // 2. Identify which inputs are currently active
     let activeInputs = [];
@@ -8599,7 +9140,6 @@ function provideHint() {
                 </div>`;
         }
     } else if (currentMode === 'logic_ic') {
-        // --- NEW IC HINT BLOCK ---
         helpText = `
             <div style="${blueBox}">
                 <strong>💡 Hint:</strong><br>
@@ -8635,6 +9175,31 @@ function provideHint() {
                 • <b>Column E:</b> Look at the bottom path. What happens to input C?<br>
                 • <b>Column Q:</b> Look at the final gate. What do D and E make together?
             </div>`;
+    } else if (currentMode === 'logic_nand') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint: How to build with NAND:</strong><br>
+                • <b>NOT:</b> Join both inputs of a NAND gate together.<br>
+                • <b>AND:</b> Connect a NAND gate output into a NOT gate.<br>
+                • <b>OR:</b> Use two NOT gates (for inputs A and B) and feed them into a final NAND gate.<br>
+                • <b>NOR:</b> Build the OR gate logic, then add a final NOT gate at the very end.
+            </div>`;
+    } else if (currentMode === 'grade9nand') {
+        if (window.grade9NandMode === 'conversion') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint: System Conversion:</strong><br>
+                    • Build each gate using standard NAND equivalents.<br>
+                    • Only use a straight <b>Wire</b> in the final box if no further logic inversion is needed!
+                </div>`;
+        } else {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint: Redundancy Hunter:</strong><br>
+                    • A double inversion ($\\overline{\\overline{A}}$) is a waste of hardware.<br>
+                    • Look for two NOT-configured NAND gates (gates with joined inputs) sitting side-by-side on the exact same wire path!
+                </div>`;
+        }
     } else {
         // Potential Divider & General
         helpText = `
@@ -8695,7 +9260,9 @@ const topicMap = {
     'logic_boolean': 'Boolean Logic',
     'grade9boolean': 'G9 Boolean Logic',
     'logic_system': 'Logic Systems',
-    'logic_ic': 'Logic Gate ICs'
+    'logic_ic': 'Logic Gate ICs',
+    'logic_nand': 'Basic NAND Equiv ',
+    'grade9nand': 'Grade 9 NAND Equiv'
 };
 
 async function processSubmission() {
@@ -8953,6 +9520,9 @@ function hideAllInputGroups() {
     // Prevents transparent drag-and-drop boxes from floating over other circuits!
     const nandOverlay = document.getElementById('nandCanvasOverlay');
     if (nandOverlay) nandOverlay.remove();
+
+    const nandTray = document.getElementById('nandBottomTray');
+    if (nandTray) nandTray.remove();
 
     // 10. REVEAL ACTION BUTTONS
     const checkansBtn = document.getElementById('checkansBtn');
