@@ -5461,11 +5461,11 @@ function generateGrade9NandProblem(ctx, canvas) {
         // MODE B: REDUNDANCY HUNTER
         // =========================================================
 else {
-            // SVG Definitions
+            // SVG Constants
             const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 60 40"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
             const svgJoined = `<svg width="100%" height="100%" viewBox="0 0 60 40"><line x1="0" y1="20" x2="6" y2="20" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="6" y2="28" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="6" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
 
-            const instructionHTML = `<div style="padding: 15px; background: #fff8fb; border-left: 4px solid #d65093; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><h3>Dual-Stream Redundancy Hunter</h3><p>Inputs <b>A-H</b> feed into a dual-funnel system. Find the NOT-NOT pairs. <b>Click to cross them out!</b></p></div>`;
+            const instructionHTML = `<div style="padding: 15px; background: #fff8fb; border-left: 4px solid #d65093; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><h3>Dual-Stream Redundancy Hunter</h3><p>Follow the distinct paths from <b>A-H</b>. Identify the redundant NAND inverters. <b>Click to cross them out!</b></p></div>`;
             let instDiv = document.getElementById('nandInstructions') || document.createElement('div');
             instDiv.id = 'nandInstructions';
             const checkBtn = document.getElementById('checkansBtn');
@@ -5473,15 +5473,15 @@ else {
             instDiv.innerHTML = instructionHTML;
 
             const inputs = ["A", "B", "C", "D", "E", "F", "G", "H"];
-            let layers = [5, 4, 2]; // 5 Gates in Layer 1 to handle the 2+6 input split
+            let layers = [5, 4, 2]; 
             let gatePositions = [];
 
             layers.forEach((count, lIndex) => {
                 for (let i = 0; i < count; i++) {
-                    let gx = 80 + (lIndex * 170);
+                    let gx = 80 + (lIndex * 180);
                     let gy = (480 / (count + 1)) * (i + 1);
 
-                    // Layer 0: 2 Inverters (Joined) and 3 Standard Gates
+                    // Set Redundant Pairs: Layer 0 (Top/Bottom) and Layer 1 (Inner)
                     let isInv = (lIndex === 0 && (i === 0 || i === 4)) || (lIndex === 1 && (i === 1 || i === 2));
 
                     let gateDiv = document.createElement('div');
@@ -5506,55 +5506,57 @@ else {
                 }
             });
 
-            // --- Specialized Wiring ---
+            // --- Clean, Non-Crossing Wiring ---
             ctx.lineWidth = 1.5;
-            ctx.strokeStyle = "#333";
+            ctx.strokeStyle = "#444";
             ctx.font = "bold 14px Arial";
 
-            // Layer 0 Wiring (The 2 Single + 3 Pair Rule)
+            // 1. Inputs to Layer 0 (2 Single, 3 Pairs)
             const l0Gates = gatePositions.filter(p => p.layer === 0);
             let inputIdx = 0;
-            l0Gates.forEach((gate, gIdx) => {
+            l0Gates.forEach((gate) => {
                 if (gate.type === 'inverter') {
-                    // Single wire input
-                    let label = inputs[inputIdx++];
-                    ctx.fillText(label, gate.x - 25, gate.y + 25);
-                    ctx.beginPath(); ctx.moveTo(gate.x - 10, gate.y + 20); ctx.lineTo(gate.x, gate.y + 20); ctx.stroke();
+                    ctx.fillText(inputs[inputIdx++], gate.x - 25, gate.y + 25);
+                    ctx.beginPath(); ctx.moveTo(gate.x - 12, gate.y + 20); ctx.lineTo(gate.x, gate.y + 20); ctx.stroke();
                 } else {
-                    // Double wire input
                     [12, 28].forEach(offset => {
-                        let label = inputs[inputIdx++];
-                        ctx.fillText(label, gate.x - 25, gate.y + offset + 5);
-                        ctx.beginPath(); ctx.moveTo(gate.x - 10, gate.y + offset); ctx.lineTo(gate.x, gate.y + offset); ctx.stroke();
+                        ctx.fillText(inputs[inputIdx++], gate.x - 25, gate.y + offset + 5);
+                        ctx.beginPath(); ctx.moveTo(gate.x - 12, gate.y + offset); ctx.lineTo(gate.x, gate.y + offset); ctx.stroke();
                     });
                 }
             });
 
-            // Layer 1 & 2 Wiring
+            // 2. Layer-to-Layer Wiring (Parallel paths, No Crossings)
             gatePositions.forEach(gate => {
                 if (gate.layer > 0) {
                     const prevLayer = gatePositions.filter(p => p.layer === gate.layer - 1);
-                    let sources = (gate.layer === 1) ? [gate.index, (gate.index + 1) % prevLayer.length] : [gate.index * 2, gate.index * 2 + 1];
+                    // Determine parents based on index to keep paths parallel
+                    let parents = (gate.layer === 1) 
+                        ? [gate.index, (gate.index + 1) % prevLayer.length] 
+                        : [gate.index * 2, gate.index * 2 + 1];
                     
-                    sources.forEach((sIdx, pin) => {
-                        const src = prevLayer[sIdx];
-                        if (!src) return;
-                        const startX = src.x + 60;
-                        const startY = src.y + 20;
+                    parents.forEach((pIdx, pin) => {
+                        const parent = prevLayer[pIdx];
+                        if (!parent) return;
+
+                        const startX = parent.x + 60;
+                        const startY = parent.y + 20;
                         const endX = gate.x;
                         const endY = (gate.type === 'inverter') ? gate.y + 20 : (pin === 0 ? gate.y + 12 : gate.y + 28);
                         
+                        // Square routing to avoid overlaps
+                        const bendX = startX + 15 + (pin * 10); 
                         ctx.beginPath();
                         ctx.moveTo(startX, startY);
-                        ctx.lineTo(startX + 20, startY);
-                        ctx.lineTo(startX + 20, endY);
+                        ctx.lineTo(bendX, startY);
+                        ctx.lineTo(bendX, endY);
                         ctx.lineTo(endX, endY);
                         ctx.stroke();
                     });
                 }
             });
 
-            // Outputs
+            // 3. Output Labels
             const finalLayer = gatePositions.filter(p => p.layer === 2);
             finalLayer.forEach((gate, idx) => {
                 ctx.fillText("Q" + (idx + 1), gate.x + 70, gate.y + 25);
