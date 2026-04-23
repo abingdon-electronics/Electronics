@@ -5404,105 +5404,110 @@ function generateLogic_nandProblem(ctx, canvas) {
 //******************************************************************************************
 
 function generateGrade9NandProblem(ctx, canvas) {
-    // --- 1. COMPLEX SVG DEFINITIONS (The "Lego Kits") ---
-    const svgComplexNOT = `<svg width="100%" height="100%" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="30" x2="10" y2="30" stroke="black" stroke-width="2"/><line x1="10" y1="15" x2="10" y2="45" stroke="black" stroke-width="2"/><line x1="10" y1="15" x2="20" y2="15" stroke="black" stroke-width="2"/><line x1="10" y1="45" x2="20" y2="45" stroke="black" stroke-width="2"/><path d="M 20,5 L 45,5 A 25,25 0 0,1 45,55 L 20,55 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="75" cy="30" r="5" fill="white" stroke="black" stroke-width="2"/><line x1="80" y1="30" x2="100" y2="30" stroke="black" stroke-width="2"/></svg>`;
+    // --- 1. THE "COMPLEX" SVG DEFINITIONS (Reduced Scale) ---
+    // viewBox adjusted for a tighter fit in the right panel and slots
+    const svgComplexNOT = `<svg width="60" height="40" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="30" x2="10" y2="30" stroke="black" stroke-width="3"/><line x1="10" y1="15" x2="10" y2="45" stroke="black" stroke-width="3"/><line x1="10" y1="15" x2="20" y2="15" stroke="black" stroke-width="3"/><line x1="10" y1="45" x2="20" y2="45" stroke="black" stroke-width="3"/><path d="M 20,5 L 45,5 A 25,25 0 0,1 45,55 L 20,55 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="75" cy="30" r="5" fill="white" stroke="black" stroke-width="3"/><line x1="80" y1="30" x2="100" y2="30" stroke="black" stroke-width="3"/></svg>`;
 
-    const svgComplexAND = `<svg width="100%" height="100%" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="15" x2="20" y2="15" stroke="black" stroke-width="2"/><line x1="0" y1="45" x2="20" y2="45" stroke="black" stroke-width="2"/><path d="M 20,5 L 45,5 A 25,25 0 0,1 45,55 L 20,55 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="75" cy="30" r="5" fill="white" stroke="black" stroke-width="2"/><line x1="80" y1="30" x2="100" y2="30" stroke="black" stroke-width="2"/><line x1="100" y1="15" x2="100" y2="45" stroke="black" stroke-width="2"/><line x1="100" y1="15" x2="110" y2="15" stroke="black" stroke-width="2"/><line x1="100" y1="45" x2="110" y2="45" stroke="black" stroke-width="2"/><path d="M 110,5 L 135,5 A 25,25 0 0,1 135,55 L 110,55 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="165" cy="30" r="5" fill="white" stroke="black" stroke-width="2"/><line x1="170" y1="30" x2="180" y2="30" stroke="black" stroke-width="2"/></svg>`;
+    const svgComplexAND = `<svg width="90" height="40" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="15" x2="20" y2="15" stroke="black" stroke-width="3"/><line x1="0" y1="45" x2="20" y2="45" stroke="black" stroke-width="3"/><path d="M 20,5 L 45,5 A 25,25 0 0,1 45,55 L 20,55 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="75" cy="30" r="5" fill="white" stroke="black" stroke-width="3"/><line x1="80" y1="30" x2="100" y2="30" stroke="black" stroke-width="3"/><line x1="100" y1="15" x2="100" y2="45" stroke="black" stroke-width="3"/><line x1="100" y1="15" x2="110" y2="15" stroke="black" stroke-width="3"/><line x1="100" y1="45" x2="110" y2="45" stroke="black" stroke-width="3"/><path d="M 110,5 L 135,5 A 25,25 0 0,1 135,55 L 110,55 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="165" cy="30" r="5" fill="white" stroke="black" stroke-width="3"/><line x1="170" y1="30" x2="180" y2="30" stroke="black" stroke-width="3"/></svg>`;
 
-    const svgComplexOR = `<svg width="100%" height="100%" viewBox="0 0 180 100" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="20" x2="10" y2="10" stroke="black" stroke-width="2"/><line x1="10" y1="10" x2="20" y2="10" stroke="black" stroke-width="2"/><line x1="0" y1="20" x2="10" y2="30" stroke="black" stroke-width="2"/><line x1="10" y1="30" x2="20" y2="30" stroke="black" stroke-width="2"/><path d="M 20,0 L 40,0 A 20,20 0 0,1 40,40 L 20,40 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="65" cy="20" r="5" fill="white" stroke="black" stroke-width="2"/><line x1="0" y1="80" x2="10" y2="70" stroke="black" stroke-width="2"/><line x1="10" y1="70" x2="20" y2="70" stroke="black" stroke-width="2"/><line x1="0" y1="80" x2="10" y2="90" stroke="black" stroke-width="2"/><line x1="10" y1="90" x2="20" y2="90" stroke="black" stroke-width="2"/><path d="M 20,60 L 40,60 A 20,20 0 0,1 40,100 L 20,100 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="65" cy="80" r="5" fill="white" stroke="black" stroke-width="2"/><line x1="70" y1="20" x2="100" y2="20" stroke="black" stroke-width="2"/><line x1="70" y1="80" x2="100" y2="80" stroke="black" stroke-width="2"/><path d="M 100,10 L 125,10 A 40,40 0 0,1 125,90 L 100,90 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="170" cy="50" r="5" fill="white" stroke="black" stroke-width="2"/></svg>`;
+    const svgComplexOR = `<svg width="90" height="50" viewBox="0 0 180 100" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="20" x2="10" y2="10" stroke="black" stroke-width="3"/><line x1="10" y1="10" x2="20" y2="10" stroke="black" stroke-width="3"/><line x1="0" y1="20" x2="10" y2="30" stroke="black" stroke-width="3"/><line x1="10" y1="30" x2="20" y2="30" stroke="black" stroke-width="3"/><path d="M 20,0 L 40,0 A 20,20 0 0,1 40,40 L 20,40 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="65" cy="20" r="5" fill="white" stroke="black" stroke-width="3"/><line x1="0" y1="80" x2="10" y2="70" stroke="black" stroke-width="3"/><line x1="10" y1="70" x2="20" y2="70" stroke="black" stroke-width="3"/><line x1="0" y1="80" x2="10" y2="90" stroke="black" stroke-width="3"/><line x1="10" y1="90" x2="20" y2="90" stroke="black" stroke-width="3"/><path d="M 20,60 L 40,60 A 20,20 0 0,1 40,100 L 20,100 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="65" cy="80" r="5" fill="white" stroke="black" stroke-width="3"/><line x1="70" y1="20" x2="100" y2="20" stroke="black" stroke-width="3"/><line x1="70" y1="80" x2="100" y2="80" stroke="black" stroke-width="3"/><path d="M 100,10 L 125,10 A 40,40 0 0,1 125,90 L 100,90 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="170" cy="50" r="5" fill="white" stroke="black" stroke-width="3"/></svg>`;
 
     const graphicsMap = { 'AND': svgComplexAND, 'OR': svgComplexOR, 'NOT': svgComplexNOT };
 
-    // --- 2. HARD WIPE SECTION ---
+    // --- 2. RESET ---
     const oldOverlay = document.getElementById('nandCanvasOverlay');
     if (oldOverlay) oldOverlay.remove(); 
-
     ctx.clearRect(0, 0, canvas.width, canvas.height); 
-    ctx.setLineDash([]); 
     ctx.lineWidth = 2;
-    ctx.beginPath(); 
 
-    // --- 3. UI VISIBILITY ---
-    const g9Group = document.getElementById('inputGroupGrade9Nand');
-    if (g9Group) g9Group.style.display = 'block';
-    const standardNandGroup = document.getElementById('inputGroupLogic_NAND');
-    if (standardNandGroup) standardNandGroup.style.display = 'none';
-
-    // --- 4. CREATE THE OVERLAY ---
+    // --- 3. OVERLAY SETUP ---
     let circuitContainer = document.getElementById('circuitContainer');
     let overlay = document.createElement('div');
     overlay.id = 'nandCanvasOverlay';
     overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none;`;
     circuitContainer.appendChild(overlay);
 
-    // --- 5. DEFINE BLUEPRINT ---
+    // --- 4. REDUCED SCALE BLUEPRINT ---
     const blueprint = {
-        inputs: [{label:"A", y:100}, {label:"B", y:160}, {label:"C", y:300}],
+        inputs: [{label:"A", y:80}, {label:"B", y:130}, {label:"C", y:230}],
         slots: [
-            { id: "slot1", target: "AND", x: 140, y: 80, w: 180, h: 80 },
-            { id: "slot2", target: "NOT", x: 140, y: 270, w: 100, h: 60 },
-            { id: "slot3", target: "OR", x: 400, y: 150, w: 180, h: 120 }
+            { id: "slot1", target: "AND", x: 100, y: 70, w: 120, h: 70 },
+            { id: "slot2", target: "NOT", x: 100, y: 210, w: 80, h: 50 },
+            { id: "slot3", target: "OR", x: 300, y: 130, w: 140, h: 90 }
         ]
     };
 
-    // --- 6. DRAW CANVAS UNDERLAY (Wires & Labels) ---
-    ctx.strokeStyle = "#333";
-    ctx.fillStyle = "#333";
-    ctx.font = "bold 16px Arial";
-    ctx.fillText("System Conversion: Convert Standard Gates to NAND-Equivalents", 20, 30);
-    ctx.font = "14px Arial";
+    // --- 5. DRAW GHOST SYMBOLS (Standard Logic Icons) ---
+    const drawGhostGate = (type, x, y, w, h) => {
+        ctx.save();
+        ctx.globalAlpha = 0.1; // Very faint
+        ctx.strokeStyle = "#000";
+        ctx.beginPath();
+        if (type === "AND") {
+            ctx.moveTo(x+10, y+10); ctx.lineTo(x+w-30, y+10);
+            ctx.arc(x+w-30, y+h/2, h/2-10, -Math.PI/2, Math.PI/2);
+            ctx.lineTo(x+10, y+h-10); ctx.closePath();
+        } else if (type === "OR") {
+            ctx.moveTo(x+10, y+10);
+            ctx.quadraticCurveTo(x+30, y+h/2, x+10, y+h-10);
+            ctx.quadraticCurveTo(x+w-10, y+h-10, x+w-10, y+h/2);
+            ctx.quadraticCurveTo(x+w-10, y+10, x+10, y+10);
+        } else if (type === "NOT") {
+            ctx.moveTo(x+10, y+10); ctx.lineTo(x+w-20, y+h/2); ctx.lineTo(x+10, y+h-10); ctx.closePath();
+            ctx.stroke(); ctx.beginPath(); ctx.arc(x+w-10, y+h/2, 5, 0, Math.PI*2);
+        }
+        ctx.stroke();
+        ctx.restore();
+    };
+
+    // --- 6. DRAW BLUEPRINT (Canvas Layer) ---
+    ctx.fillStyle = "#333"; ctx.font = "bold 14px Arial";
+    ctx.fillText("System Conversion", 20, 30);
 
     blueprint.inputs.forEach(inp => {
-        ctx.fillText(inp.label, 30, inp.y + 5);
-        ctx.beginPath(); ctx.moveTo(50, inp.y); ctx.lineTo(140, inp.y); ctx.stroke();
+        ctx.fillText(inp.label, 20, inp.y + 5);
+        ctx.beginPath(); ctx.moveTo(40, inp.y); ctx.lineTo(100, inp.y); ctx.stroke();
     });
 
-    // Main Wiring
+    // Connecting wires
     ctx.beginPath();
-    ctx.moveTo(320, 120); ctx.lineTo(360, 120); ctx.lineTo(360, 185); ctx.lineTo(400, 185); 
-    ctx.moveTo(240, 300); ctx.lineTo(360, 300); ctx.lineTo(360, 235); ctx.lineTo(400, 235); 
-    ctx.moveTo(580, 210); ctx.lineTo(630, 210); ctx.stroke();
-    ctx.fillText("Q", 640, 215);
+    ctx.moveTo(220, 105); ctx.lineTo(260, 105); ctx.lineTo(260, 160); ctx.lineTo(300, 160); 
+    ctx.moveTo(180, 235); ctx.lineTo(260, 235); ctx.lineTo(260, 190); ctx.lineTo(300, 190); 
+    ctx.moveTo(440, 175); ctx.lineTo(490, 175); ctx.stroke();
+    ctx.fillText("Q", 500, 180);
 
-    // --- 7. CREATE INTERACTIVE DROP ZONES ---
+    // --- 7. SLOTS & INTERACTION ---
     blueprint.slots.forEach(s => {
+        drawGhostGate(s.target, s.x, s.y, s.w, s.h);
+        
         let zone = document.createElement('div');
         zone.className = 'nand-dropzone';
-        zone.style.cssText = `position:absolute; left:${s.x}px; top:${s.y}px; width:${s.w}px; height:${s.h}px; border:2px dashed #ccc; pointer-events:auto; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.5);`;
+        zone.style.cssText = `position:absolute; left:${s.x}px; top:${s.y}px; width:${s.w}px; height:${s.h}px; border:1px dashed #ccc; pointer-events:auto; display:flex; align-items:center; justify-content:center;`;
         
         zone.ondragover = (e) => e.preventDefault();
         zone.ondrop = (e) => {
             e.preventDefault();
             const type = e.dataTransfer.getData("text");
             zone.innerHTML = graphicsMap[type] || "";
-            zone.style.border = (type === s.target) ? "3px solid #28a745" : "3px solid #dc3545";
+            zone.style.border = (type === s.target) ? "2px solid #28a745" : "2px solid #dc3545";
         };
-        zone.ondblclick = () => { zone.innerHTML = ""; zone.style.border = "2px dashed #ccc"; };
+        zone.ondblclick = () => { zone.innerHTML = ""; zone.style.border = "1px dashed #ccc"; };
         overlay.appendChild(zone);
-
-        // Ghost Label on Canvas
-        ctx.globalAlpha = 0.1; ctx.font = "bold 30px Arial"; ctx.textAlign = "center";
-        ctx.fillText(s.target, s.x + (s.w/2), s.y + (s.h/2) + 10);
-        ctx.globalAlpha = 1.0; ctx.textAlign = "left";
     });
 
-    // --- 8. POPULATE MODULE BANK ---
+    // --- 8. SHRINK BANK (Right Panel) ---
     const moduleBank = document.getElementById('nandModuleBank');
     if (moduleBank) {
         moduleBank.innerHTML = '';
-        const modules = [
-            { type: 'AND', label: 'NAND-AND', svg: svgComplexAND },
-            { type: 'OR',  label: 'NAND-OR',  svg: svgComplexOR },
-            { type: 'NOT', label: 'NAND-NOT', svg: svgComplexNOT }
-        ];
-        
-        modules.sort(() => Math.random() - 0.5).forEach(mod => {
+        const modules = [{type:'AND', svg:svgComplexAND}, {type:'OR', svg:svgComplexOR}, {type:'NOT', svg:svgComplexNOT}];
+        modules.forEach(mod => {
             let div = document.createElement('div');
             div.className = 'nand-module-item';
             div.draggable = true;
-            div.style.cssText = "cursor:grab; background:white; border:1px solid #ddd; padding:5px; border-radius:4px; margin-bottom:10px;";
-            div.innerHTML = mod.svg + `<div style="font-size:10px; font-weight:bold; text-align:center;">${mod.label}</div>`;
-            div.ondragstart = (e) => { e.dataTransfer.setData("text", mod.type); };
+            // Force smaller dimensions for the bank items
+            div.style.cssText = "cursor:grab; background:white; border:1px solid #ddd; padding:2px; margin-bottom:5px; transform: scale(0.8); transform-origin: top center;";
+            div.innerHTML = mod.svg;
+            div.ondragstart = (e) => e.dataTransfer.setData("text", mod.type);
             moduleBank.appendChild(div);
         });
     }
