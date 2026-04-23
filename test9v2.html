@@ -2394,99 +2394,7 @@ function drawNORGate(ctx, x, y) {
     ctx.lineTo(x + 70, y + 25);
     ctx.stroke();
 }
-//G9 NAND
-function renderGrade9Blueprint(ctx, canvas) {
-    const themePink = "#d65093";
-    
-    // 1. HARD WIPE
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const oldOverlay = document.getElementById('nandCanvasOverlay');
-    if (oldOverlay) oldOverlay.remove();
 
-    // 2. CREATE NEW OVERLAY (For the drop zones)
-    let circuitContainer = document.getElementById('circuitContainer');
-    let overlay = document.createElement('div');
-    overlay.id = 'nandCanvasOverlay';
-    overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none;`;
-    circuitContainer.appendChild(overlay);
-
-    // 3. DRAW SYSTEM LABELS & INPUT LINES
-    ctx.strokeStyle = "#333";
-    ctx.lineWidth = 2;
-    ctx.fillStyle = "#333";
-    ctx.font = "bold 16px Arial";
-    ctx.fillText("System Conversion: Convert Standard Gates to NAND-Equivalents", 20, 30);
-
-    const inputs = [
-        { label: "A", y: 100 },
-        { label: "B", y: 160 },
-        { label: "C", y: 300 }
-    ];
-
-    ctx.font = "14px Arial";
-    inputs.forEach(inp => {
-        ctx.fillText(inp.label, 30, inp.y + 5);
-        // Draw input lines to the first layer of gates
-        ctx.beginPath();
-        ctx.moveTo(50, inp.y);
-        ctx.lineTo(120, inp.y);
-        ctx.stroke();
-    });
-
-    // 4. DEFINE LARGE DROP ZONES (Modules)
-    // We make these larger (120x80) to eventually hold multiple NAND gates
-    const modules = [
-        { id: "mod1", type: "AND", x: 120, y: 80, w: 120, h: 100 },
-        { id: "mod2", type: "NOT", x: 120, y: 275, w: 120, h: 50 },
-        { id: "mod3", type: "OR", x: 380, y: 160, w: 140, h: 120 }
-    ];
-
-    modules.forEach(m => {
-        // Create the HTML Drop Zone
-        let zone = document.createElement('div');
-        zone.className = 'nand-dropzone-large';
-        zone.dataset.target = m.type;
-        zone.style.cssText = `
-            position: absolute;
-            left: ${m.x}px; top: ${m.y}px;
-            width: ${m.w}px; height: ${m.h}px;
-            border: 2px dashed #ccc;
-            background: rgba(0,0,0,0.02);
-            pointer-events: auto;
-            display: flex; align-items: center; justify-content: center;
-        `;
-        overlay.appendChild(zone);
-
-        // Draw a Faint "Ghost" of the standard gate inside the zone
-        ctx.globalAlpha = 0.2;
-        ctx.fillStyle = "#999";
-        ctx.font = "bold 20px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText(m.type, m.x + (m.w / 2), m.y + (m.h / 2) + 7);
-        ctx.globalAlpha = 1.0;
-        ctx.textAlign = "left";
-    });
-
-    // 5. DRAW CONNECTING WIRES (The Logic Flow)
-    ctx.beginPath();
-    // From AND (mod1) to OR (mod3)
-    ctx.moveTo(240, 130); 
-    ctx.lineTo(310, 130); 
-    ctx.lineTo(310, 190); 
-    ctx.lineTo(380, 190);
-    
-    // From NOT (mod2) to OR (mod3)
-    ctx.moveTo(240, 300); 
-    ctx.lineTo(310, 300); 
-    ctx.lineTo(310, 250); 
-    ctx.lineTo(380, 250);
-
-    // Final Output Q
-    ctx.moveTo(520, 220);
-    ctx.lineTo(580, 220);
-    ctx.stroke();
-    ctx.fillText("Q", 590, 225);
-}
   
 // =========================================================================================================      
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
@@ -5155,10 +5063,9 @@ function generateGrade9booleanProblem(ctx, canvas) {
         ctx.fillText("X", 180, 55); ctx.fillText("Y", 180, 150); ctx.fillText("Q", 290, 110); 
     }
 }
-
-    
+  
 //******************************************************************************************
-
+    
 function generateLogic_nandProblem(ctx, canvas) {
     currentProblem = { type: 'logic_nand' };
     const themePink = "#d65093"; 
@@ -5402,12 +5309,41 @@ function generateLogic_nandProblem(ctx, canvas) {
 }
 
 //******************************************************************************************
-
+    
 function generateGrade9NandProblem(ctx, canvas) {
-    // --- 1. SVG DEFINITIONS ---
-    const svgNOT = `<svg width="80" height="40" viewBox="0 0 100 60"><line x1="0" y1="30" x2="20" y2="30" stroke="black" stroke-width="3"/><path d="M 20,5 L 50,5 A 25,25 0 0,1 50,55 L 20,55 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="80" cy="30" r="6" fill="white" stroke="black" stroke-width="3"/></svg>`;
-    const svgAND = `<svg width="110" height="40" viewBox="0 0 180 60"><path d="M 20,5 L 50,5 A 25,25 0 0,1 50,55 L 20,55 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="80" cy="30" r="6" fill="white" stroke="black" stroke-width="3"/><path d="M 110,5 L 140,5 A 25,25 0 0,1 140,55 L 110,55 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="170" cy="30" r="6" fill="white" stroke="black" stroke-width="3"/></svg>`;
-    const svgOR = `<svg width="110" height="55" viewBox="0 0 180 100"><path d="M 20,0 L 45,0 A 20,20 0 0,1 45,40 L 20,40 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="70" cy="20" r="5" fill="white" stroke="black" stroke-width="3"/><path d="M 20,60 L 45,60 A 20,20 0 0,1 45,100 L 20,100 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="70" cy="80" r="5" fill="white" stroke="black" stroke-width="3"/><path d="M 100,10 L 130,10 A 40,40 0 0,1 130,90 L 100,90 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="170" cy="50" r="6" fill="white" stroke="black" stroke-width="3"/></svg>`;
+    // --- 1. SVG DEFINITIONS (Now with full wiring & tied inputs) ---
+    const svgNOT = `<svg width="80" height="40" viewBox="0 0 100 60">
+        <path d="M 0,30 L 10,30 M 10,15 L 10,45 M 10,15 L 20,15 M 10,45 L 20,45" fill="none" stroke="black" stroke-width="3"/>
+        <path d="M 20,5 L 45,5 A 25,25 0 0,1 45,55 L 20,55 Z" fill="white" stroke="black" stroke-width="3"/>
+        <circle cx="76" cy="30" r="6" fill="white" stroke="black" stroke-width="3"/>
+        <line x1="82" y1="30" x2="100" y2="30" stroke="black" stroke-width="3"/>
+    </svg>`;
+    
+    const svgAND = `<svg width="110" height="40" viewBox="0 0 180 60">
+        <line x1="0" y1="15" x2="20" y2="15" stroke="black" stroke-width="3"/>
+        <line x1="0" y1="45" x2="20" y2="45" stroke="black" stroke-width="3"/>
+        <path d="M 20,5 L 45,5 A 25,25 0 0,1 45,55 L 20,55 Z" fill="white" stroke="black" stroke-width="3"/>
+        <circle cx="76" cy="30" r="6" fill="white" stroke="black" stroke-width="3"/>
+        <line x1="82" y1="30" x2="90" y2="30" stroke="black" stroke-width="3"/>
+        <path d="M 90,30 L 95,30 M 95,15 L 95,45 M 95,15 L 105,15 M 95,45 L 105,45" fill="none" stroke="black" stroke-width="3"/>
+        <path d="M 105,5 L 130,5 A 25,25 0 0,1 130,55 L 105,55 Z" fill="white" stroke="black" stroke-width="3"/>
+        <circle cx="161" cy="30" r="6" fill="white" stroke="black" stroke-width="3"/>
+        <line x1="167" y1="30" x2="180" y2="30" stroke="black" stroke-width="3"/>
+    </svg>`;
+    
+    const svgOR = `<svg width="110" height="55" viewBox="0 0 190 100">
+        <path d="M 0,20 L 10,20 M 10,10 L 10,30 M 10,10 L 20,10 M 10,30 L 20,30" fill="none" stroke="black" stroke-width="3"/>
+        <path d="M 20,0 L 40,0 A 20,20 0 0,1 40,40 L 20,40 Z" fill="white" stroke="black" stroke-width="3"/>
+        <circle cx="66" cy="20" r="5" fill="white" stroke="black" stroke-width="3"/>
+        <path d="M 71,20 L 85,20 L 85,30 L 100,30" fill="none" stroke="black" stroke-width="3"/>
+        <path d="M 0,80 L 10,80 M 10,70 L 10,90 M 10,70 L 20,70 M 10,90 L 20,90" fill="none" stroke="black" stroke-width="3"/>
+        <path d="M 20,60 L 40,60 A 20,20 0 0,1 40,100 L 20,100 Z" fill="white" stroke="black" stroke-width="3"/>
+        <circle cx="66" cy="80" r="5" fill="white" stroke="black" stroke-width="3"/>
+        <path d="M 71,80 L 85,80 L 85,70 L 100,70" fill="none" stroke="black" stroke-width="3"/>
+        <path d="M 100,10 L 125,10 A 40,40 0 0,1 125,90 L 100,90 Z" fill="white" stroke="black" stroke-width="3"/>
+        <circle cx="171" cy="50" r="6" fill="white" stroke="black" stroke-width="3"/>
+        <line x1="177" y1="50" x2="190" y2="50" stroke="black" stroke-width="3"/>
+    </svg>`;
     const graphicsMap = { 'AND': svgAND, 'OR': svgOR, 'NOT': svgNOT };
 
     // --- 2. CRITICAL UI TOGGLES ---
@@ -5417,7 +5353,6 @@ function generateGrade9NandProblem(ctx, canvas) {
     const standardNandGroup = document.getElementById('inputGroupLogic_NAND');
     if (standardNandGroup) standardNandGroup.style.display = 'none';
 
-    // Hide the old right-panel bank to save vertical space
     const oldRightBank = document.getElementById('nandModuleBank');
     if (oldRightBank) oldRightBank.style.display = 'none';
 
@@ -5425,14 +5360,12 @@ function generateGrade9NandProblem(ctx, canvas) {
     const oldOverlay = document.getElementById('nandCanvasOverlay');
     if (oldOverlay) oldOverlay.remove(); 
     
-    // Remove old bottom tray if it exists
     const oldTray = document.getElementById('nandBottomTray');
     if (oldTray) oldTray.remove();
     
     ctx.clearRect(0, 0, canvas.width, canvas.height); 
     
     let circuitContainer = document.getElementById('circuitContainer');
-    // Ensure container is relative so absolute positioning works inside it
     circuitContainer.style.position = "relative"; 
     
     let overlay = document.createElement('div');
@@ -5520,7 +5453,6 @@ function generateGrade9NandProblem(ctx, canvas) {
     // --- 8. NEW HORIZONTAL BOTTOM TRAY ---
     let bottomTray = document.createElement('div');
     bottomTray.id = 'nandBottomTray';
-    // Positioned at the bottom of the canvas, spreading horizontally
     bottomTray.style.cssText = `position: absolute; bottom: 0; left: 0; width: ${canvas.width}px; display: flex; justify-content: center; align-items: center; gap: 30px; background: #f8f9fa; padding: 15px 0; border-top: 2px solid #ddd; box-sizing: border-box; z-index: 10; border-radius: 0 0 8px 8px;`;
     
     circuitContainer.appendChild(bottomTray);
@@ -5531,7 +5463,6 @@ function generateGrade9NandProblem(ctx, canvas) {
         {type:'NOT', svg:svgNOT}
     ];
 
-    // Populate the horizontal tray
     modules.forEach(mod => {
         let item = document.createElement('div');
         item.style.cssText = "background:white; border:2px solid #ddd; padding:10px 20px; cursor:grab; display:flex; align-items:center; justify-content:center; border-radius:6px; transition: border 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);";
