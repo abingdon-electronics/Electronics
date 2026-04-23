@@ -5462,99 +5462,94 @@ function generateGrade9NandProblem(ctx, canvas) {
         // MODE B: REDUNDANCY HUNTER (FUNNEL WALDO MODE - DYNAMIC)
         // =========================================================
 else {
+            // Restore SVG Constants
             const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 60 40"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
             const svgJoined = `<svg width="100%" height="100%" viewBox="0 0 60 40"><line x1="0" y1="20" x2="6" y2="20" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="6" y2="28" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="6" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
 
-            const instructionHTML = `<div style="padding: 15px; background: #fff8fb; border-left: 4px solid #d65093; margin-bottom: 15px;"><h3>Advanced Logic: Redundancy Hunter</h3><p>Trace the signal. <b>Click to cross out NOT-NOT pairs</b> (double-inversions) that cancel each other out.</p></div>`;
-            let instDiv = document.createElement('div'); instDiv.id = 'nandInstructions'; instDiv.innerHTML = instructionHTML;
-            const checkBtn = document.getElementById('checkansBtn');
-            if (checkBtn && checkBtn.parentNode) checkBtn.parentNode.insertBefore(instDiv, checkBtn);
+            // RESTORED: Instruction Box
+            const instructionHTML = `<div style="padding: 15px; background: #fff8fb; border-left: 4px solid #d65093; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"><h3>Advanced Logic: Redundancy Hunter</h3><p>Trace the signal from <b>A-F</b>. Find the NAND gates that cancel each other out. <b>Click to cross them out!</b></p></div>`;
+            let instDiv = document.getElementById('nandInstructions');
+            if (!instDiv) {
+                instDiv = document.createElement('div');
+                instDiv.id = 'nandInstructions';
+                const checkBtn = document.getElementById('checkansBtn');
+                if (checkBtn && checkBtn.parentNode) checkBtn.parentNode.insertBefore(instDiv, checkBtn);
+            }
+            instDiv.innerHTML = instructionHTML;
 
-            if (solBox) solBox.innerHTML = "Trace from the final gate backwards. Look for back-to-back NOT-configured NANDs.";
-
-            // Inputs for Column 0
-            const inputs = ["A", "B", "C", "D", "E"];
-            const colors = ["#007bff", "#dc3545", "#28a745", "#e67e22", "#6f42c1"];
-            
-            // Funnel Matrix Definition
-            // Layer 0: Start (5 gates), Layer 1: Mix (4 gates), Layer 2: Pre-final (2 gates), Layer 3: Final (1 gate)
-            let layers = [5, 4, 2, 1];
+            const inputs = ["A", "B", "C", "D", "E", "F"];
+            const colors = ["#007bff", "#dc3545", "#28a745", "#e67e22", "#6f42c1", "#17a2b8"];
+            let layers = [6, 3, 2, 1];
             let gatePositions = [];
-            let injectedCount = 0;
 
             layers.forEach((count, lIndex) => {
                 for (let i = 0; i < count; i++) {
-                    // Logic to inject redundant pairs primarily in early layers
-                    let isRed = (injectedCount < 3 && lIndex < 2 && Math.random() < 0.25); 
-                    let gx = 80 + (lIndex * 150);
-                    let gy = (400 / (count + 1)) * (i + 1);
+                    let gx = 60 + (lIndex * 160);
+                    let gy = (420 / (count + 1)) * (i + 1);
+
+                    // Logic: Identify Inverters and Random Redundancies
+                    let forceInv = (lIndex === 1 && i === 2); 
+                    let isRedundant = (lIndex > 0 && Math.random() < 0.2); // Random targets for the game
 
                     let gateDiv = document.createElement('div');
                     gateDiv.className = 'nand-gate-clickable';
-                    gateDiv.dataset.redundant = isRed;
                     gateDiv.dataset.selected = "false";
-                    gateDiv.style.cssText = `position:absolute; left:${gx}px; top:${gy}px; width:60px; height:40px; cursor:pointer; pointer-events:auto;`;
-                    
-                    // Render Joined SVG for Redundant or randomly for visual complexity
-                    gateDiv.innerHTML = isRed ? svgJoined : (Math.random() > 0.4 ? svgStandard : svgJoined);
+                    gateDiv.style.cssText = `position:absolute; left:${gx}px; top:${gy}px; width:60px; height:40px; cursor:pointer; transition: opacity 0.2s;`;
+                    gateDiv.innerHTML = forceInv ? svgJoined : svgStandard;
 
+                    // RESTORED: The "X" Mark for clicking
                     let xMark = document.createElement('div');
-                    xMark.innerHTML = '❌'; xMark.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:24px; display:none; color:red; pointer-events:none;';
+                    xMark.innerHTML = '❌';
+                    xMark.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:24px; display:none; color:red; pointer-events:none; z-index:10;';
                     gateDiv.appendChild(xMark);
 
                     gateDiv.onclick = () => {
                         let active = gateDiv.dataset.selected === "true";
                         gateDiv.dataset.selected = !active ? "true" : "false";
                         xMark.style.display = !active ? 'block' : 'none';
-                        gateDiv.style.opacity = !active ? '0.4' : '1';
+                        gateDiv.style.opacity = !active ? '0.3' : '1';
                     };
+
                     overlay.appendChild(gateDiv);
+                    gatePositions.push({ x: gx, y: gy, layer: lIndex, index: i, type: forceInv ? 'inverter' : 'standard' });
 
-                    // Track position for wiring
-                    gatePositions.push({ x: gx, y: gy, layer: lIndex, index: i });
-                    if (isRed) injectedCount++;
-
-                    // Place labels beside the nearest gate (Layer 0 only)
-                    if (lIndex === 0 && i < inputs.length) {
+                    if (lIndex === 0) {
                         ctx.fillStyle = colors[i];
                         ctx.font = "bold 14px Arial";
                         ctx.fillText(inputs[i], gx - 25, gy + 25);
-                        ctx.strokeStyle = colors[i];
-                        ctx.beginPath();
-                        ctx.moveTo(gx - 10, gy + 20);
-                        ctx.lineTo(gx, gy + 20);
-                        ctx.stroke();
                     }
                 }
             });
 
-            // Engineering Ortho-Wiring (90-degree bends)
+            // RESTORED: Professional Wiring
             ctx.lineWidth = 1.5;
+            ctx.strokeStyle = "#888";
             gatePositions.forEach(gate => {
                 if (gate.layer > 0) {
-                    ctx.strokeStyle = "#888";
-                    const sources = gatePositions.filter(p => p.layer === gate.layer - 1);
+                    const prevLayer = gatePositions.filter(p => p.layer === gate.layer - 1);
+                    let sourceIndices = (gate.type === 'inverter') ? [gate.index * 2] : [gate.index * 2, gate.index * 2 + 1];
                     
-                    // Connect inputs (offsets 12 and 28 for standard gates)
-                    [12, 28].forEach((inputYOffset, idx) => {
-                        const src = sources[(gate.index + idx) % sources.length];
+                    sourceIndices.forEach((sIdx, pin) => {
+                        const src = prevLayer[sIdx % prevLayer.length];
                         const startX = src.x + 60;
                         const startY = src.y + 20;
                         const endX = gate.x;
-                        const endY = gate.y + inputYOffset;
+                        const endY = (gate.type === 'inverter') ? gate.y + 20 : (pin === 0 ? gate.y + 12 : gate.y + 28);
                         
-                        // Create Manhattan (Ortho) path
-                        const midX = startX + (endX - startX) / (2 + idx); 
-
+                        const midX = startX + (endX - startX) / 2;
                         ctx.beginPath();
                         ctx.moveTo(startX, startY);
-                        ctx.lineTo(midX, startY); 
-                        ctx.lineTo(midX, endY);   
-                        ctx.lineTo(endX, endY);   
+                        ctx.lineTo(midX, startY);
+                        ctx.lineTo(midX, endY);
+                        ctx.lineTo(endX, endY);
                         ctx.stroke();
                     });
                 }
             });
+            const finalGate = gatePositions[gatePositions.length - 1];
+            ctx.fillStyle = "#333"; 
+            ctx.fillText("OUT", finalGate.x + 70, finalGate.y + 25);
+        }
 
             // Label the final Output
             const finalGate = gatePositions[gatePositions.length - 1];
