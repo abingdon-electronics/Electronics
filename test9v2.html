@@ -7638,7 +7638,19 @@ function generateBlockBuilderProblem(ctx, canvas) {
     if (wrapper) wrapper.style.display = 'block';
 
     // Randomly select a scenario!
-    const scenario = blockScenarios[Math.floor(Math.random() * blockScenarios.length)];
+    const rawScenario = blockScenarios[Math.floor(Math.random() * blockScenarios.length)];
+    
+    // Deep copy the scenario so we don't permanently alter the original data
+    const scenario = JSON.parse(JSON.stringify(rawScenario)); 
+
+    // --- SHIFT ENTIRE DIAGRAM UP ---
+    const shiftUp = 25; // Move everything 25px higher to clear the tray
+    scenario.blocks.forEach(b => b.y -= shiftUp);
+    scenario.wires.forEach(w => {
+        w.startY -= shiftUp;
+        w.endY -= shiftUp;
+    });
+
     window.currentBlockScenario = scenario; // Save it so the checker can access it
 
     const instDiv = document.getElementById('blockBuilderInstructions');
@@ -7740,9 +7752,8 @@ function generateBlockBuilderProblem(ctx, canvas) {
     });
 
     // --- DRAW TRAY AREA ON THE CANVAS ---
-    // Calculate the exact bottom dynamically!
     const trayHeight = 85;
-    const trayY = canvas.height - trayHeight - 5; // Tucks it 5px from the absolute bottom
+    const trayY = canvas.height - trayHeight - 5; // Pins it to the very bottom
 
     ctx.strokeStyle = "#888";
     ctx.lineWidth = 2;
@@ -7753,6 +7764,8 @@ function generateBlockBuilderProblem(ctx, canvas) {
     ctx.fillStyle = "#ccc";
     ctx.font = "italic 13px Arial";
     ctx.textAlign = "left";
+    ctx.fillText("Available Sub-systems (Drag from here to the dashed boxes above):", 10, trayY - 8);
+    
     // Place the text exactly 8px above the dashed box
     ctx.fillText("Available Sub-systems (Drag from here to the dashed boxes above):", 10, trayY - 8);
     
