@@ -7564,77 +7564,205 @@ function generateIPOProblem(ctx, canvas) {
 // ==============================
 // Block Builder
 // ===============================
+// 1. THE SCENARIOS DATABASE (Updated for 600x420 canvas)
 const blockScenarios = [
     {
         id: '2019_security_light',
-        title: 'Security Lighting System',
+        title: '2019 Specification: Security Lighting',
         description: `
-            <ul>
-                <li>The lighting system should only operate if it is dark.</li>
-                <li>The lighting system should be operated either at the front door or when someone opens the gate.</li>
-                <li>The LED lights should remain on for a fixed period of 3 minutes and then switch off automatically.</li>
-            </ul>
+            1. The lighting system should only operate if it is dark.<br>
+            2. The lighting system should be operated either at the front door or when someone opens the gate.<br>
+            3. The LED lights should remain on for a fixed period of 3 minutes and then switch off automatically.
         `,
-        // Coordinates for where to draw the empty dashed boxes
-        dropZones: [
-            { id: 'in1', x: 20, y: 30, w: 100, h: 60, target: 'Switch (Gate)' },
-            { id: 'in2', x: 20, y: 110, w: 100, h: 60, target: 'Switch (House)' },
-            { id: 'in3', x: 20, y: 220, w: 100, h: 60, target: 'Light Sensor' },
-            { id: 'gate1', x: 160, y: 70, w: 100, h: 60, target: 'OR Gate' },
-            { id: 'gate2', x: 300, y: 150, w: 100, h: 60, target: 'AND Gate' },
-            { id: 'proc1', x: 440, y: 150, w: 100, h: 60, target: 'Delay Unit' },
-            { id: 'drive1', x: 580, y: 150, w: 100, h: 60, target: 'Transistor Driver' } // Will accept Transistor OR MOSFET later
+        blocks: [
+            { id: 'b1', type: 'drop', x: 10, y: 30, answer: 'Switch (Gate)' },
+            { id: 'b2', type: 'static', x: 10, y: 120, text: 'Switch unit\n(house)' },
+            { id: 'b3', type: 'drop', x: 10, y: 240, answer: 'Light sensing unit' },
+            { id: 'b4', type: 'drop', x: 120, y: 75, answer: 'OR gate' },
+            { id: 'b5', type: 'drop', x: 220, y: 155, answer: 'AND gate' },
+            { id: 'b6', type: 'static', x: 320, y: 155, text: 'Delay\nunit' },
+            { id: 'b7', type: 'drop', x: 420, y: 155, answer: 'Transistor driver' },
+            { id: 'b8', type: 'static', x: 510, y: 155, text: 'LED\nlights' }
         ],
-        // The static output that is pre-drawn on the canvas
-        staticBlocks: [
-            { text: 'LED Lights', x: 720, y: 150, w: 90, h: 60 }
-        ],
-        // Wires connecting the zones (from_x, from_y, to_x, to_y)
         wires: [
-            { startX: 120, startY: 60, endX: 160, endY: 85 }, // Sw1 to OR
-            { startX: 120, startY: 140, endX: 160, endY: 115 }, // Sw2 to OR
-            { startX: 260, startY: 100, endX: 300, endY: 165 }, // OR to AND
-            { startX: 120, startY: 250, endX: 300, endY: 195 }, // Light to AND
-            { startX: 400, startY: 180, endX: 440, endY: 180 }, // AND to Delay
-            { startX: 540, startY: 180, endX: 580, endY: 180 }, // Delay to Driver
-            { startX: 680, startY: 180, endX: 720, endY: 180 }  // Driver to LED
+            { startX: 90, startY: 55, endX: 120, endY: 85 },   // Sw(Gate) to OR
+            { startX: 90, startY: 145, endX: 120, endY: 115 }, // Sw(House) to OR
+            { startX: 200, startY: 100, endX: 220, endY: 165 },// OR to AND
+            { startX: 90, startY: 265, endX: 220, endY: 195 }, // Light to AND
+            { startX: 300, startY: 180, endX: 320, endY: 180 },// AND to Delay
+            { startX: 400, startY: 180, endX: 420, endY: 180 },// Delay to Driver
+            { startX: 500, startY: 180, endX: 510, endY: 180 } // Driver to LED
         ],
-        // The items that populate the bottom tray (includes distractors)
-        trayPool: ['Switch (Gate)', 'Switch (House)', 'Light Sensor', 'OR Gate', 'AND Gate', 'NAND Gate', 'Delay Unit', 'Pulse Generator', 'Transistor Driver', 'Thyristor']
+        trayPool: ["Motor unit", "OR gate", "Buzzer unit", "Light sensing unit", "Temperature sensing unit", "Thyristor", "Switch (Gate)", "AND gate", "Transistor driver"]
     },
     {
         id: '2020_watering',
-        title: 'Automatic Watering System',
+        title: '2020 Specification: Watering System',
         description: `
-            <ul>
-                <li>The watering system should operate only at night.</li>
-                <li>The watering system should operate only when the soil is dry.</li>
-                <li>Water flow is controlled by a solenoid valve requiring 4A to operate.</li>
-                <li>The water should be turned on for a fixed period of 15 minutes.</li>
-            </ul>
+            1. The watering system should operate only at night.<br>
+            2. The watering system should operate only when the soil is dry.<br>
+            3. Water flow is controlled by a solenoid valve requiring 4A to operate.<br>
+            4. The water should be turned on for a fixed period of 15 minutes.
         `,
-        dropZones: [
-            { id: 'in1', x: 20, y: 30, w: 100, h: 60, target: 'Moisture Sensor' },
-            { id: 'in2', x: 20, y: 150, w: 100, h: 60, target: 'Light Sensor' },
-            { id: 'gate1', x: 160, y: 150, w: 100, h: 60, target: 'NOT Gate' },
-            { id: 'gate2', x: 300, y: 90, w: 100, h: 60, target: 'AND Gate' },
-            { id: 'proc1', x: 440, y: 90, w: 100, h: 60, target: 'Delay Unit' },
-            { id: 'drive1', x: 580, y: 90, w: 100, h: 60, target: 'MOSFET' } 
-        ],
-        staticBlocks: [
-            { text: 'Solenoid Unit', x: 720, y: 90, w: 90, h: 60 }
+        blocks: [
+            { id: 'b1', type: 'drop', x: 10, y: 75, answer: 'Moisture sensor' },
+            { id: 'b2', type: 'drop', x: 10, y: 240, answer: 'Light sensor' },
+            { id: 'b3', type: 'drop', x: 120, y: 240, answer: 'NOT gate' },
+            { id: 'b4', type: 'drop', x: 220, y: 155, answer: 'AND gate' },
+            { id: 'b5', type: 'static', x: 320, y: 155, text: 'Delay\nunit' },
+            { id: 'b6', type: 'drop', x: 420, y: 155, answer: 'MOSFET' },
+            { id: 'b7', type: 'static', x: 510, y: 155, text: 'Solenoid\nvalve' }
         ],
         wires: [
-            { startX: 120, startY: 60, endX: 300, endY: 105 }, // Moisture to AND
-            { startX: 120, startY: 180, endX: 160, endY: 180 }, // Light to NOT
-            { startX: 260, startY: 180, endX: 300, endY: 135 }, // NOT to AND
-            { startX: 400, startY: 120, endX: 440, endY: 120 }, // AND to Delay
-            { startX: 540, startY: 120, endX: 580, endY: 120 }, // Delay to MOSFET
-            { startX: 680, startY: 120, endX: 720, endY: 120 }  // MOSFET to Solenoid
+            { startX: 90, startY: 100, endX: 220, endY: 165 }, // Moisture to AND
+            { startX: 90, startY: 265, endX: 120, endY: 265 }, // Light to NOT
+            { startX: 200, startY: 265, endX: 220, endY: 195 },// NOT to AND
+            { startX: 300, startY: 180, endX: 320, endY: 180 },// AND to Delay
+            { startX: 400, startY: 180, endX: 420, endY: 180 },// Delay to MOSFET
+            { startX: 500, startY: 180, endX: 510, endY: 180 } // MOSFET to Solenoid
         ],
-        trayPool: ['Moisture Sensor', 'Light Sensor', 'Temperature Sensor', 'NOT Gate', 'AND Gate', 'OR Gate', 'Delay Unit', 'MOSFET', 'Transistor Switch']
+        trayPool: ['Moisture sensor', 'Light sensor', 'Temperature sensor', 'NOT gate', 'AND gate', 'OR gate', 'MOSFET', 'Transistor driver']
     }
 ];
+
+// 2. THE GENERATOR FUNCTION
+function generateBlockBuilderProblem(ctx, canvas) {
+    const wrapper = document.getElementById('inputGroupBlockBuilder');
+    if (wrapper) wrapper.style.display = 'block';
+
+    // Randomly select a scenario!
+    const scenario = blockScenarios[Math.floor(Math.random() * blockScenarios.length)];
+    window.currentBlockScenario = scenario; // Save it so the checker can access it
+
+    document.getElementById('questionText').innerHTML = 
+        `<strong>${scenario.title}</strong><br>` +
+        scenario.description + 
+        "<br><br><em>Drag the correct sub-systems from the tray to complete the block diagram.</em>";
+
+    // Clear canvas and draw wires
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "#fff"; 
+    ctx.lineWidth = 2;
+
+    scenario.wires.forEach(wire => {
+        ctx.beginPath();
+        ctx.moveTo(wire.startX, wire.startY);
+        ctx.lineTo(wire.endX, wire.endY);
+        ctx.stroke();
+        
+        let angle = Math.atan2(wire.endY - wire.startY, wire.endX - wire.startX);
+        let midX = (wire.startX + wire.endX) / 2;
+        let midY = (wire.startY + wire.endY) / 2;
+        ctx.beginPath();
+        ctx.moveTo(midX, midY);
+        ctx.lineTo(midX - 10 * Math.cos(angle - Math.PI / 6), midY - 10 * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(midX - 10 * Math.cos(angle + Math.PI / 6), midY - 10 * Math.sin(angle + Math.PI / 6));
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+    });
+
+    // Create Overlay
+    let overlay = document.getElementById('canvasOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'canvasOverlay';
+        overlay.style.position = 'absolute';
+        overlay.style.top = canvas.offsetTop + 'px';
+        overlay.style.left = canvas.offsetLeft + 'px';
+        overlay.style.width = canvas.width + 'px';
+        overlay.style.height = canvas.height + 'px';
+        overlay.style.pointerEvents = 'none'; 
+        canvas.parentNode.appendChild(overlay);
+    }
+    overlay.innerHTML = ''; 
+
+    // Render Blocks dynamically from the selected scenario
+    scenario.blocks.forEach(b => {
+        const box = document.createElement('div');
+        box.style.position = 'absolute';
+        box.style.left = b.x + 'px';
+        box.style.top = b.y + 'px';
+        box.style.width = '80px';
+        box.style.height = '50px'; 
+        box.style.border = '2px solid #222';
+        box.style.display = 'flex';
+        box.style.alignItems = 'center';
+        box.style.justifyContent = 'center';
+        box.style.textAlign = 'center';
+        box.style.fontSize = '12px';
+        box.style.fontFamily = 'Arial, sans-serif';
+        box.style.backgroundColor = '#fff';
+        box.style.pointerEvents = 'auto'; 
+        box.style.boxSizing = 'border-box';
+        box.style.padding = '4px';
+
+        if (b.type === 'static') {
+            box.innerText = b.text;
+            box.style.backgroundColor = '#a0aec0'; 
+            box.style.fontWeight = 'bold';
+        } else {
+            box.dataset.answer = b.answer;
+            box.classList.add('dropzone');
+            
+            box.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                box.style.backgroundColor = '#d1f0d1'; 
+            });
+            box.addEventListener('dragleave', () => {
+                box.style.backgroundColor = '#fff';
+            });
+            box.addEventListener('drop', (e) => {
+                e.preventDefault();
+                box.style.backgroundColor = '#fff';
+                const data = e.dataTransfer.getData('text/plain');
+                box.innerText = data;
+                box.dataset.current = data;
+                
+                if (typeof checkBlockBuilderAnswers === "function") checkBlockBuilderAnswers(); 
+            });
+        }
+        overlay.appendChild(box);
+    });
+
+    // Create Tray dynamically
+    let tray = document.getElementById('blockTray');
+    if (!tray) {
+        tray = document.createElement('div');
+        tray.id = 'blockTray';
+        tray.style.marginTop = '20px';
+        tray.style.padding = '15px';
+        tray.style.border = '2px dashed #aaa';
+        tray.style.display = 'flex';
+        tray.style.flexWrap = 'wrap';
+        tray.style.gap = '10px';
+        tray.style.justifyContent = 'center';
+        if (wrapper) wrapper.appendChild(tray);
+    }
+    tray.innerHTML = '<div style="width: 100%; text-align: center; margin-bottom: 10px; font-weight: bold; color: white;">Available Sub-systems (Drag into dashed boxes)</div>';
+
+    // Shuffle the tray options so the answers aren't always in the same order!
+    let shuffledOptions = scenario.trayPool.sort(() => Math.random() - 0.5);
+
+    shuffledOptions.forEach(opt => {
+        const item = document.createElement('div');
+        item.innerText = opt;
+        item.style.padding = '8px 12px';
+        item.style.backgroundColor = '#3498db';
+        item.style.color = '#fff';
+        item.style.borderRadius = '4px';
+        item.style.cursor = 'grab';
+        item.style.fontSize = '13px';
+        item.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+        item.draggable = true;
+
+        item.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', opt);
+            e.dataTransfer.effectAllowed = 'copy';
+        });
+
+        tray.appendChild(item);
+    });
+}
 // *********************
 // Function starts here: 
 function generateBlockBuilderProblem(ctx, canvas) {
