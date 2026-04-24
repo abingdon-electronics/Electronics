@@ -7573,17 +7573,15 @@ function generateIPOProblem(ctx, canvas) {
 // 1. THE SCENARIOS DATABASE (Updated for 600x420 canvas)
 const blockScenarios = [
     // ==========================================
-    // BASE ARCHITECTURE 1: The "OR / AND Delay" Setup
+    // ARCHITECTURE 1: (OR/AND) + Time-limited output
     // ==========================================
-
-    // FLAVOUR 1: Domestic Porch Lights
     {
         id: 'arch1_flavour1',
-        title: 'Automated Lighting Controller',
+        title: 'Porch Lighting System',
         description: `
-            1. The porch lights should only operate if it is dark.<br>
-            2. The lights turn on when someone opens the gate OR presses the doorbell.<br>
-            3. The high-power LEDs remain on for a fixed period of 3 minutes and then switch off.
+            1. The lights should only be able to operate if it is dark.<br>
+            2. The lights should activate if either the gate is opened OR the doorbell is pressed.<br>
+            3. Once activated, the lights stay on for 3 minutes and then switch off automatically.
         `,
         blocks: [
             { id: 'b1', type: 'drop', x: 10, y: 30, answer: 'Switch (Gate)' },
@@ -7593,7 +7591,7 @@ const blockScenarios = [
             { id: 'b5', type: 'static', x: 220, y: 155, text: 'AND gate' },
             { id: 'b6', type: 'static', x: 320, y: 155, text: 'Delay\nunit' },
             { id: 'b7', type: 'drop', x: 420, y: 155, answer: 'Transistor driver' },
-            { id: 'b8', type: 'static', x: 510, y: 155, text: 'High-Power\nLEDs' }
+            { id: 'b8', type: 'static', x: 510, y: 155, text: 'LED Array' }
         ],
         wires: [
             { startX: 90, startY: 55, endX: 120, endY: 85 },   
@@ -7604,92 +7602,23 @@ const blockScenarios = [
             { startX: 400, startY: 180, endX: 420, endY: 180 },
             { startX: 500, startY: 180, endX: 510, endY: 180 } 
         ],
+        // Exactly 10 items for a perfect 2x5 grid
         trayPool: [
             "Switch (Gate)", "Light sensing unit", "OR gate", "Transistor driver", 
-            "Motor unit", "Warning Siren", "Temperature sensing unit", "Thyristor", "NAND gate", "Latch unit"
-        ]
-    },
-
-    // FLAVOUR 2: Retail Shop Window
-    {
-        id: 'arch1_flavour2',
-        title: 'Automated Display Controller',
-        description: `
-            1. A shop window display operates for 1 minute if it is dark.<br>
-            2. It activates when a customer presses either Button A OR Button B.<br>
-            3. The system uses a driver to power a heavy-duty motor.
-        `,
-        blocks: [
-            { id: 'b1', type: 'drop', x: 10, y: 30, answer: 'Button A' },
-            { id: 'b2', type: 'drop', x: 10, y: 120, answer: 'Button B' },
-            { id: 'b3', type: 'static', x: 10, y: 240, text: 'Light sensing\nunit' },
-            { id: 'b4', type: 'static', x: 120, y: 75, text: 'OR gate' },
-            { id: 'b5', type: 'drop', x: 220, y: 155, answer: 'AND gate' },
-            { id: 'b6', type: 'static', x: 320, y: 155, text: 'Delay\nunit' },
-            { id: 'b7', type: 'static', x: 420, y: 155, text: 'Transistor\ndriver' },
-            { id: 'b8', type: 'drop', x: 510, y: 155, answer: 'Heavy-Duty Motor' }
-        ],
-        wires: [
-            { startX: 90, startY: 55, endX: 120, endY: 85 },   
-            { startX: 90, startY: 145, endX: 120, endY: 115 }, 
-            { startX: 200, startY: 100, endX: 220, endY: 165 },
-            { startX: 90, startY: 265, endX: 220, endY: 195 }, 
-            { startX: 300, startY: 180, endX: 320, endY: 180 },
-            { startX: 400, startY: 180, endX: 420, endY: 180 },
-            { startX: 500, startY: 180, endX: 510, endY: 180 } 
-        ],
-        trayPool: [
-            "Button A", "Button B", "AND gate", "Heavy-Duty Motor", 
-            "NOT gate", "High-Power LEDs", "Moisture sensor", "Relay", "Pulse generator", "Solenoid valve"
-        ]
-    },
-
-    // FLAVOUR 3: Anti-Theft Security Alarm
-    {
-        id: 'arch1_flavour3',
-        title: 'Anti-Theft Security Alarm',
-        description: `
-            1. A security siren sounds for 30 seconds if it is dark.<br>
-            2. The alarm triggers if motion is detected at the front door OR the back door.<br>
-            3. The siren requires a transistor driver to operate correctly.
-        `,
-        blocks: [
-            { id: 'b1', type: 'static', x: 10, y: 30, text: 'Front PIR' },
-            { id: 'b2', type: 'static', x: 10, y: 120, text: 'Back PIR' },
-            { id: 'b3', type: 'static', x: 10, y: 240, text: 'Light sensing\nunit' },
-            { id: 'b4', type: 'drop', x: 120, y: 75, answer: 'OR gate' },
-            { id: 'b5', type: 'static', x: 220, y: 155, text: 'AND gate' },
-            { id: 'b6', type: 'drop', x: 320, y: 155, answer: 'Delay unit' },
-            { id: 'b7', type: 'static', x: 420, y: 155, text: 'Transistor\ndriver' },
-            { id: 'b8', type: 'drop', x: 510, y: 155, answer: 'Warning Siren' }
-        ],
-        wires: [
-            { startX: 90, startY: 55, endX: 120, endY: 85 },   
-            { startX: 90, startY: 145, endX: 120, endY: 115 }, 
-            { startX: 200, startY: 100, endX: 220, endY: 165 },
-            { startX: 90, startY: 265, endX: 220, endY: 195 }, 
-            { startX: 300, startY: 180, endX: 320, endY: 180 },
-            { startX: 400, startY: 180, endX: 420, endY: 180 },
-            { startX: 500, startY: 180, endX: 510, endY: 180 } 
-        ],
-        trayPool: [
-            "OR gate", "Delay unit", "Warning Siren", 
-            "NAND gate", "Relay", "Temperature sensor", "Pressure switch", "Latch unit", "Heavy-Duty Motor", "Speaker"
+            "NAND gate", "Latch unit", "Temperature sensor", "Buzzer unit", "Thyristor", "Motor unit"
         ]
     },
 
     // ==========================================
-    // BASE ARCHITECTURE 2: Environmental Monitoring (Linear Chain)
+    // ARCHITECTURE 2: Linear + Conditional (NOT gate)
     // ==========================================
-
-    // FLAVOUR 4: Agricultural - Greenhouse Watering
     {
         id: 'arch2_flavour4',
-        title: 'Environmental Monitoring System',
+        title: 'Greenhouse Irrigation',
         description: `
-            1. The greenhouse watering system operates when the soil is dry.<br>
-            2. The water should be turned on for a fixed period of 5 minutes.<br>
-            3. The solenoid valve requires a high current (4A) to operate.
+            1. The watering system must start when the soil becomes dry.<br>
+            2. The water should flow for a period of 5 minutes before stopping.<br>
+            3. The system uses a solenoid valve to control the water.
         `,
         blocks: [
             { id: 'b1', type: 'drop', x: 10, y: 155, answer: 'Moisture sensor' },
@@ -7705,171 +7634,117 @@ const blockScenarios = [
             { startX: 450, startY: 180, endX: 510, endY: 180 }
         ],
         trayPool: [
-            "Moisture sensor", "NOT gate", "MOSFET", 
-            "Light sensor", "OR gate", "AND gate", "Transistor driver", "Buzzer unit", "Thyristor", "Latch unit"
-        ]
-    },
-
-    // FLAVOUR 5: Industrial - Cooling Fan
-    {
-        id: 'arch2_flavour5',
-        title: 'Environmental Monitoring System',
-        description: `
-            1. An industrial cooling fan operates when the machine casing gets hot.<br>
-            2. The fan should run for 10 minutes to ensure the heat is dissipated.<br>
-            3. The high-power motor requires a MOSFET driver.
-        `,
-        blocks: [
-            { id: 'b1', type: 'drop', x: 10, y: 155, answer: 'Temperature sensor' },
-            { id: 'b2', type: 'static', x: 120, y: 155, text: 'Delay\nunit' }, 
-            { id: 'b3', type: 'drop', x: 250, y: 155, answer: 'MOSFET' },
-            { id: 'b4', type: 'static', x: 450, y: 155, text: 'Heavy-Duty\nMotor' }
-        ],
-        wires: [
-            { startX: 90, startY: 180, endX: 120, endY: 180 },
-            { startX: 200, startY: 180, endX: 250, endY: 180 },
-            { startX: 330, startY: 180, endX: 450, endY: 180 }
-        ],
-        trayPool: [
-            "Temperature sensor", "MOSFET", 
-            "Moisture sensor", "AND gate", "NOT gate", "Transistor driver", "Loudspeaker", "Relay", "Pulse generator"
-        ]
-    },
-
-    // FLAVOUR 6: Domestic - Extractor Fan
-    {
-        id: 'arch2_flavour6',
-        title: 'Environmental Monitoring System',
-        description: `
-            1. A bathroom extractor fan turns on when the light switch is pulled.<br>
-            2. The fan remains on for 15 minutes after the light is activated.<br>
-            3. A MOSFET is used to switch the fan motor.
-        `,
-        blocks: [
-            { id: 'b1', type: 'static', x: 10, y: 155, text: 'Switch\nUnit' },
-            { id: 'b2', type: 'drop', x: 150, y: 155, answer: 'Delay unit' }, 
-            { id: 'b3', type: 'drop', x: 300, y: 155, answer: 'MOSFET' },
-            { id: 'b4', type: 'static', x: 450, y: 155, text: 'Extractor\nFan' }
-        ],
-        wires: [
-            { startX: 90, startY: 180, endX: 150, endY: 180 },
-            { startX: 230, startY: 180, endX: 300, endY: 180 },
-            { startX: 380, startY: 180, endX: 450, endY: 180 }
-        ],
-        trayPool: [
-            "Delay unit", "MOSFET", 
-            "NOT gate", "Latch unit", "Transistor driver", "Light sensor", "Buzzer unit", "OR gate", "AND gate"
+            "Moisture sensor", "NOT gate", "MOSFET", "AND gate", "OR gate", 
+            "Transistor driver", "Loudspeaker", "Light sensing unit", "Latch unit", "Pulse generator"
         ]
     },
 
     // ==========================================
-    // BASE ARCHITECTURE 3: Flashing Warning Signal (Pulse Gen)
+    // ARCHITECTURE 3: Logic + Intermittent Output
     // ==========================================
-
-    // FLAVOUR 7: Roadworks Hazard Beacon
     {
         id: 'arch3_flavour7',
-        title: 'Flashing Warning Signal',
-        description: `1. A hazard beacon flashes repeatedly if it is dark AND the main power switch is turned on.<br>2. Use a pulse generator to create the flashing effect.<br>3. An LED array is used for the beacon.`,
+        title: 'Roadworks Warning Signal',
+        description: `
+            1. A warning beacon must operate only when it is dark AND the master switch is on.<br>
+            2. When active, the beacon must switch on and off repeatedly to create a flashing effect.
+        `,
         blocks: [
             { id: 'b1', type: 'drop', x: 10, y: 30, answer: 'Switch Unit' },
             { id: 'b2', type: 'static', x: 10, y: 120, text: 'Light sensing\nunit' },
             { id: 'b3', type: 'static', x: 130, y: 75, text: 'AND gate' },
             { id: 'b4', type: 'drop', x: 250, y: 75, answer: 'Pulse Generator' },
             { id: 'b5', type: 'drop', x: 370, y: 75, answer: 'Transistor driver' },
-            { id: 'b6', type: 'static', x: 500, y: 75, text: 'LED Array' }
+            { id: 'b6', type: 'static', x: 500, y: 75, text: 'Warning Beacon' }
         ],
         wires: [
-            { startX: 90, startY: 55, endX: 130, endY: 85 }, { startX: 90, startY: 145, endX: 130, endY: 115 },
-            { startX: 210, startY: 100, endX: 250, endY: 100 }, { startX: 330, startY: 100, endX: 370, endY: 100 },
+            { startX: 90, startY: 55, endX: 130, endY: 85 }, 
+            { startX: 90, startY: 145, endX: 130, endY: 115 },
+            { startX: 210, startY: 100, endX: 250, endY: 100 }, 
+            { startX: 330, startY: 100, endX: 370, endY: 100 },
             { startX: 450, startY: 100, endX: 500, endY: 100 }
         ],
-        trayPool: ["Switch Unit", "Pulse Generator", "Transistor driver", "OR gate", "NOT gate", "Moisture sensor", "Loudspeaker"]
-    },
-
-    // FLAVOUR 8: Industrial Machine Warning
-    {
-        id: 'arch3_flavour8',
-        title: 'Flashing Warning Signal',
-        description: `1. A factory siren flashes/sounds if the machine motor is running AND the safety guard is open.`,
-        blocks: [
-            { id: 'b1', type: 'static', x: 10, y: 30, text: 'Motor Switch' },
-            { id: 'b2', type: 'drop', x: 10, y: 120, answer: 'Guard Switch' },
-            { id: 'b3', type: 'drop', x: 130, y: 75, answer: 'AND gate' },
-            { id: 'b4', type: 'static', x: 250, y: 75, text: 'Pulse\nGenerator' },
-            { id: 'b5', type: 'static', x: 370, y: 75, text: 'Transistor\ndriver' },
-            { id: 'b6', type: 'drop', x: 500, y: 75, answer: 'Warning Siren' }
-        ],
-        wires: [
-            { startX: 90, startY: 55, endX: 130, endY: 85 }, { startX: 90, startY: 145, endX: 130, endY: 115 },
-            { startX: 210, startY: 100, endX: 250, endY: 100 }, { startX: 330, startY: 100, endX: 370, endY: 100 },
-            { startX: 450, startY: 100, endX: 500, endY: 100 }
-        ],
-        trayPool: ["Guard Switch", "AND gate", "Warning Siren", "NAND gate", "Latch unit", "MOSFET", "Delay unit"]
+        trayPool: [
+            "Switch Unit", "Pulse Generator", "Transistor driver", "Latch unit", "OR gate", 
+            "Delay unit", "Moisture sensor", "NOT gate", "NAND gate", "Siren"
+        ]
     },
 
     // ==========================================
-    // BASE ARCHITECTURE 4: Anti-Theft Alarm (Latch)
+    // ARCHITECTURE 4: Latching Output
     // ==========================================
-
-    // FLAVOUR 9: Retail Shop Alarm
     {
         id: 'arch4_flavour9',
-        title: 'Anti-Theft Security Alarm',
-        description: `1. The alarm triggers if a window switch is broken.<br>2. It must stay on (latch) even if the window is closed again.<br>3. A high-volume siren is used.`,
+        title: 'Security Alarm',
+        description: `
+            1. The alarm is triggered if a window switch is opened.<br>
+            2. Once triggered, the siren must continue to sound even if the window is closed again.<br>
+            3. The siren stops only when a separate reset procedure is followed.
+        `,
         blocks: [
             { id: 'b1', type: 'drop', x: 10, y: 155, answer: 'Window Switch' },
             { id: 'b2', type: 'drop', x: 150, y: 155, answer: 'Latch Unit' },
             { id: 'b3', type: 'static', x: 300, y: 155, text: 'MOSFET' },
-            { id: 'b4', type: 'drop', x: 450, y: 155, answer: 'High-Volume Siren' }
+            { id: 'b4', type: 'drop', x: 450, y: 155, answer: 'Siren' }
         ],
         wires: [
-            { startX: 90, startY: 180, endX: 150, endY: 180 }, { startX: 230, startY: 180, endX: 300, endY: 180 },
+            { startX: 90, startY: 180, endX: 150, endY: 180 }, 
+            { startX: 230, startY: 180, endX: 300, endY: 180 },
             { startX: 380, startY: 180, endX: 450, endY: 180 }
         ],
-        trayPool: ["Window Switch", "Latch Unit", "High-Volume Siren", "Delay unit", "AND gate", "Thyristor", "Transistor driver"]
+        trayPool: [
+            "Window Switch", "Latch Unit", "Siren", "Delay unit", "Pulse generator", 
+            "NOT gate", "Transistor driver", "AND gate", "Moisture sensor", "Thyristor"
+        ]
     },
 
     // ==========================================
-    // BASE ARCHITECTURE 5: Automated Habitat (Parallel)
+    // ARCHITECTURE 5: Parallel Outputs
     // ==========================================
-
-    // FLAVOUR 10: Aquarium Controller
     {
         id: 'arch5_flavour10',
-        title: 'Automated Habitat Controller',
-        description: `1. Turn on a heater if the water is cold.<br>2. Turn on a pump if the water level is low.`,
+        title: 'Terrarium Environment',
+        description: `
+            1. A heater must turn on if the air temperature drops too low.<br>
+            2. A water pump must activate if the moisture sensor detects the soil is dry.
+        `,
         blocks: [
             { id: 'b1', type: 'static', x: 10, y: 50, text: 'Temp Sensor' },
             { id: 'b2', type: 'drop', x: 150, y: 50, answer: 'MOSFET' },
             { id: 'b3', type: 'static', x: 300, y: 50, text: 'Heater' },
-            { id: 'b4', type: 'drop', x: 10, y: 220, answer: 'Level Sensor' },
+            { id: 'b4', type: 'drop', x: 10, y: 220, answer: 'Moisture sensor' },
             { id: 'b5', type: 'static', x: 150, y: 220, text: 'MOSFET' },
             { id: 'b6', type: 'drop', x: 300, y: 220, answer: 'Water Pump' }
         ],
         wires: [
-            { startX: 90, startY: 75, endX: 150, endY: 75 }, { startX: 230, startY: 75, endX: 300, endY: 75 },
-            { startX: 90, startY: 245, endX: 150, endY: 245 }, { startX: 230, startY: 245, endX: 300, endY: 245 }
+            { startX: 90, startY: 75, endX: 150, endY: 75 }, 
+            { startX: 230, startY: 75, endX: 300, endY: 75 },
+            { startX: 90, startY: 245, endX: 150, endY: 245 }, 
+            { startX: 230, startY: 245, endX: 300, endY: 245 }
         ],
-        trayPool: ["Level Sensor", "MOSFET", "Water Pump", "Light sensing unit", "OR gate", "Solenoid valve", "Transistor driver"]
+        trayPool: [
+            "Moisture sensor", "MOSFET", "Water Pump", "AND gate", "OR gate", 
+            "Transistor driver", "Light sensing unit", "Delay unit", "NOT gate", "Solenoid valve"
+        ]
     },
 
     // ==========================================
-    // BASE ARCHITECTURE 6: Manual Override (OR Gate Bypass)
+    // ARCHITECTURE 6: Manual Override
     // ==========================================
-
-    // FLAVOUR 11: School Hallway Lights
     {
         id: 'arch6_flavour11',
-        title: 'System with Manual Override',
-        description: `1. Lights turn on automatically when dark.<br>2. A caretaker can override this with a switch to test the bulbs.`,
+        title: 'Safety Lighting',
+        description: `
+            1. The emergency lights turn on automatically when the sensor detects it is dark.<br>
+            2. A manual switch must also be able to turn the lights on at any time for testing.
+        `,
         blocks: [
-            { id: 'b1', type: 'drop', x: 10, y: 40, answer: 'Test Switch' },
+            { id: 'b1', type: 'drop', x: 10, y: 40, answer: 'Manual Switch' },
             { id: 'b2', type: 'static', x: 10, y: 180, text: 'Light sensing\nunit' },
             { id: 'b3', type: 'drop', x: 130, y: 180, answer: 'NOT gate' },
             { id: 'b4', type: 'drop', x: 260, y: 110, answer: 'OR gate' },
             { id: 'b5', type: 'static', x: 380, y: 110, text: 'Transistor\ndriver' },
-            { id: 'b6', type: 'static', x: 510, y: 110, text: 'LED Array' }
+            { id: 'b6', type: 'static', x: 510, y: 110, text: 'Light Array' }
         ],
         wires: [
             { startX: 90, startY: 65, endX: 260, endY: 130 }, 
@@ -7878,7 +7753,10 @@ const blockScenarios = [
             { startX: 340, startY: 135, endX: 380, endY: 135 },
             { startX: 460, startY: 135, endX: 510, endY: 135 }
         ],
-        trayPool: ["Test Switch", "NOT gate", "OR gate", "AND gate", "NAND gate", "Moisture sensor", "Latch unit"]
+        trayPool: [
+            "Manual Switch", "NOT gate", "OR gate", "AND gate", "NAND gate", 
+            "Delay unit", "Moisture sensor", "Pulse generator", "MOSFET", "Level Sensor"
+        ]
     }
 ];
 
