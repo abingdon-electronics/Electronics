@@ -10135,6 +10135,11 @@ function hideAllInputGroups() {
         const el = document.getElementById(id);
         if (el) el.style.display = "none"; 
     });
+
+    // --- ADD THIS SPECIFIC PART BELOW THE LOOP ---
+    // This finds ANY div with that ID (even clones) and removes them entirely
+    const stubbornNands = document.querySelectorAll('#nandInstructions');
+    stubbornNands.forEach(el => el.remove());
     
     // 2c. TOGGLE BUTTONS
     if (document.getElementById('mainGrade9Btn')) {
