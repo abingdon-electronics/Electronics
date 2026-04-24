@@ -8181,6 +8181,22 @@ function hubController(ctx, canvas) {
     canvas.height = 420;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // --- NEW: STRIP OLD LISTENERS ---
+    // This prevents the "NAND" logic from firing when you are in "Block Builder" mode
+    const btnNext = document.getElementById('btnNext');
+    if (btnNext) {
+        const newBtnNext = btnNext.cloneNode(true);
+        btnNext.parentNode.replaceChild(newBtnNext, btnNext);
+        // Re-attach the fresh listener
+        newBtnNext.addEventListener('click', () => hubController(ctx, canvas));
+    }
+
+    const btnCheck = document.getElementById('btnCheck');
+    if (btnCheck) {
+        const newBtnCheck = btnCheck.cloneNode(true);
+        btnCheck.parentNode.replaceChild(newBtnCheck, btnCheck);
+        // Note: The specific mode generator will attach its own 'click' listener to this new button
+    }
     // 2. Full UI Reset (The "Master Wipe")
     // Because hideAllInputGroups() was upgraded above, all dropdown validation is wiped here!
     if (typeof hideAllInputGroups === "function") hideAllInputGroups();
