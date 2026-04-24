@@ -8082,6 +8082,13 @@ function hubController(ctx, canvas) {
         } else {
             console.error("Hub: generateGrade9NandProblem is not defined!");
         }
+        } else if (currentMode === 'blockbuilder') {
+                // *** NEW: BLOCK BUILDER MODE ***
+                if (typeof generateBlockBuilderProblem === "function") {
+                    generateBlockBuilderProblem(ctx, canvas);
+        } else {
+            console.error("Hub: generateBlockBuilderProblem is not defined!");
+        }
     }
 }
 
