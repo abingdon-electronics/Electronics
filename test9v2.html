@@ -7752,22 +7752,14 @@ function generateBlockBuilderProblem(ctx, canvas) {
     });
 
     // --- DRAW TRAY AREA ON THE CANVAS ---
-    const trayHeight = 85;
+    const trayHeight = 100; // Increased to 100px for more breathing room
     const trayY = canvas.height - trayHeight - 5; // Pins it to the very bottom
 
     ctx.strokeStyle = "#888";
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     ctx.strokeRect(5, trayY, 590, trayHeight); 
-    ctx.setLineDash([]); 
-    
-    ctx.fillStyle = "#ccc";
-    ctx.font = "italic 13px Arial";
-    ctx.textAlign = "left";
-    ctx.fillText("Available Sub-systems (Drag from here to the dashed boxes above):", 10, trayY - 8);
-    
-    // Place the text exactly 8px above the dashed box
-    ctx.fillText("Available Sub-systems (Drag from here to the dashed boxes above):", 10, trayY - 8);
+    ctx.setLineDash([]);
     
     // --- NEW: PLACE DRAGGABLE ITEMS INSIDE THE OVERLAY ---
     // Remove old HTML tray if it exists from a previous run
