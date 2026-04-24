@@ -7581,7 +7581,10 @@ const blockScenarios = [
         description: `
             1. The lights should only be able to operate if it is dark.<br>
             2. The lights should activate if either the gate is opened OR the doorbell is pressed.<br>
-            3. Once activated, the lights stay on for 3 minutes and then switch off automatically.
+            3. Once activated, the lights stay on for 3 minutes and then switch off automatically.<br><br>
+            <strong>Sensor Information:</strong><br>
+            • The light sensing unit outputs logic 1 in the dark.<br>
+            • The switches output logic 1 when pressed/opened.
         `,
         blocks: [
             { id: 'b1', type: 'drop', x: 10, y: 30, answer: 'Switch (Gate)' },
@@ -7602,10 +7605,9 @@ const blockScenarios = [
             { startX: 400, startY: 180, endX: 420, endY: 180 },
             { startX: 500, startY: 180, endX: 510, endY: 180 } 
         ],
-        // Exactly 10 items for a perfect 2x5 grid
         trayPool: [
             "Switch (Gate)", "Light sensing unit", "OR gate", "Transistor driver", 
-            "NAND gate", "Latch unit", "Temperature sensor", "Buzzer unit", "Thyristor", "Motor unit"
+            "NOT gate", "Latch unit", "Temperature sensor", "Buzzer unit", "Thyristor", "Motor unit"
         ]
     },
 
@@ -7618,7 +7620,9 @@ const blockScenarios = [
         description: `
             1. The watering system must start when the soil becomes dry.<br>
             2. The water should flow for a period of 5 minutes before stopping.<br>
-            3. The system uses a solenoid valve to control the water.
+            3. The system uses a solenoid valve to control the water.<br><br>
+            <strong>Sensor Information:</strong><br>
+            • The moisture sensor outputs logic 0 when dry.
         `,
         blocks: [
             { id: 'b1', type: 'drop', x: 10, y: 155, answer: 'Moisture sensor' },
@@ -7640,33 +7644,38 @@ const blockScenarios = [
     },
 
     // ==========================================
-    // ARCHITECTURE 3: Logic + Intermittent Output
+    // ARCHITECTURE 3: Flashing/Pulsing (Re-wired for Pulse Input)
     // ==========================================
     {
         id: 'arch3_flavour7',
         title: 'Roadworks Warning Signal',
         description: `
             1. A warning beacon must operate only when it is dark AND the master switch is on.<br>
-            2. When active, the beacon must switch on and off repeatedly to create a flashing effect.
+            2. When active, the beacon must switch on and off repeatedly to create a flashing effect.<br><br>
+            <strong>Sensor Information:</strong><br>
+            • The light sensing unit outputs logic 1 in the dark.<br>
+            • The switch unit outputs logic 1 when turned on.
         `,
         blocks: [
             { id: 'b1', type: 'drop', x: 10, y: 30, answer: 'Switch Unit' },
             { id: 'b2', type: 'static', x: 10, y: 120, text: 'Light sensing\nunit' },
-            { id: 'b3', type: 'static', x: 130, y: 75, text: 'AND gate' },
-            { id: 'b4', type: 'drop', x: 250, y: 75, answer: 'Pulse Generator' },
-            { id: 'b5', type: 'drop', x: 370, y: 75, answer: 'Transistor driver' },
-            { id: 'b6', type: 'static', x: 500, y: 75, text: 'Warning Beacon' }
+            { id: 'b3', type: 'drop', x: 10, y: 240, answer: 'Pulse Generator' }, // Moved to Input!
+            { id: 'b4', type: 'drop', x: 120, y: 75, answer: 'AND gate' },
+            { id: 'b5', type: 'static', x: 220, y: 155, text: 'AND gate' }, // Final enabling gate
+            { id: 'b6', type: 'drop', x: 320, y: 155, answer: 'Transistor driver' },
+            { id: 'b7', type: 'static', x: 420, y: 155, text: 'Warning\nBeacon' }
         ],
         wires: [
-            { startX: 90, startY: 55, endX: 130, endY: 85 }, 
-            { startX: 90, startY: 145, endX: 130, endY: 115 },
-            { startX: 210, startY: 100, endX: 250, endY: 100 }, 
-            { startX: 330, startY: 100, endX: 370, endY: 100 },
-            { startX: 450, startY: 100, endX: 500, endY: 100 }
+            { startX: 90, startY: 55, endX: 120, endY: 85 },   // Switch to AND1
+            { startX: 90, startY: 145, endX: 120, endY: 115 }, // Light to AND1
+            { startX: 200, startY: 100, endX: 220, endY: 165 },// AND1 to AND2
+            { startX: 90, startY: 265, endX: 220, endY: 195 }, // Pulse to AND2
+            { startX: 300, startY: 180, endX: 320, endY: 180 },// AND2 to Driver
+            { startX: 400, startY: 180, endX: 420, endY: 180 } // Driver to Beacon
         ],
         trayPool: [
-            "Switch Unit", "Pulse Generator", "Transistor driver", "Latch unit", "OR gate", 
-            "Delay unit", "Moisture sensor", "NOT gate", "NAND gate", "Siren"
+            "Switch Unit", "Pulse Generator", "Transistor driver", "AND gate", "OR gate", 
+            "Delay unit", "Moisture sensor", "NOT gate", "NAND gate", "Latch unit"
         ]
     },
 
@@ -7679,7 +7688,9 @@ const blockScenarios = [
         description: `
             1. The alarm is triggered if a window switch is opened.<br>
             2. Once triggered, the siren must continue to sound even if the window is closed again.<br>
-            3. The siren stops only when a separate reset procedure is followed.
+            3. The siren stops only when a separate reset procedure is followed.<br><br>
+            <strong>Sensor Information:</strong><br>
+            • The window switch outputs logic 1 when opened.
         `,
         blocks: [
             { id: 'b1', type: 'drop', x: 10, y: 155, answer: 'Window Switch' },
@@ -7706,7 +7717,10 @@ const blockScenarios = [
         title: 'Terrarium Environment',
         description: `
             1. A heater must turn on if the air temperature drops too low.<br>
-            2. A water pump must activate if the moisture sensor detects the soil is dry.
+            2. A water pump must activate if the moisture sensor detects the soil is dry.<br><br>
+            <strong>Sensor Information:</strong><br>
+            • The temperature sensor outputs logic 1 when cold.<br>
+            • The moisture sensor outputs logic 1 when dry.
         `,
         blocks: [
             { id: 'b1', type: 'static', x: 10, y: 50, text: 'Temp Sensor' },
@@ -7736,7 +7750,10 @@ const blockScenarios = [
         title: 'Safety Lighting',
         description: `
             1. The emergency lights turn on automatically when the sensor detects it is dark.<br>
-            2. A manual switch must also be able to turn the lights on at any time for testing.
+            2. A manual switch must also be able to turn the lights on at any time for testing.<br><br>
+            <strong>Sensor Information:</strong><br>
+            • The light sensing unit outputs logic 1 in the light.<br>
+            • The manual switch outputs logic 1 when pressed.
         `,
         blocks: [
             { id: 'b1', type: 'drop', x: 10, y: 40, answer: 'Manual Switch' },
