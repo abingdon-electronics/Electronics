@@ -5542,7 +5542,7 @@ function generateGrade9NandProblem(ctx, canvas) {
             if (circuitContainer) circuitContainer.appendChild(tray);
 
         } else { 
-            // =========================================================
+         // =========================================================
             // MODE B: REDUNDANCY HUNTER (DYNAMIC SCHEMATIC)
             // =========================================================
             try {
@@ -5565,60 +5565,74 @@ function generateGrade9NandProblem(ctx, canvas) {
                 }
 
                 // =================================================================
-                // DYNAMIC RANDOMIZED GENERATOR (216 Possible Configurations)
+                // DYNAMIC RANDOMIZED GENERATOR (Guaranteed Redundancies)
                 // =================================================================
                 let gateDefs = [];
-                let inputCharCounter = 65; // Start at 'A'
-                
+                let inputCharCounter = 65; 
+                let hasRedundancy = false; // Flag to check if puzzle is valid
+
                 function getChar() {
                     let char = String.fromCharCode(inputCharCounter++);
                     return char;
                 }
 
-                // Generate 3 distinct horizontal zones (Q1, Q2, Q3)
-                for (let i = 0; i < 3; i++) {
-                    let baseY = 20 + (i * 120); // Spacing for Zone 0, 1, 2
-                    let template = Math.floor(Math.random() * 6); // Pick 1 of 6 layouts
+                // Keep trying until we build a layout with AT LEAST one redundancy
+                do {
+                    // Reset everything for a fresh attempt
+                    gateDefs = [];
+                    inputCharCounter = 65;
+                    hasRedundancy = false;
 
-                    if (template === 0) {
-                        // Layout 0: Top redundancy, 2-input NAND output
-                        gateDefs.push({ id: `Z${i}_L0_T`, layer: 0, x: 80, y: baseY, type: 'inverter', inputs: [getChar()] });
-                        gateDefs.push({ id: `Z${i}_L1_T`, layer: 1, x: 260, y: baseY, type: 'inverter', parents: [`Z${i}_L0_T`] }); 
-                        gateDefs.push({ id: `Z${i}_L0_B`, layer: 0, x: 80, y: baseY+60, type: 'standard', inputs: [getChar(), getChar()] });
-                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L1_T`, `Z${i}_L0_B`], output: `Q${i+1}` });
-                    
-                    } else if (template === 1) {
-                        // Layout 1: TRIPLE INVERTER CHAIN! 
-                        gateDefs.push({ id: `Z${i}_L0`, layer: 0, x: 80, y: baseY+30, type: 'inverter', inputs: [getChar()] });
-                        gateDefs.push({ id: `Z${i}_L1`, layer: 1, x: 260, y: baseY+30, type: 'inverter', parents: [`Z${i}_L0`] }); 
-                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'inverter', parents: [`Z${i}_L1`], output: `Q${i+1}` });
-                    
-                    } else if (template === 2) {
-                        // Layout 2: Bottom redundancy, 2-input NAND output
-                        gateDefs.push({ id: `Z${i}_L0_T`, layer: 0, x: 80, y: baseY, type: 'standard', inputs: [getChar(), getChar()] });
-                        gateDefs.push({ id: `Z${i}_L0_B`, layer: 0, x: 80, y: baseY+60, type: 'inverter', inputs: [getChar()] });
-                        gateDefs.push({ id: `Z${i}_L1_B`, layer: 1, x: 260, y: baseY+60, type: 'inverter', parents: [`Z${i}_L0_B`] }); 
-                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L0_T`, `Z${i}_L1_B`], output: `Q${i+1}` });
-                    
-                    } else if (template === 3) {
-                        // Layout 3: ANOTHER TRIPLE INVERTER CHAIN!
-                        gateDefs.push({ id: `Z${i}_L0`, layer: 0, x: 80, y: baseY+30, type: 'inverter', inputs: [getChar()] });
-                        gateDefs.push({ id: `Z${i}_L1`, layer: 1, x: 260, y: baseY+30, type: 'inverter', parents: [`Z${i}_L0`] });
-                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'inverter', parents: [`Z${i}_L1`], output: `Q${i+1}` });
-                    
-                    } else if (template === 4) {
-                        // Layout 4: Short inputs (missing L0), 2-input NAND output
-                        gateDefs.push({ id: `Z${i}_L1_T`, layer: 1, x: 260, y: baseY, type: 'inverter', inputs: [getChar()] });
-                        gateDefs.push({ id: `Z${i}_L1_B`, layer: 1, x: 260, y: baseY+60, type: 'standard', inputs: [getChar(), getChar()] });
-                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L1_T`, `Z${i}_L1_B`], output: `Q${i+1}` });
-                    
-                    } else {
-                        // Layout 5: Long wire jump, 2-input NAND output
-                        gateDefs.push({ id: `Z${i}_L1_T`, layer: 1, x: 260, y: baseY, type: 'standard', inputs: [getChar(), getChar()] });
-                        gateDefs.push({ id: `Z${i}_L0_B`, layer: 0, x: 80, y: baseY+60, type: 'inverter', inputs: [getChar()] }); // Jumps over L1 empty space
-                        gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L1_T`, `Z${i}_L0_B`], output: `Q${i+1}` });
+                    // Generate 3 distinct horizontal zones (Q1, Q2, Q3)
+                    for (let i = 0; i < 3; i++) {
+                        let baseY = 20 + (i * 120); // Spacing for Zone 0, 1, 2
+                        let template = Math.floor(Math.random() * 6); // Pick 1 of 6 layouts
+
+                        if (template === 0) {
+                            hasRedundancy = true; // Layout 0 has redundancy!
+                            // Layout 0: Top redundancy, 2-input NAND output
+                            gateDefs.push({ id: `Z${i}_L0_T`, layer: 0, x: 80, y: baseY, type: 'inverter', inputs: [getChar()] });
+                            gateDefs.push({ id: `Z${i}_L1_T`, layer: 1, x: 260, y: baseY, type: 'inverter', parents: [`Z${i}_L0_T`] }); 
+                            gateDefs.push({ id: `Z${i}_L0_B`, layer: 0, x: 80, y: baseY+60, type: 'standard', inputs: [getChar(), getChar()] });
+                            gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L1_T`, `Z${i}_L0_B`], output: `Q${i+1}` });
+                        
+                        } else if (template === 1) {
+                            hasRedundancy = true; // Layout 1 has redundancy!
+                            // Layout 1: TRIPLE INVERTER CHAIN! 
+                            gateDefs.push({ id: `Z${i}_L0`, layer: 0, x: 80, y: baseY+30, type: 'inverter', inputs: [getChar()] });
+                            gateDefs.push({ id: `Z${i}_L1`, layer: 1, x: 260, y: baseY+30, type: 'inverter', parents: [`Z${i}_L0`] }); 
+                            gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'inverter', parents: [`Z${i}_L1`], output: `Q${i+1}` });
+                        
+                        } else if (template === 2) {
+                            hasRedundancy = true; // Layout 2 has redundancy!
+                            // Layout 2: Bottom redundancy, 2-input NAND output
+                            gateDefs.push({ id: `Z${i}_L0_T`, layer: 0, x: 80, y: baseY, type: 'standard', inputs: [getChar(), getChar()] });
+                            gateDefs.push({ id: `Z${i}_L0_B`, layer: 0, x: 80, y: baseY+60, type: 'inverter', inputs: [getChar()] });
+                            gateDefs.push({ id: `Z${i}_L1_B`, layer: 1, x: 260, y: baseY+60, type: 'inverter', parents: [`Z${i}_L0_B`] }); 
+                            gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L0_T`, `Z${i}_L1_B`], output: `Q${i+1}` });
+                        
+                        } else if (template === 3) {
+                            hasRedundancy = true; // Layout 3 has redundancy!
+                            // Layout 3: ANOTHER TRIPLE INVERTER CHAIN!
+                            gateDefs.push({ id: `Z${i}_L0`, layer: 0, x: 80, y: baseY+30, type: 'inverter', inputs: [getChar()] });
+                            gateDefs.push({ id: `Z${i}_L1`, layer: 1, x: 260, y: baseY+30, type: 'inverter', parents: [`Z${i}_L0`] });
+                            gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'inverter', parents: [`Z${i}_L1`], output: `Q${i+1}` });
+                        
+                        } else if (template === 4) {
+                            // Layout 4: Short inputs (missing L0), 2-input NAND output (NO REDUNDANCY)
+                            gateDefs.push({ id: `Z${i}_L1_T`, layer: 1, x: 260, y: baseY, type: 'inverter', inputs: [getChar()] });
+                            gateDefs.push({ id: `Z${i}_L1_B`, layer: 1, x: 260, y: baseY+60, type: 'standard', inputs: [getChar(), getChar()] });
+                            gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L1_T`, `Z${i}_L1_B`], output: `Q${i+1}` });
+                        
+                        } else {
+                            // Layout 5: Long wire jump, 2-input NAND output (NO REDUNDANCY)
+                            gateDefs.push({ id: `Z${i}_L1_T`, layer: 1, x: 260, y: baseY, type: 'standard', inputs: [getChar(), getChar()] });
+                            gateDefs.push({ id: `Z${i}_L0_B`, layer: 0, x: 80, y: baseY+60, type: 'inverter', inputs: [getChar()] }); // Jumps over L1 empty space
+                            gateDefs.push({ id: `Z${i}_OUT`, layer: 2, x: 440, y: baseY+30, type: 'standard', parents: [`Z${i}_L1_T`, `Z${i}_L0_B`], output: `Q${i+1}` });
+                        }
                     }
-                }
+                } while (!hasRedundancy); 
+                // Loop exits ONLY when at least one redundancy is guaranteed
 
                 // VERY IMPORTANT: Exposes the generated map to the checker function!
                 window.activeGateDefs = gateDefs;
