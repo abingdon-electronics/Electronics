@@ -8423,19 +8423,25 @@ function hubController(ctx, canvas) {
         
         if (typeof generateLogic_nandProblem === "function") generateLogic_nandProblem(ctx, canvas);
 
+
     } else if (currentMode === 'grade9nand') {
-        // *** NEW: GRADE 9 SYSTEM CONVERSION & REDUNDANCY HUNTER ***
-        // (Note: The specific input group is dynamically unhidden inside the generator based on the randomized mode)
-        
-        // Keep rocket visible to cycle through different questions
-        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+            // *** NEW: GRADE 9 SYSTEM CONVERSION & REDUNDANCY HUNTER ***
+            
+            // Ensure the Master Container is visible before calling the generator
+            const master = document.getElementById('inputGroupGrade9NandMaster');
+            if (master) master.style.display = 'block';
+    
+            // Keep rocket visible to cycle through different questions
+            if (document.getElementById('mainGrade9Btn')) {
+                document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+            }
         
         if (typeof generateGrade9NandProblem === "function") {
             generateGrade9NandProblem(ctx, canvas);
         } else {
             console.error("Hub: generateGrade9NandProblem is not defined!");
         }
-
+   
         // UPDATED BLOCK BUILDER ROUTE
     } else if (currentMode === 'blockbuilder' || currentMode === 'block_diagram') {
         // Unhide the specific Block Builder input group
