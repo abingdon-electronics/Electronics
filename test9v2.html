@@ -7820,10 +7820,12 @@ function generateBlockBuilderProblem(ctx, canvas) {
     let instDiv = document.createElement('div');
     instDiv.className = 'gcse-block-ui'; // Tagged for master cleanup sweep
     instDiv.style.cssText = "padding: 15px; background: #f8f9fa; margin-bottom: 15px; border-left: 4px solid #0d6efd; font-family: sans-serif;";
+    
+    // REORDERED HERE: Instructions now appear at the top
     instDiv.innerHTML = 
+        "<em style='color:#d65093;'>Drag the correct sub-systems from the tray to complete the block diagram.<br>(Double click to remove components from a box.)</em><br><br>" +
         `<strong style="font-size:16px; color:#333;">${scenario.title}</strong><br>` +
-        scenario.description + 
-        "<br><br><em style='color:#d65093;'>Drag the correct sub-systems from the tray to complete the block diagram.<br>(Double click to remove components from a box.)</em>"; // Added double-click hint here!
+        scenario.description;
 
     // Insert instructions into the wrapper
     if (wrapper) {
