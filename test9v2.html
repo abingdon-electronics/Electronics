@@ -7800,14 +7800,26 @@ const blockScenarios = [
 // 2. THE GENERATOR FUNCTION starts here: 
 //**********************
 function generateBlockBuilderProblem(ctx, canvas) {
-    // --- 1. RESET ALL GRADING & GAME STATE VARIABLES ---
+    // --- 1. THE JANITOR PROTOCOL (STOPS STACKING) ---
     currentMode = 'block_diagram'; 
     hasCheckedCurrentProblem = false; 
     isCurrentProblemSolved = false; 
-    
+
+    // A. Clear the Wrapper (Removes old instruction sets)
+    const wrapper = document.getElementById('inputGroupBlockBuilder');
+    if (wrapper) wrapper.innerHTML = ""; 
+
+    // B. Remove OLD Overlays (Removes old draggable blocks)
+    let oldOverlay = document.getElementById('canvasOverlay');
+    if (oldOverlay) oldOverlay.remove();
+
+    // C. Force-Hide NAND instructions if they leaked out
+    let leakedNandInst = document.getElementById('nandInstructions');
+    if (leakedNandInst) leakedNandInst.style.display = 'none';
+
     // --- 2. SELECT AND PREPARE THE SCENARIO ---
     const rawScenario = blockScenarios[Math.floor(Math.random() * blockScenarios.length)];
-    const scenario = JSON.parse(JSON.stringify(rawScenario)); 
+    const scenario = JSON.parse(JSON.stringify(rawScenario));
 
     // Shift entire diagram up 30px to clear the tray
     const shiftUp = 30; 
