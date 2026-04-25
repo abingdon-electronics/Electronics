@@ -9300,7 +9300,18 @@ if (currentMode === 'grade9nand') {
             activeInputs.push('g9SilPathID1', 'g9SilPathID2', 'g9SilPathVD1', 'g9SilPathVD2', 'g9SilPathVLoad');
         }
     }
-
+    
+    if (currentMode === 'power') {
+        activeInputs = [];
+        if (currentAnswers.scenario === 2) {
+            // Scenario 2 has two inputs: the text box and the dropdown
+            activeInputs.push('inputP', 'selectPowerRating');
+        } else {
+            // Scenarios 1 and 3 only have the single text box
+            activeInputs.push('inputP'); 
+        }
+    }
+    // ------------------------------------------
     // 3. Check for empty boxes
     let hasEmptyBox = activeInputs.some(id => !document.getElementById(id) || document.getElementById(id)?.value.trim() === '');
     if (hasEmptyBox) {
