@@ -5396,8 +5396,8 @@ function generateGrade9NandProblem(ctx, canvas) {
         if (oldOverlay) oldOverlay.remove();
         const oldTray = document.getElementById('nandBottomTray');
         if (oldTray) oldTray.remove();
-        let oldInstructions = document.getElementById('nandInstructions');
-        if (oldInstructions) oldInstructions.remove();
+        
+        // (Removed the old JS instruction killer from here because hideAllInputGroups handles it now)
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -5409,10 +5409,14 @@ function generateGrade9NandProblem(ctx, canvas) {
         // THE COIN FLIP
         window.grade9NandMode = Math.random() < 0.5 ? 'conversion' : 'redundancy';
 
-// =========================================================
+        // =========================================================
         // MODE A: SYSTEM CONVERSION (DRAG AND DROP)
         // =========================================================
         if (window.grade9NandMode === 'conversion') {
+            
+            // Turn on the specific HTML instructions for Mode A!
+            const conversionInst = document.getElementById('inputGroupNandConversion');
+            if (conversionInst) conversionInst.style.display = 'block';
             
             const svgNOT = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet"><line x1="0" y1="45" x2="40" y2="45" stroke="black" stroke-width="3"/><path d="M 40,30 L 40,60 M 40,30 L 50,30 M 40,60 L 50,60" fill="none" stroke="black" stroke-width="3"/><path d="M 50,15 L 65,15 A 30,30 0 0,1 65,75 L 50,75 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="100" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/><line x1="105" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/></svg>`;
             const svgAND = `<svg width="100%" height="100%" viewBox="0 0 140 90" preserveAspectRatio="xMidYMid meet"><path d="M 0,30 L 10,30 M 0,60 L 10,60" fill="none" stroke="black" stroke-width="3"/><path d="M 10,15 L 25,15 A 30,30 0 0,1 25,75 L 10,75 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="60" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/><path d="M 65,45 L 75,45 M 75,30 L 75,60 M 75,30 L 80,30 M 75,60 L 80,60" fill="none" stroke="black" stroke-width="3"/><path d="M 80,15 L 95,15 A 30,30 0 0,1 95,75 L 80,75 Z" fill="white" stroke="black" stroke-width="3"/><circle cx="130" cy="45" r="5" fill="white" stroke="black" stroke-width="3"/><line x1="135" y1="45" x2="140" y2="45" stroke="black" stroke-width="3"/></svg>`;
@@ -5456,33 +5460,6 @@ function generateGrade9NandProblem(ctx, canvas) {
                 { id: "s3", target: b3Target, x: 220, y: 115, w: 140, h: 90, ghost: true },
                 { id: "s4", target: s4Target, x: 400, y: 115, w: 140, h: 90, ghost: false } 
             ];
-
-// --- UPDATED MODE A INSTRUCTIONS ---
-            const instructionHTML = `
-                <div style="padding: 15px; background: #fff8fb; margin-top: 15px; width: 100%; max-width: 500px; font-family: sans-serif; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <h3 style="color: ${themePink}; margin-top: 0; margin-bottom: 8px; font-size: 16px;">NAND Equivalent Logic Construction</h3>
-                    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #444;">
-                        Replace the standard logic gate with its NAND equivalent by dragging and dropping the correct NAND cluster.<br><br>
-                        The wire should be placed in the right box only when needed.<br><br>
-                        <i>(Double click to remove components from a box.)</i>
-                    </p>
-                </div>
-            `;
-            
-            // Re-use the existing div variable but assign the Class for the Janitor to find
-            let instDiv = document.createElement('div'); 
-            instDiv.id = 'nandInstructions'; 
-            instDiv.className = 'input-group'; // <--- ADD THIS LINE
-            instDiv.innerHTML = instructionHTML;
-
-            const checkBtn = document.getElementById('checkansBtn');
-            if (checkBtn && checkBtn.parentNode) {
-                // Ensure we don't insert if one already exists (double-safety)
-                const existing = document.getElementById('nandInstructions');
-                if (existing) existing.remove(); 
-                
-                checkBtn.parentNode.insertBefore(instDiv, checkBtn);
-            }
 
             // --- CANVAS GHOST DRAWING HELPER ---
             const drawGhost = (type, x, y) => {
@@ -5569,34 +5546,12 @@ function generateGrade9NandProblem(ctx, canvas) {
             // MODE B: REDUNDANCY HUNTER (DYNAMIC SCHEMATIC)
             // =========================================================
             try {
+                // Turn on the specific HTML instructions for Mode B!
+                const redundancyInst = document.getElementById('inputGroupNandRedundancy');
+                if (redundancyInst) redundancyInst.style.display = 'block';
+
                 const svgStandard = `<svg width="100%" height="100%" viewBox="0 0 60 40"><line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="0" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
                 const svgJoined = `<svg width="100%" height="100%" viewBox="0 0 60 40"><line x1="0" y1="20" x2="6" y2="20" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="6" y2="28" stroke="black" stroke-width="2"/><line x1="6" y1="12" x2="10" y2="12" stroke="black" stroke-width="2"/><line x1="6" y1="28" x2="10" y2="28" stroke="black" stroke-width="2"/><path d="M 10,4 L 25,4 A 16,16 0 0,1 25,36 L 10,36 Z" fill="white" stroke="black" stroke-width="2"/><circle cx="45" cy="20" r="4" fill="white" stroke="black" stroke-width="2"/><line x1="49" y1="20" x2="60" y2="20" stroke="black" stroke-width="2"/></svg>`;
-            
-                // --- UPDATED INSTRUCTIONS (NO BORDER, CENTERED) ---
-                // --- UPDATED MODE B INSTRUCTIONS ---
-                const instructionHTML = `
-                    <div style="padding: 15px; background: #fff8fb; margin-top: 15px; width: 100%; max-width: 500px; font-family: sans-serif; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-left: auto; margin-right: auto;">
-                        <h3 style="color: ${themePink}; margin-top: 0; margin-bottom: 8px; font-size: 16px;">Redundant Gate Hunter</h3>
-                        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #444;">
-                            Spot the redundant NOT-NOT gates. <br><br>
-                            <b>Click to cross them out!</b>
-                        </p>
-                    </div>
-                `;
-            
-                let instDiv = document.getElementById('nandInstructions');
-                if (instDiv) instDiv.remove(); // Kill the old one first!
-
-                instDiv = document.createElement('div');
-                instDiv.id = 'nandInstructions';
-                instDiv.className = 'input-group'; // <--- ADD THIS LINE
-                instDiv.innerHTML = instructionHTML;
-
-                const checkBtn = document.getElementById('checkansBtn');
-                if (checkBtn && checkBtn.parentNode) {
-                    checkBtn.parentNode.insertBefore(instDiv, checkBtn);
-                }
-                instDiv.innerHTML = instructionHTML;
             
                 // --- 2. NEW SOLUTION TEXT FOR REDUNDANCY MODE ---
                 if (solBox) {
