@@ -5413,8 +5413,11 @@ function generateGrade9NandProblem(ctx, canvas) {
         overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none; z-index:10;`;
         if (circuitContainer) circuitContainer.appendChild(overlay);
 
-        // THE COIN FLIP
-        window.grade9NandMode = Math.random() < 0.5 ? 'conversion' : 'redundancy';
+        // THE COIN FLIP UNUSED but keep for reference
+       // window.grade9NandMode = Math.random() < 0.5 ? 'conversion' : 'redundancy';
+
+        // THE ALTERNATOR: Flips between the two modes instead of randomizing
+        window.grade9NandMode = (window.grade9NandMode === 'conversion') ? 'redundancy' : 'conversion';
 
         // =========================================================
         // MODE A: SYSTEM CONVERSION (DRAG AND DROP)
