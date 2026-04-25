@@ -7938,7 +7938,7 @@ function generateBlockBuilderProblem(ctx, canvas) {
     });
 
     // --- 7. DRAW TRAY AREA ---
-    const trayHeight = 100; 
+    const trayHeight = 97; 
     const trayY = canvas.height - trayHeight - 5; 
 
     ctx.strokeStyle = "#888";
@@ -7959,7 +7959,7 @@ function generateBlockBuilderProblem(ctx, canvas) {
         let col = index % 5;
         let row = Math.floor(index / 5);
         item.style.left = (15 + col * 115) + 'px';
-        item.style.top = (trayY + 15 + row * 42) + 'px';
+        item.style.top = (trayY + 10 + row * 42) + 'px';
         
         item.style.width = '110px';
         item.style.height = '35px';
@@ -7991,7 +7991,10 @@ function generateBlockBuilderProblem(ctx, canvas) {
         overlay.appendChild(item); 
     });
 }
-//********************************
+    
+// END of Content generator functions
+//**********************************************************************************************************
+//**********************************************************************************************************
 // ===========================================================================================================================      
 // FUNCTION 3. NAVIGATION and UI (Traffic Control) 
 // ===========================================================================================================================      
