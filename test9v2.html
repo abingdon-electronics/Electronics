@@ -8962,7 +8962,8 @@ function checkLogicNand() {
         displayFeedback(false, "Incorrect. Check your gate choices or make sure the other blueprints are empty.");
     }
 }
-    
+//**********************************************************
+//***********************************************************
 function checkAnswers() {
     // 1. Prevent double-checking if already solved
     if (isCurrentProblemSolved) return; 
@@ -9971,7 +9972,8 @@ if (currentMode === 'grade9nand') {
         }
     }
     // 👇 NEW: TRANSISTOR GRADING LOGIC 👇
-    else if (currentMode === 'transistor') {
+} else if (currentMode === 'transistor') {
+        // Grade Transistor Modes
         if (window.transistorMode === 1) {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transVIN').value)), currentAnswers.vin, 'V'));
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transVRB').value)), currentAnswers.vrb, 'V'));
@@ -9985,10 +9987,15 @@ if (currentMode === 'grade9nand') {
             
         } else {
             // Mode 3: Design Mode
+            let rInput = document.getElementById('transRB').value;
+            let cleanR = acceptSpaces(rInput);
+            // Safety net: if they don't type Ω or ohm, we add it for them so the grader doesn't crash
+            if (cleanR !== "" && !cleanR.includes("Ω") && !cleanR.toLowerCase().includes("ohm")) {
+                cleanR += "Ω";
+            }
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transIB').value)), currentAnswers.ib, 'mA'));
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transVRB').value)), currentAnswers.vrb, 'V'));
-            // Note: Uses the Ω symbol for grading the resistor value!
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transRB').value)), currentAnswers.rb, 'Ω'));
+            results.push(validateMatch(parseInput(cleanR), currentAnswers.rb, 'Ω'));
         }
     }
 
@@ -10603,11 +10610,10 @@ const topicMap = {
     'logic_system': 'Logic Systems',
     'logic_ic': 'Logic Gate ICs',
     'logic_nand': 'Basic NAND Equiv ',
-    'grade9nand': 'Grade 9 NAND Equiv'
+    'grade9nand': 'Grade 9 NAND Equiv',
 
     // --- transistors ---
-
-
+    'transistor': 'Transistors'
 };
 
 async function processSubmission() {
