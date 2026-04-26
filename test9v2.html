@@ -8229,15 +8229,15 @@ function generateTransistorProblem(ctx, canvas) {
     // 3. DRAW THE CIRCUIT
     // ==========================================
     
-    // Maximizing the vertical canvas space!
+    // Adjusted vertical spacing: moved the base wire/transistor down
     const topY = 40;   
     const botY = 360;  
     const tx = 380;    
-    const ty = 200;    
+    const ty = 250;    // Pushed down (was 200) for more room above!
     const rx = 200;    
     const railStartX = 80; 
     const railEndX = 500;
-
+    
     // Draw Power Rails 
     drawLine(ctx, railStartX, topY, railEndX, topY); // +Vcc Rail
     drawLine(ctx, railStartX, botY, railEndX, botY); // 0V Rail
@@ -8255,7 +8255,7 @@ function generateTransistorProblem(ctx, canvas) {
     ctx.fillText("h", tx + 45, ty + 5); 
     let hW = ctx.measureText("h").width;
     ctx.font = "10px Arial";
-    ctx.fillText("FE", tx + 45 + hW, ty + 8); // Dropped down 3px
+    ctx.fillText("FE", tx + 45 + hW, ty + 8); 
     let feW = ctx.measureText("FE").width;
     ctx.font = "14px Arial";
     ctx.fillText(" = " + hfe, tx + 45 + hW + feW, ty + 5);
@@ -8263,14 +8263,14 @@ function generateTransistorProblem(ctx, canvas) {
     // Draw Component: Base Resistor (Rotated horizontal)
     ctx.save();
     ctx.translate(rx, ty);
-    ctx.rotate(Math.PI / 2); // Rotate 90 degrees
+    ctx.rotate(Math.PI / 2); 
     drawResistor(ctx, 0, 0);
     ctx.restore();
-    drawLabel(ctx, rbLabel, rx, ty - 25, 14); // Label above resistor
+    drawLabel(ctx, rbLabel, rx, ty - 25, 14); 
 
     // Draw Component: Motor (Load)
     const lx = tx + 10; 
-    const ly = 120;     
+    const ly = 145;     // Adjusted to sit beautifully in the newly created space
     drawMotor(ctx, lx, ly);
 
     // Wire: Load to Top Rail
@@ -8292,37 +8292,48 @@ function generateTransistorProblem(ctx, canvas) {
     drawNode(ctx, railStartX, ty); // V_IN Terminal Node
 
     // --- MANUAL SUBSCRIPT: V_IN ---
+    ctx.fillStyle = strokeColor;
+    ctx.textAlign = "left";
     ctx.font = "18px Arial";
     ctx.fillText("V", railStartX - 40, ty + 5);
     let vW = ctx.measureText("V").width;
     ctx.font = "13px Arial";
     ctx.fillText("IN", railStartX - 40 + vW + 2, ty + 10);
     
-    // Draw Current Arrows
-    // I_C Arrow 
-    drawArrowOnWire(ctx, lx, ly + 25, lx, ty - 25);
-    
-    // --- MANUAL SUBSCRIPT: I_C (with space) ---
-    ctx.font = "16px Arial";
-    ctx.fillText("I", lx + 15, ty - 45);
-    let icW = ctx.measureText("I").width;
-    ctx.font = "12px Arial";
-    ctx.fillText("C", lx + 15 + icW + 3, ty - 40); // +3px forces the small space!
-
     // I_B Arrow 
     drawArrowOnWire(ctx, rx + 45, ty, tx - 45, ty);
     
-    // --- MANUAL SUBSCRIPT: I_B (with space) ---
+    // --- MANUAL SUBSCRIPT: I_B (separated from arrow head) ---
+    ctx.fillStyle = strokeColor;
+    ctx.textAlign = "left";
     ctx.font = "16px Arial";
-    ctx.fillText("I", tx - 60, ty - 10);
+    // Shifted left and up to avoid touching the arrow
+    ctx.fillText("I", tx - 70, ty - 15); 
     let ibW = ctx.measureText("I").width;
     ctx.font = "12px Arial";
-    ctx.fillText("B", tx - 60 + ibW + 3, ty - 5); // +3px forces the small space!
+    ctx.fillText("B", tx - 70 + ibW + 3, ty - 10); 
 
-    // Draw Dynamic Text labels depending on Mode
+    // --- CONDITIONAL DRAWING BASED ON MODE (GCSE STYLES) ---
     if (window.transistorMode === 1) {
-        drawLabel(ctx, `${ic_mA} mA`, lx + 15, ty - 70, 14, "#dc3545"); 
+        // Mode 1: Ratings on Load (Voltage & Current). NO I_C Arrow.
+        ctx.fillStyle = strokeColor;
+        ctx.textAlign = "left";
+        ctx.font = "bold 14px Arial";
+        ctx.fillText(`${supplyVoltage}V`, lx + 30, ly - 5);
+        ctx.fillText(`${ic_mA}mA`, lx + 30, ly + 15);
     } else {
+        // Mode 2: I_C Arrow given. NO Ratings on Load.
+        drawArrowOnWire(ctx, lx, ly + 25, lx, ty - 25);
+        
+        ctx.fillStyle = strokeColor;
+        ctx.textAlign = "left";
+        ctx.font = "16px Arial";
+        ctx.fillText("I", lx + 15, ty - 50);
+        let icW = ctx.measureText("I").width;
+        ctx.font = "12px Arial";
+        ctx.fillText("C", lx + 15 + icW + 3, ty - 45); 
+        
+        // V_IN dynamic value text
         drawLabel(ctx, `${vin.toFixed(1)} V`, railStartX - 15, ty - 20, 14, "#dc3545");
     }
 }
