@@ -10488,13 +10488,38 @@ function provideHint() {
             </div>`;
     } 
 } else if (currentMode === 'transistor') {
+        let specificHint = "";
+        
+        // Check which transistor sub-mode is active to provide targeted advice
+        if (window.transistorMode === 'topDown') {
+            specificHint = `
+                <br><br><b>Mode: Top-Down Analysis</b><br>
+                You are trying to switch on the load. Start from the Collector! You know the required load current (I<sub>C</sub>) and the transistor's current gain (h<sub>FE</sub> = ${currentAnswers.hfe || 'known'}). <br>
+                1. Calculate the required Base Current using: <b>I<sub>B</sub> = I<sub>C</sub> / h<sub>FE</sub></b><br>
+                2. Then use Ohm's law to find the Base Resistor (R<sub>B</sub>). Don't forget to subtract the 0.7V base-emitter drop!`;
+                
+        } else if (window.transistorMode === 'bottomUp') {
+            specificHint = `
+                <br><br><b>Mode: Bottom-Up Analysis</b><br>
+                Start from the Base! <br>
+                1. Find the base current (I<sub>B</sub>) using the input voltage (minus 0.7V for V<sub>BE</sub>) and the base resistor.<br>
+                2. Multiply I<sub>B</sub> by the current gain (h<sub>FE</sub> = ${currentAnswers.hfe || 'known'}) to find the maximum possible collector current (I<sub>C</sub>).`;
+                
+        } else if (window.transistorMode === 'hfeCalc') { // Or whatever your 3rd mode is named
+            specificHint = `
+                <br><br><b>Mode: Calculating Minimum h<sub>FE</sub></b><br>
+                1. Calculate the load current (I<sub>C</sub>) required by the component.<br>
+                2. Calculate the base current (I<sub>B</sub>) provided by the input circuit.<br>
+                3. Find the minimum current gain needed using: <b>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></b>`;
+        }
+
         helpText = `
             <div style="${blueBox}">
                 <strong>💡 Hint:</strong><br>
                 • Look at the circuit diagram carefully: Known values are in <b>black</b>, and the unknowns you need to solve for are indicated by <span style="color:#E64097;"><b>pink</b></span> question marks.<br>
                 • Remember your core transistor equations: <b>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></b> and standard Ohm's Law (<b>V = I &times; R</b>).
+                ${specificHint}
             </div>`;
-    
     } else {
         // Potential Divider & General
         helpText = `
