@@ -10490,27 +10490,29 @@ function provideHint() {
 } else if (currentMode === 'transistor') {
         let specificHint = "";
         
-        // Check which transistor sub-mode is active to provide targeted advice
-        if (window.transistorMode === 'topDown') {
+        // Matching the integer modes from generateTransistorProblem
+        if (window.transistorMode === 1) {
             specificHint = `
                 <br><br><b>Mode: Top-Down Analysis</b><br>
-                You are trying to switch on the load. Start from the Collector! You know the required load current (I<sub>C</sub>) and the transistor's current gain (h<sub>FE</sub> = ${currentAnswers.hfe || 'known'}). <br>
+                You are trying to switch on the load. Start from the Collector! You know the required load current (I<sub>C</sub>) and the transistor's current gain (h<sub>FE</sub> = ${currentAnswers.hfe}). <br>
                 1. Calculate the required Base Current using: <b>I<sub>B</sub> = I<sub>C</sub> / h<sub>FE</sub></b><br>
-                2. Then use Ohm's law to find the Base Resistor (R<sub>B</sub>). Don't forget to subtract the 0.7V base-emitter drop!`;
+                2. Calculate the voltage dropped across the base resistor (V<sub>RB</sub> = I<sub>B</sub> &times; R<sub>B</sub>).<br>
+                3. Add the 0.7V base-emitter drop to find total V<sub>IN</sub>.`;
                 
-        } else if (window.transistorMode === 'bottomUp') {
+        } else if (window.transistorMode === 2) {
             specificHint = `
                 <br><br><b>Mode: Bottom-Up Analysis</b><br>
                 Start from the Base! <br>
-                1. Find the base current (I<sub>B</sub>) using the input voltage (minus 0.7V for V<sub>BE</sub>) and the base resistor.<br>
-                2. Multiply I<sub>B</sub> by the current gain (h<sub>FE</sub> = ${currentAnswers.hfe || 'known'}) to find the maximum possible collector current (I<sub>C</sub>).`;
+                1. Find the voltage across the base resistor by subtracting 0.7V (V<sub>BE</sub>) from V<sub>IN</sub>.<br>
+                2. Find the base current (I<sub>B</sub>) using Ohm's Law on the base resistor.<br>
+                3. Multiply I<sub>B</sub> by the current gain (h<sub>FE</sub> = ${currentAnswers.hfe}) to find the maximum possible collector current (I<sub>C</sub>).`;
                 
-        } else if (window.transistorMode === 'hfeCalc') { // Or whatever your 3rd mode is named
+        } else if (window.transistorMode === 3) {
             specificHint = `
-                <br><br><b>Mode: Calculating Minimum h<sub>FE</sub></b><br>
-                1. Calculate the load current (I<sub>C</sub>) required by the component.<br>
-                2. Calculate the base current (I<sub>B</sub>) provided by the input circuit.<br>
-                3. Find the minimum current gain needed using: <b>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></b>`;
+                <br><br><b>Mode: Component Selection (Design)</b><br>
+                1. Calculate the base current (I<sub>B</sub>) required to drive the given load current (I<sub>C</sub>) using the current gain (h<sub>FE</sub> = ${currentAnswers.hfe}).<br>
+                2. Find the voltage across the base resistor (V<sub>RB</sub>) by subtracting V<sub>BE</sub> (0.7V) from V<sub>IN</sub>.<br>
+                3. Use Ohm's Law (R = V / I) to find the required base resistor value (R<sub>B</sub>).`;
         }
 
         helpText = `
