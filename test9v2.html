@@ -8229,16 +8229,16 @@ function generateTransistorProblem(ctx, canvas) {
     // 3. DRAW THE CIRCUIT
     // ==========================================
     
-    // Updated, wider and taller coordinates!
-    const topY = 80;
-    const botY = 320;
-    const tx = 380; // Transistor X shifted right
-    const ty = 200; // Transistor Y shifted down to center
-    const rx = 200; // Base Resistor X shifted left
+    // Maximizing the vertical canvas space!
+    const topY = 40;   // Pushed way up (was 80)
+    const botY = 360;  // Pushed way down (was 320)
+    const tx = 380;    // Transistor X
+    const ty = 200;    // Transistor Y (Perfectly centered vertically)
+    const rx = 200;    // Base Resistor X
     const railStartX = 80; 
     const railEndX = 500;
 
-    // Draw Power Rails (Wider)
+    // Draw Power Rails 
     drawLine(ctx, railStartX, topY, railEndX, topY); // +Vcc Rail
     drawLine(ctx, railStartX, botY, railEndX, botY); // 0V Rail
     drawLabel(ctx, `+${supplyVoltage}V`, railStartX - 35, topY + 5, 16);
@@ -8258,7 +8258,7 @@ function generateTransistorProblem(ctx, canvas) {
 
     // Draw Component: Motor (Load)
     const lx = tx + 10; // Aligned with the collector vertical exit
-    const ly = topY + 50; // Centered beautifully between rail and transistor
+    const ly = 120;     // Centered beautifully between the high rail (40) and transistor (200)
     drawMotor(ctx, lx, ly);
 
     // Wire: Load to Top Rail
@@ -8283,8 +8283,8 @@ function generateTransistorProblem(ctx, canvas) {
     drawCanvasSubscript(ctx, "V", "IN", "", railStartX - 40, ty + 5, 18, strokeColor);
     
     // Draw Current Arrows
-    // I_C Arrow (Pointing down towards collector)
-    drawArrowOnWire(ctx, lx, ly + 35, lx, ty - 35);
+    // I_C Arrow (Pointing down towards collector, placed on the wire between motor and transistor)
+    drawArrowOnWire(ctx, lx, ly + 25, lx, ty - 25);
     drawCanvasSubscript(ctx, "I", "C", "", lx + 15, ty - 45, 16, strokeColor);
 
     // I_B Arrow (Pointing right towards base)
@@ -8294,7 +8294,7 @@ function generateTransistorProblem(ctx, canvas) {
     // Draw Dynamic Text labels depending on Mode
     if (window.transistorMode === 1) {
         // Mode 1 gives I_C on the diagram
-        drawLabel(ctx, `${ic_mA} mA`, lx + 15, ty - 65, 14, "#dc3545"); 
+        drawLabel(ctx, `${ic_mA} mA`, lx + 15, ty - 70, 14, "#dc3545"); 
     } else {
         // Mode 2 gives V_IN on the diagram
         drawLabel(ctx, `${vin.toFixed(1)} V`, railStartX - 15, ty - 20, 14, "#dc3545");
