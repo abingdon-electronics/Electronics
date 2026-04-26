@@ -8181,6 +8181,15 @@ function generateTransistorProblem(ctx, canvas) {
     // ==========================================
     // LOGIC & UI TEXT GENERATION
     // ==========================================
+    
+    const commonInstructions = `
+        <div style="margin-bottom: 15px; font-size: 16px; color: #444; line-height: 1.3;">
+            <strong>Instructions:</strong><br>
+            Analyze the circuit diagram. Known values are in <strong>black</strong>, and unknowns to solve for are indicated by <span style="color:#E64097;"><strong>pink</strong></span> question marks.<br>
+            <span style="font-weight: normal; font-size: 0.85em; color: #777;"><em>Enter your calculated values followed by a standard unit symbol (e.g., 5 mA, 12 V).</em></span>
+        </div>
+    `;
+
     if (window.transistorMode === 1) {
         // --- MODE 1: Top-Down (Given I_Load, find V_IN) ---
         ic_mA = Math.floor(Math.random() * 8 + 2) * 50; 
@@ -8195,7 +8204,7 @@ function generateTransistorProblem(ctx, canvas) {
         currentAnswers.vin = vin;
         currentAnswers.p = p_mW / 1000; 
 
-        document.getElementById('questionText').innerHTML = `
+        document.getElementById('questionText').innerHTML = commonInstructions + `
             <strong>Mode: Top-Down Analysis</strong><br>
             A transistor circuit is used to switch on a motor. The motor requires a current of <strong>${ic_mA} mA</strong> to operate from a <strong>${supplyVoltage}V</strong> supply. 
             The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>.<br>
@@ -8242,7 +8251,7 @@ function generateTransistorProblem(ctx, canvas) {
         currentAnswers.ib = ib_mA;
         currentAnswers.ic = ic_mA;
 
-        document.getElementById('questionText').innerHTML = `
+        document.getElementById('questionText').innerHTML = commonInstructions + `
             <strong>Mode: Bottom-Up Analysis</strong><br>
             A sensor provides an input voltage (V<sub>IN</sub>) to the transistor circuit as shown in the diagram. 
             The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>.<br>
@@ -8286,7 +8295,7 @@ function generateTransistorProblem(ctx, canvas) {
         currentAnswers.vrb = vrb;
         currentAnswers.rb = rb; 
 
-        document.getElementById('questionText').innerHTML = `
+        document.getElementById('questionText').innerHTML = commonInstructions + `
             <strong>Mode: Component Selection (Design)</strong><br>
             You need to switch a motor that requires a current of <strong>${ic_mA} mA</strong> using an input signal (V<sub>IN</sub>) as shown.
             The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>.<br>
