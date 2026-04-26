@@ -8226,9 +8226,7 @@ function generateTransistorProblem(ctx, canvas) {
 
         if (qText) {
             qText.innerHTML = `
-                A transistor circuit is used to switch on a motor. The motor requires a current of <strong>${ic_mA} mA</strong> to operate from a <strong>${supplyVoltage}V</strong> supply. 
-                The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>.<br>
-                Assume V<sub>BE</sub> = 0.7V when the transistor is saturated.<br><br>
+                The transistor is just saturated. Assume V<sub>BE</sub> = 0.7V.<br><br>
                 <strong>Calculate the following unknown values:</strong><br>
                 &bull; <strong>V<sub>IN</sub></strong>: The required Input Voltage.<br>
                 &bull; <strong>V<sub>RB</sub></strong>: The voltage dropped across the base resistor.<br>
@@ -8276,9 +8274,7 @@ function generateTransistorProblem(ctx, canvas) {
 
         if (qText) {
             qText.innerHTML = `
-                A sensor provides an input voltage (V<sub>IN</sub>) to the transistor circuit as shown in the diagram. 
-                The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>.<br>
-                Assume V<sub>BE</sub> = 0.7V.<br><br>
+                The transistor is just saturated. Assume V<sub>BE</sub> = 0.7V.<br><br>
                 <strong>Calculate the following unknown values:</strong><br>
                 &bull; <strong>V<sub>RB</sub></strong>: The voltage dropped across the base resistor.<br>
                 &bull; <strong>I<sub>B</sub></strong>: The resulting Base Current.<br>
@@ -8323,9 +8319,7 @@ function generateTransistorProblem(ctx, canvas) {
 
         if (qText) {
             qText.innerHTML = `
-                You need to switch a motor that requires a current of <strong>${ic_mA} mA</strong> using an input signal (V<sub>IN</sub>) as shown.
-                The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>.<br>
-                Assume V<sub>BE</sub> = 0.7V.<br><br>
+                The transistor is just saturated. Assume V<sub>BE</sub> = 0.7V.<br><br>
                 <strong>Calculate the following unknown values:</strong><br>
                 &bull; <strong>I<sub>B</sub></strong>: The required Base Current.<br>
                 &bull; <strong>V<sub>RB</sub></strong>: The voltage that must drop across the base resistor.<br>
@@ -8355,7 +8349,6 @@ function generateTransistorProblem(ctx, canvas) {
         const wrapperRB = document.getElementById('wrapperTransRB');
         if(wrapperRB) wrapperRB.style.display = 'flex';
     }
-
 
     // ==========================================
     // 3. DRAW THE CIRCUIT
