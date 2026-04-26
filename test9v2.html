@@ -10487,7 +10487,15 @@ function provideHint() {
                 • A <b>double inversion</b> (a NOT gate followed immediately by another NOT gate) is a waste of hardware.<br>
                 • Look for two NOT-configured NAND gates (gates with joined inputs) sitting side-by-side on the exact same wire path!
             </div>`;
-    }    
+    } 
+} else if (currentMode === 'transistor') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint:</strong><br>
+                • Look at the circuit diagram carefully: Known values are in <b>black</b>, and the unknowns you need to solve for are indicated by <span style="color:#E64097;"><b>pink</b></span> question marks.<br>
+                • Remember your core transistor equations: <b>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></b> and standard Ohm's Law (<b>V = I &times; R</b>).
+            </div>`;
+    
     } else {
         // Potential Divider & General
         helpText = `
