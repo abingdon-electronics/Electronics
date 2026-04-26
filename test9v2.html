@@ -8232,38 +8232,40 @@ function generateTransistorProblem(ctx, canvas) {
         document.getElementById('wrapperTransP').style.display = 'none'; // Skip power for this mode
     }
 
-    // ==========================================
+// ==========================================
     // 3. DRAW THE CIRCUIT
     // ==========================================
     
-    // Coordinates
-    const topY = 40;
-    const botY = 240;
-    const tx = 250; // Transistor X center
-    const ty = 160; // Transistor Y center
-    const rx = 120; // Base Resistor X center
+    // Updated, wider and taller coordinates!
+    const topY = 80;
+    const botY = 320;
+    const tx = 380; // Transistor X shifted right
+    const ty = 200; // Transistor Y shifted down to center
+    const rx = 200; // Base Resistor X shifted left
+    const railStartX = 80; 
+    const railEndX = 500;
 
-    // Draw Power Rails
-    drawLine(ctx, 40, topY, 340, topY); // +Vcc Rail
-    drawLine(ctx, 40, botY, 340, botY); // 0V Rail
-    drawLabel(ctx, `+${supplyVoltage}V`, 10, topY + 5, 16);
-    drawLabel(ctx, `0V`, 15, botY + 5, 16);
+    // Draw Power Rails (Wider)
+    drawLine(ctx, railStartX, topY, railEndX, topY); // +Vcc Rail
+    drawLine(ctx, railStartX, botY, railEndX, botY); // 0V Rail
+    drawLabel(ctx, `+${supplyVoltage}V`, railStartX - 35, topY + 5, 16);
+    drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
 
     // Draw Component: Transistor
     drawTransistor(ctx, tx, ty);
-    drawLabel(ctx, `hFE = ${hfe}`, tx + 30, ty, 14);
+    drawLabel(ctx, `hFE = ${hfe}`, tx + 45, ty, 14);
 
-    // Draw Component: Base Resistor (Rotated to be horizontal!)
+    // Draw Component: Base Resistor (Rotated horizontal)
     ctx.save();
     ctx.translate(rx, ty);
     ctx.rotate(Math.PI / 2); // Rotate 90 degrees
     drawResistor(ctx, 0, 0);
     ctx.restore();
-    drawLabel(ctx, rbLabel, rx - 15, ty - 20, 14); // Label above resistor
+    drawLabel(ctx, rbLabel, rx, ty - 25, 14); // Label above resistor
 
     // Draw Component: Motor (Load)
     const lx = tx + 10; // Aligned with the collector vertical exit
-    const ly = topY + 45; // Below the top rail
+    const ly = topY + 50; // Centered beautifully between rail and transistor
     drawMotor(ctx, lx, ly);
 
     // Wire: Load to Top Rail
@@ -8281,28 +8283,28 @@ function generateTransistorProblem(ctx, canvas) {
     drawLine(ctx, rx + 25, ty, tx - 25, ty);
 
     // Wire: V_IN Terminal to Base Resistor
-    drawLine(ctx, 60, ty, rx - 25, ty);
-    drawNode(ctx, 60, ty); // V_IN Terminal Node
+    drawLine(ctx, railStartX, ty, rx - 25, ty);
+    drawNode(ctx, railStartX, ty); // V_IN Terminal Node
 
     // V_IN Label & Arrow
-    drawCanvasSubscript(ctx, "V", "IN", "", 25, ty + 5, 18, strokeColor);
+    drawCanvasSubscript(ctx, "V", "IN", "", railStartX - 40, ty + 5, 18, strokeColor);
     
     // Draw Current Arrows
     // I_C Arrow (Pointing down towards collector)
     drawArrowOnWire(ctx, lx, ly + 35, lx, ty - 35);
-    drawCanvasSubscript(ctx, "I", "C", "", lx + 10, ty - 35, 16, strokeColor);
+    drawCanvasSubscript(ctx, "I", "C", "", lx + 15, ty - 45, 16, strokeColor);
 
     // I_B Arrow (Pointing right towards base)
-    drawArrowOnWire(ctx, rx + 35, ty, tx - 35, ty);
-    drawCanvasSubscript(ctx, "I", "B", "", tx - 45, ty - 10, 16, strokeColor);
+    drawArrowOnWire(ctx, rx + 45, ty, tx - 45, ty);
+    drawCanvasSubscript(ctx, "I", "B", "", tx - 60, ty - 10, 16, strokeColor);
 
     // Draw Dynamic Text labels depending on Mode
     if (window.transistorMode === 1) {
         // Mode 1 gives I_C on the diagram
-        drawLabel(ctx, `${ic_mA} mA`, lx + 10, ty - 50, 14, "#dc3545"); 
+        drawLabel(ctx, `${ic_mA} mA`, lx + 15, ty - 65, 14, "#dc3545"); 
     } else {
         // Mode 2 gives V_IN on the diagram
-        drawLabel(ctx, `${vin.toFixed(1)} V`, 25, ty - 15, 14, "#dc3545");
+        drawLabel(ctx, `${vin.toFixed(1)} V`, railStartX - 15, ty - 20, 14, "#dc3545");
     }
 }
 
