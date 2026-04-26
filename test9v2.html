@@ -8143,9 +8143,19 @@ function generateTransistorProblem(ctx, canvas) {
     const solText = document.getElementById('solText');
     if (solText) solText.innerHTML = ""; // Clear previous solutions
 
-    // 2. Decide the Mode (50/50 split between Top-Down and Bottom-Up)
-    // We'll store this in window.transistorMode so our grading function knows what to do later
-    window.transistorMode = Math.random() < 0.5 ? 1 : 2; 
+    // 2. Decide the Mode (Alternating using scenarioTracker)
+    if (typeof scenarioTracker.transistor === 'undefined') {
+        scenarioTracker.transistor = 0;
+    }
+    
+    scenarioTracker.transistor++;
+    
+    // Reset back to 1 if it exceeds 2 modes
+    if (scenarioTracker.transistor > 2) {
+        scenarioTracker.transistor = 1;
+    }
+    
+    window.transistorMode = scenarioTracker.transistor;
     
     // Arrays for sensible random values
     const hfeValues = [50, 80, 100, 120, 150, 200, 250];
