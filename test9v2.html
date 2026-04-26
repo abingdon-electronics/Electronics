@@ -8141,8 +8141,8 @@ function generateTransistorProblem(ctx, canvas) {
     // 1. Setup Canvas & UI Elements
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+    const pinkColor = "#E64097"; // The designated color for Unknowns
     ctx.strokeStyle = strokeColor;
-    ctx.fillStyle = strokeColor;
     ctx.lineWidth = 2;
 
     const solText = document.getElementById('solText');
@@ -8155,7 +8155,6 @@ function generateTransistorProblem(ctx, canvas) {
     
     scenarioTracker.transistor++;
     
-    // Reset back to 1 if it exceeds 3 modes
     if (scenarioTracker.transistor > 3) {
         scenarioTracker.transistor = 1;
     }
@@ -8168,10 +8167,7 @@ function generateTransistorProblem(ctx, canvas) {
     const supplyVoltage = Math.random() < 0.5 ? 9 : 12; // 9V or 12V supply
     
     const hfe = hfeValues[Math.floor(Math.random() * hfeValues.length)];
-    
-    // CHANGE: Made these 'let' instead of 'const' so Mode 3 can recalculate them
     let rb = rbValues[Math.floor(Math.random() * rbValues.length)];
-    let rbLabel = (rb / 1000) + " kΩ"; // Format for the canvas label
     
     // Global answers object for grading
     window.currentAnswers = {
@@ -8182,31 +8178,37 @@ function generateTransistorProblem(ctx, canvas) {
 
     let ic_mA, ib_mA, vrb, vin, p_mW;
 
+    // ==========================================
+    // LOGIC & UI TEXT GENERATION
+    // ==========================================
     if (window.transistorMode === 1) {
         // --- MODE 1: Top-Down (Given I_Load, find V_IN) ---
-        ic_mA = Math.floor(Math.random() * 8 + 2) * 50; // 100mA to 500mA in steps of 50
+        ic_mA = Math.floor(Math.random() * 8 + 2) * 50; 
         
         ib_mA = ic_mA / hfe;
-        vrb = (ib_mA / 1000) * rb; // I * R (Need to convert mA to A)
-        vin = vrb + 0.7; // Add V_BE drop
-        p_mW = ic_mA * supplyVoltage; // Power in mW
+        vrb = (ib_mA / 1000) * rb; 
+        vin = vrb + 0.7; 
+        p_mW = ic_mA * supplyVoltage; 
 
-        // Store precise answers for the grader
         currentAnswers.ib = ib_mA;
         currentAnswers.vrb = vrb;
         currentAnswers.vin = vin;
-        currentAnswers.p = p_mW / 1000; // Store Power in Watts for the UI
+        currentAnswers.p = p_mW / 1000; 
 
         document.getElementById('questionText').innerHTML = `
             <strong>Mode: Top-Down Analysis</strong><br>
-            A transistor circuit is used to switch on a motor. The motor requires a current of <strong>${ic_mA} mA</strong> to operate. 
-            The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>, and the base resistor is <strong>${rbLabel}</strong>. 
+            A transistor circuit is used to switch on a motor. The motor requires a current of <strong>${ic_mA} mA</strong> to operate from a <strong>${supplyVoltage}V</strong> supply. 
+            The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>.<br>
             Assume V<sub>BE</sub> = 0.7V when the transistor is saturated.<br><br>
-            Calculate the required Base Current (I<sub>B</sub>), the voltage across the resistor (V<sub>RB</sub>), the required Input Voltage (V<sub>IN</sub>), and the power dissipated by the motor (P).
+            <strong>Calculate the following unknown values:</strong><br>
+            &bull; <strong>V<sub>IN</sub></strong>: The required Input Voltage.<br>
+            &bull; <strong>V<sub>RB</sub></strong>: The voltage dropped across the base resistor.<br>
+            &bull; <strong>I<sub>B</sub></strong>: The Base Current flowing into the transistor.<br>
+            &bull; <strong>P</strong>: The electrical power dissipated by the <strong>motor</strong>.
         `;
         
-        // --- INJECT MODE 1 SOLUTIONS TEXT ---
         if (solText) {
+            // ... (Your existing Mode 1 solText remains exactly the same) ...
             solText.innerHTML = "<strong>I<sub>B</sub> = " + parseFloat(ib_mA.toFixed(3)) + " mA | V<sub>RB</sub> = " + parseFloat(vrb.toFixed(2)) + " V | V<sub>IN</sub> = " + parseFloat(vin.toFixed(2)) + " V | P = " + parseFloat((p_mW/1000).toFixed(2)) + " W</strong><br><br>" +
                 "<em>Core Equations:</em> <strong>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></strong> &nbsp;and&nbsp; <strong>V = I &times; R</strong><br><br>" +
                 "<em>Step 1:</em> Find the required base current.<br>" +
@@ -8223,7 +8225,7 @@ function generateTransistorProblem(ctx, canvas) {
         document.getElementById('wrapperTransVIN').style.display = 'flex';
         document.getElementById('wrapperTransVRB').style.display = 'flex';
         document.getElementById('wrapperTransIB').style.display = 'flex';
-        document.getElementById('wrapperTransIC').style.display = 'none'; // Given in text
+        document.getElementById('wrapperTransIC').style.display = 'none'; 
         document.getElementById('wrapperTransP').style.display = 'flex';
         if (document.getElementById('wrapperTransRB')) document.getElementById('wrapperTransRB').style.display = 'none';
 
@@ -8233,25 +8235,27 @@ function generateTransistorProblem(ctx, canvas) {
         vin = vinValues[Math.floor(Math.random() * vinValues.length)];
         
         vrb = vin - 0.7;
-        let ib_A = vrb / rb; // I = V / R
+        let ib_A = vrb / rb; 
         ib_mA = ib_A * 1000;
         ic_mA = ib_mA * hfe;
 
-        // Store precise answers for the grader
         currentAnswers.vrb = vrb;
         currentAnswers.ib = ib_mA;
         currentAnswers.ic = ic_mA;
 
         document.getElementById('questionText').innerHTML = `
             <strong>Mode: Bottom-Up Analysis</strong><br>
-            A sensor provides an input voltage (V<sub>IN</sub>) of <strong>${vin.toFixed(1)} V</strong> to the transistor circuit. 
-            The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>, and the base resistor is <strong>${rbLabel}</strong>. 
+            A sensor provides an input voltage (V<sub>IN</sub>) to the transistor circuit as shown in the diagram. 
+            The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>.<br>
             Assume V<sub>BE</sub> = 0.7V.<br><br>
-            Calculate the voltage dropped across the base resistor (V<sub>RB</sub>), the resulting Base Current (I<sub>B</sub>), and the final Collector Current (I<sub>C</sub>) flowing through the motor.
+            <strong>Calculate the following unknown values:</strong><br>
+            &bull; <strong>V<sub>RB</sub></strong>: The voltage dropped across the base resistor.<br>
+            &bull; <strong>I<sub>B</sub></strong>: The resulting Base Current.<br>
+            &bull; <strong>I<sub>C</sub></strong>: The final Collector Current flowing through the <strong>motor</strong>.
         `;
 
-        // --- INJECT MODE 2 SOLUTIONS TEXT ---
         if (solText) {
+            // ... (Your existing Mode 2 solText remains exactly the same) ...
             solText.innerHTML = "<strong>V<sub>RB</sub> = " + parseFloat(vrb.toFixed(2)) + " V | I<sub>B</sub> = " + parseFloat(ib_mA.toFixed(3)) + " mA | I<sub>C</sub> = " + parseFloat(ic_mA.toFixed(2)) + " mA</strong><br><br>" +
                 "<em>Core Equations:</em> <strong>V<sub>IN</sub> = V<sub>RB</sub> + V<sub>BE</sub></strong> &nbsp;and&nbsp; <strong>I<sub>C</sub> = h<sub>FE</sub> &times; I<sub>B</sub></strong><br><br>" +
                 "<em>Step 1:</em> Subtract the base-emitter drop to find the voltage across the base resistor.<br>" +
@@ -8263,38 +8267,40 @@ function generateTransistorProblem(ctx, canvas) {
         }
 
         // Toggle UI
-        document.getElementById('wrapperTransVIN').style.display = 'none'; // Given in text
+        document.getElementById('wrapperTransVIN').style.display = 'none'; 
         document.getElementById('wrapperTransVRB').style.display = 'flex';
         document.getElementById('wrapperTransIB').style.display = 'flex';
         document.getElementById('wrapperTransIC').style.display = 'flex';
-        document.getElementById('wrapperTransP').style.display = 'none'; // Skip power for this mode
+        document.getElementById('wrapperTransP').style.display = 'none'; 
         if (document.getElementById('wrapperTransRB')) document.getElementById('wrapperTransRB').style.display = 'none';
         
     } else {
         // --- MODE 3: Design Mode (Find RB) ---
-        ic_mA = Math.floor(Math.random() * 8 + 2) * 50; // 100mA to 500mA
+        ic_mA = Math.floor(Math.random() * 8 + 2) * 50; 
         const vinValues = [3.3, 5.0, 6.0];
         vin = vinValues[Math.floor(Math.random() * vinValues.length)];
 
         ib_mA = ic_mA / hfe;
         vrb = vin - 0.7;
-        rb = vrb / (ib_mA / 1000); // R = V / I (in Ohms)
-        rbLabel = "?"; // Canvas will show a question mark
+        rb = vrb / (ib_mA / 1000); 
 
-        // Store precise answers for the grader
         currentAnswers.ib = ib_mA;
         currentAnswers.vrb = vrb;
-        currentAnswers.rb = rb; // Grader will need to check this!
+        currentAnswers.rb = rb; 
 
         document.getElementById('questionText').innerHTML = `
             <strong>Mode: Component Selection (Design)</strong><br>
-            You need to switch a motor that requires a current of <strong>${ic_mA} mA</strong> using an input signal (V<sub>IN</sub>) of <strong>${vin.toFixed(1)} V</strong>.
-            The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>. Assume V<sub>BE</sub> = 0.7V.<br><br>
-            Calculate the required Base Current (I<sub>B</sub>), the voltage across the base resistor (V<sub>RB</sub>), and the required value for the <strong>Base Resistor (R<sub>B</sub>)</strong> to ensure saturation.
+            You need to switch a motor that requires a current of <strong>${ic_mA} mA</strong> using an input signal (V<sub>IN</sub>) as shown.
+            The transistor has a current gain (h<sub>FE</sub>) of <strong>${hfe}</strong>.<br>
+            Assume V<sub>BE</sub> = 0.7V.<br><br>
+            <strong>Calculate the following unknown values:</strong><br>
+            &bull; <strong>I<sub>B</sub></strong>: The required Base Current.<br>
+            &bull; <strong>V<sub>RB</sub></strong>: The voltage that must drop across the base resistor.<br>
+            &bull; <strong>R<sub>B</sub></strong>: The required resistance value for the <strong>Base Resistor</strong>.
         `;
 
-        // --- INJECT MODE 3 SOLUTIONS TEXT ---
         if (solText) {
+            // ... (Your existing Mode 3 solText remains exactly the same) ...
             solText.innerHTML = "<strong>I<sub>B</sub> = " + parseFloat(ib_mA.toFixed(3)) + " mA | V<sub>RB</sub> = " + parseFloat(vrb.toFixed(2)) + " V | R<sub>B</sub> = " + Math.round(rb) + " &Omega;</strong><br><br>" +
                 "<em>Core Equations:</em> <strong>I<sub>B</sub> = I<sub>C</sub> / h<sub>FE</sub></strong> &nbsp;and&nbsp; <strong>R = V / I</strong><br><br>" +
                 "<em>Step 1:</em> Find the required base current to drive the load.<br>" +
@@ -8306,40 +8312,39 @@ function generateTransistorProblem(ctx, canvas) {
         }
 
         // Toggle UI
-        document.getElementById('wrapperTransVIN').style.display = 'none'; // Given
+        document.getElementById('wrapperTransVIN').style.display = 'none'; 
         document.getElementById('wrapperTransVRB').style.display = 'flex';
         document.getElementById('wrapperTransIB').style.display = 'flex';
-        document.getElementById('wrapperTransIC').style.display = 'none';  // Given
-        document.getElementById('wrapperTransP').style.display = 'none';   // Skip power
-        
-        // Ensure this HTML element exists!
+        document.getElementById('wrapperTransIC').style.display = 'none';  
+        document.getElementById('wrapperTransP').style.display = 'none';   
         const wrapperRB = document.getElementById('wrapperTransRB');
         if(wrapperRB) wrapperRB.style.display = 'flex';
     }
 
-// ==========================================
-    // 3. DRAW THE CIRCUIT (Original format preserved)
+
+    // ==========================================
+    // 3. DRAW THE CIRCUIT
     // ==========================================
     
-    // Adjusted vertical spacing: moved the base wire/transistor down
+    // Adjusted vertical spacing
     const topY = 40;   
     const botY = 360;  
     const tx = 380;    
-    const ty = 250;    // Pushed down (was 200) for more room above!
+    const ty = 250;    
     const rx = 200;    
     const railStartX = 80; 
     const railEndX = 500;
     
     // Draw Power Rails 
-    drawLine(ctx, railStartX, topY, railEndX, topY); // +Vcc Rail
-    drawLine(ctx, railStartX, botY, railEndX, botY); // 0V Rail
+    drawLine(ctx, railStartX, topY, railEndX, topY); 
+    drawLine(ctx, railStartX, botY, railEndX, botY); 
     drawLabel(ctx, `+${supplyVoltage}V`, railStartX - 35, topY + 5, 16);
     drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
 
     // Draw Component: Transistor
     drawTransistor(ctx, tx, ty);
     
-    // --- MANUAL SUBSCRIPT: hFE ---
+    // --- hFE LABEL ---
     ctx.fillStyle = strokeColor;
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
@@ -8352,64 +8357,69 @@ function generateTransistorProblem(ctx, canvas) {
     ctx.font = "14px Arial";
     ctx.fillText(" = " + hfe, tx + 45 + hW + feW, ty + 5);
 
-    // Draw Component: Base Resistor (Rotated horizontal)
+    // Draw Component: Base Resistor
     ctx.save();
     ctx.translate(rx, ty);
     ctx.rotate(Math.PI / 2); 
     drawResistor(ctx, 0, 0);
     ctx.restore();
     
-    // Will print "?" automatically for Mode 3!
-    drawLabel(ctx, rbLabel, rx, ty - 25, 14); 
+    // --- UPDATED BASE RESISTOR LABEL (Pink/Black Dynamic) ---
+    let isRbUnknown = (window.transistorMode === 3);
+    ctx.fillStyle = isRbUnknown ? pinkColor : strokeColor;
+    let displayRbLabel = isRbUnknown ? "RB = ?" : "RB = " + (rb >= 1000 ? (rb / 1000) + " kΩ" : rb + " Ω");
+    // If your drawLabel supports color as 6th param, use it, else fill text manually:
+    if (typeof drawLabel === "function") {
+        drawLabel(ctx, displayRbLabel, rx, ty - 35, 14, ctx.fillStyle); 
+    }
 
     // Draw Component: Motor (Load)
     const lx = tx + 10; 
-    const ly = 145;     // Adjusted to sit beautifully in the newly created space
+    const ly = 145;     
     drawMotor(ctx, lx, ly);
 
-    // Wire: Load to Top Rail
+    // Wires & Nodes
     drawLine(ctx, lx, topY, lx, ly - 25);
     drawNode(ctx, lx, topY);
-
-    // Wire: Load to Transistor Collector
     drawLine(ctx, lx, ly + 25, lx, ty - 25);
-
-    // Wire: Transistor Emitter to Bottom Rail
     drawLine(ctx, tx + 10, ty + 25, tx + 10, botY);
     drawNode(ctx, tx + 10, botY);
-
-    // Wire: Base Resistor to Transistor Base
     drawLine(ctx, rx + 25, ty, tx - 25, ty);
-
-    // Wire: V_IN Terminal to Base Resistor
     drawLine(ctx, railStartX, ty, rx - 25, ty);
-    drawNode(ctx, railStartX, ty); // V_IN Terminal Node
+    drawNode(ctx, railStartX, ty);
 
-    // --- MANUAL SUBSCRIPT: V_IN ---
-    ctx.fillStyle = strokeColor;
+    // --- UPDATED V_IN TERMINAL LABEL (Pink/Black Dynamic) ---
+    let isVinUnknown = (window.transistorMode === 1);
+    ctx.fillStyle = isVinUnknown ? pinkColor : strokeColor;
     ctx.textAlign = "left";
     ctx.font = "18px Arial";
-    ctx.fillText("V", railStartX - 40, ty + 5);
+    ctx.fillText("V", railStartX - 70, ty + 5);
     let vW = ctx.measureText("V").width;
     ctx.font = "13px Arial";
-    ctx.fillText("IN", railStartX - 40 + vW + 2, ty + 10);
+    ctx.fillText("IN", railStartX - 70 + vW + 2, ty + 10);
+    let inW = ctx.measureText("IN").width;
+    ctx.font = "16px Arial";
+    let vinSuffix = isVinUnknown ? " = ?" : " = " + vin.toFixed(1) + " V";
+    ctx.fillText(vinSuffix, railStartX - 70 + vW + inW + 5, ty + 5);
     
     // I_B Arrow 
     drawArrowOnWire(ctx, rx + 45, ty, tx - 45, ty);
     
-    // --- MANUAL SUBSCRIPT: I_B (separated from arrow head) ---
-    ctx.fillStyle = strokeColor;
+    // --- UPDATED I_B ARROW LABEL (Always Pink/Unknown) ---
+    ctx.fillStyle = pinkColor;
     ctx.textAlign = "left";
     ctx.font = "16px Arial";
-    // Shifted left and up to avoid touching the arrow
-    ctx.fillText("I", tx - 70, ty - 15); 
+    ctx.fillText("I", tx - 95, ty - 15); 
     let ibW = ctx.measureText("I").width;
     ctx.font = "12px Arial";
-    ctx.fillText("B", tx - 70 + ibW + 3, ty - 10); 
+    ctx.fillText("B", tx - 95 + ibW + 2, ty - 10); 
+    let bW = ctx.measureText("B").width;
+    ctx.font = "16px Arial";
+    ctx.fillText(" = ?", tx - 95 + ibW + bW + 5, ty - 15);
 
-    // --- CONDITIONAL DRAWING BASED ON MODE (GCSE STYLES) ---
+    // --- CONDITIONAL DRAWING FOR MOTOR/IC (Pink/Black Dynamic) ---
     if (window.transistorMode === 1) {
-        // Mode 1: Ratings on Load (Voltage & Current). NO I_C Arrow.
+        // Mode 1: Known Motor Ratings (Black). NO I_C Arrow.
         ctx.fillStyle = strokeColor;
         ctx.textAlign = "left";
         ctx.font = "bold 14px Arial";
@@ -8417,29 +8427,26 @@ function generateTransistorProblem(ctx, canvas) {
         ctx.fillText(`${ic_mA}mA`, lx + 30, ly + 15);
         
     } else if (window.transistorMode === 2) {
-        // Mode 2: I_C Arrow given. NO Ratings on Load.
+        // Mode 2: Unknown I_C (Pink Arrow Label). NO Ratings on Load.
         drawArrowOnWire(ctx, lx, ly + 25, lx, ty - 25);
-        
-        ctx.fillStyle = strokeColor;
+        ctx.fillStyle = pinkColor;
         ctx.textAlign = "left";
         ctx.font = "16px Arial";
         ctx.fillText("I", lx + 15, ty - 50);
         let icW = ctx.measureText("I").width;
         ctx.font = "12px Arial";
-        ctx.fillText("C", lx + 15 + icW + 3, ty - 45); 
-        
-        // V_IN dynamic value text
-        drawLabel(ctx, `${vin.toFixed(1)} V`, railStartX - 15, ty - 20, 14, "#dc3545");
+        ctx.fillText("C", lx + 15 + icW + 2, ty - 45); 
+        let cW = ctx.measureText("C").width;
+        ctx.font = "16px Arial";
+        ctx.fillText(" = ?", lx + 15 + icW + cW + 5, ty - 50);
         
     } else {
-        // Mode 3 (Design): Show V_IN and Motor Spec, but no I_C arrow
+        // Mode 3 (Design): Known Motor Ratings (Black). NO I_C arrow.
         ctx.fillStyle = strokeColor;
         ctx.textAlign = "left";
         ctx.font = "bold 14px Arial";
-        ctx.fillText(`${ic_mA}mA`, lx + 30, ly + 5); // Load spec
-
-        // V_IN dynamic value text
-        drawLabel(ctx, `${vin.toFixed(1)} V`, railStartX - 15, ty - 20, 14, "#dc3545");
+        ctx.fillText(`${supplyVoltage}V`, lx + 30, ly - 5); 
+        ctx.fillText(`${ic_mA}mA`, lx + 30, ly + 15); 
     }
 }
 
