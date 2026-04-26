@@ -8367,7 +8367,7 @@ function generateTransistorProblem(ctx, canvas) {
     ctx.textAlign = "left";
     
     let rbValText = isRbUnknown ? " = ?" : " = " + (rb >= 1000 ? (rb / 1000) + " kΩ" : rb + " Ω");
-    let rbYOffset = ty - 40; 
+    let rbYOffset = ty - 25; 
     
     // Shifted x starting position to center the '=' sign roughly over the resistor
     let rbStartX = rx - 35; 
@@ -8403,7 +8403,7 @@ function generateTransistorProblem(ctx, canvas) {
     let isVinUnknown = (window.transistorMode === 1);
     ctx.fillStyle = isVinUnknown ? pinkColor : strokeColor;
     ctx.textAlign = "left";
-    let vinY = ty + 12; // Lowered by ~7px total to get it completely off the wire
+    let vinY = ty + 20; // Lowered down off the wire
     
     ctx.font = "18px Arial";
     ctx.fillText("V", railStartX - 70, vinY);
