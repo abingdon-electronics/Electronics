@@ -8208,7 +8208,6 @@ function generateTransistorProblem(ctx, canvas) {
         `;
         
         if (solText) {
-            // ... (Your existing Mode 1 solText remains exactly the same) ...
             solText.innerHTML = "<strong>I<sub>B</sub> = " + parseFloat(ib_mA.toFixed(3)) + " mA | V<sub>RB</sub> = " + parseFloat(vrb.toFixed(2)) + " V | V<sub>IN</sub> = " + parseFloat(vin.toFixed(2)) + " V | P = " + parseFloat((p_mW/1000).toFixed(2)) + " W</strong><br><br>" +
                 "<em>Core Equations:</em> <strong>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></strong> &nbsp;and&nbsp; <strong>V = I &times; R</strong><br><br>" +
                 "<em>Step 1:</em> Find the required base current.<br>" +
@@ -8255,7 +8254,6 @@ function generateTransistorProblem(ctx, canvas) {
         `;
 
         if (solText) {
-            // ... (Your existing Mode 2 solText remains exactly the same) ...
             solText.innerHTML = "<strong>V<sub>RB</sub> = " + parseFloat(vrb.toFixed(2)) + " V | I<sub>B</sub> = " + parseFloat(ib_mA.toFixed(3)) + " mA | I<sub>C</sub> = " + parseFloat(ic_mA.toFixed(2)) + " mA</strong><br><br>" +
                 "<em>Core Equations:</em> <strong>V<sub>IN</sub> = V<sub>RB</sub> + V<sub>BE</sub></strong> &nbsp;and&nbsp; <strong>I<sub>C</sub> = h<sub>FE</sub> &times; I<sub>B</sub></strong><br><br>" +
                 "<em>Step 1:</em> Subtract the base-emitter drop to find the voltage across the base resistor.<br>" +
@@ -8300,7 +8298,6 @@ function generateTransistorProblem(ctx, canvas) {
         `;
 
         if (solText) {
-            // ... (Your existing Mode 3 solText remains exactly the same) ...
             solText.innerHTML = "<strong>I<sub>B</sub> = " + parseFloat(ib_mA.toFixed(3)) + " mA | V<sub>RB</sub> = " + parseFloat(vrb.toFixed(2)) + " V | R<sub>B</sub> = " + Math.round(rb) + " &Omega;</strong><br><br>" +
                 "<em>Core Equations:</em> <strong>I<sub>B</sub> = I<sub>C</sub> / h<sub>FE</sub></strong> &nbsp;and&nbsp; <strong>R = V / I</strong><br><br>" +
                 "<em>Step 1:</em> Find the required base current to drive the load.<br>" +
@@ -8364,14 +8361,28 @@ function generateTransistorProblem(ctx, canvas) {
     drawResistor(ctx, 0, 0);
     ctx.restore();
     
-    // --- UPDATED BASE RESISTOR LABEL (Pink/Black Dynamic) ---
+    // --- UPDATED BASE RESISTOR LABEL (Pink/Black Dynamic + Subscript + Shifted Left) ---
     let isRbUnknown = (window.transistorMode === 3);
     ctx.fillStyle = isRbUnknown ? pinkColor : strokeColor;
-    let displayRbLabel = isRbUnknown ? "RB = ?" : "RB = " + (rb >= 1000 ? (rb / 1000) + " kΩ" : rb + " Ω");
-    // If your drawLabel supports color as 6th param, use it, else fill text manually:
-    if (typeof drawLabel === "function") {
-        drawLabel(ctx, displayRbLabel, rx, ty - 35, 14, ctx.fillStyle); 
-    }
+    ctx.textAlign = "left";
+    
+    let rbValText = isRbUnknown ? " = ?" : " = " + (rb >= 1000 ? (rb / 1000) + " kΩ" : rb + " Ω");
+    let rbYOffset = ty - 40; 
+    
+    // Shifted x starting position to center the '=' sign roughly over the resistor
+    let rbStartX = rx - 35; 
+
+    ctx.font = "16px Arial";
+    ctx.fillText("R", rbStartX, rbYOffset);
+    let rWidth = ctx.measureText("R").width;
+    
+    ctx.font = "12px Arial";
+    ctx.fillText("B", rbStartX + rWidth + 1, rbYOffset + 4);
+    let bWidth = ctx.measureText("B").width;
+    
+    ctx.font = "16px Arial";
+    ctx.fillText(rbValText, rbStartX + rWidth + bWidth + 3, rbYOffset);
+
 
     // Draw Component: Motor (Load)
     const lx = tx + 10; 
@@ -8388,24 +8399,28 @@ function generateTransistorProblem(ctx, canvas) {
     drawLine(ctx, railStartX, ty, rx - 25, ty);
     drawNode(ctx, railStartX, ty);
 
-    // --- UPDATED V_IN TERMINAL LABEL (Pink/Black Dynamic) ---
+    // --- UPDATED V_IN TERMINAL LABEL (Moved Down to avoid wire) ---
     let isVinUnknown = (window.transistorMode === 1);
     ctx.fillStyle = isVinUnknown ? pinkColor : strokeColor;
     ctx.textAlign = "left";
+    let vinY = ty + 12; // Lowered by ~7px total to get it completely off the wire
+    
     ctx.font = "18px Arial";
-    ctx.fillText("V", railStartX - 70, ty + 5);
+    ctx.fillText("V", railStartX - 70, vinY);
     let vW = ctx.measureText("V").width;
+    
     ctx.font = "13px Arial";
-    ctx.fillText("IN", railStartX - 70 + vW + 2, ty + 10);
+    ctx.fillText("IN", railStartX - 70 + vW + 2, vinY + 5);
     let inW = ctx.measureText("IN").width;
+    
     ctx.font = "16px Arial";
     let vinSuffix = isVinUnknown ? " = ?" : " = " + vin.toFixed(1) + " V";
-    ctx.fillText(vinSuffix, railStartX - 70 + vW + inW + 5, ty + 5);
+    ctx.fillText(vinSuffix, railStartX - 70 + vW + inW + 5, vinY);
     
     // I_B Arrow 
     drawArrowOnWire(ctx, rx + 45, ty, tx - 45, ty);
     
-    // --- UPDATED I_B ARROW LABEL (Always Pink/Unknown) ---
+    // --- I_B ARROW LABEL (Always Pink/Unknown) ---
     ctx.fillStyle = pinkColor;
     ctx.textAlign = "left";
     ctx.font = "16px Arial";
