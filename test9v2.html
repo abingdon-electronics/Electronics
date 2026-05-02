@@ -3599,7 +3599,9 @@ function generateOscilloscopeProblem() {
     let periodDivs = markDivs + spaceDivs; 
     let maxStartDiv = 10 - periodDivs; 
     let startDiv = Math.floor(Math.random() * (maxStartDiv + 1));
-    let phaseDivs = (periodDivs - startDiv) % periodDivs; 
+    
+    // JS negative modulo fix: ensuring phaseDivs is strictly positive
+    let phaseDivs = (periodDivs - (startDiv % periodDivs)) % periodDivs;
     
     let baseOffsetDivs = Math.floor(Math.random() * 5) - 1; 
     let baseY = 180 + (baseOffsetDivs * 40); 
