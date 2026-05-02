@@ -3617,21 +3617,21 @@ function generateOscilloscopeProblem() {
 
     for(let px = 20; px <= 420; px++) {
         let currentPx = px - 20;
-        let cyclePx = (currentPx + phasePx) % periodPx;
+        
+        // True Modulo wrapper: guarantees cyclePx is ALWAYS safely wrapped and positive
+        let cyclePx = ((currentPx + phasePx) % periodPx + periodPx) % periodPx;
         let y = (cyclePx < markPx) ? baseY - (ampDivs * 40) : baseY;
 
         if (px === 20) {
-            // Determine state exactly 1 pixel before the screen starts
-            let prevCyclePx = (currentPx - 1 + phasePx + periodPx) % periodPx;
+            // True Modulo for the off-screen check
+            let prevCyclePx = ((currentPx - 1 + phasePx) % periodPx + periodPx) % periodPx;
             let prevY = (prevCyclePx < markPx) ? baseY - (ampDivs * 40) : baseY;
             
-            // Draw a vertical line bridging the off-screen state to the on-screen state
             ctx.moveTo(px, prevY);
             ctx.lineTo(px, y);
             lastY = y;
         } else {
             if (y !== lastY) {
-                // State changed! Draw perfect vertical line at the transition
                 ctx.lineTo(px, lastY);
                 ctx.lineTo(px, y);
                 lastY = y;
@@ -3641,7 +3641,7 @@ function generateOscilloscopeProblem() {
         }
     }
     ctx.stroke();
-
+    
     // 6. QUESTION TYPE UI LOGIC 
     const qType = scenarioTracker.oscilloscope;
     scenarioTracker.oscilloscope = (scenarioTracker.oscilloscope + 1) % 3;
