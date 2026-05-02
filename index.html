@@ -8443,6 +8443,23 @@ function generateTransistorProblem(ctx, canvas) {
     ctx.font = "16px Arial";
     ctx.fillText(rbValText, rbStartX + rWidth + bWidth + 3, rbYOffset);
 
+    // V_RB LABEL (Always an unknown in all 3 modes)
+    ctx.fillStyle = pinkColor;
+    ctx.textAlign = "left";
+    let vrbYOffset = ty + 35; // Positioned under the resistor
+    
+    ctx.font = "16px Arial";
+    ctx.fillText("V", rbStartX, vrbYOffset);
+    let vrbVWidth = ctx.measureText("V").width;
+    
+    ctx.font = "12px Arial";
+    ctx.fillText("RB", rbStartX + vrbVWidth + 1, vrbYOffset + 4);
+    let vrbBWidth = ctx.measureText("RB").width;
+    
+    ctx.font = "16px Arial";
+    ctx.fillText(" = ?", rbStartX + vrbVWidth + vrbBWidth + 3, vrbYOffset);
+    // END V_RB LABEL
+    
     // Draw Component: Motor (Load)
     const lx = tx + 10; 
     const ly = 145;     
@@ -8491,13 +8508,19 @@ function generateTransistorProblem(ctx, canvas) {
     ctx.font = "16px Arial";
     ctx.fillText(" = ?", tx - 95 + ibW + bW + 5, ty - 15);
 
-    // --- CONDITIONAL DRAWING FOR MOTOR/IC ---
+// --- CONDITIONAL DRAWING FOR MOTOR/IC ---
     if (window.transistorMode === 1) {
         ctx.fillStyle = strokeColor;
         ctx.textAlign = "left";
         ctx.font = "bold 14px Arial";
         ctx.fillText(`${supplyVoltage}V`, lx + 30, ly - 5);
         ctx.fillText(`${ic_mA}mA`, lx + 30, ly + 15);
+        
+        //POWER LABEL (To the left of the motor)
+        ctx.fillStyle = pinkColor;
+        ctx.font = "16px Arial";
+        ctx.fillText("P = ?", lx - 55, ly + 5); 
+        // END POWER LABEL
         
     } else if (window.transistorMode === 2) {
         drawArrowOnWire(ctx, lx, ly + 25, lx, ty - 25);
