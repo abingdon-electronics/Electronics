@@ -10186,6 +10186,8 @@ function parseInput(str, dropdownUnit = null) {
 
         if (rawUnit === 'k' || rawUnit === 'kΩ' || lowerUnit.match(/^(kohm|kohms)$/)) {
             normalizedUnit = "kΩ";
+        } else if (rawUnit === 'M' || rawUnit === 'MΩ' || lowerUnit.match(/^(mohm|mohms|megaohm|megaohms)$/)) {
+            normalizedUnit = "MΩ"; // <-- NEW: Megaohm support
         } else if (rawUnit === 'Ω' || rawUnit === 'r' || lowerUnit.match(/^(ohm|ohms)$/)) {
             normalizedUnit = "Ω";
         } else if (lowerUnit.match(/^(millivolts|millivolt|mvolt|mvolts)$/) || rawUnit === 'mV') {
@@ -10268,6 +10270,7 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
         { t: 'mW', u: 'W', factor: 1000 }, { t: 'W', u: 'mW', factor: 0.001 },
         { t: 'mV', u: 'V', factor: 1000 }, { t: 'V', u: 'mV', factor: 0.001 },
         { t: 'kΩ', u: 'Ω', factor: 0.001 }, { t: 'Ω', u: 'kΩ', factor: 1000 },
+        { t: 'MΩ', u: 'Ω', factor: 0.000001 }, { t: 'Ω', u: 'MΩ', factor: 1000000 },
         { t: 'μF', u: 'F', factor: 1000000 }, { t: 'F', u: 'μF', factor: 0.000001 },
         { t: 'mF', u: 'F', factor: 1000 }, { t: 'F', u: 'mF', factor: 0.001 },
         { t: 'μF', u: 'mF', factor: 1000 }, { t: 'mF', u: 'μF', factor: 0.001 },
