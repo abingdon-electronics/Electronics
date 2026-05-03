@@ -312,8 +312,17 @@
         background: #fff !important;
         flex-shrink: 0 !important;     
         color: #333 !important;
-    }      
+    }   
 
+    /* Stretched out g9 Transistor dropdowns */
+    #g9TransDiodePos, 
+    #g9TransDiodeReason {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    margin-bottom: 12px;
+    }
         /* Override the global row/important constraint for Grade 9 Silicon */
         #inputGroupGrade9Silicon, 
         #inputGroupGrade9SiliconPath {
@@ -1527,7 +1536,8 @@
             <label for="g9TransDiodeReason" style="font-weight: bold; display: block; margin-bottom: 5px;">Reason:</label>
             <select id="g9TransDiodeReason" style="border: 2px solid #ced4da; border-radius: 5px; padding: 8px; width: 80%; max-width: 400px;">
                 <option value="">-- Select Reason --</option>
-                <option value="emf">To protect from high voltage switch-off spikes (flyback/back-EMF)</option>
+                <option value="emf">To protect the motor from high voltage switch-off spikes</option>
+                <option value="emf">To protect the transistor from high voltage switch-off spikes</option>
                 <option value="reg">To regulate the supply voltage across the motor</option>
                 <option value="limit">To limit the base current entering the transistor</option>
                 <option value="gain">To increase the overall current gain of the circuit</option>
@@ -8746,6 +8756,26 @@ function generateTransistorProblem(ctx, canvas) {
 }
 //************************************************************************************
     
+// Helper function to shuffle dropdown arrays
+function shuffleSelectOptions(selectId, optionsArray) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    // Clear existing options and add the default placeholder
+    select.innerHTML = '<option value="" disabled selected>Select an option...</option>';
+    
+    // Shuffle the array
+    const shuffled = optionsArray.sort(() => Math.random() - 0.5);
+    
+    // Append the newly shuffled options
+    shuffled.forEach(opt => {
+        const el = document.createElement('option');
+        el.value = opt.value;
+        el.textContent = opt.text;
+        select.appendChild(el);
+    });
+}
+
 function generateGrade9TransistorProblem() {
     // 1. Reset UI and Canvas
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
@@ -8771,12 +8801,10 @@ function generateGrade9TransistorProblem() {
             el.style.removeProperty('box-shadow');
             el.style.removeProperty('border-width');
             
-            // Look for the label associated with this input to make it (and the =) pink
             const label = document.querySelector(`label[for="${id}"]`);
             if (label) {
                 label.style.color = pinkColor;
             } else if (el.previousElementSibling) {
-                // Fallback if there is no "for" attribute, targets the element right before the input
                 el.previousElementSibling.style.color = pinkColor;
             }
         }
@@ -8813,7 +8841,6 @@ function generateGrade9TransistorProblem() {
         let vin;
         if (isSaturated) {
             vin = (Math.random() * 2 + 2).toFixed(1);
-            // Added pink spans to the prompt variables
             promptText = `The transistor is fully SATURATED. State the values of <span style="color: ${pinkColor}; font-weight: bold;">V<sub>BE</sub></span> and <span style="color: ${pinkColor}; font-weight: bold;">V<sub>CE</sub></span>.`;
             currentAnswers = { vbe: 0.7, vce: 0 };
         } else {
@@ -8829,11 +8856,18 @@ function generateGrade9TransistorProblem() {
         }
         
         if (typeof drawCanvasSubscript === 'function') {
-            // Replaced spaces with \xA0 to force the canvas to render the gap
-            drawCanvasSubscript(ctx, "V", "IN", " \xA0\xA0= " + vin + " V", 15, 280, 16, strokeColor);
+            // BRUTE FORCE FIX: Pass an empty string to the helper, and draw the '=' manually!
+            drawCanvasSubscript(ctx, "V", "IN", "", 15, 280, 16, strokeColor);
+            ctx.fillStyle = strokeColor;
+            ctx.fillText(`= ${vin} V`, 50, 280); 
             
-            drawCanvasSubscript(ctx, "V", "BE", " \xA0\xA0= ?", 410, 280, 16, pinkColor);
-            drawCanvasSubscript(ctx, "V", "CE", " \xA0\xA0= ?", 410, 210, 16, pinkColor);
+            drawCanvasSubscript(ctx, "V", "BE", "", 410, 280, 16, pinkColor);
+            ctx.fillStyle = pinkColor;
+            ctx.fillText("= ?", 445, 280);
+            
+            drawCanvasSubscript(ctx, "V", "CE", "", 410, 210, 16, pinkColor);
+            ctx.fillStyle = pinkColor;
+            ctx.fillText("= ?", 445, 210);
         }
     } 
     // ---------------------------------------------------------
@@ -8880,9 +8914,14 @@ function generateGrade9TransistorProblem() {
         ctx.fillText(`0V`, 25, 305);
         
         if (typeof drawCanvasSubscript === 'function') {
-            // Applied the \xA0 non-breaking space trick here as well
-            drawCanvasSubscript(ctx, "R", "LDR", " \xA0\xA0= ?", 25, 130, 14, pinkColor);
-            drawCanvasSubscript(ctx, "R", "B", " \xA0\xA0= " + rb + " Ω", 140, 155, 14, strokeColor);
+            // BRUTE FORCE FIX APPLIED HERE TOO
+            drawCanvasSubscript(ctx, "R", "LDR", "", 25, 130, 14, pinkColor);
+            ctx.fillStyle = pinkColor;
+            ctx.fillText("= ?", 70, 130);
+            
+            drawCanvasSubscript(ctx, "R", "B", "", 140, 155, 14, strokeColor);
+            ctx.fillStyle = strokeColor;
+            ctx.fillText(`= ${rb} Ω`, 168, 155);
         }
         
         ctx.font = "bold 14px Arial";
@@ -8894,45 +8933,45 @@ function generateGrade9TransistorProblem() {
     // MODE 2: Protection Diode (Concept/Red Herring)
     // ---------------------------------------------------------
     else {
-        modeC.style.display = 'flex';
+        modeC.style.display = 'block'; // Changed to block so dropdowns stack cleanly
         
         promptText = "A motor is driven by the transistor. The circuit is missing a critical component to protect it when the switch opens. Select the correct component and reason.";
         document.getElementById('questionText').innerHTML = promptText;
 
-        currentAnswers = { pos: 'rev_para', reason: 'emf' };
+        // Note: Correct reason is protecting the TRANSISTOR, not the motor!
+        currentAnswers = { pos: 'rev_para', reason: 'emf_transistor' };
+
+        // Define and shuffle POSITION options
+        const positionOptions = [
+            { value: "series_motor", text: "In series with the motor" },
+            { value: "rev_para", text: "In parallel with the motor (Reverse biased)" }, // Correct
+            { value: "fwd_para", text: "In parallel with the motor (Forward biased)" },
+            { value: "series_base", text: "In series with the base resistor" }
+        ];
+        shuffleSelectOptions('g9TransDiodePos', positionOptions);
+
+        // Define and shuffle REASON options
+        const reasonOptions = [
+            { value: "emf_motor", text: "To protect the motor from high voltage switch-off spikes" },
+            { value: "emf_transistor", text: "To protect the transistor from high voltage switch-off spikes" }, // Correct
+            { value: "reg", text: "To regulate the supply voltage across the motor" },
+            { value: "limit", text: "To limit the base current entering the transistor" },
+            { value: "gain", text: "To increase the overall current gain of the circuit" }
+        ];
+        shuffleSelectOptions('g9TransDiodeReason', reasonOptions);
 
         if (typeof drawStandardTransistorCircuit === 'function') {
             drawStandardTransistorCircuit(ctx, 12); 
         }
         
         if (typeof drawCanvasSubscript === 'function') {
-            // Applied \xA0 trick
-            drawCanvasSubscript(ctx, "V", "IN", " \xA0\xA0= 5 V", 15, 280, 16, strokeColor); 
+            // BRUTE FORCE FIX
+            drawCanvasSubscript(ctx, "V", "IN", "", 15, 280, 16, strokeColor); 
+            ctx.fillStyle = strokeColor;
+            ctx.fillText("= 5 V", 50, 280);
         }
         
-        const lx = 390; 
-        const ly = 145; 
-        const boxX = lx + 50; 
-        
-        ctx.strokeStyle = pinkColor;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(lx, ly - 25); ctx.lineTo(boxX, ly - 25); ctx.lineTo(boxX, ly - 15);
-        ctx.moveTo(lx, ly + 25); ctx.lineTo(boxX, ly + 25); ctx.lineTo(boxX, ly + 15);
-        ctx.stroke();
-        
-        if (typeof drawNode === 'function') {
-            drawNode(ctx, lx, ly - 25);
-            drawNode(ctx, lx, ly + 25);
-        }
-        
-        ctx.setLineDash([5, 5]);
-        ctx.strokeRect(boxX - 15, ly - 15, 30, 30);
-        ctx.setLineDash([]); 
-        
-        ctx.fillStyle = pinkColor;
-        ctx.font = "bold 20px Arial";
-        ctx.fillText("?", boxX - 6, ly + 6);
+        // Removed the pink parallel hint and nodes entirely as requested!
     }
 }
 // END of Content generator functions
