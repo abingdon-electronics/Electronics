@@ -8861,13 +8861,7 @@ function generateGrade9TransistorProblem() {
     // MODE 0: SATURATED OR NOT Voltages (ON/OFF State testing)
     // ---------------------------------------------------------
     if (window.g9TransMode === 0) {
-        console.log("Entering Mode 0 now"); // Check your console for this text
-        document.body.style.backgroundColor = "yellow"; // If the screen turns yellow, the code is reaching this line!
-        // FORCE PARENTS OPEN
-    mainGroup.style.setProperty("display", "block", "important");
-    modeA.style.setProperty("display", "block", "important");
-
-        
+ 
         modeA.style.display = 'block';
         const isSaturated = Math.random() > 0.5;
         const vcc = [5, 9, 12, 24][Math.floor(Math.random() * 4)];
