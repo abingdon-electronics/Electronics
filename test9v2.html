@@ -8172,23 +8172,30 @@ function generateBlockBuilderProblem(ctx, canvas) {
 // THANSITORS
     
 function generateTransistorProblem(ctx, canvas) {
-    // 0. RESET UI & STATE
+// 0. RESET UI & STATE
     if (typeof hideAllInputGroups === 'function') {
         hideAllInputGroups();
     }
-    // NEW: Scrub leftover validation styles and values from inputs
-    ['inputTransVIN', 'inputTransVRB', 'inputTransIB', 'inputTransIC', 'inputTransP', 'inputTransRB'].forEach(id => {
+
+    // NEW: Surgical strike to remove !important validation styles
+    // (Note: Using the IDs that checkanswers uses: transVIN, transVRB, etc.)
+    ['transVIN', 'transVRB', 'transIB', 'transIC', 'transP', 'transRB', 
+     'inputTransVIN', 'inputTransVRB', 'inputTransIB', 'inputTransIC', 'inputTransP', 'inputTransRB'].forEach(id => {
         const inputEl = document.getElementById(id);
         if (inputEl) {
             inputEl.value = ''; // Clear the old typed answer
-            inputEl.style.boxShadow = ''; // Clear inline green/red shadows
-            inputEl.style.borderColor = ''; // Clear inline border colors
-            // If your validation uses CSS classes, strip them here (adjust class names if needed):
-            inputEl.classList.remove('correct', 'incorrect', 'valid', 'invalid'); 
+            
+            // Remove the exact !important properties applied by checkanswers
+            inputEl.style.removeProperty('border-color');
+            inputEl.style.removeProperty('border-width');
+            inputEl.style.removeProperty('border-style');
+            inputEl.style.removeProperty('box-shadow');
+            inputEl.style.removeProperty('color');
+            inputEl.style.removeProperty('background-color');
         }
     });
-    currentMode = 'transistor';
 
+    currentMode = 'transistor';
     const transMainGroup = document.getElementById('inputGroupTransistor');
 
     // 1. Setup Canvas & UI Elements
