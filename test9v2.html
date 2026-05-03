@@ -2557,7 +2557,100 @@ function drawNORGate(ctx, x, y) {
     ctx.lineTo(x + 70, y + 25);
     ctx.stroke();
 }
+    
+//=========================================================================================================
+//Transistor circuit HELPERS
+//=========================================================================================================
+// HELPER 1: Standard Transistor Base Circuit
+// Draws the rails, transistor, base resistor, motor, and connecting wires.
+function drawStandardTransistorCircuit(ctx, supplyVoltage) {
+    const topY = 40;   
+    const botY = 360;  
+    const tx = 380;    
+    const ty = 250;    
+    const rx = 200;    
+    const railStartX = 80; 
+    const railEndX = 500;
+    const lx = tx + 10; 
+    const ly = 145;     
 
+    // Draw Power Rails 
+    drawLine(ctx, railStartX, topY, railEndX, topY); 
+    drawLine(ctx, railStartX, botY, railEndX, botY); 
+    
+    if (supplyVoltage) {
+        drawLabel(ctx, `+${supplyVoltage}V`, railStartX - 35, topY + 5, 16);
+        drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
+    }
+
+    // Draw Transistor
+    drawTransistor(ctx, tx, ty);
+    
+    // Draw Base Resistor
+    ctx.save();
+    ctx.translate(rx, ty);
+    ctx.rotate(Math.PI / 2); 
+    drawResistor(ctx, 0, 0);
+    ctx.restore();
+    
+    // Draw Motor
+    drawMotor(ctx, lx, ly);
+
+    // Wires & Nodes
+    drawLine(ctx, lx, topY, lx, ly - 25);
+    drawNode(ctx, lx, topY);
+    drawLine(ctx, lx, ly + 25, lx, ty - 25);
+    drawLine(ctx, tx + 10, ty + 25, tx + 10, botY);
+    drawNode(ctx, tx + 10, botY);
+    drawLine(ctx, rx + 25, ty, tx - 25, ty);
+    drawLine(ctx, railStartX, ty, rx - 25, ty);
+    drawNode(ctx, railStartX, ty);
+}
+
+// HELPER 2: Grade 9 Voltage Divider Circuit
+// Specifically handles the LDR and fixed resistor layout for Grade 9 Mode 1.
+function drawGrade9DividerCircuit(ctx) {
+    ctx.beginPath();
+    // Power Rails
+    ctx.moveTo(50, 50); ctx.lineTo(350, 50);   
+    ctx.moveTo(50, 300); ctx.lineTo(350, 300); 
+    
+    // Voltage Divider Wire
+    ctx.moveTo(100, 50); ctx.lineTo(100, 100); 
+    
+    // LDR (Top)
+    ctx.strokeRect(85, 100, 30, 50);
+    ctx.moveTo(60, 110); ctx.lineTo(80, 125); // Arrows
+    ctx.moveTo(60, 125); ctx.lineTo(80, 140);
+    
+    // Middle Node to Base Resistor
+    ctx.moveTo(100, 150); ctx.lineTo(100, 200); 
+    ctx.moveTo(100, 175); ctx.lineTo(150, 175); 
+    ctx.strokeRect(150, 165, 40, 20); 
+    ctx.moveTo(190, 175); ctx.lineTo(230, 175); 
+    
+    // Fixed Resistor (Bottom)
+    ctx.strokeRect(85, 200, 30, 50);
+    ctx.moveTo(100, 250); ctx.lineTo(100, 300); 
+    
+    // Transistor
+    ctx.moveTo(230, 155); ctx.lineTo(230, 195); 
+    ctx.moveTo(230, 165); ctx.lineTo(260, 125); 
+    ctx.moveTo(230, 185); ctx.lineTo(260, 225); 
+    ctx.moveTo(260, 225); ctx.lineTo(260, 300); 
+    
+    // Emitter Arrow
+    ctx.moveTo(260, 225); ctx.lineTo(250, 215);
+    ctx.moveTo(260, 225); ctx.lineTo(245, 225);
+    
+    // Motor & Collector line
+    ctx.moveTo(260, 125); ctx.lineTo(260, 105); 
+    ctx.arc(260, 85, 20, Math.PI/2, 2.5*Math.PI); 
+    ctx.moveTo(260, 65); ctx.lineTo(260, 50); 
+    ctx.stroke();
+    
+    ctx.fillText("M", 253, 91); 
+}
   
 // =========================================================================================================      
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
@@ -8210,7 +8303,6 @@ function generateTransistorProblem(ctx, canvas) {
     }
 
     // 👇 --- ROCKET & UI RESCUE BLOCK --- 👇
-    // This forces the UI back on right after hideAllInputGroups wipes it
     const rocket = document.getElementById('mainGrade9Btn');
     if (rocket) {
         rocket.style.setProperty("display", "inline-block", "important");
@@ -8250,13 +8342,13 @@ function generateTransistorProblem(ctx, canvas) {
     if (solContainer) solContainer.style.display = "none"; 
     if (solText) solText.innerHTML = ""; 
 
-    // NEW: Clean up any lingering grid-spanning styles from previous modes
+    // Clean up any lingering grid-spanning styles from previous modes
     ['wrapperTransVIN', 'wrapperTransVRB', 'wrapperTransIB', 'wrapperTransIC', 'wrapperTransP', 'wrapperTransRB'].forEach(id => {
         const wrapper = document.getElementById(id);
         if (wrapper) {
             wrapper.style.gridColumn = 'auto'; 
             wrapper.style.justifySelf = 'auto'; 
-            wrapper.style.marginBottom = '0px'; // Replaced by grid gap below
+            wrapper.style.marginBottom = '0px'; 
         }
     });
 
@@ -8273,7 +8365,6 @@ function generateTransistorProblem(ctx, canvas) {
     
     window.transistorMode = scenarioTracker.transistor;
     
-    // Lower base resistor values to support high currents (>500mA)
     const hfeValues = [50, 80, 100, 120, 150, 200, 250];
     const rbValues = [220, 330, 470, 680, 1000, 1200, 1500, 2200]; 
     const supplyVoltage = Math.random() < 0.5 ? 9 : 12; 
@@ -8296,7 +8387,6 @@ function generateTransistorProblem(ctx, canvas) {
         </div>
     `;
 
-    // Standard high-current options to guarantee > 500mA
     const icOptions = [500, 600, 750, 800, 900, 1000, 1200, 1500];
 
     // ==========================================
@@ -8305,8 +8395,6 @@ function generateTransistorProblem(ctx, canvas) {
     if (window.transistorMode === 1) {
         
         let validMode1 = false;
-        
-        // Loop until we find a combination where VIN is strictly less than the supply voltage
         while (!validMode1) {
             ic_mA = icOptions[Math.floor(Math.random() * icOptions.length)]; 
             hfe = hfeValues[Math.floor(Math.random() * hfeValues.length)];
@@ -8321,10 +8409,8 @@ function generateTransistorProblem(ctx, canvas) {
             }
         }
         
-        // Update the global tracking since we might have re-rolled hfe and rb in the loop
         window.currentAnswers.hfe = hfe;
         window.currentAnswers.rb = rb;
-
         p_mW = ic_mA * supplyVoltage; 
 
         currentAnswers.ib = ib_mA;
@@ -8373,7 +8459,7 @@ function generateTransistorProblem(ctx, canvas) {
         }
 
     // ==========================================
-    // --- MODE 2: Bottom-Up (3 Boxes - Top row of 2, 1 centered below) ---
+    // --- MODE 2: Bottom-Up (3 Boxes) ---
     // ==========================================
     } else if (window.transistorMode === 2) {
         
@@ -8438,7 +8524,6 @@ function generateTransistorProblem(ctx, canvas) {
             transMainGroup.style.alignItems = 'center';
         }
 
-        // NEW: Force the IC box to span both columns and center itself
         const wrapperIC = document.getElementById('wrapperTransIC');
         if (wrapperIC) {
             wrapperIC.style.gridColumn = '1 / span 2';
@@ -8446,7 +8531,7 @@ function generateTransistorProblem(ctx, canvas) {
         }
 
     // ==========================================
-    // --- MODE 3: Design Mode (3 Boxes - Top row of 2, 1 centered below) ---
+    // --- MODE 3: Design Mode (3 Boxes) ---
     // ==========================================
     } else {
         
@@ -8501,13 +8586,11 @@ function generateTransistorProblem(ctx, canvas) {
             transMainGroup.style.alignItems = 'center';
         }
 
-        // NEW: Force the RB box to span both columns and center itself
         if (wrapperRB) {
             wrapperRB.style.gridColumn = '1 / span 2';
             wrapperRB.style.justifySelf = 'center';
         }
 
-        // FORCE OMEGA SYMBOL FOR RB INPUT
         const rbDropdown = document.getElementById('unitTransRB'); 
         if (rbDropdown) rbDropdown.style.display = 'none';
         
@@ -8524,25 +8607,23 @@ function generateTransistorProblem(ctx, canvas) {
     }
 
     // ==========================================
-    // 3. DRAW THE CIRCUIT
+    // 3. DRAW THE CIRCUIT (REFACTORED)
     // ==========================================
     
+    // We keep these coordinates locally so we can still position our dynamic labels below!
     const topY = 40;   
     const botY = 360;  
     const tx = 380;    
     const ty = 250;    
     const rx = 200;    
     const railStartX = 80; 
-    const railEndX = 500;
-    
-    // Draw Power Rails 
-    drawLine(ctx, railStartX, topY, railEndX, topY); 
-    drawLine(ctx, railStartX, botY, railEndX, botY); 
-    drawLabel(ctx, `+${supplyVoltage}V`, railStartX - 35, topY + 5, 16);
-    drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
+    const lx = tx + 10; 
+    const ly = 145;    
 
-    // Draw Component: Transistor
-    drawTransistor(ctx, tx, ty);
+    // --- CALL THE NEW HELPER FUNCTION HERE ---
+    if (typeof drawStandardTransistorCircuit === 'function') {
+        drawStandardTransistorCircuit(ctx, supplyVoltage);
+    }
     
     // --- hFE LABEL ---
     ctx.fillStyle = strokeColor;
@@ -8557,13 +8638,6 @@ function generateTransistorProblem(ctx, canvas) {
     ctx.font = "14px Arial";
     ctx.fillText(" = " + hfe, tx + 45 + hW + feW, ty + 5);
 
-    // Draw Component: Base Resistor
-    ctx.save();
-    ctx.translate(rx, ty);
-    ctx.rotate(Math.PI / 2); 
-    drawResistor(ctx, 0, 0);
-    ctx.restore();
-    
     // --- UPDATED BASE RESISTOR LABEL ---
     let isRbUnknown = (window.transistorMode === 3);
     ctx.fillStyle = isRbUnknown ? pinkColor : strokeColor;
@@ -8571,7 +8645,6 @@ function generateTransistorProblem(ctx, canvas) {
     
     let rbValText = isRbUnknown ? " = ?" : " = " + (rb >= 1000 ? (rb / 1000) + " kΩ" : rb + " Ω");
     let rbYOffset = ty - 25; 
-    
     let rbStartX = rx - 35; 
 
     ctx.font = "16px Arial";
@@ -8601,21 +8674,6 @@ function generateTransistorProblem(ctx, canvas) {
     ctx.font = "16px Arial";
     ctx.fillText(" = ?", rbStartX + vrbVWidth + vrbBWidth + 3, vrbYOffset);
 
-    // Draw Component: Motor (Load)
-    const lx = tx + 10; 
-    const ly = 145;     
-    drawMotor(ctx, lx, ly);
-
-    // Wires & Nodes
-    drawLine(ctx, lx, topY, lx, ly - 25);
-    drawNode(ctx, lx, topY);
-    drawLine(ctx, lx, ly + 25, lx, ty - 25);
-    drawLine(ctx, tx + 10, ty + 25, tx + 10, botY);
-    drawNode(ctx, tx + 10, botY);
-    drawLine(ctx, rx + 25, ty, tx - 25, ty);
-    drawLine(ctx, railStartX, ty, rx - 25, ty);
-    drawNode(ctx, railStartX, ty);
-
     // --- UPDATED V_IN TERMINAL LABEL ---
     let isVinUnknown = (window.transistorMode === 1);
     ctx.fillStyle = isVinUnknown ? pinkColor : strokeColor;
@@ -8635,7 +8693,9 @@ function generateTransistorProblem(ctx, canvas) {
     ctx.fillText(vinSuffix, railStartX - 70 + vW + inW + 5, vinY);
     
     // I_B Arrow 
-    drawArrowOnWire(ctx, rx + 45, ty, tx - 45, ty);
+    if (typeof drawArrowOnWire === 'function') {
+        drawArrowOnWire(ctx, rx + 45, ty, tx - 45, ty);
+    }
     
     // --- I_B ARROW LABEL ---
     ctx.fillStyle = pinkColor;
@@ -8662,7 +8722,9 @@ function generateTransistorProblem(ctx, canvas) {
         ctx.fillText("P = ?", lx - 75, ly + 5); 
         
     } else if (window.transistorMode === 2) {
-        drawArrowOnWire(ctx, lx, ly + 25, lx, ty - 25);
+        if (typeof drawArrowOnWire === 'function') {
+            drawArrowOnWire(ctx, lx, ly + 25, lx, ty - 25);
+        }
         ctx.fillStyle = pinkColor;
         ctx.textAlign = "left";
         ctx.font = "16px Arial";
