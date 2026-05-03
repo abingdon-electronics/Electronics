@@ -11094,7 +11094,7 @@ function provideHint() {
         if (window.transistorMode === 1) {
             specificHint = `
                 <br><br><b>Mode: Top-Down Analysis</b><br>
-                You are trying to switch on the load. Start from the Collector! You know the required load current (I<sub>C</sub>) and the transistor's current gain (h<sub>FE</sub> = ${currentAnswers.hfe}). <br>
+                You are trying to switch on the load. Start from the Collector! You know the required load current (I<sub>C</sub>) and the transistor's current gain (h<sub>FE</sub> = ${currentAnswers.hfe || '?'}). <br>
                 1. Calculate the required Base Current using: <b>I<sub>B</sub> = I<sub>C</sub> / h<sub>FE</sub></b><br>
                 2. Calculate the voltage dropped across the base resistor (V<sub>RB</sub> = I<sub>B</sub> &times; R<sub>B</sub>).<br>
                 3. Add the 0.7V base-emitter drop to find total V<sub>IN</sub>.`;
@@ -11105,12 +11105,12 @@ function provideHint() {
                 Start from the Base! <br>
                 1. Find the voltage across the base resistor by subtracting 0.7V (V<sub>BE</sub>) from V<sub>IN</sub>.<br>
                 2. Find the base current (I<sub>B</sub>) using Ohm's Law on the base resistor.<br>
-                3. Multiply I<sub>B</sub> by the current gain (h<sub>FE</sub> = ${currentAnswers.hfe}) to find the maximum possible collector current (I<sub>C</sub>).`;
+                3. Multiply I<sub>B</sub> by the current gain (h<sub>FE</sub> = ${currentAnswers.hfe || '?'}) to find the maximum possible collector current (I<sub>C</sub>).`;
                 
         } else if (window.transistorMode === 3) {
             specificHint = `
                 <br><br><b>Mode: Component Selection (Design)</b><br>
-                1. Calculate the base current (I<sub>B</sub>) required to drive the given load current (I<sub>C</sub>) using the current gain (h<sub>FE</sub> = ${currentAnswers.hfe}).<br>
+                1. Calculate the base current (I<sub>B</sub>) required to drive the given load current (I<sub>C</sub>) using the current gain (h<sub>FE</sub> = ${currentAnswers.hfe || '?'}).<br>
                 2. Find the voltage across the base resistor (V<sub>RB</sub>) by subtracting V<sub>BE</sub> (0.7V) from V<sub>IN</sub>.<br>
                 3. Use Ohm's Law (R = V / I) to find the required base resistor value (R<sub>B</sub>).`;
         }
@@ -11122,8 +11122,36 @@ function provideHint() {
                 • Remember your core transistor equations: <b>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></b> and standard Ohm's Law (<b>V = I &times; R</b>).
                 ${specificHint}
             </div>`;
+            
+    } else if (currentMode === 'grade9transistor') {
+        let specificHint = "";
+        
+        if (window.g9TransMode === 0) {
+            specificHint = `
+                <br><br><b>Mode: Saturation vs Cut-off</b><br>
+                • <b>Fully Saturated:</b> The transistor is fully ON, acting almost like a closed switch. V<sub>CE</sub> drops to 0V, and V<sub>BE</sub> is clamped at 0.7V.<br>
+                • <b>Switched OFF:</b> If V<sub>IN</sub> drops below 0.7V, the transistor cannot turn on. It acts like an open switch, meaning V<sub>CE</sub> rises to the full supply voltage, and V<sub>BE</sub> simply equals V<sub>IN</sub>.`;
+        } else if (window.g9TransMode === 1) {
+            specificHint = `
+                <br><br><b>Mode: Sensor Divider Synthesis</b><br>
+                1. Work backward! First, find the required collector current (I<sub>C</sub>) using the motor's power formula (P = I &times; V).<br>
+                2. Calculate the required base current (I<sub>B</sub>) using h<sub>FE</sub>.<br>
+                3. Calculate the required voltage at the middle of the divider (V<sub>mid</sub> = V<sub>BE</sub> + V<sub>RB</sub>).<br>
+                4. Finally, analyze the divider currents (I<sub>bottom</sub> and I<sub>top</sub>) to find the LDR's maximum resistance.`;
+        } else if (window.g9TransMode === 2) {
+            specificHint = `
+                <br><br><b>Mode: Inductive Load Protection</b><br>
+                Motors contain coils (inductors). When the transistor suddenly switches OFF, the collapsing magnetic field in the motor creates a massive, damaging voltage spike (Back EMF). You need a component configured to safely loop this spike away from the rest of the circuit without shorting out the normal power supply.`;
+        }
+
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Grade 9 Transistor Hint:</strong>
+                ${specificHint}
+            </div>`;
+            
     } else {
-        // Potential Divider & General
+        // Potential Divider & General fallback
         helpText = `
             <div style="${blueBox}">
                 <strong>💡 Hint:</strong> Use the <b>Potential Divider equation</b> from the Data Sheet.
