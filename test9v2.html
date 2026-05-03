@@ -10384,7 +10384,7 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     
     let valMatch = correctlyRounded && reasonablePrecision;
     
-    // FALLBACK: System rounding match (e.g. 13.333 vs 13.3)
+    // FALLBACK 1: System rounding match (e.g. 13.333 vs 13.3)
     if (!valMatch) {
         let expectedStr = expectedVal.toString();
         let expectedDp = expectedStr.includes('.') ? expectedStr.split('.')[1].length : 0;
@@ -10394,6 +10394,16 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
             if (Math.abs(userRoundedToSystem - expectedVal) < 0.000001) {
                 valMatch = true;
             }
+        }
+    }
+
+    // FALLBACK 2: Significant Figures Match (Allows 2 or 3 sig figs)
+    if (!valMatch && expectedVal !== 0) {
+        let sigFigs2 = Number(Number(expectedVal).toPrecision(2));
+        let sigFigs3 = Number(Number(expectedVal).toPrecision(3));
+        
+        if (Math.abs(userVal - sigFigs2) < 0.000001 || Math.abs(userVal - sigFigs3) < 0.000001) {
+            valMatch = true;
         }
     }
     
