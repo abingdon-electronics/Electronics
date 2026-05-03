@@ -8923,11 +8923,12 @@ function generateGrade9TransistorProblem() {
         drawSafeSubscript("V", "BE", "= ?", 410, 280, 16, pinkColor);
         drawSafeSubscript("V", "CE", "= ?", 410, 210, 16, pinkColor);
     } 
-    // ---------------------------------------------------------
+// ---------------------------------------------------------
     // MODE 1: Sensor Divider (Math synthesis)
     // ---------------------------------------------------------
     else if (window.g9TransMode === 1) {
-        modeB.style.display = 'block';
+        // Use 'flex' instead of 'block' so the input aligns centrally!
+        modeB.style.display = 'flex'; 
         
         let vcc, rFixed, rb, ic, hfe, ib, vrb, vMid, iBottom, iTop, rLdr;
         let valid = false;
@@ -8961,20 +8962,25 @@ function generateGrade9TransistorProblem() {
             drawGrade9DividerCircuit(ctx);
         }
         
+        // --- UPDATED TEXT LABEL COORDINATES ---
         ctx.fillStyle = strokeColor;
         ctx.font = "bold 14px Arial";
-        ctx.fillText(`+${vcc}V`, 15, 55);
-        ctx.fillText(`0V`, 25, 305);
         
-        drawSafeSubscript("R", "LDR", "= ?", 25, 130, 14, pinkColor);
-        drawSafeSubscript("R", "B", "= " + rb + " Ω", 140, 155, 14, strokeColor);
+        // Power Rails
+        ctx.fillText(`+${vcc}V`, 45, 45);
+        ctx.fillText(`0V`, 50, 365);
         
+        // Resistor Labels
+        drawSafeSubscript("R", "LDR", "= ?", 35, 150, 14, pinkColor); // Tucked left of the light arrows
+        drawSafeSubscript("R", "B", "= " + rb + " Ω", 225, 235, 14, strokeColor); // Hovering over horizontal base resistor
+        
+        // Standard Text Labels
         ctx.font = "bold 14px Arial";
         ctx.fillStyle = strokeColor;
-        ctx.fillText(`R = ${rFixed} Ω`, 10, 230);
-        ctx.fillText(`${ic} mA`, 285, 95);
-    } 
-// ---------------------------------------------------------
+        ctx.fillText(`R = ${rFixed} Ω`, 50, 310); // Placed next to bottom fixed resistor
+        ctx.fillText(`${ic} mA`, 420, 150); // Placed to the right of the motor
+    }
+    // ---------------------------------------------------------
     // MODE 2: Protection Diode (Concept/Red Herring)
     // ---------------------------------------------------------
     else {
