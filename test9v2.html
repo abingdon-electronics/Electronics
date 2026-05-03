@@ -9083,7 +9083,7 @@ function hubController(ctx, canvas) {
         qText.innerHTML = '&nbsp;'; 
     }
 
-    // 4. ROUTER: Setup the UI for the specific mode
+// 4. ROUTER: Setup the UI for the specific mode
     if (currentMode === 'analysis') {
         const groupV = document.getElementById('inputGroupV');
         const groupI = document.getElementById('inputGroupI');
@@ -9131,32 +9131,14 @@ function hubController(ctx, canvas) {
         if (typeof generateGrade9ZenerProblem === "function") generateGrade9ZenerProblem(ctx, canvas);
 
     } else if (currentMode === 'silicon') {
-        // 1. Unhide the parent container AND the specific Diode Logic container!
         if (document.getElementById('inputGroupSilicon')) document.getElementById('inputGroupSilicon').style.display = 'flex';
-        
-        // 2. SHOW SMART ROCKET
+        // SHOW SMART ROCKET
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
-        
-        // 3. Generate & Log
-        console.log("Hub: Attempting to generate standard Silicon problem...");
-        if (typeof generateSiliconProblem === "function") {
-            generateSiliconProblem(ctx, canvas);
-        } else {
-            console.error("Hub: generateSiliconProblem is not defined!");
-        }
+        if (typeof generateSiliconProblem === "function") generateSiliconProblem(ctx, canvas);
         
     } else if (currentMode === 'grade9silicon') {
-        
-        // 1. Keep rocket VISIBLE so they can cycle through the Grade 9 problems
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
-        
-        // 2. Generate & Log (The generator handles unhiding the correct input groups!)
-        console.log("Hub: Attempting to generate Grade 9 Silicon problem...");
-        if (typeof generateGrade9SiliconProblem === "function") {
-            generateGrade9SiliconProblem(ctx, canvas);
-        } else {
-            console.error("Hub: generateGrade9SiliconProblem is not defined!");
-        }
+        if (typeof generateGrade9SiliconProblem === "function") generateGrade9SiliconProblem(ctx, canvas);
 
     } else if (currentMode === 'iposort') {
         if (document.getElementById('inputGroupIPOSort')) document.getElementById('inputGroupIPOSort').style.display = 'block';
@@ -9164,23 +9146,18 @@ function hubController(ctx, canvas) {
         
     } else if (currentMode === 'power') {
         if (document.getElementById('inputGroupP')) document.getElementById('inputGroupP').style.display = 'inline-block';
-        // SHOW SMART ROCKET
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generatePowerProblem === "function") generatePowerProblem(ctx, canvas);
         
     } else if (currentMode === 'grade9power') {
         if (document.getElementById('inputGroupGrade9Power')) document.getElementById('inputGroupGrade9Power').style.display = 'block';
-        // Hide rocket because we are already in Grade 9
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
         if (typeof generateGrade9PowerProblem === "function") generateGrade9PowerProblem(ctx, canvas);
 
     } else if (currentMode === 'logic_boolean') {
         if (document.getElementById('inputGroupBoolean')) document.getElementById('inputGroupBoolean').style.display = 'block';
-        
-        // Setup buttons for a new question
         if (document.getElementById('btnCheck')) document.getElementById('btnCheck').style.display = 'inline-block';
         if (document.getElementById('btnNext')) document.getElementById('btnNext').style.display = 'none';
-        
         if (typeof generateBooleanProblem === "function") generateBooleanProblem(ctx, canvas);
         
     } else if (currentMode === 'logic_system') {
@@ -9190,81 +9167,43 @@ function hubController(ctx, canvas) {
         if (typeof generateLogic_icProblem === "function") generateLogic_icProblem(ctx, canvas);
         
     } else if (currentMode === 'logic_nand') {
-        // *** STANDARD NAND EQUIVALENTS ***
         if (document.getElementById('inputGroupLogic_NAND')) document.getElementById('inputGroupLogic_NAND').style.display = 'block';
-        
-        // Show rocket to allow transition to Grade 9 Conversion
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
-        
         if (typeof generateLogic_nandProblem === "function") generateLogic_nandProblem(ctx, canvas);
 
     } else if (currentMode === 'grade9nand') {
-        // *** NEW: GRADE 9 SYSTEM CONVERSION & REDUNDANCY HUNTER ***
-        
-        // Match the HTML's flex-direction: column requirement
         const master = document.getElementById('inputGroupGrade9NandMaster');
         if (master) master.style.display = 'flex'; 
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+        if (typeof generateGrade9NandProblem === "function") generateGrade9NandProblem(ctx, canvas);
 
-        // Keep rocket visible to cycle through different questions
-        if (document.getElementById('mainGrade9Btn')) {
-            document.getElementById('mainGrade9Btn').style.display = 'inline-block';
-        }
-    
-        if (typeof generateGrade9NandProblem === "function") {
-            generateGrade9NandProblem(ctx, canvas);
-        } else {
-            console.error("Hub: generateGrade9NandProblem is not defined!");
-   
-        } else if (currentMode === 'blockbuilder' || currentMode === 'block_diagram') {
+    } else if (currentMode === 'blockbuilder' || currentMode === 'block_diagram') {
         if (document.getElementById('inputGroupBlockBuilder')) {
             document.getElementById('inputGroupBlockBuilder').style.display = 'block';
         }
+        if (typeof generateBlockBuilderProblem === "function") generateBlockBuilderProblem(ctx, canvas);
         
-        if (typeof generateBlockBuilderProblem === "function") {
-            generateBlockBuilderProblem(ctx, canvas);
-        } else {
-            console.error("Hub: generateBlockBuilderProblem is not defined!");
-        }
-        
-    // 👇 TRANSISTOR ROUTING
     } else if (currentMode === 'transistor') {
-        // 1. Show the Transistor Inputs
         if (document.getElementById('inputGroupTransistor')) {
             document.getElementById('inputGroupTransistor').style.display = 'flex';
         }
-        
-        // 2. THE ROCKET RESCUE - This is the missing piece!
         const rocket = document.getElementById('mainGrade9Btn');
         if (rocket) {
-            // Using setProperty with important to beat any CSS locks
             rocket.style.setProperty("display", "inline-block", "important");
             console.log("Hub: Rocket button forced to visible for Transistors");
         }
-        
-        // 3. Generate the actual circuit
-        if (typeof generateTransistorProblem === "function") {
-            generateTransistorProblem(ctx, canvas);
-        }
+        if (typeof generateTransistorProblem === "function") generateTransistorProblem(ctx, canvas);
 
-    // 👇 GRADE 9 TRANSISTOR ROUTING
     } else if (currentMode === 'grade9transistor') {
         if (document.getElementById('inputGroupGrade9Transistor')) {
             document.getElementById('inputGroupGrade9Transistor').style.display = 'block';
         }
-
-        // Keep rocket visible to cycle through Grade 9 challenges
         if (document.getElementById('mainGrade9Btn')) {
             document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         }
-
-        if (typeof generateGrade9TransistorProblem === "function") {
-            generateGrade9TransistorProblem(ctx, canvas);
-        } else {
-            console.error("Hub: generateGrade9TransistorProblem is not defined!");
-        }
+        if (typeof generateGrade9TransistorProblem === "function") generateGrade9TransistorProblem(ctx, canvas);
     }
-    
-} // This is the REAL end of the hubController function
+} // <--- This closes the hubController function // This is the REAL end of the hubController function
 
 //*****************************************************************************************
 // ==============================================================
