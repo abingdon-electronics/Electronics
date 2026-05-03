@@ -8903,9 +8903,6 @@ function generateGrade9TransistorProblem() {
         ctx.restore(); 
     }
 
-    let promptText = "";
-
-    // Grab the new instructions container and make it visible
     const instructionsDiv = document.getElementById('g9TransInstructions');
     if (instructionsDiv) {
         instructionsDiv.style.display = 'block';
@@ -8916,26 +8913,30 @@ function generateGrade9TransistorProblem() {
     // ---------------------------------------------------------
     if (window.g9TransMode === 0) {
         modeA.style.display = 'block';
-        
-        if (instructionsDiv) {
-            instructionsDiv.innerHTML = `
-                1. Calculate the base-emitter voltage (V<sub>BE</sub>).<br>
-                2. Calculate the collector-emitter voltage (V<sub>CE</sub>).
-            `;
-        }
 
         const isSaturated = Math.random() > 0.5;
         const vcc = [5, 9, 12, 24][Math.floor(Math.random() * 4)];
-        
         let vin;
+        
         if (isSaturated) {
             vin = (Math.random() * 2 + 2).toFixed(1);
-            promptText = `The transistor is fully SATURATED. State the values of <span style="color: ${pinkColor}; font-weight: bold;">V<sub>BE</sub></span> and <span style="color: ${pinkColor}; font-weight: bold;">V<sub>CE</sub></span>.`;
             currentAnswers = { vbe: 0.7, vce: 0 };
         } else {
             vin = [0.1, 0.2, 0.3, 0.4][Math.floor(Math.random() * 4)];
-            promptText = `<span style="color: ${strokeColor}; font-weight: bold;">V<sub>IN</sub></span> drops to ${vin}V. The transistor switches OFF. State the values of <span style="color: ${pinkColor}; font-weight: bold;">V<sub>BE</sub></span> and <span style="color: ${pinkColor}; font-weight: bold;">V<sub>CE</sub></span>.`;
             currentAnswers = { vbe: vin, vce: vcc }; 
+        }
+
+        // --- NEW: Inject variables directly into instructions ---
+        if (instructionsDiv) {
+            let stateText = isSaturated 
+                ? `The transistor is fully <strong>SATURATED</strong>.` 
+                : `<span style="color: ${strokeColor}; font-weight: bold;">V<sub>IN</sub></span> drops to <strong>${vin}V</strong>. The transistor switches <strong>OFF</strong>.`;
+                
+            instructionsDiv.innerHTML = `
+                ${stateText}<br><br>
+                1. Calculate the base-emitter voltage (V<sub>BE</sub>).<br>
+                2. Calculate the collector-emitter voltage (V<sub>CE</sub>).
+            `;
         }
 
         // --- SOLUTIONS TEXT FOR MODE 0 ---
@@ -8953,8 +8954,6 @@ function generateGrade9TransistorProblem() {
             }
         }
 
-        document.getElementById('questionText').innerHTML = promptText;
-
         if (typeof drawStandardTransistorCircuit === 'function') {
             drawStandardTransistorCircuit(ctx, vcc);
         }
@@ -8968,13 +8967,6 @@ function generateGrade9TransistorProblem() {
     // ---------------------------------------------------------
     else if (window.g9TransMode === 1) {
         modeB.style.display = 'flex'; 
-        
-        if (instructionsDiv) {
-            instructionsDiv.innerHTML = `
-                1. Calculate the maximum LDR resistance required to turn the transistor fully ON.<br>
-                2. Assume the transistor is fully saturated (V<sub>CE</sub> = 0V).
-            `;
-        }
         
         let vcc, rFixed, rb, ic, hfe, ib, vrb, vMid, iBottom, iTop, rLdr, motorPower;
         let valid = false;
@@ -9002,6 +8994,15 @@ function generateGrade9TransistorProblem() {
         }
 
         currentAnswers = { rLdr: rLdr };
+
+        // --- NEW: Inject variables directly into instructions ---
+        if (instructionsDiv) {
+            instructionsDiv.innerHTML = `
+                A motor is operating at its recommended power rating of <strong>${motorPower} W</strong>. The transistor has an h<sub>FE</sub> of <strong>${hfe}</strong>.<br><br>
+                1. Calculate the maximum LDR resistance required to turn the transistor fully ON.<br>
+                2. Assume the transistor is fully saturated (V<sub>CE</sub> = 0V).
+            `;
+        }
         
         // --- SOLUTIONS TEXT FOR MODE 1 ---
         if (solText) {
@@ -9018,17 +9019,10 @@ function generateGrade9TransistorProblem() {
                 "The LDR must be sized so that the voltage at the center point does not drop below " + parseFloat(vMid.toFixed(2)) + " V while supplying " + parseFloat(ib_mA.toFixed(3)) + " mA to the base.";
         }
 
-        promptText = 
-            `A motor is operating at its recommended power rating of <strong>${motorPower} W</strong>. The transistor has an h<sub>FE</sub> of <strong>${hfe}</strong>. <br>` +
-            `Calculate the maximum resistance the <span style="color: ${pinkColor}; font-weight: bold;">LDR</span> can have while keeping the motor spinning.`;
-            
-        document.getElementById('questionText').innerHTML = promptText;
-
         if (typeof drawGrade9DividerCircuit === 'function') {
             drawGrade9DividerCircuit(ctx);
         }
         
-        // --- UPDATED TEXT LABEL COORDINATES ---
         ctx.fillStyle = strokeColor;
         ctx.font = "bold 14px Arial";
         
@@ -9052,15 +9046,14 @@ function generateGrade9TransistorProblem() {
     else {
         modeC.style.display = 'block'; 
         
+        // --- NEW: Inject variables directly into instructions ---
         if (instructionsDiv) {
             instructionsDiv.innerHTML = `
+                A motor is driven by the transistor. The circuit is missing a critical component to protect it when the switch opens.<br><br>
                 1. Identify the missing component required to protect the circuit.<br>
                 2. Select this component's function.
             `;
         }
-        
-        promptText = "A motor is driven by the transistor. The circuit is missing a critical component to protect it when the switch opens. Select the correct component and reason.";
-        document.getElementById('questionText').innerHTML = promptText;
 
         currentAnswers = { pos: 'rev_para', reason: 'emf_transistor' };
 
