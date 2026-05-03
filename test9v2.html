@@ -8811,7 +8811,16 @@ function generateGrade9TransistorProblem() {
     if (rocket) {
         rocket.style.setProperty("display", "inline-block", "important");
     }
-    window.g9TransMode = Math.floor(Math.random() * 3); // 0 = Hidden Voltages, 1 = Divider, 2 = Protection
+
+    // =======================================================================
+    // THE NEW CYCLING LOGIC: Sequentially cycles 0 -> 1 -> 2 -> 0
+    // =======================================================================
+    if (typeof window.g9TransMode === 'undefined') {
+        window.g9TransMode = 0; // Start at 0 on the very first run
+    } else {
+        window.g9TransMode = (window.g9TransMode + 1) % 3; // Cycles to the next mode
+    }
+    // =======================================================================
 
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
@@ -8821,15 +8830,12 @@ function generateGrade9TransistorProblem() {
     ctx.lineWidth = 2;
     ctx.strokeStyle = strokeColor;
 
-    // =======================================================================
-    // THE INSULATED HELPER: 
-    // Forces left-alignment to prevent squishing, then restores state
-    // =======================================================================
+    // THE INSULATED HELPER: Forces left-alignment to prevent squishing
     function drawSafeSubscript(mainStr, subStr, suffixStr, x, y, size, color) {
-        ctx.save(); // Lock in the current canvas state
+        ctx.save(); 
         
         ctx.fillStyle = color || "#000000";
-        ctx.textAlign = "left"; // THIS FIXES THE SQUISH
+        ctx.textAlign = "left"; 
         ctx.textBaseline = "alphabetic"; 
         
         // 1. Draw Main Letter
@@ -8854,9 +8860,8 @@ function generateGrade9TransistorProblem() {
             ctx.fillText(safeSuffix, x + w1 + w2 + 8, y); 
         }
         
-        ctx.restore(); // Give the canvas back exactly as we found it
+        ctx.restore(); 
     }
-    // =======================================================================
 
     let promptText = "";
 
