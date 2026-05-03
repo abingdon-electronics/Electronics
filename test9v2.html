@@ -8784,9 +8784,11 @@ function generateGrade9TransistorProblem() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     // Set standard drawing styles
+    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+    const pinkColor = "#E64097";
     ctx.lineWidth = 2;
-    ctx.strokeStyle = '#000';
-    ctx.fillStyle = '#000';
+    ctx.strokeStyle = strokeColor;
+    ctx.fillStyle = strokeColor;
     ctx.font = '16px Arial';
 
     let promptText = "";
@@ -8802,22 +8804,33 @@ function generateGrade9TransistorProblem() {
         let vin;
         if (isSaturated) {
             vin = (Math.random() * 2 + 2).toFixed(1); // e.g. 2.0V to 4.0V
-            promptText = `The transistor is fully SATURATED. State the values of V_BE and V_CE.`;
+            promptText = `The transistor is fully SATURATED. State the values of V<sub>BE</sub> and V<sub>CE</sub>.`;
             currentAnswers = { vbe: 0.7, vce: 0 };
         } else {
             vin = [0.1, 0.2, 0.3, 0.4][Math.floor(Math.random() * 4)];
-            promptText = `V_IN drops to ${vin}V. The transistor switches OFF. State the values of V_BE and V_CE.`;
+            promptText = `V<sub>IN</sub> drops to ${vin}V. The transistor switches OFF. State the values of V<sub>BE</sub> and V<sub>CE</sub>.`;
             // If off, Vbe mirrors Vin (no drop across Rb), and Vce sees full supply
             currentAnswers = { vbe: vin, vce: vcc }; 
         }
 
         document.getElementById('questionText').innerHTML = promptText;
 
-        // Note: Insert your standard drawTransistor(ctx, ...) here.
-        // Label the top rail as Vcc + "V", label the input as Vin + "V".
-        ctx.fillText(`Vcc = ${vcc}V`, 200, 30);
-        ctx.fillText(`Vin = ${vin}V`, 20, 150);
-        ctx.fillText(`Find Vbe & Vce`, 200, 280);
+        // --- DRAWING: Mode 0 ---
+        if (typeof drawStandardTransistorCircuit === 'function') {
+            drawStandardTransistorCircuit(ctx, vcc);
+        }
+        
+        // Add Mode 0 Specific Labels
+        ctx.fillStyle = strokeColor;
+        ctx.textAlign = "left";
+        ctx.font = "16px Arial";
+        ctx.fillText(`V IN = ${vin} V`, 15, 255); // Input terminal label
+        
+        // Highlight the junctions they need to find
+        ctx.fillStyle = pinkColor;
+        ctx.font = "bold 16px Arial";
+        ctx.fillText("V_BE = ?", 385, 280);
+        ctx.fillText("V_CE = ?", 410, 210);
     } 
     // ---------------------------------------------------------
     // MODE 1: Sensor Divider (Math synthesis)
@@ -8854,12 +8867,29 @@ function generateGrade9TransistorProblem() {
             `A motor requires ${ic}mA to spin. The transistor has an h<sub>FE</sub> of ${hfe}. <br>` +
             `Calculate the maximum resistance the LDR can have while keeping the motor spinning.`;
 
-        // Note: Insert your drawing code for a voltage divider connected to a base resistor.
-        ctx.fillText(`Vcc = ${vcc}V`, 200, 30);
-        ctx.fillText(`LDR`, 80, 80);
-        ctx.fillText(`R_fixed = ${rFixed}Ω`, 80, 220);
-        ctx.fillText(`Rb = ${rb}Ω`, 160, 150);
-        ctx.fillText(`Motor`, 280, 80);
+        // --- DRAWING: Mode 1 ---
+        if (typeof drawGrade9DividerCircuit === 'function') {
+            drawGrade9DividerCircuit(ctx);
+        }
+        
+        // Add Mode 1 Specific Labels matching the helper's coordinates
+        ctx.fillStyle = strokeColor;
+        ctx.font = "bold 14px Arial";
+        ctx.fillText(`+${vcc}V`, 15, 55);
+        ctx.fillText(`0V`, 25, 305);
+        
+        ctx.font = "14px Arial";
+        ctx.fillStyle = pinkColor;
+        ctx.fillText(`R LDR = ?`, 25, 130);
+        
+        ctx.fillStyle = strokeColor;
+        ctx.fillText(`R = ${rFixed} Ω`, 10, 230);
+        
+        // Rb label above the horizontal resistor
+        ctx.fillText(`Rb = ${rb} Ω`, 140, 155);
+        
+        // Motor current label
+        ctx.fillText(`${ic} mA`, 285, 95);
     } 
     // ---------------------------------------------------------
     // MODE 2: Protection Diode (Concept/Red Herring)
@@ -8875,10 +8905,45 @@ function generateGrade9TransistorProblem() {
             reason: 'emf' 
         };
 
-        // Note: Draw standard transistor switching a motor, leaving empty space parallel to the motor.
-        ctx.fillText(`Vcc = 12V`, 200, 30);
-        ctx.fillText(`Motor`, 250, 100);
-        ctx.fillText(`Vin`, 50, 150);
+        // --- DRAWING: Mode 2 ---
+        if (typeof drawStandardTransistorCircuit === 'function') {
+            drawStandardTransistorCircuit(ctx, 12); // Standard 12V supply
+        }
+        
+        ctx.fillStyle = strokeColor;
+        ctx.textAlign = "left";
+        ctx.font = "16px Arial";
+        ctx.fillText(`V IN = 5 V`, 15, 255); // Typical saturation input
+        
+        // Draw the dashed pink box indicating the missing component
+        const lx = 390; // Standard motor X coordinate from helper
+        const ly = 145; // Standard motor Y coordinate from helper
+        const boxX = lx + 50; // Place it in parallel to the right
+        
+        ctx.strokeStyle = pinkColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        // Wires connecting parallel branch
+        ctx.moveTo(lx, ly - 25); ctx.lineTo(boxX, ly - 25); ctx.lineTo(boxX, ly - 15);
+        ctx.moveTo(lx, ly + 25); ctx.lineTo(boxX, ly + 25); ctx.lineTo(boxX, ly + 15);
+        ctx.stroke();
+        
+        // Draw the nodes where it connects
+        if (typeof drawNode === 'function') {
+            drawNode(ctx, lx, ly - 25);
+            drawNode(ctx, lx, ly + 25);
+        }
+        
+        // Dashed box for the missing component
+        ctx.setLineDash([5, 5]);
+        ctx.strokeRect(boxX - 15, ly - 15, 30, 30);
+        ctx.setLineDash([]); // Reset line dash for future drawings
+        
+        // Question mark inside the box
+        ctx.fillStyle = pinkColor;
+        ctx.font = "bold 20px Arial";
+        ctx.fillText("?", boxX - 6, ly + 6);
     }
 }
 // END of Content generator functions
