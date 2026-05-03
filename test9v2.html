@@ -8897,7 +8897,6 @@ function generateGrade9TransistorProblem() {
     // MODE 0: SATURATED OR NOT Voltages (ON/OFF State testing)
     // ---------------------------------------------------------
     if (window.g9TransMode === 0) {
- 
         modeA.style.display = 'block';
         const isSaturated = Math.random() > 0.5;
         const vcc = [5, 9, 12, 24][Math.floor(Math.random() * 4)];
@@ -8923,14 +8922,14 @@ function generateGrade9TransistorProblem() {
         drawSafeSubscript("V", "BE", "= ?", 410, 280, 16, pinkColor);
         drawSafeSubscript("V", "CE", "= ?", 410, 210, 16, pinkColor);
     } 
-// ---------------------------------------------------------
+    // ---------------------------------------------------------
     // MODE 1: Sensor Divider (Math synthesis)
     // ---------------------------------------------------------
     else if (window.g9TransMode === 1) {
         // Use 'flex' instead of 'block' so the input aligns centrally!
         modeB.style.display = 'flex'; 
         
-        let vcc, rFixed, rb, ic, hfe, ib, vrb, vMid, iBottom, iTop, rLdr;
+        let vcc, rFixed, rb, ic, hfe, ib, vrb, vMid, iBottom, iTop, rLdr, motorPower;
         let valid = false;
 
         while (!valid) {
@@ -8939,6 +8938,9 @@ function generateGrade9TransistorProblem() {
             rb = [1000, 2200, 3300][Math.floor(Math.random() * 3)]; 
             ic = [100, 200, 500][Math.floor(Math.random() * 3)]; 
             hfe = [50, 100, 200][Math.floor(Math.random() * 3)];
+            
+            // Calculate Power (P = I * V) based on VCC and the generated IC
+            motorPower = Number(((ic / 1000) * vcc).toFixed(2));
             
             ib = (ic / hfe) / 1000; 
             vrb = ib * rb;
@@ -8954,15 +8956,17 @@ function generateGrade9TransistorProblem() {
 
         currentAnswers = { rLdr: rLdr };
         
-        document.getElementById('questionText').innerHTML = 
-            `A motor requires ${ic}mA to spin. The transistor has an h<sub>FE</sub> of ${hfe}. <br>` +
+        promptText = 
+            `A motor is operating at its recommended power rating of <strong>${motorPower} W</strong>. The transistor has an h<sub>FE</sub> of <strong>${hfe}</strong>. <br>` +
             `Calculate the maximum resistance the <span style="color: ${pinkColor}; font-weight: bold;">LDR</span> can have while keeping the motor spinning.`;
+            
+        document.getElementById('questionText').innerHTML = promptText;
 
         if (typeof drawGrade9DividerCircuit === 'function') {
             drawGrade9DividerCircuit(ctx);
         }
         
-// --- UPDATED TEXT LABEL COORDINATES ---
+        // --- UPDATED TEXT LABEL COORDINATES ---
         ctx.fillStyle = strokeColor;
         ctx.font = "bold 14px Arial";
         
@@ -8971,21 +8975,16 @@ function generateGrade9TransistorProblem() {
         ctx.fillText(`0V`, 50, 365);
         
         // Resistor Labels
-        // Moved LDR to the right side of the resistor box (X changed to 170)
         drawSafeSubscript("R", "LDR", "= ?", 170, 150, 14, pinkColor); 
-        
-        // Moved Base Resistor label UP by 8 pixels (Y changed from 235 to 227)
         drawSafeSubscript("R", "B", "= " + rb + " Ω", 225, 227, 14, strokeColor); 
         
         // Standard Text Labels
         ctx.font = "bold 14px Arial";
         ctx.fillStyle = strokeColor;
         
-        // Moved bottom fixed resistor label to the right (X changed from 50 to 75)
         ctx.fillText(`R = ${rFixed} Ω`, 75, 310); 
         
-        // Pushed Motor current label further right so it clears the circle (X changed from 420 to 445)
-        ctx.fillText(`${ic} mA`, 445, 150); 
+        // Notice the motor current label has been entirely removed!
     }
     // ---------------------------------------------------------
     // MODE 2: Protection Diode (Concept/Red Herring)
@@ -8996,7 +8995,6 @@ function generateGrade9TransistorProblem() {
         promptText = "A motor is driven by the transistor. The circuit is missing a critical component to protect it when the switch opens. Select the correct component and reason.";
         document.getElementById('questionText').innerHTML = promptText;
 
-        // Note: 'rev_para' remains the correct answer key
         currentAnswers = { pos: 'rev_para', reason: 'emf_transistor' };
 
         const positionOptions = [
