@@ -8761,13 +8761,9 @@ function shuffleSelectOptions(selectId, optionsArray) {
     const select = document.getElementById(selectId);
     if (!select) return;
     
-    // Clear existing options and add the default placeholder
     select.innerHTML = '<option value="" disabled selected>Select an option...</option>';
-    
-    // Shuffle the array
     const shuffled = optionsArray.sort(() => Math.random() - 0.5);
     
-    // Append the newly shuffled options
     shuffled.forEach(opt => {
         const el = document.createElement('option');
         el.value = opt.value;
@@ -8792,7 +8788,7 @@ function generateGrade9TransistorProblem() {
 
     const pinkColor = "#E64097";
 
-    // Clear previous inputs & formatting, AND color right-panel labels pink
+    // Clear previous inputs & color right-panel labels pink
     ['g9TransVBE', 'g9TransVCE', 'g9TransRLDR', 'g9TransDiodePos', 'g9TransDiodeReason'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -8821,12 +8817,33 @@ function generateGrade9TransistorProblem() {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Set standard drawing styles
     const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
     ctx.lineWidth = 2;
     ctx.strokeStyle = strokeColor;
-    ctx.fillStyle = strokeColor;
-    ctx.font = '16px Arial';
+
+    // =======================================================================
+    // THE BULLETPROOF LOCAL HELPER: 
+    // Bypasses the buggy global helper to guarantee perfect spacing
+    // =======================================================================
+    function drawSafeSubscript(mainStr, subStr, suffixStr, x, y, size, color) {
+        ctx.fillStyle = color;
+        
+        // 1. Draw Main Letter (e.g., "V")
+        ctx.font = "bold " + size + "px Arial";
+        ctx.fillText(mainStr, x, y);
+        let w1 = ctx.measureText(mainStr).width;
+        
+        // 2. Draw Subscript (e.g., "IN")
+        let subSize = size * 0.75;
+        ctx.font = "bold " + subSize + "px Arial";
+        let subY = y + (size * 0.25); // Drop it down slightly
+        ctx.fillText(subStr, x + w1 + 1, subY);
+        let w2 = ctx.measureText(subStr).width;
+        
+        // 3. Draw Suffix with a guaranteed 8px gap so it NEVER overlaps
+        ctx.font = "bold " + size + "px Arial";
+        ctx.fillText(suffixStr, x + w1 + w2 + 8, y); 
+    }
 
     let promptText = "";
 
@@ -8855,20 +8872,10 @@ function generateGrade9TransistorProblem() {
             drawStandardTransistorCircuit(ctx, vcc);
         }
         
-        if (typeof drawCanvasSubscript === 'function') {
-            // BRUTE FORCE FIX: Pass an empty string to the helper, and draw the '=' manually!
-            drawCanvasSubscript(ctx, "V", "IN", "", 15, 280, 16, strokeColor);
-            ctx.fillStyle = strokeColor;
-            ctx.fillText(`= ${vin} V`, 50, 280); 
-            
-            drawCanvasSubscript(ctx, "V", "BE", "", 410, 280, 16, pinkColor);
-            ctx.fillStyle = pinkColor;
-            ctx.fillText("= ?", 445, 280);
-            
-            drawCanvasSubscript(ctx, "V", "CE", "", 410, 210, 16, pinkColor);
-            ctx.fillStyle = pinkColor;
-            ctx.fillText("= ?", 445, 210);
-        }
+        // Using the new safe helper
+        drawSafeSubscript("V", "IN", "= " + vin + " V", 15, 280, 16, strokeColor);
+        drawSafeSubscript("V", "BE", "= ?", 410, 280, 16, pinkColor);
+        drawSafeSubscript("V", "CE", "= ?", 410, 210, 16, pinkColor);
     } 
     // ---------------------------------------------------------
     // MODE 1: Sensor Divider (Math synthesis)
@@ -8913,16 +8920,9 @@ function generateGrade9TransistorProblem() {
         ctx.fillText(`+${vcc}V`, 15, 55);
         ctx.fillText(`0V`, 25, 305);
         
-        if (typeof drawCanvasSubscript === 'function') {
-            // BRUTE FORCE FIX APPLIED HERE TOO
-            drawCanvasSubscript(ctx, "R", "LDR", "", 25, 130, 14, pinkColor);
-            ctx.fillStyle = pinkColor;
-            ctx.fillText("= ?", 70, 130);
-            
-            drawCanvasSubscript(ctx, "R", "B", "", 140, 155, 14, strokeColor);
-            ctx.fillStyle = strokeColor;
-            ctx.fillText(`= ${rb} Ω`, 168, 155);
-        }
+        // Using the new safe helper
+        drawSafeSubscript("R", "LDR", "= ?", 25, 130, 14, pinkColor);
+        drawSafeSubscript("R", "B", "= " + rb + " Ω", 140, 155, 14, strokeColor);
         
         ctx.font = "bold 14px Arial";
         ctx.fillStyle = strokeColor;
@@ -8933,27 +8933,24 @@ function generateGrade9TransistorProblem() {
     // MODE 2: Protection Diode (Concept/Red Herring)
     // ---------------------------------------------------------
     else {
-        modeC.style.display = 'block'; // Changed to block so dropdowns stack cleanly
+        modeC.style.display = 'block'; 
         
         promptText = "A motor is driven by the transistor. The circuit is missing a critical component to protect it when the switch opens. Select the correct component and reason.";
         document.getElementById('questionText').innerHTML = promptText;
 
-        // Note: Correct reason is protecting the TRANSISTOR, not the motor!
         currentAnswers = { pos: 'rev_para', reason: 'emf_transistor' };
 
-        // Define and shuffle POSITION options
         const positionOptions = [
             { value: "series_motor", text: "In series with the motor" },
-            { value: "rev_para", text: "In parallel with the motor (Reverse biased)" }, // Correct
+            { value: "rev_para", text: "In parallel with the motor (Reverse biased)" },
             { value: "fwd_para", text: "In parallel with the motor (Forward biased)" },
             { value: "series_base", text: "In series with the base resistor" }
         ];
         shuffleSelectOptions('g9TransDiodePos', positionOptions);
 
-        // Define and shuffle REASON options
         const reasonOptions = [
             { value: "emf_motor", text: "To protect the motor from high voltage switch-off spikes" },
-            { value: "emf_transistor", text: "To protect the transistor from high voltage switch-off spikes" }, // Correct
+            { value: "emf_transistor", text: "To protect the transistor from high voltage switch-off spikes" }, 
             { value: "reg", text: "To regulate the supply voltage across the motor" },
             { value: "limit", text: "To limit the base current entering the transistor" },
             { value: "gain", text: "To increase the overall current gain of the circuit" }
@@ -8964,14 +8961,8 @@ function generateGrade9TransistorProblem() {
             drawStandardTransistorCircuit(ctx, 12); 
         }
         
-        if (typeof drawCanvasSubscript === 'function') {
-            // BRUTE FORCE FIX
-            drawCanvasSubscript(ctx, "V", "IN", "", 15, 280, 16, strokeColor); 
-            ctx.fillStyle = strokeColor;
-            ctx.fillText("= 5 V", 50, 280);
-        }
-        
-        // Removed the pink parallel hint and nodes entirely as requested!
+        // Using the new safe helper
+        drawSafeSubscript("V", "IN", "= 5 V", 15, 280, 16, strokeColor); 
     }
 }
 // END of Content generator functions
