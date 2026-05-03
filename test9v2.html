@@ -9214,9 +9214,8 @@ function hubController(ctx, canvas) {
             generateGrade9NandProblem(ctx, canvas);
         } else {
             console.error("Hub: generateGrade9NandProblem is not defined!");
-        }
    
-} else if (currentMode === 'blockbuilder' || currentMode === 'block_diagram') {
+        } else if (currentMode === 'blockbuilder' || currentMode === 'block_diagram') {
         if (document.getElementById('inputGroupBlockBuilder')) {
             document.getElementById('inputGroupBlockBuilder').style.display = 'block';
         }
@@ -9228,7 +9227,7 @@ function hubController(ctx, canvas) {
         }
         
     // 👇 TRANSISTOR ROUTING
-} else if (currentMode === 'transistor') {
+    } else if (currentMode === 'transistor') {
         // 1. Show the Transistor Inputs
         if (document.getElementById('inputGroupTransistor')) {
             document.getElementById('inputGroupTransistor').style.display = 'flex';
