@@ -8962,7 +8962,7 @@ function generateGrade9TransistorProblem() {
             drawGrade9DividerCircuit(ctx);
         }
         
-        // --- UPDATED TEXT LABEL COORDINATES ---
+// --- UPDATED TEXT LABEL COORDINATES ---
         ctx.fillStyle = strokeColor;
         ctx.font = "bold 14px Arial";
         
@@ -8971,14 +8971,21 @@ function generateGrade9TransistorProblem() {
         ctx.fillText(`0V`, 50, 365);
         
         // Resistor Labels
-        drawSafeSubscript("R", "LDR", "= ?", 35, 150, 14, pinkColor); // Tucked left of the light arrows
-        drawSafeSubscript("R", "B", "= " + rb + " Ω", 225, 235, 14, strokeColor); // Hovering over horizontal base resistor
+        // Moved LDR to the right side of the resistor box (X changed to 170)
+        drawSafeSubscript("R", "LDR", "= ?", 170, 150, 14, pinkColor); 
+        
+        // Moved Base Resistor label UP by 8 pixels (Y changed from 235 to 227)
+        drawSafeSubscript("R", "B", "= " + rb + " Ω", 225, 227, 14, strokeColor); 
         
         // Standard Text Labels
         ctx.font = "bold 14px Arial";
         ctx.fillStyle = strokeColor;
-        ctx.fillText(`R = ${rFixed} Ω`, 50, 310); // Placed next to bottom fixed resistor
-        ctx.fillText(`${ic} mA`, 420, 150); // Placed to the right of the motor
+        
+        // Moved bottom fixed resistor label to the right (X changed from 50 to 75)
+        ctx.fillText(`R = ${rFixed} Ω`, 75, 310); 
+        
+        // Pushed Motor current label further right so it clears the circle (X changed from 420 to 445)
+        ctx.fillText(`${ic} mA`, 445, 150); 
     }
     // ---------------------------------------------------------
     // MODE 2: Protection Diode (Concept/Red Herring)
