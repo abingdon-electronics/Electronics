@@ -8963,7 +8963,7 @@ function generateGrade9TransistorProblem() {
         drawSafeSubscript("V", "BE", "= ?", 410, 280, 16, pinkColor);
         drawSafeSubscript("V", "CE", "= ?", 410, 210, 16, pinkColor);
     } 
-    // ---------------------------------------------------------
+// ---------------------------------------------------------
     // MODE 1: Sensor Divider (Math synthesis)
     // ---------------------------------------------------------
     else if (window.g9TransMode === 1) {
@@ -8975,8 +8975,13 @@ function generateGrade9TransistorProblem() {
         while (!valid) {
             vcc = [9, 12, 24][Math.floor(Math.random() * 3)];
             rFixed = [1000, 2200, 4700][Math.floor(Math.random() * 3)]; 
-            rb = [1000, 2200, 3300][Math.floor(Math.random() * 3)]; 
-            ic = [100, 200, 500][Math.floor(Math.random() * 3)]; 
+            
+            // LOWERED Rb to handle the larger base currents without exceeding Vcc
+            rb = [220, 330, 470, 680][Math.floor(Math.random() * 4)]; 
+            
+            // INCREASED Ic to represent larger motors (500mA to 1.5A)
+            ic = [500, 800, 1000, 1200, 1500][Math.floor(Math.random() * 5)]; 
+            
             hfe = [50, 100, 200][Math.floor(Math.random() * 3)];
             
             // Calculate Power (P = I * V) based on VCC and the generated IC
@@ -9012,7 +9017,7 @@ function generateGrade9TransistorProblem() {
             solText.innerHTML = "<strong>I<sub>C</sub> = " + parseFloat(ic.toFixed(2)) + " mA | I<sub>B</sub> = " + parseFloat(ib_mA.toFixed(3)) + " mA | V<sub>mid</sub> = " + parseFloat(vMid.toFixed(2)) + " V | R<sub>LDR</sub> = " + Math.round(rLdr) + " &Omega;</strong><br><br>" +
                 "<em>Step 1:</em> Find the collector current required by the motor (I = P / V).<br>" +
                 "I<sub>C</sub> = " + motorPower_mW + " mW / " + vcc + " V = <strong>" + parseFloat(ic.toFixed(2)) + " mA</strong><br><br>" +
-                "<em>Step 2:</em> Calculate the required base current (I<sub>B</sub> = I<sub>C</sub> / h<sub>FE</sub>).<br>" +
+                "<em>Step 2:</em> Calculate the required base current (I<sub>B</sub> = I<sub>C</sub> / gain).<br>" +
                 "I<sub>B</sub> = " + parseFloat(ic.toFixed(2)) + " mA / " + hfe + " = <strong>" + parseFloat(ib_mA.toFixed(3)) + " mA</strong><br><br>" +
                 "<em>Step 3:</em> Find the voltage needed at the middle of the potential divider.<br>" +
                 "V<sub>mid</sub> = V<sub>BE</sub> + V<sub>RB</sub> = 0.7 V + " + parseFloat(vrb.toFixed(2)) + " V = <strong>" + parseFloat(vMid.toFixed(2)) + " V</strong><br><br>" +
