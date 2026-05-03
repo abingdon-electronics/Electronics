@@ -1723,14 +1723,14 @@ function handleNewQuestionClick() {
     const canvasIPOWorkstation = document.getElementById('canvasIPOWorkstation');
     if (canvasIPOWorkstation) canvasIPOWorkstation.style.display = 'none';
 
-    // --- UPDATED: REMOVE THE GRADE 9 CSS LOCKS --- 
+    // --- REMOVE THE GRADE 9 CSS LOCKS --- 
     const nandConv = document.getElementById('inputGroupNandConversion');
     if (nandConv) nandConv.style.removeProperty("display");
     
     const nandRed = document.getElementById('inputGroupNandRedundancy');
     if (nandRed) nandRed.style.removeProperty("display");
 
-    // ESCAPE THE GRADE 9 LOOPS
+    // 👇 ESCAPE THE GRADE 9 LOOPS 👇
     let escapedGrade9 = false;
     let previousMode = currentMode; 
 
@@ -1741,6 +1741,7 @@ function handleNewQuestionClick() {
     else if (currentMode === 'grade9silicon') { currentMode = 'silicon'; escapedGrade9 = true; }
     else if (currentMode === 'grade9boolean') { currentMode = 'logic_boolean'; escapedGrade9 = true; }
     else if (currentMode === 'grade9nand') { currentMode = 'logic_nand'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9transistor') { currentMode = 'transistor'; escapedGrade9 = true; }
 
     if (escapedGrade9 && (typeof problemsAttempted !== 'undefined' && problemsAttempted > 0)) {
         const wantsToProceed = confirm("Warning: Returning to standard mode will reset your Grade 9 score to 0. Do you want to continue?");
@@ -1753,29 +1754,25 @@ function handleNewQuestionClick() {
         if (typeof updateScoreboard === 'function') updateScoreboard();
     }
 
-// 2. GENERATE THE NEW PROBLEM ********************************
+    // 2. GENERATE THE NEW PROBLEM ********************************
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas ? canvas.getContext('2d') : null;
 
     if (ctx && canvas) {
-        // A. HARD PIXEL WIPE
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath(); // Reset any active drawing paths
+        ctx.beginPath(); 
     }
     
-    // B. REMOVE THE NAND OVERLAY (The source of the "clinging" wires)
     const oldOverlay = document.getElementById('nandCanvasOverlay');
     if (oldOverlay) {
         oldOverlay.remove();
     }
 
     // C. THE "GHOST BUSTER" DATA PURGE
-    // Wipe every possible array that could contain wires or gates
     window.nandWires = [];
     window.nandGates = [];
     window.currentNandTarget = null;
     
-    // Wipe standard logic arrays used in other modules
     if (window.allWires) window.allWires = [];
     if (window.allGates) window.allGates = [];
     if (window.logicWires) window.logicWires = [];
@@ -1795,7 +1792,7 @@ function handleNewQuestionClick() {
     } else if (currentMode === 'block_diagram') {
         if (typeof generateBlockBuilderProblem === "function") generateBlockBuilderProblem(ctx, canvas);
     } else {
-        // This calls hubController which does the final ctx.clearRect
+        // This calls hubController which handles 'transistor' and 'grade9transistor'
         if (typeof hubController === "function") hubController(ctx, canvas);
     }
 }
