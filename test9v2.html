@@ -2561,7 +2561,7 @@ function drawNORGate(ctx, x, y) {
 }
     
 //=========================================================================================================
-//Transistor circuit HELPERS
+//Transistor circuit Drawing HELPERS
 //=========================================================================================================
 // HELPER 1: Standard Transistor Base Circuit
 // Draws the rails, transistor, base resistor, motor, and connecting wires.
@@ -2611,47 +2611,83 @@ function drawStandardTransistorCircuit(ctx, supplyVoltage) {
 
 // HELPER 2: Grade 9 Voltage Divider Circuit
 // Specifically handles the LDR and fixed resistor layout for Grade 9 Mode 1.
+// (Upgraded to Standard Proportions)
 function drawGrade9DividerCircuit(ctx) {
+    // 1. Setup the identical spacious grid coordinates
+    const topY = 40;   
+    const botY = 360;  
+    const tx = 380;    
+    const ty = 250;    
+    
+    // 2. Define our vertical column positions
+    const divX = 140; // The left column (LDR and Fixed Resistor)
+    const rx = 260;   // The Base Resistor (shifted right to fit between divX and tx)
+    const lx = tx + 10; // 390 - The right column (Motor and Collector)
+    const ly = 145;   // Motor Y position
+    
+    const railStartX = 80; 
+    const railEndX = 500;
+
+    // 3. Draw Power Rails
+    drawLine(ctx, railStartX, topY, railEndX, topY); 
+    drawLine(ctx, railStartX, botY, railEndX, botY); 
+
+    // 4. Place the "Lego Blocks"
+    drawTransistor(ctx, tx, ty);
+    drawMotor(ctx, lx, ly);
+
+    // -- THE BASE RESISTOR --
+    ctx.save();
+    ctx.translate(rx, ty);
+    ctx.rotate(Math.PI / 2); // Rotate to lay horizontally
+    drawResistor(ctx, 0, 0);
+    ctx.restore();
+
+    // -- THE LDR (Top Left) --
+    ctx.save();
+    ctx.translate(divX, 145);
+    drawResistor(ctx, 0, 0); // Native vertical resistor
+    
+    // Custom Light Arrows for the LDR
     ctx.beginPath();
-    // Power Rails
-    ctx.moveTo(50, 50); ctx.lineTo(350, 50);   
-    ctx.moveTo(50, 300); ctx.lineTo(350, 300); 
-    
-    // Voltage Divider Wire
-    ctx.moveTo(100, 50); ctx.lineTo(100, 100); 
-    
-    // LDR (Top)
-    ctx.strokeRect(85, 100, 30, 50);
-    ctx.moveTo(60, 110); ctx.lineTo(80, 125); // Arrows
-    ctx.moveTo(60, 125); ctx.lineTo(80, 140);
-    
-    // Middle Node to Base Resistor
-    ctx.moveTo(100, 150); ctx.lineTo(100, 200); 
-    ctx.moveTo(100, 175); ctx.lineTo(150, 175); 
-    ctx.strokeRect(150, 165, 40, 20); 
-    ctx.moveTo(190, 175); ctx.lineTo(230, 175); 
-    
-    // Fixed Resistor (Bottom)
-    ctx.strokeRect(85, 200, 30, 50);
-    ctx.moveTo(100, 250); ctx.lineTo(100, 300); 
-    
-    // Transistor
-    ctx.moveTo(230, 155); ctx.lineTo(230, 195); 
-    ctx.moveTo(230, 165); ctx.lineTo(260, 125); 
-    ctx.moveTo(230, 185); ctx.lineTo(260, 225); 
-    ctx.moveTo(260, 225); ctx.lineTo(260, 300); 
-    
-    // Emitter Arrow
-    ctx.moveTo(260, 225); ctx.lineTo(250, 215);
-    ctx.moveTo(260, 225); ctx.lineTo(245, 225);
-    
-    // Motor & Collector line
-    ctx.moveTo(260, 125); ctx.lineTo(260, 105); 
-    ctx.arc(260, 85, 20, Math.PI/2, 2.5*Math.PI); 
-    ctx.moveTo(260, 65); ctx.lineTo(260, 50); 
+    // Diagonal shafts
+    ctx.moveTo(-40, -15); ctx.lineTo(-20, 0); 
+    ctx.moveTo(-40, 0);   ctx.lineTo(-20, 15);
+    // Arrowheads
+    ctx.moveTo(-20, 0); ctx.lineTo(-27, -2);
+    ctx.moveTo(-20, 0); ctx.lineTo(-24, -7);
+    ctx.moveTo(-20, 15); ctx.lineTo(-27, 13);
+    ctx.moveTo(-20, 15); ctx.lineTo(-24, 8);
     ctx.stroke();
+    ctx.restore();
+
+    // -- THE FIXED RESISTOR (Bottom Left) --
+    ctx.save();
+    ctx.translate(divX, 305);
+    drawResistor(ctx, 0, 0);
+    ctx.restore();
+
+    // 5. Wire Everything Together
+    // Left Column Wires (Divider)
+    drawLine(ctx, divX, topY, divX, 145 - 25); // Top Rail to LDR
+    drawLine(ctx, divX, 145 + 25, divX, 305 - 25); // LDR to Fixed Resistor
+    drawLine(ctx, divX, 305 + 25, divX, botY); // Fixed Resistor to 0V Rail
     
-    ctx.fillText("M", 253, 91); 
+    // Junction Nodes for the Left Column
+    drawNode(ctx, divX, topY);
+    drawNode(ctx, divX, botY);
+    drawNode(ctx, divX, ty); // Crucial center tap node!
+
+    // Base Wires
+    drawLine(ctx, divX, ty, rx - 25, ty); // Divider to Base Resistor
+    drawLine(ctx, rx + 25, ty, tx - 25, ty); // Base Resistor to Transistor
+    
+    // Right Column Wires
+    drawLine(ctx, lx, topY, lx, ly - 25); // Top rail to Motor
+    drawNode(ctx, lx, topY);
+    drawLine(ctx, lx, ly + 25, lx, ty - 25); // Motor to Collector
+    drawLine(ctx, tx + 10, ty + 25, tx + 10, botY); // Emitter to 0V Rail
+    drawNode(ctx, tx + 10, botY);
 }
   
 // =========================================================================================================      
