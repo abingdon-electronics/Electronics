@@ -9143,8 +9143,9 @@ function generateGrade9TransistorProblem() {
     
 //**********************************************************************************************************
 
-function generateMosfetProblem() {
+function generateMosfetProblem(ctx, canvas) {
     console.log("MOSFET generator successfully fired!");
+    
     // 1. Reset UI
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
     
@@ -9185,35 +9186,42 @@ function generateMosfetProblem() {
     if (typeof window.mosfetMode === 'undefined') window.mosfetMode = 0;
     else window.mosfetMode = (window.mosfetMode + 1) % 3;
 
-    const canvas = document.getElementById('circuitCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Handle canvas gracefully from the Hub
+    if (!ctx || !canvas) {
+        canvas = document.getElementById('circuitCanvas');
+        ctx = canvas ? canvas.getContext('2d') : null;
+    }
+    if (ctx && canvas) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
     
-    const instructionsDiv = document.getElementById('mosfetInstructions');
-    if (instructionsDiv) instructionsDiv.style.display = 'block';
+    // 👇 FIX: Use the main question text box to guarantee visibility!
+    const qText = document.getElementById('questionText');
+    if (qText) qText.style.display = 'block';
 
     // ---------------------------------------------------------
     // MODE 0: Basic Power and Transconductance (gm)
     // ---------------------------------------------------------
     if (window.mosfetMode === 0) {
-        mode0.style.display = 'flex';
+        if (mode0) mode0.style.display = 'flex';
 
         let vcc = 12;
         let pLoad = [24, 36, 48][Math.floor(Math.random() * 3)]; // 2A, 3A, or 4A
         let iD = pLoad / vcc;
         let vgs = [5, 6, 7, 8][Math.floor(Math.random() * 4)];
         
-        // Math: gm = I_D / (V_GS - 3)
         let gm = Number((iD / (vgs - 3)).toFixed(2));
 
-        currentAnswers = { id: iD, gm: gm };
+        window.currentAnswers = { id: iD, gm: gm }; // 👇 FIX: Safe assignment
 
-        instructionsDiv.innerHTML = `
-            A MOSFET is used to switch a <strong>${vcc}V, ${pLoad}W</strong> lamp. A gate voltage of <strong>${vgs}V</strong> is applied.<br>
-            <em>(Assume threshold voltage V<sub>th</sub> = 3V)</em><br><br>
-            1. Calculate the drain current (I<sub>D</sub>) through the lamp.<br>
-            2. Calculate the transconductance (g<sub>m</sub>) required to fully switch on the lamp.
-        `;
+        if (qText) {
+            qText.innerHTML = `
+                A MOSFET is used to switch a <strong>${vcc}V, ${pLoad}W</strong> lamp. A gate voltage of <strong>${vgs}V</strong> is applied.<br>
+                <em>(Assume threshold voltage V<sub>th</sub> = 3V)</em><br><br>
+                1. Calculate the drain current (I<sub>D</sub>) through the lamp.<br>
+                2. Calculate the transconductance (g<sub>m</sub>) required to fully switch on the lamp.
+            `;
+        }
 
         if (solText) {
             solText.innerHTML = `<strong>I<sub>D</sub> = ${iD} A | g<sub>m</sub> = ${gm} S</strong><br><br>
@@ -9224,39 +9232,41 @@ function generateMosfetProblem() {
             g<sub>m</sub> = ${iD} / (${vgs} - 3) = ${iD} / ${vgs - 3} = <strong>${gm} S</strong>`;
         }
 
-        // Placeholder Text Drawing
-        ctx.fillStyle = strokeColor;
-        ctx.font = "16px Arial";
-        ctx.fillText(`Direct Voltage applied to Gate = ${vgs}V`, 50, 100);
-        ctx.fillText(`Load: ${vcc}V, ${pLoad}W`, 50, 150);
+        if (ctx) {
+            ctx.fillStyle = strokeColor;
+            ctx.font = "16px Arial";
+            ctx.fillText(`Direct Voltage applied to Gate = ${vgs}V`, 50, 100);
+            ctx.fillText(`Load: ${vcc}V, ${pLoad}W`, 50, 150);
+        }
     } 
     // ---------------------------------------------------------
     // MODE 1: Potential Divider Drive
     // ---------------------------------------------------------
     else if (window.mosfetMode === 1) {
-        mode1.style.display = 'flex'; 
+        if (mode1) mode1.style.display = 'flex'; 
 
         let vcc = 12;
         let r1 = [10, 20, 30][Math.floor(Math.random() * 3)]; // in kOhms
         let r2 = [10, 20, 30][Math.floor(Math.random() * 3)]; // in kOhms
         let gm = [1, 1.5, 2][Math.floor(Math.random() * 3)];
         
-        // Math
         let vgs = Number((vcc * (r2 / (r1 + r2))).toFixed(2));
         let iD = 0;
         if (vgs > 3) {
             iD = Number((gm * (vgs - 3)).toFixed(2));
         }
 
-        currentAnswers = { vgs: vgs, id: iD };
+        window.currentAnswers = { vgs: vgs, id: iD };
 
-        instructionsDiv.innerHTML = `
-            A potential divider is connected directly to the gate of a MOSFET.<br>
-            Supply Voltage = <strong>${vcc}V</strong>. Top Resistor R<sub>1</sub> = <strong>${r1}kΩ</strong>. Bottom Resistor R<sub>2</sub> = <strong>${r2}kΩ</strong>.<br>
-            The MOSFET has a transconductance (g<sub>m</sub>) of <strong>${gm} S</strong>.<br><br>
-            1. Calculate the gate-source voltage (V<sub>GS</sub>).<br>
-            2. Calculate the resulting drain current (I<sub>D</sub>).
-        `;
+        if (qText) {
+            qText.innerHTML = `
+                A potential divider is connected directly to the gate of a MOSFET.<br>
+                Supply Voltage = <strong>${vcc}V</strong>. Top Resistor R<sub>1</sub> = <strong>${r1}kΩ</strong>. Bottom Resistor R<sub>2</sub> = <strong>${r2}kΩ</strong>.<br>
+                The MOSFET has a transconductance (g<sub>m</sub>) of <strong>${gm} S</strong>.<br><br>
+                1. Calculate the gate-source voltage (V<sub>GS</sub>).<br>
+                2. Calculate the resulting drain current (I<sub>D</sub>).
+            `;
+        }
 
         if (solText) {
             solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | I<sub>D</sub> = ${iD} A</strong><br><br>
@@ -9268,45 +9278,42 @@ function generateMosfetProblem() {
             I<sub>D</sub> = ${gm} &times; ${Number((vgs - 3).toFixed(2))} = <strong>${iD} A</strong>`;
         }
         
-        // Placeholder Text Drawing
-        ctx.fillStyle = strokeColor;
-        ctx.font = "16px Arial";
-        ctx.fillText(`Potential Divider: R1 = ${r1}kΩ, R2 = ${r2}kΩ`, 50, 100);
-        ctx.fillText(`MOSFET: gm = ${gm} S`, 50, 150);
+        if (ctx) {
+            ctx.fillStyle = strokeColor;
+            ctx.font = "16px Arial";
+            ctx.fillText(`Potential Divider: R1 = ${r1}kΩ, R2 = ${r2}kΩ`, 50, 100);
+            ctx.fillText(`MOSFET: gm = ${gm} S`, 50, 150);
+        }
     }
     // ---------------------------------------------------------
     // MODE 2: Grade 9 Reverse Engineering
     // ---------------------------------------------------------
     else {
-        mode2.style.display = 'flex'; 
+        if (mode2) mode2.style.display = 'flex'; 
 
         let vcc = 12;
         let iD = [2, 3, 4][Math.floor(Math.random() * 3)];
         let gm = [1, 2][Math.floor(Math.random() * 2)];
         
-        // Calculate required VGS: VGS = (ID / gm) + 3
         let vgs = (iD / gm) + 3;
         
-        // We need VGS to be an integer less than VCC (12V) for clean math.
-        // e.g. ID=2, gm=1 -> VGS=5V. ID=4, gm=2 -> VGS=5V. ID=3, gm=1 -> VGS=6V.
-        
-        // Pick a top resistor that makes math clean
-        let r1_k = vcc - vgs; // e.g. 12 - 5 = 7. Let R1 = 7k, 14k, 21k.
+        let r1_k = vcc - vgs; 
         let multiplier = [1, 2][Math.floor(Math.random() * 2)];
-        let r1 = r1_k * multiplier; // in kOhms
+        let r1 = r1_k * multiplier; 
         
-        // Calculate missing R2: R2 = (VGS * R1) / (VCC - VGS)
         let r2 = (vgs * r1) / (vcc - vgs);
 
-        currentAnswers = { vgs: vgs, r2: r2 };
+        window.currentAnswers = { vgs: vgs, r2: r2 };
 
-        instructionsDiv.innerHTML = `
-            <strong>🚀 GRADE 9 CHALLENGE</strong><br>
-            A fan requires exactly <strong>${iD} A</strong> to run. The MOSFET driving it has a transconductance of <strong>${gm} S</strong>.<br>
-            A potential divider runs from a <strong>${vcc}V</strong> supply. The top resistor is <strong>${r1} kΩ</strong>.<br><br>
-            1. Calculate the required gate voltage (V<sub>GS</sub>) to turn on the fan.<br>
-            2. Calculate the required value for the bottom resistor.
-        `;
+        if (qText) {
+            qText.innerHTML = `
+                <strong>🚀 GRADE 9 CHALLENGE</strong><br>
+                A fan requires exactly <strong>${iD} A</strong> to run. The MOSFET driving it has a transconductance of <strong>${gm} S</strong>.<br>
+                A potential divider runs from a <strong>${vcc}V</strong> supply. The top resistor is <strong>${r1} kΩ</strong>.<br><br>
+                1. Calculate the required gate voltage (V<sub>GS</sub>) to turn on the fan.<br>
+                2. Calculate the required value for the bottom resistor.
+            `;
+        }
 
         if (solText) {
             solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | R<sub>bottom</sub> = ${r2} k&Omega;</strong><br><br>
@@ -9319,40 +9326,13 @@ function generateMosfetProblem() {
             <strong>R<sub>bottom</sub> = ${r2} k&Omega;</strong>`;
         }
 
-        // Placeholder Text Drawing
-        ctx.fillStyle = strokeColor;
-        ctx.font = "16px Arial";
-        ctx.fillText(`Target Current: ${iD} A. gm: ${gm} S.`, 50, 100);
-        ctx.fillText(`Top Resistor: ${r1} kΩ. Bottom: ???`, 50, 150);
+        if (ctx) {
+            ctx.fillStyle = strokeColor;
+            ctx.font = "16px Arial";
+            ctx.fillText(`Target Current: ${iD} A. gm: ${gm} S.`, 50, 100);
+            ctx.fillText(`Top Resistor: ${r1} kΩ. Bottom: ???`, 50, 150);
+        }
     }
-}
-// END of Content generator functions
-//**********************************************************************************************************
-//**********************************************************************************************************
-// ===========================================================================================================================      
-// FUNCTION 3. NAVIGATION and UI (Traffic Control) 
-// ===========================================================================================================================      
-
-function goHome() {
-    // 1. Hide the main work area and all sub-menus
-    document.getElementById('contentArea').style.display = 'none';
-    document.getElementById('menuBasics').style.display = 'none';
-    document.getElementById('menuTiming').style.display = 'none';
-    document.getElementById('menuDiodes').style.display = 'none';
-    if (document.getElementById('menuSystems')) document.getElementById('menuSystems').style.display = 'none'; 
-    if (document.getElementById('menuLogic')) document.getElementById('menuLogic').style.display = 'none'; 
-    if (document.getElementById('menuTransistors')) document.getElementById('menuTransistors').style.display = 'none';
-    document.getElementById('menuPlaceholder').style.display = 'none';
-
-    // 2. Show the main 8-button grid
-    document.getElementById('mainMenu').style.display = 'grid';
-
-    // 3. FULL UI WIPE (Replaces all the manual Zener hiding!)
-    if (typeof hideAllInputGroups === "function") hideAllInputGroups(); 
-    if (typeof clearZenerInputs === "function") clearZenerInputs(); 
-
-    // 4. Reset subtitles/branding
-    document.getElementById('moduleSubtitle').innerText = "Mastering the GCSE Course";
 }
 //*****************************************************************************************
 
