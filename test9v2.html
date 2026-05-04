@@ -9343,10 +9343,6 @@ function drawDirectMosfetCircuit(ctx, vcc) {
     // 2. Define other UI elements
     const mode0 = document.getElementById('mosfetMode0');
     const mode1 = document.getElementById('mosfetMode1');
-
-    // REMOVED THE BROKEN LINE: if (g9Btn) g9Btn.style.display = 'inline-block';
-    // (The rescue block above already handled the button using the 'rocket' variable)
-
     const pinkColor = "#E64097";
     const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
 
@@ -9501,6 +9497,9 @@ function drawDirectMosfetCircuit(ctx, vcc) {
     const mainGroup = document.getElementById('inputGroupGrade9Mosfet');
     if (mainGroup) {
         mainGroup.style.display = 'flex'; 
+    // 👇 ADD THESE TWO LINES TO FIX THE WIDTH 👇
+    mainGroup.style.flexDirection = 'column'; 
+    mainGroup.style.width = '100%';
     }
     // 👆 --- END RESCUE BLOCK --- 👆
 
@@ -9566,10 +9565,11 @@ function drawDirectMosfetCircuit(ctx, vcc) {
 
     window.currentAnswers = { vgs: vgs, r2: r2_k };
 
-    // 3. Update Text (Removed stray $ signs for cleaner rendering)
+    // 3. Update Text (
     const instructionsDiv = document.getElementById('g9MosfetInstructions');
     if (instructionsDiv) {
         instructionsDiv.style.display = 'block';
+        instructionsDiv.style.width = '100%';
         instructionsDiv.innerHTML = `
             <strong>🚀 GRADE 9 CHALLENGE: SYSTEM DESIGN</strong><br><br>
             A cooling fan requires exactly <strong>${iD} A</strong> to run. The MOSFET has a transconductance (g<sub>m</sub>) of <strong>${gm} S</strong> and a threshold voltage of <strong>3V</strong>.<br><br>
