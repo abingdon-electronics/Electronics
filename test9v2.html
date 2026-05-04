@@ -9286,7 +9286,7 @@ function generateGrade9TransistorProblem() {
 //*************************************************************************************
     
 function generateMosfetProblem(ctx, canvas) {
-    console.log("MOSFET generator successfully fired!");
+    console.log("Standard MOSFET generator successfully fired!");
     
     // 1. Reset UI
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
@@ -9308,13 +9308,12 @@ function generateMosfetProblem(ctx, canvas) {
     if (solContainer) solContainer.style.display = "none"; 
     if (solText) solText.innerHTML = ""; 
 
-    // Clear previous inputs (Removed Mode 2 inputs)
+    // Reset inputs and labels
     ['mosfetID0', 'mosfetGM0', 'mosfetVGS1', 'mosfetID1'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.value = '';
             el.style.removeProperty('border-color');
-            el.style.removeProperty('box-shadow');
             const label = document.querySelector(`label[for="${id}"]`);
             if (label) label.style.color = pinkColor;
         }
@@ -9322,22 +9321,41 @@ function generateMosfetProblem(ctx, canvas) {
 
     currentMode = 'mosfet';
     
-    // Cycle modes: 0 -> 1 -> 0
+    // Cycle modes: 0 (Direct) -> 1 (Divider)
     if (typeof window.mosfetMode === 'undefined') window.mosfetMode = 0;
     else window.mosfetMode = (window.mosfetMode + 1) % 2;
 
-    // Handle canvas gracefully from the Hub
+    // 2. Canvas Setup
     if (!ctx || !canvas) {
         canvas = document.getElementById('circuitCanvas');
         ctx = canvas ? canvas.getContext('2d') : null;
     }
     if (ctx && canvas) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = strokeColor;
     }
     
-    // Use the main question text box to guarantee visibility
     const qText = document.getElementById('questionText');
     if (qText) qText.style.display = 'block';
+
+    // Helper: Subscript drawing for consistent labels
+    function drawSafeSubscript(mainStr, subStr, suffixStr, x, y, size, color) {
+        ctx.save(); 
+        ctx.fillStyle = color || "#000000";
+        ctx.textAlign = "left"; 
+        ctx.font = "bold " + size + "px Arial";
+        ctx.fillText(mainStr, x, y);
+        let w1 = ctx.measureText(mainStr).width;
+        ctx.font = "bold " + (size * 0.7) + "px Arial";
+        ctx.fillText(subStr, x + w1 + 1, y + (size * 0.25));
+        let w2 = ctx.measureText(subStr).width;
+        if (suffixStr) {
+            ctx.font = "bold " + size + "px Arial";
+            ctx.fillText(suffixStr, x + w1 + w2 + 8, y); 
+        }
+        ctx.restore(); 
+    }
 
     // ---------------------------------------------------------
     // MODE 0: Basic Power and Transconductance (gm)
@@ -9346,37 +9364,33 @@ function generateMosfetProblem(ctx, canvas) {
         if (mode0) mode0.style.display = 'flex';
 
         let vcc = 12;
-        let pLoad = [24, 36, 48][Math.floor(Math.random() * 3)]; // 2A, 3A, or 4A
+        let pLoad = [24, 36, 48][Math.floor(Math.random() * 3)]; 
         let iD = pLoad / vcc;
         let vgs = [5, 6, 7, 8][Math.floor(Math.random() * 4)];
-        
         let gm = Number((iD / (vgs - 3)).toFixed(2));
 
         window.currentAnswers = { id: iD, gm: gm }; 
 
         if (qText) {
             qText.innerHTML = `
-                A MOSFET is used to switch a <strong>${vcc}V, ${pLoad}W</strong> lamp. A gate voltage of <strong>${vgs}V</strong> is applied.<br>
-                <em>(Assume threshold voltage V<sub>th</sub> = 3V)</em><br><br>
-                1. Calculate the drain current (I<sub>D</sub>) through the lamp.<br>
-                2. Calculate the transconductance (g<sub>m</sub>) required to fully switch on the lamp.
+                A MOSFET switches a <strong>${vcc}V, ${pLoad}W</strong> lamp. A gate voltage of <strong>${vgs}V</strong> is applied.<br>
+                <em>(V<sub>th</sub> = 3V)</em><br><br>
+                1. Find the drain current (I<sub>D</sub>).<br>
+                2. Find the required transconductance (g<sub>m</sub>).
             `;
         }
 
+        // DRAW MODE 0
+        if (typeof drawDirectMosfetCircuit === 'function') {
+            drawDirectMosfetCircuit(ctx, vcc);
+        }
+        drawSafeSubscript("V", "IN", "= " + vgs + "V", 15, 280, 16, strokeColor);
+        ctx.fillText(`Load: ${pLoad}W`, 390, 140);
+
         if (solText) {
             solText.innerHTML = `<strong>I<sub>D</sub> = ${iD} A | g<sub>m</sub> = ${gm} S</strong><br><br>
-            <em>Step 1:</em> Find the current required by the lamp (I = P / V).<br>
-            I<sub>D</sub> = ${pLoad} W / ${vcc} V = <strong>${iD} A</strong><br><br>
-            <em>Step 2:</em> Use the MOSFET data sheet formula: <strong>I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - 3)</strong><br>
-            Rearrange to find g<sub>m</sub>: g<sub>m</sub> = I<sub>D</sub> / (V<sub>GS</sub> - 3)<br>
-            g<sub>m</sub> = ${iD} / (${vgs} - 3) = ${iD} / ${vgs - 3} = <strong>${gm} S</strong>`;
-        }
-
-        if (ctx) {
-            ctx.fillStyle = strokeColor;
-            ctx.font = "16px Arial";
-            ctx.fillText(`Direct Voltage applied to Gate = ${vgs}V`, 50, 100);
-            ctx.fillText(`Load: ${vcc}V, ${pLoad}W`, 50, 150);
+            <em>Step 1:</em> $I_D = P / V = ${pLoad} / ${vcc} = ${iD} A$<br>
+            <em>Step 2:</em> $g_m = I_D / (V_{GS} - 3) = ${iD} / (${vgs} - 3) = <strong>${gm} S</strong>$`;
         }
     } 
     // ---------------------------------------------------------
@@ -9386,53 +9400,44 @@ function generateMosfetProblem(ctx, canvas) {
         if (mode1) mode1.style.display = 'flex'; 
 
         let vcc = 12;
-        let r1 = [10, 20, 30][Math.floor(Math.random() * 3)]; // in kOhms
-        let r2 = [10, 20, 30][Math.floor(Math.random() * 3)]; // in kOhms
+        let r1 = [10, 20, 30][Math.floor(Math.random() * 3)]; 
+        let r2 = [10, 20, 30][Math.floor(Math.random() * 3)]; 
         let gm = [1, 1.5, 2][Math.floor(Math.random() * 3)];
         
         let vgs = Number((vcc * (r2 / (r1 + r2))).toFixed(2));
-        let iD = 0;
-        if (vgs > 3) {
-            iD = Number((gm * (vgs - 3)).toFixed(2));
-        }
+        let iD = vgs > 3 ? Number((gm * (vgs - 3)).toFixed(2)) : 0;
 
         window.currentAnswers = { vgs: vgs, id: iD };
 
         if (qText) {
             qText.innerHTML = `
-                A potential divider is connected directly to the gate of a MOSFET.<br>
-                Supply Voltage = <strong>${vcc}V</strong>. Top Resistor R<sub>1</sub> = <strong>${r1}kΩ</strong>. Bottom Resistor R<sub>2</sub> = <strong>${r2}kΩ</strong>.<br>
-                The MOSFET has a transconductance (g<sub>m</sub>) of <strong>${gm} S</strong>.<br><br>
-                1. Calculate the gate-source voltage (V<sub>GS</sub>).<br>
-                2. Calculate the resulting drain current (I<sub>D</sub>).
+                The gate is driven by a potential divider ($R_1 = ${r1}kΩ, R_2 = ${r2}kΩ$).<br>
+                The MOSFET has a $g_m$ of <strong>${gm} S</strong> and $V_{th} = 3V$.<br><br>
+                1. Calculate $V_{GS}$.<br>
+                2. Calculate the resulting $I_D$.
             `;
         }
 
+        // DRAW MODE 1
+        if (typeof drawStandardMosfetCircuit === 'function') {
+            drawStandardMosfetCircuit(ctx, vcc);
+        }
+        drawSafeSubscript("R", "1", "= " + r1 + "kΩ", 230, 150, 14, strokeColor);
+        drawSafeSubscript("R", "2", "= " + r2 + "kΩ", 125, 310, 14, strokeColor);
+        drawSafeSubscript("V", "GS", "= ?", 230, 245, 16, pinkColor);
+
         if (solText) {
             solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | I<sub>D</sub> = ${iD} A</strong><br><br>
-            <em>Step 1:</em> Because a MOSFET gate draws zero current, you CAN use the standard potential divider formula!<br>
-            V<sub>GS</sub> = V<sub>IN</sub> &times; (R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>))<br>
-            V<sub>GS</sub> = ${vcc} &times; (${r2} / ${r1 + r2}) = <strong>${vgs} V</strong><br><br>
-            <em>Step 2:</em> Use the MOSFET data sheet formula: <strong>I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - 3)</strong><br>
-            I<sub>D</sub> = ${gm} &times; (${vgs} - 3)<br>
-            I<sub>D</sub> = ${gm} &times; ${Number((vgs - 3).toFixed(2))} = <strong>${iD} A</strong>`;
-        }
-        
-        if (ctx) {
-            ctx.fillStyle = strokeColor;
-            ctx.font = "16px Arial";
-            ctx.fillText(`Potential Divider: R1 = ${r1}kΩ, R2 = ${r2}kΩ`, 50, 100);
-            ctx.fillText(`MOSFET: gm = ${gm} S`, 50, 150);
+            <em>Step 1:</em> $V_{GS} = ${vcc} \times (${r2} / (${r1} + ${r2})) = ${vgs} V$<br>
+            <em>Step 2:</em> $I_D = ${gm} \times (${vgs} - 3) = <strong>${iD} A</strong>$`;
         }
     }
 }
 
 //************************************************************************************************    
     
-function generateGrade9MosfetProblem(ctx, canvas) {
-    console.log("Grade 9 MOSFET generator successfully fired!");
-
-    // 1. Reset UI
+function generateGrade9MosfetProblem() {
+    // 1. Reset UI and Canvas
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
     
     const mainGroup = document.getElementById('inputGroupGrade9Mosfet');
@@ -9447,14 +9452,12 @@ function generateGrade9MosfetProblem(ctx, canvas) {
     if (solContainer) solContainer.style.display = "none"; 
     if (solText) solText.innerHTML = ""; 
 
-    // Clear previous inputs
+    // Clear and color inputs
     ['g9MosfetVGS', 'g9MosfetR2'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.value = '';
             el.style.removeProperty('border-color');
-            el.style.removeProperty('box-shadow');
-            
             const label = document.querySelector(`label[for="${id}"]`);
             if (label) label.style.color = pinkColor;
         }
@@ -9464,62 +9467,81 @@ function generateGrade9MosfetProblem(ctx, canvas) {
     const rocket = document.getElementById('mainGrade9MosfetBtn'); 
     if (rocket) rocket.style.setProperty("display", "inline-block", "important");
 
-    // Handle canvas gracefully
-    if (!ctx || !canvas) {
-        canvas = document.getElementById('circuitCanvas');
-        ctx = canvas ? canvas.getContext('2d') : null;
-    }
-    if (ctx && canvas) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    // 2. Canvas Setup
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = strokeColor;
 
-    const instructionsDiv = document.getElementById('g9MosfetInstructions');
-    if (instructionsDiv) instructionsDiv.style.display = 'block';
+    // Helper: Subscript drawing (keeps the diagram looking professional)
+    function drawSafeSubscript(mainStr, subStr, suffixStr, x, y, size, color) {
+        ctx.save(); 
+        ctx.fillStyle = color || "#000000";
+        ctx.textAlign = "left"; 
+        ctx.textBaseline = "alphabetic"; 
+        ctx.font = "bold " + size + "px Arial";
+        ctx.fillText(mainStr, x, y);
+        let w1 = ctx.measureText(mainStr).width;
+        let subSize = size * 0.75;
+        ctx.font = "bold " + subSize + "px Arial";
+        ctx.fillText(subStr, x + w1 + 1, y + (size * 0.25));
+        let w2 = ctx.measureText(subStr).width;
+        if (suffixStr) {
+            ctx.font = "bold " + size + "px Arial";
+            ctx.fillText(suffixStr, x + w1 + w2 + 8, y); 
+        }
+        ctx.restore(); 
+    }
 
     // =======================================================================
-    // THE MATH: Reverse Engineering Challenge
+    // THE MATH: Reverse Engineering (Grade 9 Level)
     // =======================================================================
     let vcc = 12;
     let iD = [2, 3, 4][Math.floor(Math.random() * 3)];
     let gm = [1, 2][Math.floor(Math.random() * 2)];
     
-    // 1. Find VGS: ID = gm(VGS - 3) --> VGS = (ID / gm) + 3
+    // Step 1: Find required VGS using ID = gm(VGS - Vth) | Vth is 3V
     let vgs = (iD / gm) + 3;
     
-    // 2. Reverse potential divider to find clean resistor values
-    let r1_k = vcc - vgs; 
-    let multiplier = [1, 2][Math.floor(Math.random() * 2)];
-    let r1 = r1_k * multiplier; 
-    let r2 = (vgs * r1) / (vcc - vgs); // R_bottom
+    // Step 2: Set R_top (R1) and calculate required R_bottom (R2)
+    let r1_k = (vcc - vgs) * [1, 2][Math.floor(Math.random() * 2)]; 
+    let r2_k = (vgs * r1_k) / (vcc - vgs); 
 
-    window.currentAnswers = { vgs: vgs, r2: r2 };
+    window.currentAnswers = { vgs: vgs, r2: r2_k };
 
+    // 3. Update Text Instructions
+    const instructionsDiv = document.getElementById('g9MosfetInstructions');
     if (instructionsDiv) {
+        instructionsDiv.style.display = 'block';
         instructionsDiv.innerHTML = `
-            <strong>🚀 GRADE 9 REVERSE ENGINEERING</strong><br><br>
-            A cooling fan requires exactly <strong>${iD} A</strong> to run. The MOSFET driving it has a transconductance of <strong>${gm} S</strong> and a threshold voltage of <strong>3V</strong>.<br><br>
-            A potential divider runs from a <strong>${vcc}V</strong> supply. The top resistor (R<sub>top</sub>) is chosen to be <strong>${r1} kΩ</strong>.<br><br>
-            1. Calculate the required gate voltage (V<sub>GS</sub>) to turn on the fan.<br>
-            2. Calculate the required value for the bottom resistor (R<sub>bottom</sub>).
+            <strong>🚀 GRADE 9 CHALLENGE: SYSTEM DESIGN</strong><br><br>
+            A high-power fan requires exactly <strong>${iD} A</strong> to operate. The MOSFET has a transconductance ($g_m$) of <strong>${gm} S</strong> and a threshold voltage of <strong>3V</strong>.<br><br>
+            The potential divider uses a <strong>${vcc}V</strong> supply. $R_{top}$ is fixed at <strong>${r1_k} kΩ</strong>.<br><br>
+            1. Calculate the target <strong>$V_{GS}$</strong> needed for the fan.<br>
+            2. Determine the required value for <strong>$R_{bottom}$</strong>.
         `;
     }
 
-    if (solText) {
-        solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | R<sub>bottom</sub> = ${r2} k&Omega;</strong><br><br>
-        <em>Step 1:</em> Rearrange the formula <strong>I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - 3)</strong> to find V<sub>GS</sub>.<br>
-        V<sub>GS</sub> = (I<sub>D</sub> / g<sub>m</sub>) + 3<br>
-        V<sub>GS</sub> = (${iD} / ${gm}) + 3 = <strong>${vgs} V</strong><br><br>
-        <em>Step 2:</em> Use the potential divider formula backward to find R<sub>bottom</sub>.<br>
-        V<sub>OUT</sub> = V<sub>IN</sub> &times; (R<sub>bottom</sub> / (R<sub>top</sub> + R<sub>bottom</sub>))<br>
-        ${vgs}V = ${vcc}V &times; (R<sub>bottom</sub> / (${r1}k + R<sub>bottom</sub>))<br>
-        <strong>R<sub>bottom</sub> = ${r2} k&Omega;</strong>`;
+    // 4. DRAWING THE CIRCUIT
+    // We call your external drawing function for the potential divider MOSFET layout
+    if (typeof drawStandardMosfetCircuit === 'function') {
+        drawStandardMosfetCircuit(ctx, vcc);
     }
 
-    if (ctx) {
-        ctx.fillStyle = strokeColor;
-        ctx.font = "16px Arial";
-        ctx.fillText(`Target Current: ${iD} A. gm: ${gm} S.`, 50, 100);
-        ctx.fillText(`Top Resistor: ${r1} kΩ. Bottom: ???`, 50, 150);
+    // Overlay the specific variables for this problem onto the canvas
+    drawSafeSubscript("R", "top", "= " + r1_k + " kΩ", 230, 150, 14, strokeColor);
+    drawSafeSubscript("R", "bottom", "= ?", 125, 310, 14, pinkColor);
+    drawSafeSubscript("V", "GS", "= ?", 230, 245, 16, pinkColor);
+
+    // 5. Solution Logic
+    if (solText) {
+        solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | R<sub>bottom</sub> = ${r2_k.toFixed(2)} k&Omega;</strong><br><br>
+        <em>Step 1:</em> Find $V_{GS}$ using $I_D = g_m(V_{GS} - V_{th})$:<br>
+        $V_{GS} = (${iD} / ${gm}) + 3 = <strong>${vgs} V</strong>$<br><br>
+        <em>Step 2:</em> Use the divider ratio:<br>
+        $R_{bottom} = (V_{GS} \\times R_{top}) / (V_{supply} - V_{GS})$<br>
+        $R_{bottom} = (${vgs} \\times ${r1_k}) / (${vcc} - ${vgs}) = <strong>${r2_k.toFixed(2)} k&Omega;</strong>$`;
     }
 }
 //*************************************************************************************************************************************
