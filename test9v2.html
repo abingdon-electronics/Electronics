@@ -6296,6 +6296,9 @@ function drawMonostable(ctx, R, C, rUnit, cUnit) {
 //*****************************************************************************************
     
 function generateMonostableProblem() {
+    // 👇 Add this line right here:
+    console.log("MOSFET generator successfully fired!");
+    
     hideAllInputGroups();
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
