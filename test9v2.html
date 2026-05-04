@@ -9323,15 +9323,20 @@ function drawDirectMosfetCircuit(ctx, vcc) {
         hideAllInputGroups();
     }
 
-    // 👇 --- ROCKET & UI RESCUE BLOCK --- 👇
+// 👇 --- RE-BINDING RESCUE BLOCK --- 👇
     const rocket = document.getElementById('mainGrade9Btn');
     if (rocket) {
         rocket.style.setProperty("display", "inline-block", "important");
+        
+        // This is the fix: Tell the button what to do when clicked
+        rocket.onclick = function() {
+            generateGrade9MosfetProblem();
+        };
     }
-
+    
     const mainGroup = document.getElementById('inputGroupMosfet');
     if (mainGroup) {
-        mainGroup.style.display = 'flex'; // Changed to flex to match your HTML class
+        mainGroup.style.display = 'flex'; 
     }
     // 👆 --- END RESCUE BLOCK --- 👆
 
