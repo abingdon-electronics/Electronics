@@ -10596,11 +10596,15 @@ if (currentMode === 'grade9nand') {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9TransVCE').value)), currentAnswers.vce, 'V'));
         } 
         else if (window.g9TransMode === 1) {
-            let rInput = document.getElementById('g9TransVIN').value;
-            let cleanR = acceptSpaces(rInput);
-            if (cleanR !== "" && !cleanR.includes("Ω") && !cleanR.toLowerCase().includes("ohm")) cleanR += "Ω";
-            results.push(validateMatch(parseInput(cleanR), currentAnswers.rLdr, 'Ω'));
-        } 
+            let vInput = document.getElementById('g9TransVIN').value;
+            let cleanV = acceptSpaces(vInput);
+            
+            // If they didn't type a unit, default to 'V' (Volts) instead of Ohms
+            if (cleanV !== "" && !cleanV.toLowerCase().includes("v")) cleanV += "V";
+            
+            // Compare against currentAnswers.vin and expect 'V' as the unit
+            results.push(validateMatch(parseInput(cleanV), currentAnswers.vin, 'V'));
+        }
         else {
             results.push(document.getElementById('g9TransDiodePos').value === currentAnswers.pos ? 'correct' : 'wrongval');
             results.push(document.getElementById('g9TransDiodeReason').value === currentAnswers.reason ? 'correct' : 'wrongval');
