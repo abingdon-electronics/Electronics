@@ -2735,6 +2735,128 @@ function drawGrade9DividerCircuit(ctx) {
     drawLine(ctx, tx + 10, ty + 25, tx + 10, botY); // Emitter to 0V Rail
     drawNode(ctx, tx + 10, botY);
 }
+
+// =========================================================================================================
+// MOSFET Drawing HELPERS
+// =========================================================================================================
+
+/**
+ * Draws a standard N-Channel Enhancement MOSFET (GCSE/WJEC Style)
+ * Designed to have the EXACT same footprint as the Transistor to reuse wire coordinates!
+ * - Gate (G): Connect wire to (x - 25, y)
+ * - Drain (D): Connect wire to (x + 10, y - 25)
+ * - Source (S): Connect wire to (x + 10, y + 25)
+ */
+function drawMosfet(ctx, x, y) {
+    const radius = 25; 
+    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "miter";
+
+    ctx.beginPath();
+    // 1. Gate wire and plate
+    ctx.moveTo(x - radius, y);  // Start at left bounding box edge (Gate)
+    ctx.lineTo(x - 5, y);       // Wire to gate plate
+    ctx.moveTo(x - 5, y - 12);  // Top of gate plate
+    ctx.lineTo(x - 5, y + 12);  // Bottom of gate plate
+
+    // 2. Channel (3 dashed segments for Enhancement type)
+    ctx.moveTo(x + 1, y - 14); ctx.lineTo(x + 1, y - 6);   // Top segment
+    ctx.moveTo(x + 1, y - 4);  ctx.lineTo(x + 1, y + 4);   // Middle segment
+    ctx.moveTo(x + 1, y + 6);  ctx.lineTo(x + 1, y + 14);  // Bottom segment
+
+    // 3. Drain connection
+    ctx.moveTo(x + 1, y - 10);      // Connect to top segment
+    ctx.lineTo(x + 10, y - 10);     // Out to the right
+    ctx.lineTo(x + 10, y - radius); // Straight vertical up to the bounding edge (Drain)
+
+    // 4. Source connection
+    ctx.moveTo(x + 1, y + 10);      // Connect to bottom segment
+    ctx.lineTo(x + 10, y + 10);     // Out to the right
+    ctx.lineTo(x + 10, y + radius); // Straight vertical down to the bounding edge (Source)
+
+    // 5. Substrate connection (Middle to Source)
+    ctx.moveTo(x + 1, y);           // Connect to middle segment
+    ctx.lineTo(x + 10, y);          // Out to the right
+    ctx.lineTo(x + 10, y + 10);     // Down to meet the source line
+    ctx.stroke();
+
+    // 6. Arrow on Substrate (pointing IN for N-Channel)
+    ctx.beginPath();
+    ctx.fillStyle = strokeColor;
+    ctx.moveTo(x + 1, y);           // Arrow tip at the channel
+    ctx.lineTo(x + 7, y - 4);       // Top barb
+    ctx.lineTo(x + 7, y + 4);       // Bottom barb
+    ctx.closePath();
+    ctx.fill();
+}
+
+//==================================================================================
+// HELPER: Standard MOSFET Divider Circuit
+//==================================================================================
+// Draws the rails, MOSFET, standard potential divider, motor, and connecting wires.
+function drawStandardMosfetCircuit(ctx, supplyVoltage) {
+    // 1. Setup grid coordinates (Matching Transistor Layout)
+    const topY = 40;   
+    const botY = 360;  
+    const tx = 380;     // MOSFET X
+    const ty = 250;     // MOSFET Y
+    
+    const divX = 200;   // Divider column (moved left since we have no series base resistor)
+    const lx = tx + 10; // Motor column
+    const ly = 145;     
+    
+    const railStartX = 80; 
+    const railEndX = 500;
+
+    // Draw Power Rails 
+    drawLine(ctx, railStartX, topY, railEndX, topY); 
+    drawLine(ctx, railStartX, botY, railEndX, botY); 
+    
+    if (supplyVoltage) {
+        drawLabel(ctx, `+${supplyVoltage}V`, railStartX - 35, topY + 5, 16);
+        drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
+    }
+
+    // Draw MOSFET & Motor
+    drawMosfet(ctx, tx, ty);
+    drawMotor(ctx, lx, ly);
+
+    // -- TOP RESISTOR --
+    ctx.save();
+    ctx.translate(divX, 145);
+    drawResistor(ctx, 0, 0); 
+    ctx.restore();
+
+    // -- BOTTOM RESISTOR --
+    ctx.save();
+    ctx.translate(divX, 305);
+    drawResistor(ctx, 0, 0);
+    ctx.restore();
+
+    // Wire Everything Together
+    // Divider Column Wires
+    drawLine(ctx, divX, topY, divX, 145 - 25); 
+    drawLine(ctx, divX, 145 + 25, divX, 305 - 25); 
+    drawLine(ctx, divX, 305 + 25, divX, botY); 
+    
+    // Nodes
+    drawNode(ctx, divX, topY);
+    drawNode(ctx, divX, botY);
+    drawNode(ctx, divX, ty); // Center tap node
+
+    // Gate Wire (Direct connection to divider center tap!)
+    drawLine(ctx, divX, ty, tx - 25, ty); 
+
+    // Motor, Drain, and Source Wires
+    drawLine(ctx, lx, topY, lx, ly - 25); 
+    drawNode(ctx, lx, topY);
+    drawLine(ctx, lx, ly + 25, lx, ty - 25); 
+    drawLine(ctx, tx + 10, ty + 25, tx + 10, botY); 
+    drawNode(ctx, tx + 10, botY);
+}
   
 // =========================================================================================================      
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
