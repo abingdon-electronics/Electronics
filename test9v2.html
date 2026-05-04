@@ -10868,7 +10868,7 @@ if (currentMode === 'grade9nand') {
             }
         }
     }
-    // 👇 NEW: TRANSISTOR ACTIVE INPUTS 👇
+    // 👇 TRANSISTOR ACTIVE INPUTS 👇
     else if (currentMode === 'transistor') {
         if (window.transistorMode === 1) {
             activeInputs = ['transVIN', 'transVRB', 'transIB', 'transP']; // Top-Down Mode
@@ -10887,6 +10887,18 @@ if (currentMode === 'grade9nand') {
         } else {
             activeInputs = ['g9TransDiodePos', 'g9TransDiodeReason'];
         }
+    }
+    // 👇 UPDATED: NORMAL MOSFET ACTIVE INPUTS 👇
+    else if (currentMode === 'mosfet') {
+        if (window.mosfetMode === 0) {
+            activeInputs = ['mosfetID0', 'mosfetGM0'];
+        } else {
+            activeInputs = ['mosfetVGS1', 'mosfetID1'];
+        }
+    }
+    // 👇 GRADE 9 MOSFET ACTIVE INPUTS 👇
+    else if (currentMode === 'grade9mosfet') {
+        activeInputs = ['g9MosfetVGS', 'g9MosfetR2'];
     }
     
     if (currentMode === 'power') {
@@ -10938,14 +10950,14 @@ if (currentMode === 'grade9nand') {
             results.push(validateMatch(parseInput(acceptSpaces(inputStr)), currentAnswers.vValue, targetUnit));
         }
 
-        } else if (currentMode === 'resistance' || currentMode === 'grade9resistance') {
+    } else if (currentMode === 'resistance' || currentMode === 'grade9resistance') {
         let inputStr = document.getElementById('inputR').value;
         let cleanStr = acceptSpaces(inputStr); 
         
         if (cleanStr !== "" && !cleanStr.includes("Ω") && !cleanStr.toLowerCase().includes("ohm")) {
-        cleanStr += "Ω";
+            cleanStr += "Ω";
         }
-    results.push(validateMatch(parseInput(cleanStr), currentAnswers.rValue, currentAnswers.rTargetUnit || 'Ω'));
+        results.push(validateMatch(parseInput(cleanStr), currentAnswers.rValue, currentAnswers.rTargetUnit || 'Ω'));
 
     } else if (currentMode === 'oscilloscope') {
         results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputOscAmp').value)), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
@@ -11027,10 +11039,8 @@ if (currentMode === 'grade9nand') {
             // Validate the exact power input
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputP').value)), currentAnswers.exactPower, currentAnswers.vUnit));
             
-            // FIX: Match the ID used in the HTML and generation function
-            const userRating = document.getElementById('selectPowerRating').value; 
-            
             // Validate the dropdown selection
+            const userRating = document.getElementById('selectPowerRating').value; 
             results.push(userRating === currentAnswers.safeRating ? 'correct' : 'wrongval');
         } else {
             // Standard power validation for scenarios 1 and 3
@@ -11069,7 +11079,7 @@ if (currentMode === 'grade9nand') {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('siliconTP2').value)), currentAnswers.tp2, 'V'));
         }
 
-} else if (currentMode === 'grade9silicon') {
+    } else if (currentMode === 'grade9silicon') {
         // Grade OR-Gate if it's visible
         if (document.getElementById('inputGroupGrade9Silicon') && document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPayload').value)), currentAnswers.vLoad, 'V'));
@@ -11092,7 +11102,7 @@ if (currentMode === 'grade9nand') {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVLoad').value)), currentAnswers.vLoad, 'V'));
         }
     }
-    // 👇 NEW: TRANSISTOR GRADING LOGIC 👇
+    // 👇 TRANSISTOR GRADING LOGIC 👇
     else if (currentMode === 'transistor') {
         // Grade Transistor Modes
         if (window.transistorMode === 1) {
@@ -11110,7 +11120,6 @@ if (currentMode === 'grade9nand') {
             // Mode 3: Design Mode
             let rInput = document.getElementById('transRB').value;
             let cleanR = acceptSpaces(rInput);
-            // Safety net: if they don't type Ω or ohm, we add it for them so the grader doesn't crash
             if (cleanR !== "" && !cleanR.includes("Ω") && !cleanR.toLowerCase().includes("ohm")) {
                 cleanR += "Ω";
             }
@@ -11141,8 +11150,57 @@ if (currentMode === 'grade9nand') {
             results.push(document.getElementById('g9TransDiodeReason').value === currentAnswers.reason ? 'correct' : 'wrongval');
         }
     }
+    
+    // 👇 UPDATED: NORMAL MOSFET GRADING LOGIC 👇
+    else if (currentMode === 'mosfet') {
+        if (window.mosfetMode === 0) {
+            // Grade Drain Current (ID) with Amps fallback
+            let idInput = document.getElementById('mosfetID0').value;
+            let cleanID = acceptSpaces(idInput);
+            if (cleanID !== "" && !cleanID.toLowerCase().includes("a")) cleanID += "A";
+            results.push(validateMatch(parseInput(cleanID), currentAnswers.id, 'A')); 
 
-// 5. Final Feedback and Scoring (BORDERS ONLY)
+            // Grade Transconductance (gm) with Siemens fallback
+            let gmInput = document.getElementById('mosfetGM0').value;
+            let cleanGM = acceptSpaces(gmInput);
+            if (cleanGM !== "" && !cleanGM.toLowerCase().includes("s")) cleanGM += "S";
+            results.push(validateMatch(parseInput(cleanGM), currentAnswers.gm, 'S'));
+
+        } else {
+            // Grade VGS with Volts fallback
+            let vgsInput = document.getElementById('mosfetVGS1').value;
+            let cleanVGS = acceptSpaces(vgsInput);
+            if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) cleanVGS += "V"; 
+            results.push(validateMatch(parseInput(cleanVGS), currentAnswers.vgs, 'V'));
+
+            // Grade Drain Current (ID) with Amps fallback
+            let idInput = document.getElementById('mosfetID1').value;
+            let cleanID = acceptSpaces(idInput);
+            if (cleanID !== "" && !cleanID.toLowerCase().includes("a")) cleanID += "A";
+            results.push(validateMatch(parseInput(cleanID), currentAnswers.id, 'A')); 
+        }
+    }
+
+    // 👇 GRADE 9 MOSFET GRADING LOGIC 👇
+    else if (currentMode === 'grade9mosfet') {
+        // Grade VGS with Volts fallback
+        let vgsInput = document.getElementById('g9MosfetVGS').value;
+        let cleanVGS = acceptSpaces(vgsInput);
+        if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) {
+            cleanVGS += "V"; 
+        }
+        results.push(validateMatch(parseInput(cleanVGS), currentAnswers.vgs, 'V'));
+
+        // Grade Resistor with Ohms fallback (Answer targets kΩ)
+        let r2Input = document.getElementById('g9MosfetR2').value;
+        let cleanR2 = acceptSpaces(r2Input);
+        if (cleanR2 !== "" && !cleanR2.includes("Ω") && !cleanR2.toLowerCase().includes("ohm")) {
+            cleanR2 += "Ω";
+        }
+        results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
+    }
+
+    // 5. Final Feedback and Scoring (BORDERS ONLY)
     activeInputs.forEach((id, index) => {
         const el = document.getElementById(id);
         if (el) {
@@ -11217,7 +11275,6 @@ if (currentMode === 'grade9nand') {
     
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
-    
 // **********************************************************************
 /**
  * Upgraded Hybrid Parser with Precision Tracking & Capacitance Support
