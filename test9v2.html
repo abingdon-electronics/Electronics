@@ -9320,6 +9320,12 @@ function drawDirectMosfetCircuit(ctx, vcc) {
     
     // 1. Reset UI and force the Grade 9 button to show
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
+
+    // FORCE the Grade 9 button to show regardless of what was just hidden
+    const g9Btn = document.getElementById('mainGrade9MosfetBtn');
+    if (g9Btn) {
+        g9Btn.style.setProperty("display", "inline-block", "important");
+    }
     
     const mainGroup = document.getElementById('inputGroupMosfet');
     const mode0 = document.getElementById('mosfetMode0');
@@ -9472,6 +9478,12 @@ function drawDirectMosfetCircuit(ctx, vcc) {
 function generateGrade9MosfetProblem() {
     // 1. Reset UI
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
+
+    // FORCE the Grade 9 button to show regardless of what was just hidden
+    const g9Btn = document.getElementById('mainGrade9MosfetBtn');
+    if (g9Btn) {
+        g9Btn.style.setProperty("display", "inline-block", "important");
+    }
     
     const mainGroup = document.getElementById('inputGroupGrade9Mosfet');
     if (mainGroup) mainGroup.style.display = 'block';
