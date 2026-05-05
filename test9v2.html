@@ -9447,10 +9447,10 @@ function generateMosfetProblem(ctx, canvas) {
 
         if (qText) {
             qText.innerHTML = `
-                A MOSFET switches a <strong>${vcc}V, ${pLoad}W</strong> lamp. A gate voltage of <strong>${vgs}V</strong> is applied.<br>
-                <em>(V<sub>th</sub> = 3V)</em><br><br>
-                1. Find the drain current (I<sub>D</sub>).<br>
-                2. Find the required transconductance (g<sub>m</sub>).
+                A MOSFET is used to control a heater as shown in the circuit diagram.
+                <br><br>
+                1. Calculate the drain current (I<sub>D</sub>).<br>
+                2. Use the input voltage shown on the diagram to find the required transconductance (g<sub>m</sub>).
             `;
         }
 
