@@ -2501,14 +2501,14 @@ function drawTransistor(ctx, x, y) {
     ctx.fill();
 }
 function drawHeater(ctx, x, y) {
-    const w = 20; // Width stays the same
-    const h = 60; // Stretched to bridge the gap to the wires
+    const w = 20; 
+    const h = 60; 
     
     ctx.save();
     
-    // 1. Fill white background to hide the vertical wire behind it
+    // 1. Fill white background (made slightly larger to completely cover the wires)
     ctx.fillStyle = "white";
-    ctx.fillRect(x - w/2, y - h/2, w, h);
+    ctx.fillRect(x - w/2 - 2, y - h/2 - 2, w + 4, h + 4);
     
     // 2. Draw the outer rectangle
     ctx.beginPath();
@@ -2518,7 +2518,7 @@ function drawHeater(ctx, x, y) {
     // 3. Draw the three internal horizontal lines (creates 4 equal sections)
     ctx.beginPath();
     
-    // Top line (15px up from center)
+    // Top line
     ctx.moveTo(x - w/2, y - 15);
     ctx.lineTo(x + w/2, y - 15);
     
@@ -2526,7 +2526,7 @@ function drawHeater(ctx, x, y) {
     ctx.moveTo(x - w/2, y);
     ctx.lineTo(x + w/2, y);
     
-    // Bottom line (15px down from center)
+    // Bottom line
     ctx.moveTo(x - w/2, y + 15);
     ctx.lineTo(x + w/2, y + 15);
     
