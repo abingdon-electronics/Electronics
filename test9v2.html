@@ -2812,15 +2812,16 @@ function drawMosfet(ctx, x, y) {
 // HELPER: Standard MOSFET Divider Circuit
 //==================================================================================
 // Draws the rails, MOSFET, standard potential divider, motor, and connecting wires.
-function drawStandardMosfetCircuit(ctx, supplyVoltage) {
+// Add loadText and loadSymbol to the arguments!
+function drawStandardMosfetCircuit(ctx, supplyVoltage, loadText = "", loadSymbol = "motor") {
     // 1. Setup grid coordinates (Matching Transistor Layout)
     const topY = 40;   
     const botY = 360;  
     const tx = 380;     // MOSFET X
     const ty = 250;     // MOSFET Y
     
-    const divX = 200;   // Divider column (moved left since we have no series base resistor)
-    const lx = tx + 10; // Motor column
+    const divX = 200;   
+    const lx = tx + 10; 
     const ly = 145;     
     
     const railStartX = 80; 
@@ -2831,14 +2832,19 @@ function drawStandardMosfetCircuit(ctx, supplyVoltage) {
     drawLine(ctx, railStartX, botY, railEndX, botY); 
     
     if (supplyVoltage) {
-        // Nudged railStartX - 45 so it isn't squashed against the edge
         drawLabel(ctx, `+${supplyVoltage}V`, railStartX - 45, topY + 5, 16);
         drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
     }
 
-    // Draw MOSFET & Motor
+    // --- DRAW MOSFET & DYNAMIC LOAD ---
     drawMosfet(ctx, tx, ty);
-    drawMotor(ctx, lx, ly);
+    
+    // Choose which symbol to draw based on our instructions!
+    if (loadSymbol === "lamp") {
+        drawLamp(ctx, lx, ly); 
+    } else {
+        drawMotor(ctx, lx, ly);
+    }
 
     // -- TOP RESISTOR --
     ctx.save();
@@ -2853,45 +2859,36 @@ function drawStandardMosfetCircuit(ctx, supplyVoltage) {
     ctx.restore();
 
     // Wire Everything Together
-    // Divider Column Wires
     drawLine(ctx, divX, topY, divX, 145 - 25); 
     drawLine(ctx, divX, 145 + 25, divX, 305 - 25); 
     drawLine(ctx, divX, 305 + 25, divX, botY); 
     
-    // Nodes
     drawNode(ctx, divX, topY);
     drawNode(ctx, divX, botY);
-    drawNode(ctx, divX, ty); // Center tap node
+    drawNode(ctx, divX, ty); 
 
-    // Gate Wire (Direct connection to divider center tap!)
     drawLine(ctx, divX, ty, tx - 25, ty); 
 
-    // Motor, Drain, and Source Wires
     drawLine(ctx, lx, topY, lx, ly - 25); 
     drawNode(ctx, lx, topY);
     drawLine(ctx, lx, ly + 25, lx, ty - 25); 
     drawLine(ctx, tx + 10, ty + 25, tx + 10, botY); 
     drawNode(ctx, tx + 10, botY);
 
-    
-    // --- DRAW MOTOR LABEL (Safe Version + Shield) ---
-    // Safely grab the global power variable if it exists
-    let motorLabel = (typeof power !== 'undefined') ? `Load: ${power}W` : "";
-
-    if (motorLabel !== "") {
+    // --- DRAW DYNAMIC LOAD LABEL ---
+    if (loadText !== "") {
         ctx.save();
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "left"; 
         
-        // 1. Pro-Tip Shield: Draw a white box behind the text to clear the wire
-        let metrics = ctx.measureText(motorLabel);
+        // Shield
+        let metrics = ctx.measureText(loadText);
         ctx.fillStyle = "white";
-        // Position it 35px right of motor center, slightly lifted
         ctx.fillRect(lx + 35, ly - 10, metrics.width + 10, 20); 
 
-        // 2. Draw the actual text on top of the shield
+        // Text
         ctx.fillStyle = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
-        ctx.fillText(motorLabel, lx + 35, ly + 5);
+        ctx.fillText(loadText, lx + 35, ly + 5);
         ctx.restore();
     }
 }
