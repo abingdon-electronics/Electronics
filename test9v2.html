@@ -9460,7 +9460,7 @@ function drawDirectMosfetCircuit(ctx, vcc) {
         drawSafeSubscript("V", "IN", "= " + vgs + "V", 80, 245, 16, pinkColor);
         
         // --- UPGRADED MOTOR LABEL FOR MODE 0 ---
-        let motorLabel = `Load: ${pLoad}W`;
+        let motorLabel = `${vcc}V, ${pLoad}W`; 
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "left"; 
         
