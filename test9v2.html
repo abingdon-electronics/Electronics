@@ -9334,7 +9334,7 @@ function drawDirectMosfetCircuit(ctx, vcc) {
 
 //**********************************************************************************************************
 
-    function generateMosfetProblem(ctx, canvas) {
+function generateMosfetProblem(ctx, canvas) {
     console.log("Standard MOSFET generator successfully fired!");
 
     // 1. Reset UI
@@ -9342,15 +9342,15 @@ function drawDirectMosfetCircuit(ctx, vcc) {
         hideAllInputGroups();
     }
     // --- RESET BORDERS & COLORS ---
-['mosfetID', 'mosfetGM', 'mosfetVGS'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-        el.style.borderColor = ""; // This removes the "ghost" green/red border
-        el.style.boxShadow = "";   // This removes any glow effects
-    }
-});
+    ['mosfetID', 'mosfetGM', 'mosfetVGS'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.borderColor = ""; // This removes the "ghost" green/red border
+            el.style.boxShadow = "";   // This removes any glow effects
+        }
+    });
 
-// 👇 --- RE-BINDING RESCUE BLOCK --- 👇
+    // 👇 --- RE-BINDING RESCUE BLOCK --- 👇
     const rocket = document.getElementById('mainGrade9Btn');
     if (rocket) {
         rocket.style.setProperty("display", "inline-block", "important");
@@ -9429,7 +9429,7 @@ function drawDirectMosfetCircuit(ctx, vcc) {
     }
 
     // ---------------------------------------------------------
-    // MODE 0: Basic Power and Transconductance (gm)
+    // MODE 0: Basic Power and Transconductance (gm) (LAMP)
     // ---------------------------------------------------------
     if (window.mosfetMode === 0) {
         if (mode0) mode0.style.display = 'flex';
@@ -9452,11 +9452,11 @@ function drawDirectMosfetCircuit(ctx, vcc) {
             `;
         }
 
-    // DRAW MODE 0
+        // DRAW MODE 0
         drawDirectMosfetCircuit(ctx, vcc);
         drawSafeSubscript("V", "IN", "= " + vgs + "V", 80, 245, 16, pinkColor);
         
-        // --- UPGRADED MOTOR LABEL FOR MODE 0 ---
+        // --- UPGRADED LAMP LABEL FOR MODE 0 ---
         let motorLabel = `${vcc}V, ${pLoad}W`; 
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "left"; 
@@ -9477,7 +9477,7 @@ function drawDirectMosfetCircuit(ctx, vcc) {
         }
     } 
     // ---------------------------------------------------------
-    // MODE 1: Potential Divider Drive
+    // MODE 1: Potential Divider Drive (MOTOR)
     // ---------------------------------------------------------
     else {
         if (mode1) mode1.style.display = 'flex'; 
@@ -9502,9 +9502,9 @@ function drawDirectMosfetCircuit(ctx, vcc) {
             `;
         }
 
-        // DRAW MODE 1
+        // DRAW MODE 1 (Instructing the helper function to draw a motor, with no text!)
         if (typeof drawStandardMosfetCircuit === 'function') {
-            drawStandardMosfetCircuit(ctx, vcc);
+            drawStandardMosfetCircuit(ctx, vcc, "", "motor");
         }
         drawSafeSubscript("R", "1", "= " + r1 + "kΩ", 235, 150, 14, strokeColor);
         drawSafeSubscript("R", "2", "= " + r2 + "kΩ", 125, 310, 14, strokeColor);
