@@ -2813,6 +2813,7 @@ function drawMosfet(ctx, x, y) {
 //==================================================================================
 // Draws the rails, MOSFET, standard potential divider, motor, and connecting wires.
 // Add loadText and loadSymbol to the arguments!
+//This is for Mode 1 standard MOSFET question (pot divider)  and grade 9 MOSFET
 function drawStandardMosfetCircuit(ctx, supplyVoltage, loadText = "", loadSymbol = "motor") {
     // 1. Setup grid coordinates (Matching Transistor Layout)
     const topY = 40;   
@@ -9304,7 +9305,7 @@ function generateGrade9TransistorProblem() {
 //  MOSFET GENERATORS
 //*************************************************************************************
     
-// Ensure this helper exists to fix the blank canvas in Mode 0
+// This helper exists for Mode 0 MOSFET (simple Id and gm question) 
 function drawDirectMosfetCircuit(ctx, vcc) {
     const topY = 40, botY = 360;
     const tx = 380, ty = 250, lx = tx + 10;
@@ -9318,7 +9319,8 @@ function drawDirectMosfetCircuit(ctx, vcc) {
 
     // Main Components
     drawMosfet(ctx, tx, ty);
-    drawMotor(ctx, lx, 145);
+    drawLamp(ctx, lx, 145);
+    
 
     // Gate Connection
     drawLine(ctx, 150, ty, tx - 25, ty);
