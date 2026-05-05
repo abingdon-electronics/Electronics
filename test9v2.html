@@ -9455,12 +9455,23 @@ function drawDirectMosfetCircuit(ctx, vcc) {
             `;
         }
 
-        // DRAW MODE 0
+    // DRAW MODE 0
         drawDirectMosfetCircuit(ctx, vcc);
         drawSafeSubscript("V", "IN", "= " + vgs + "V", 80, 245, 16, pinkColor);
-        ctx.fillStyle = strokeColor;
+        
+        // --- UPGRADED MOTOR LABEL FOR MODE 0 ---
+        let motorLabel = `Load: ${pLoad}W`;
         ctx.font = "bold 14px Arial";
-        ctx.fillText(`Load: ${pLoad}W`, 405, 145);
+        ctx.textAlign = "left"; 
+        
+        // 1. Draw the white shield background to clear the line
+        let metrics = ctx.measureText(motorLabel);
+        ctx.fillStyle = "white";
+        ctx.fillRect(425, 135, metrics.width + 10, 20); // 425 pushes it safely right
+        
+        // 2. Draw the text
+        ctx.fillStyle = strokeColor;
+        ctx.fillText(motorLabel, 425, 150);
 
         if (solText) {
             solText.innerHTML = `<strong>I<sub>D</sub> = ${iD} A | g<sub>m</sub> = ${gm} S</strong><br><br>
