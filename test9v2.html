@@ -2500,7 +2500,40 @@ function drawTransistor(ctx, x, y) {
     ctx.closePath();
     ctx.fill();
 }
+function drawHeater(ctx, x, y) {
+    const w = 40; // Total width
+    const h = 20; // Total height
     
+    ctx.save();
+    
+    // 1. Fill white background to hide the wire behind it
+    ctx.fillStyle = "white";
+    ctx.fillRect(x - w/2, y - h/2, w, h);
+    
+    // 2. Draw the outer rectangle
+    ctx.beginPath();
+    ctx.rect(x - w/2, y - h/2, w, h);
+    ctx.stroke();
+    
+    // 3. Draw the three internal vertical lines (creates 4 equal sections)
+    ctx.beginPath();
+    
+    // Left line
+    ctx.moveTo(x - 10, y - h/2);
+    ctx.lineTo(x - 10, y + h/2);
+    
+    // Center line
+    ctx.moveTo(x, y - h/2);
+    ctx.lineTo(x, y + h/2);
+    
+    // Right line
+    ctx.moveTo(x + 10, y - h/2);
+    ctx.lineTo(x + 10, y + h/2);
+    
+    ctx.stroke();
+    
+    ctx.restore();
+}  
 // ==========================================
 // LOGIC GATE DRAWING HELPERS
 // ==========================================
@@ -9319,7 +9352,7 @@ function drawDirectMosfetCircuit(ctx, vcc) {
 
     // Main Components
     drawMosfet(ctx, tx, ty);
-    drawLamp(ctx, lx, 145);
+    drawHeater(ctx, lx, 145);
     
 
     // Gate Connection
