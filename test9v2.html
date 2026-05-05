@@ -9350,9 +9350,7 @@ function drawDirectMosfetCircuit(ctx, vcc) {
     drawLabel(ctx, `+${vcc}V`, railStartX - 35, topY + 5, 16);
     drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
 
-    // Main Components
-    drawMosfet(ctx, tx, ty);
-    drawHeater(ctx, lx, 145);
+
     
 
     // Gate Connection
@@ -9365,6 +9363,10 @@ function drawDirectMosfetCircuit(ctx, vcc) {
     drawLine(ctx, lx, 145 + 25, lx, ty - 25);
     drawLine(ctx, lx, ty + 25, lx, botY);
     drawNode(ctx, lx, botY);
+
+    // Main Components
+    drawMosfet(ctx, tx, ty);
+    drawHeater(ctx, lx, 145);
 }
 
 //**********************************************************************************************************
