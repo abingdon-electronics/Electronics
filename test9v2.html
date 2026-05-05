@@ -11468,10 +11468,10 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     // FALLBACK 1: System rounding match (e.g. 13.333 vs 13.3)
     
     // 👇 Add this safety check
-    if (expectedVal === undefined || expectedVal === null) {
-        console.error("Missing answer key! expectedVal is undefined.");
-        return 'wrongval'; 
-    }
+   // if (expectedVal === undefined || expectedVal === null) {
+   //     console.error("Missing answer key! expectedVal is undefined.");
+   //     return 'wrongval'; 
+  //  }
     
     let expectedStr = expectedVal.toString();
     // ... rest of your function
