@@ -9482,10 +9482,11 @@ function generateMosfetProblem(ctx, canvas) {
 
             if (qText) {
                 qText.innerHTML = `
-                    A MOSFET is used to control a heater as shown in the circuit diagram.
+                    A MOSFET is used to control a heater as shown in the circuit diagram. The MOSFET is just saturated and the voltage across the heater is 12V. 
                     <br><br>
-                    1. Find the drain current (I<sub>D</sub>).<br>
-                    2. Use the input voltage (V<sub>IN</sub>) from the diagram to find the transconductance (g<sub>m</sub>).
+                    Find:
+                    1. The drain current (I<sub>D</sub>).<br>
+                    2. The transconductance (g<sub>m</sub>).
                 `;
             }
 
