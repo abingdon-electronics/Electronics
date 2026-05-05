@@ -2506,9 +2506,9 @@ function drawHeater(ctx, x, y) {
     
     ctx.save();
     
-    // 1. Fill white background (made slightly larger to completely cover the wires)
+    // 1. Fill white background EXACTLY to the borders (no overhang!)
     ctx.fillStyle = "white";
-    ctx.fillRect(x - w/2 - 2, y - h/2 - 2, w + 4, h + 4);
+    ctx.fillRect(x - w/2, y - h/2, w, h);
     
     // 2. Draw the outer rectangle
     ctx.beginPath();
