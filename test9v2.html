@@ -2926,19 +2926,21 @@ function drawStandardMosfetCircuit(ctx, supplyVoltage, loadText = "", loadSymbol
         ctx.restore();
     }
 
-    // --- DRAW VOLTAGE DIVIDER & VGS LABELS USING YOUR HELPER ---
+// --- DRAW VOLTAGE DIVIDER & VGS LABELS USING YOUR HELPER ---
     
+    // Create a shared X position so R1 and R2 align perfectly vertically
+    // Moved a tad left from 25 to 18 to pull them closer to the components
+    const resistorLabelX = divX + 18; 
+
     // R1 Label (Placed to the right of top resistor)
     if (r1Val !== "") {
-        drawCanvasSubscript(ctx, "R", "1", ` = ${r1Val}`, divX + 25, 145 + 5, 14, "#000000");
+        drawCanvasSubscript(ctx, "R", "1", ` = ${r1Val}`, resistorLabelX, 145 + 5, 14, "#000000");
     }
 
-    // R2 Label (Placed to the left of bottom resistor)
+    // R2 Label (Now placed to the right of bottom resistor)
     if (r2Val !== "") {
-        ctx.font = "bold 14px Arial"; 
-        // Estimate the total width so we can push it to the left of the resistor
-        let totalW = ctx.measureText(`R2 = ${r2Val}`).width; 
-        drawCanvasSubscript(ctx, "R", "2", ` = ${r2Val}`, divX - totalW - 25, 305 + 5, 14, "#000000");
+        // No need to measure text width anymore since it's drawing left-to-right from the same X start point!
+        drawCanvasSubscript(ctx, "R", "2", ` = ${r2Val}`, resistorLabelX, 305 + 5, 14, "#000000");
     }
 
     // VGS Label (Centered above the wire going to the gate)
@@ -2947,8 +2949,10 @@ function drawStandardMosfetCircuit(ctx, supplyVoltage, loadText = "", loadSymbol
         // Find the middle of the horizontal wire
         let wireMidX = divX + ((tx - 25 - divX) / 2); 
         let vgsW = ctx.measureText(`VGS = ${vgsText}`).width;
+        
         // Subtract half the width so it sits perfectly centered
-        drawCanvasSubscript(ctx, "V", "GS", ` = ${vgsText}`, wireMidX - (vgsW / 2), ty - 8, 14, "#E64097");
+        // Changed Y from (ty - 8) to (ty - 15) to bump it up a tad!
+        drawCanvasSubscript(ctx, "V", "GS", ` = ${vgsText}`, wireMidX - (vgsW / 2), ty - 15, 14, "#E64097");
     }
 }
   
