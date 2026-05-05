@@ -2501,12 +2501,12 @@ function drawTransistor(ctx, x, y) {
     ctx.fill();
 }
 function drawHeater(ctx, x, y) {
-    const w = 40; // Total width
-    const h = 20; // Total height
+    const w = 20; // Thinner width
+    const h = 40; // Taller height
     
     ctx.save();
     
-    // 1. Fill white background to hide the wire behind it
+    // 1. Fill white background to hide the vertical wire behind it
     ctx.fillStyle = "white";
     ctx.fillRect(x - w/2, y - h/2, w, h);
     
@@ -2515,25 +2515,25 @@ function drawHeater(ctx, x, y) {
     ctx.rect(x - w/2, y - h/2, w, h);
     ctx.stroke();
     
-    // 3. Draw the three internal vertical lines (creates 4 equal sections)
+    // 3. Draw the three internal horizontal lines (creates 4 equal sections)
     ctx.beginPath();
     
-    // Left line
-    ctx.moveTo(x - 10, y - h/2);
-    ctx.lineTo(x - 10, y + h/2);
+    // Top line
+    ctx.moveTo(x - w/2, y - 10);
+    ctx.lineTo(x + w/2, y - 10);
     
     // Center line
-    ctx.moveTo(x, y - h/2);
-    ctx.lineTo(x, y + h/2);
+    ctx.moveTo(x - w/2, y);
+    ctx.lineTo(x + w/2, y);
     
-    // Right line
-    ctx.moveTo(x + 10, y - h/2);
-    ctx.lineTo(x + 10, y + h/2);
+    // Bottom line
+    ctx.moveTo(x - w/2, y + 10);
+    ctx.lineTo(x + w/2, y + 10);
     
     ctx.stroke();
     
     ctx.restore();
-}  
+}
 // ==========================================
 // LOGIC GATE DRAWING HELPERS
 // ==========================================
