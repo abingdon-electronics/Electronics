@@ -9472,7 +9472,12 @@ function generateMosfetProblem(ctx, canvas) {
     // MODE 0: Basic Power and Transconductance (gm) (LAMP)
     // ---------------------------------------------------------
     if (window.mosfetMode === 0) {
-        if (mode0) mode0.style.display = 'flex';
+        if (mode0) {
+            mode0.style.display = 'flex';
+            // 👇 ADD THESE TWO LINES 👇
+            mode0.style.flexDirection = 'column';
+            mode0.style.width = '100%';
+        }
         if (mode1) mode1.style.display = 'none';
 
         let vcc = 12;
@@ -9521,7 +9526,12 @@ function generateMosfetProblem(ctx, canvas) {
     // MODE 1: Potential Divider Drive (MOTOR)
     // ---------------------------------------------------------
     else {
-        if (mode1) mode1.style.display = 'flex'; 
+        if (mode1) {
+            mode1.style.display = 'flex'; 
+            // 👇 ADD THESE TWO LINES 👇
+            mode1.style.flexDirection = 'column';
+            mode1.style.width = '100%';
+        }
         if (mode0) mode0.style.display = 'none';
 
         let vcc = 12;
