@@ -1927,7 +1927,7 @@ function handleGrade9Click() {
         }
     }
 
-    // 👇 NEW: TRANSISTOR ROUTING ADDED HERE 👇
+    // TRANSISTOR ROUTING
     else if (currentMode === 'transistor' || currentMode === 'grade9transistor') {
         currentMode = 'grade9transistor';
         
@@ -1936,6 +1936,17 @@ function handleGrade9Click() {
             hubController(ctx, canvas);
         } else if (typeof generateGrade9TransistorProblem === "function") {
             generateGrade9TransistorProblem(ctx, canvas);
+        }
+    }
+    
+    // 👇 NEW: MOSFET ROUTING ADDED HERE 👇
+    else if (currentMode === 'mosfet' || currentMode === 'grade9mosfet') {
+        currentMode = 'grade9mosfet';
+        
+        if (typeof hubController === "function") {
+            hubController(ctx, canvas);
+        } else if (typeof generateGrade9MosfetProblem === "function") {
+            generateGrade9MosfetProblem(ctx, canvas);
         }
     }
         
