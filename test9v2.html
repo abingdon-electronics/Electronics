@@ -851,6 +851,12 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
+<div id="menuOpamps" class="tabs" style="display:none;">
+    <button class="tab" id="tab-comparator" onclick="safeSwitchTab('comparator')">Comparators</button>
+    <button class="tab" id="tab-opamp" onclick="safeSwitchTab('opamp')">Op-Amp</button>
+    <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
+</div>
+
 <div id="menuPlaceholder" class="tabs" style="display:none;">
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Module Under Construction - Return Home</button>
 </div>
@@ -1597,6 +1603,35 @@
         </div>
 
     </div>
+</div>
+
+<!-- Input group COMPARATOR--> 
+<div id="inputGroupComparator" class="input-group" style="display: none; flex-direction: column; gap: 15px; padding-left: 25px; margin-top: 15px;">
+    
+    <div style="display: flex; align-items: center; justify-content: flex-start;">
+        <label for="compVref" style="min-width: 140px; margin-bottom: 0; text-align: left; margin-right: 10px;">
+            <span style="font-weight: bold; font-size: 16px; color: #E64097;">1) V<sub>ref</sub> =</span>
+        </label> 
+        <input type="text" id="compVref" placeholder="e.g. 4.5" style="width: 120px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid #ccc;">
+        <span style="font-weight: bold; margin-left: 10px; font-size: 16px;">V</span>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: flex-start;">
+        <label for="compRsense" style="min-width: 140px; margin-bottom: 0; text-align: left; margin-right: 10px;">
+            <span style="font-weight: bold; font-size: 16px; color: #E64097;">2) R<sub>sensor</sub> =</span>
+        </label> 
+        <input type="text" id="compRsense" placeholder="e.g. 15" style="width: 120px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid #ccc;">
+        <span style="font-weight: bold; margin-left: 10px; font-size: 16px;">k&Omega;</span>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: flex-start;">
+        <label for="compE24" style="min-width: 140px; margin-bottom: 0; text-align: left; margin-right: 10px;">
+            <span style="font-weight: bold; font-size: 16px; color: #E64097;">3) E24 Resistor =</span>
+        </label> 
+        <input type="text" id="compE24" placeholder="e.g. 330" style="width: 120px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid #ccc;">
+        <span style="font-weight: bold; margin-left: 10px; font-size: 16px;">&Omega;</span>
+    </div>
+
 </div>
                 
     <!-- final closing DIVS of whole section-->  
@@ -10082,7 +10117,7 @@ function switchTab(mode) {
         'inputGroupBoolean',
         'booleanDropdownContainer',        
         'booleanCheckboxContainer',        
-        'inputGroupGrade9BooleanSOP',      
+        'inputGroupGrade9BooleanSOP',       
         'inputGroupGrade9BooleanPath',    
         'inputGroupLogicSystem',          
         'inputGroupLogic_ic',             
@@ -10093,7 +10128,9 @@ function switchTab(mode) {
         'inputGroupBlockBuilder',          
         'inputGroupTransistor',
         'inputGroupGrade9Transistor',
-        'inputGroupMosfet' // 👇 NEW: Added MOSFET group to hide list
+        'inputGroupMosfet',
+        'inputGroupGrade9Mosfet',
+        'inputGroupComparator' // 👇 NEW: Added Comparator group to hide list
     ];
 
     elementsToHide.forEach(id => {
@@ -10110,8 +10147,9 @@ function switchTab(mode) {
         else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) subtitle.innerText = "Module 3: Timing Circuits";
         else if (['silicon', 'zener', 'grade9zener', 'grade9silicon'].includes(mode)) subtitle.innerText = "Module 8: Diodes"; 
         else if (['logic_ic', 'logic_system', 'logic_boolean', 'logic_nand', 'grade9boolean'].includes(mode)) subtitle.innerText = "Module 2: Logic Gates"; 
-        // 👇 NEW: Grouped MOSFET and Transistor together under Module 6
-        else if (['transistor', 'mosfet'].includes(mode)) subtitle.innerText = "Module 6: Transistors"; 
+        else if (['transistor', 'mosfet', 'grade9transistor', 'grade9mosfet'].includes(mode)) subtitle.innerText = "Module 6: Transistors"; 
+        // 👇 NEW: Added Subtitle routing for Op-Amps & Comparators
+        else if (['comparator', 'opamp'].includes(mode)) subtitle.innerText = "Module 7: Op Amps"; 
     }
 
     // 5. Global Cleanup
@@ -10139,7 +10177,7 @@ function switchTab(mode) {
         return; 
     }
 
-    // 👇 ROCKET RESCUE: If we just switched to Transistors OR MOSFETs, show the G9 button!
+    // ROCKET RESCUE: If we just switched to Transistors OR MOSFETs, show the G9 button!
     if (mode === 'transistor' || mode === 'mosfet') {
         const rocket = document.getElementById('mainGrade9Btn');
         if (rocket) rocket.style.display = 'inline-block';
@@ -10377,8 +10415,7 @@ function hubController(ctx, canvas) {
             generateGrade9TransistorProblem(ctx, canvas);
         }
     }
-    
-    // 👇 NEW: GRADE 9 MOSFET ROUTE ADDED HERE 👇
+
     else if (currentMode === 'grade9mosfet') {
         if (document.getElementById('inputGroupGrade9Mosfet')) {
             document.getElementById('inputGroupGrade9Mosfet').style.setProperty("display", "flex", "important");
@@ -10390,7 +10427,16 @@ function hubController(ctx, canvas) {
             generateGrade9MosfetProblem(ctx, canvas);
         }
     }
-}// <--- This closes the hubController function // This is the REAL end of the hubController function
+
+    } else if (currentMode === 'comparator') {
+        if (document.getElementById('inputGroupComparator')) {
+            document.getElementById('inputGroupComparator').style.display = 'flex';
+        }
+        if (typeof generateComparatorProblem === "function") {
+            generateComparatorProblem(ctx, canvas);
+        }
+    }
+}// This closes the hubController function 
 
 //*****************************************************************************************
 // ==============================================================
