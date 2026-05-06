@@ -2947,7 +2947,39 @@ function drawStandardMosfetCircuit(ctx, supplyVoltage, loadText = "", loadSymbol
         ctx.restore();
     }
 }
-  
+
+// =========================================================================================================      
+// OP AMP drawing helper
+// =========================================================================================================   
+
+function drawOpAmp(ctx, x, y, scale = 1) {
+    // x, y is the exact center of the op-amp triangle
+    const width = 60 * scale;
+    const height = 80 * scale; // 80 means inputs are perfectly +/- 20px from center
+    
+    // Draw the triangle
+    ctx.beginPath();
+    ctx.moveTo(x - width/2, y - height/2); // Top left
+    ctx.lineTo(x + width/2, y);            // Output point (Middle right)
+    ctx.lineTo(x - width/2, y + height/2); // Bottom left
+    ctx.closePath();
+    
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.stroke();
+
+    // Draw the inverting (-) and non-inverting (+) symbols
+    ctx.fillStyle = "black";
+    ctx.font = `bold ${14 * scale}px Arial`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    
+    // Position the symbols slightly inside the left edge
+    ctx.fillText("-", x - width/2 + (8 * scale), y - 20 * scale);
+    ctx.fillText("+", x - width/2 + (6 * scale), y + 20 * scale);
+}
+
+    
 // =========================================================================================================      
 // FUNCTION 2. PROBLEM GENERATORS (THE CONTENT CREATORS) 
 // =========================================================================================================     
