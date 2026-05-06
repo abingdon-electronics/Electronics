@@ -9401,6 +9401,9 @@ function generateMosfetProblem(ctx, canvas) {
     const mainGroup = document.getElementById('inputGroupMosfet');
     if (mainGroup) {
         mainGroup.style.display = 'flex'; 
+        mainGroup.style.flexDirection = 'column'; 
+        mainGroup.style.flexWrap = 'wrap'; 
+        mainGroup.style.width = '100%';
     }
     // 👆 --- END RESCUE BLOCK --- 👆
 
