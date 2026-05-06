@@ -1812,7 +1812,9 @@ function handleNewQuestionClick() {
     else if (currentMode === 'grade9boolean') { currentMode = 'logic_boolean'; escapedGrade9 = true; }
     else if (currentMode === 'grade9nand') { currentMode = 'logic_nand'; escapedGrade9 = true; }
     else if (currentMode === 'grade9transistor') { currentMode = 'transistor'; escapedGrade9 = true; }
-    else if (currentMode === 'grade9mosfet') { currentMode = 'mosfet'; escapedGrade9 = true; } // 👇 NEW: MOSFET Escape
+    else if (currentMode === 'grade9mosfet') { currentMode = 'mosfet'; escapedGrade9 = true; } 
+    // 👇 NEW: Comparator Escape Added Here 👇
+    else if (currentMode === 'grade9comparator') { currentMode = 'comparator'; escapedGrade9 = true; }
 
     if (escapedGrade9 && (typeof problemsAttempted !== 'undefined' && problemsAttempted > 0)) {
         const wantsToProceed = confirm("Warning: Returning to standard mode will reset your Grade 9 score to 0. Do you want to continue?");
@@ -1863,7 +1865,7 @@ function handleNewQuestionClick() {
     } else if (currentMode === 'block_diagram') {
         if (typeof generateBlockBuilderProblem === "function") generateBlockBuilderProblem(ctx, canvas);
     } else {
-        // This calls hubController which handles 'transistor', 'grade9transistor', and now 'mosfet'!
+        // This calls hubController which handles 'transistor', 'grade9transistor', 'mosfet', and soon 'grade9comparator'!
         if (typeof hubController === "function") hubController(ctx, canvas);
     }
 }
@@ -9990,9 +9992,20 @@ function hubController(ctx, canvas) {
     canvas.width = 600;
     canvas.height = 420;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    
     // --- NEW: STRIP OLD LISTENERS ---
-    // This prevents the "NAND" logic from firing when you are in "Block Builder" mode
+    
+    // 1. Strip rogue listeners from the Rocket Button!
+    const rocketBtn = document.getElementById('mainGrade9Btn');
+    if (rocketBtn) {
+        const newRocketBtn = rocketBtn.cloneNode(true);
+        rocketBtn.parentNode.replaceChild(newRocketBtn, rocketBtn);
+        
+        // If your HTML doesn't use onclick="handleGrade9Click()", re-attach it here:
+        newRocketBtn.addEventListener('click', handleGrade9Click);
+    }
+
+    // 2. Prevent "NAND" logic from firing in other modes
     const btnNext = document.getElementById('btnNext');
     if (btnNext) {
         const newBtnNext = btnNext.cloneNode(true);
@@ -10009,9 +10022,14 @@ function hubController(ctx, canvas) {
     }
     
     // 2. Full UI Reset (The "Master Wipe")
-    // Because hideAllInputGroups() was upgraded above, all dropdown validation is wiped here!
     if (typeof hideAllInputGroups === "function") hideAllInputGroups();
     
+    // 👇 SAFETY CATCH: Force hide new panels just in case hideAllInputGroups() misses them! 👇
+    ['inputGroupGrade9Mosfet', 'inputGroupGrade9Transistor', 'inputGroupMosfet', 'inputGroupTransistor'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.setProperty("display", "none", "important");
+    });
+
     // Reset the workspaces
     if (document.getElementById("circuitContainer")) document.getElementById("circuitContainer").style.display = "block";
     if (document.getElementById("canvasIPOWorkstation")) document.getElementById("canvasIPOWorkstation").style.display = "none";
@@ -10028,7 +10046,7 @@ function hubController(ctx, canvas) {
         qText.innerHTML = '&nbsp;'; 
     }
 
-// 4. ROUTER: Setup the UI for the specific mode
+    // 4. ROUTER: Setup the UI for the specific mode
     if (currentMode === 'analysis') {
         const groupV = document.getElementById('inputGroupV');
         const groupI = document.getElementById('inputGroupI');
@@ -10038,13 +10056,11 @@ function hubController(ctx, canvas) {
 
     } else if (currentMode === 'divider') {
         if (document.getElementById('inputGroupV')) document.getElementById('inputGroupV').style.display = 'inline-block';
-        // SHOW SMART ROCKET
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateDividerProblem === "function") generateDividerProblem(ctx, canvas);
 
     } else if (currentMode === 'resistance') {
         if (document.getElementById('inputGroupR')) document.getElementById('inputGroupR').style.display = 'inline-block';
-        // SHOW SMART ROCKET
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateResistanceProblem === "function") generateResistanceProblem(ctx, canvas);
 
@@ -10065,19 +10081,16 @@ function hubController(ctx, canvas) {
 
     } else if (currentMode === 'zener') {
         if (document.getElementById('inputGroupZener')) document.getElementById('inputGroupZener').style.display = 'inline-block';
-        // SHOW SMART ROCKET
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateZenerProblem === "function") generateZenerProblem(ctx, canvas); 
 
     } else if (currentMode === 'grade9zener') {
         if (document.getElementById('inputGroupGrade9Zener')) document.getElementById('inputGroupGrade9Zener').style.display = 'inline-block';
-        // Hide rocket because we are already in Grade 9
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
         if (typeof generateGrade9ZenerProblem === "function") generateGrade9ZenerProblem(ctx, canvas);
 
     } else if (currentMode === 'silicon') {
         if (document.getElementById('inputGroupSilicon')) document.getElementById('inputGroupSilicon').style.display = 'flex';
-        // SHOW SMART ROCKET
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateSiliconProblem === "function") generateSiliconProblem(ctx, canvas);
         
@@ -10128,7 +10141,6 @@ function hubController(ctx, canvas) {
         }
         if (typeof generateBlockBuilderProblem === "function") generateBlockBuilderProblem(ctx, canvas);
         
-    // 👇 NEW: MOSFET ROUTE ADDED HERE 👇
     } else if (currentMode === 'mosfet') {
         if (document.getElementById('inputGroupMosfet')) {
             document.getElementById('inputGroupMosfet').style.display = 'flex';
@@ -10139,7 +10151,6 @@ function hubController(ctx, canvas) {
         if (typeof generateMosfetProblem === "function") {
             generateMosfetProblem(ctx, canvas);
         }
-    // 👆 END NEW MOSFET ROUTE 👆
 
     } else if (currentMode === 'transistor') {
         if (document.getElementById('inputGroupTransistor')) {
@@ -10152,7 +10163,6 @@ function hubController(ctx, canvas) {
         }
         if (typeof generateTransistorProblem === "function") generateTransistorProblem(ctx, canvas);
 
-    // 👇 FIXED: GRADE 9 TRANSISTOR ROUTE 👇
     } else if (currentMode === 'grade9transistor') {
         if (document.getElementById('inputGroupGrade9Transistor')) {
             document.getElementById('inputGroupGrade9Transistor').style.display = 'block';
@@ -10160,13 +10170,24 @@ function hubController(ctx, canvas) {
         if (document.getElementById('mainGrade9Btn')) {
             document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         }
-        
-        // Correctly calls the Grade 9 Transistor function instead of the MOSFET one
         if (typeof generateGrade9TransistorProblem === "function") {
             generateGrade9TransistorProblem(ctx, canvas);
         }
     }
-} // <--- This closes the hubController function // This is the REAL end of the hubController function
+    
+    // 👇 NEW: GRADE 9 MOSFET ROUTE ADDED HERE 👇
+    else if (currentMode === 'grade9mosfet') {
+        if (document.getElementById('inputGroupGrade9Mosfet')) {
+            document.getElementById('inputGroupGrade9Mosfet').style.setProperty("display", "flex", "important");
+        }
+        if (document.getElementById('mainGrade9Btn')) {
+            document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+        }
+        if (typeof generateGrade9MosfetProblem === "function") {
+            generateGrade9MosfetProblem(ctx, canvas);
+        }
+    }
+}// <--- This closes the hubController function // This is the REAL end of the hubController function
 
 //*****************************************************************************************
 // ==============================================================
@@ -11977,7 +11998,7 @@ function provideHint() {
                 ${specificHint}
             </div>`;
             
-    } else if (currentMode === 'grade9mosfet') {
+} else if (currentMode === 'grade9mosfet') {
         helpText = `
             <div style="${blueBox}">
                 <strong>💡 Grade 9 MOSFET Hint:</strong><br>
@@ -12232,7 +12253,7 @@ function hideAllInputGroups() {
         'inputGroupGrade9Power',
         'inputGroupPowerRating', 
         'inputGroupIPOSort',
-        'inputGroupSilicon',               // Standard Logic
+        'inputGroupSilicon',                // Standard Logic
         'inputGroupSiliconVoltage',         // Standard Math
         'inputGroupGrade9Silicon',          // Grade 9 OR-Gate
         'inputGroupGrade9SiliconPath',      // Grade 9 Pathfinder
@@ -12250,11 +12271,12 @@ function hideAllInputGroups() {
         'inputGroupLogic_NAND',             // NEW: NAND Equivalents
         'inputGroupNandConversion',         // Mode A: NAND Conversion
         'inputGroupNandRedundancy',         // Mode B: Redundancy Hunter
-        'inputGroupGrade9NandMaster',      // (In case you missed this from Logic)
+        'inputGroupGrade9NandMaster',       // (In case you missed this from Logic)
         'inputGroupBlockBuilder',           // NEW: Block Builder System
-        'inputGroupTransistor',           // Standard Transistor inputs
-        'inputGroupGrade9Transistor'    // Grade 9 Transistor inputs
-       
+        'inputGroupTransistor',             // Standard Transistor inputs
+        'inputGroupGrade9Transistor',       // Grade 9 Transistor inputs
+        'inputGroupMosfet',                 // NEW: Standard Mosfet inputs
+        'inputGroupGrade9Mosfet'            // NEW: Grade 9 Mosfet inputs
     ];
 
     ghostGroups.forEach(id => {
