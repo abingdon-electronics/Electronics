@@ -1575,27 +1575,26 @@
 </div>
                 
 <!-- Input group G9 MOSFET--> 
-<div id="inputGroupGrade9Mosfet" class="input-group" style="display: none; flex-direction: column; align-items: center; padding: 10px 0; gap: 15px; width: 100%;">
+<div id="inputGroupGrade9Mosfet" class="input-group" style="display: none; flex-direction: column; align-items: flex-start; padding: 10px 0; gap: 15px; width: 100%;">
     
     <div id="g9MosfetInstructions" style="width: 100%; text-align: left; margin-bottom: 10px; font-weight: bold; font-size: 15px; color: #333; line-height: 1.5; display: none;"></div>
 
-    <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; align-items: center;">
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 150px;">
-            <label for="g9MosfetVGS" style="font-weight: bold; color: #E64097; font-size: 1.1em;">
-                V<sub>GS</sub> =
-            </label>
-            <input type="text" id="g9MosfetVGS" placeholder="e.g. 5V" style="width: 85px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;">
-        </div>
-
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 150px;">
-            <label for="g9MosfetR2" style="font-weight: bold; color: #E64097; font-size: 1.1em;">
-                R<sub>2</sub> =
-            </label>
-            <input type="text" id="g9MosfetR2" placeholder="e.g. 10kΩ" style="width: 85px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;">
-        </div>
-
+    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 5px; width: 100%;">
+        <label for="g9MosfetVGS" style="font-weight: bold; color: #E64097; font-size: 1.1em; width: 55px; text-align: left;">
+            V<sub style="position: relative; top: 6px; font-size: 0.7em;">GS</sub> =
+        </label>
+        <input type="text" id="g9MosfetVGS" placeholder="e.g. 5" style="height: 45px; width: 120px; font-size: 18px; padding: 10px; text-align: center; border: 2px solid #ced4da; border-radius: 5px;">
+        <span style="font-size: 20px; font-weight: bold; margin-left: 5px; color: #333;">V</span>
     </div>
+
+    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 5px; width: 100%;">
+        <label for="g9MosfetR2" style="font-weight: bold; color: #E64097; font-size: 1.1em; width: 55px; text-align: left;">
+            R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub> =
+        </label>
+        <input type="text" id="g9MosfetR2" placeholder="e.g. 10k" style="height: 45px; width: 120px; font-size: 18px; padding: 10px; text-align: center; border: 2px solid #ced4da; border-radius: 5px;">
+        <span style="font-size: 20px; font-weight: bold; margin-left: 5px; color: #333;">&Omega;</span>
+    </div>
+
 </div>
                 
     <!-- final closing DIVS of whole section-->  
@@ -9575,7 +9574,6 @@ function generateGrade9MosfetProblem() {
     // 1. Reset UI
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
 
-    // 👇 --- ROCKET & UI RESCUE BLOCK --- 👇
     // Fixed ID to match your HTML: mainGrade9Btn
     const rocket = document.getElementById('mainGrade9Btn');
     if (rocket) {
@@ -9585,12 +9583,10 @@ function generateGrade9MosfetProblem() {
     const mainGroup = document.getElementById('inputGroupGrade9Mosfet');
     if (mainGroup) {
         mainGroup.style.display = 'flex'; 
-        // 👇 WIDTH/LAYOUT FIX 👇
         mainGroup.style.flexDirection = 'column'; 
         mainGroup.style.flexWrap = 'wrap'; 
         mainGroup.style.width = '100%';
     }
-    // 👆 --- END RESCUE BLOCK --- 👆
 
     const pinkColor = "#E64097";
     const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
@@ -9607,7 +9603,7 @@ function generateGrade9MosfetProblem() {
         if (el) {
             el.value = '';
             el.style.removeProperty('border-color');
-            el.style.boxShadow = ""; // 👇 GHOST GLOW FIX 👇
+            el.style.boxShadow = ""; 
             const label = document.querySelector(`label[for="${id}"]`);
             if (label) label.style.color = pinkColor;
         }
@@ -9626,7 +9622,7 @@ function generateGrade9MosfetProblem() {
     ctx.lineWidth = 2;
     ctx.strokeStyle = strokeColor;
 
-    // Helper: Subscript drawing
+    // Helper: Subscript drawing for Canvas
     function drawSafeSubscript(mainStr, subStr, suffixStr, x, y, size, color) {
         ctx.save(); 
         ctx.fillStyle = color || "#000000";
@@ -9659,14 +9655,15 @@ function generateGrade9MosfetProblem() {
     let r1_k = (vcc - vgs) * [1, 2][Math.floor(Math.random() * 2)]; 
     let r2_k = (vgs * r1_k) / (vcc - vgs); 
 
-    let knownR, answerR, targetLabel, fixedResistorText, step2Formula;
+    let knownR, answerR, targetLabel, targetLabelPanelHTML, step2Formula;
 
     if (window.g9MosfetSubMode === 0) {
         // Mode 0: Find R2
         knownR = r1_k;
         answerR = r2_k;
         targetLabel = "R<sub>2</sub>";
-        fixedResistorText = `R<sub>1</sub> is fixed at <strong>${knownR} kΩ</strong>`;
+        // Specific styling for the right panel
+        targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub>';
         step2Formula = `R<sub>2</sub> = (V<sub>GS</sub> &times; R<sub>1</sub>) / (V<sub>supply</sub> - V<sub>GS</sub>)<br>
         R<sub>2</sub> = (${vgs} &times; ${knownR}) / (${vcc} - ${vgs})`;
     } else {
@@ -9674,17 +9671,18 @@ function generateGrade9MosfetProblem() {
         knownR = r2_k;
         answerR = r1_k;
         targetLabel = "R<sub>1</sub>";
-        fixedResistorText = `R<sub>2</sub> is fixed at <strong>${knownR} kΩ</strong>`;
+        // Specific styling for the right panel
+        targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">1</sub>';
         step2Formula = `R<sub>1</sub> = (R<sub>2</sub> &times; (V<sub>supply</sub> - V<sub>GS</sub>)) / V<sub>GS</sub><br>
         R<sub>1</sub> = (${knownR} &times; (${vcc} - ${vgs})) / ${vgs}`;
     }
 
     currentAnswers = { vgs: vgs, r2: answerR };
 
-    // Update the HTML label next to the input box dynamically (Required because it flips between R1 and R2!)
+    // Update the HTML label next to the input box dynamically to maintain formatting
     const rLabel = document.querySelector('label[for="g9MosfetR2"]');
     if (rLabel) {
-        rLabel.innerHTML = `${targetLabel} = `;
+        rLabel.innerHTML = `${targetLabelPanelHTML} = `;
     }
 
     // 3. Update Text 
@@ -9696,8 +9694,11 @@ function generateGrade9MosfetProblem() {
         qText.innerHTML = `
             <strong>🚀 GRADE 9 CHALLENGE: SYSTEM DESIGN</strong><br><br>
             A cooling fan requires exactly <strong>${iD} A</strong> to run. The MOSFET has a transconductance (g<sub>m</sub>) of <strong>${gm} S</strong>.<br><br>
-            1. Calculate the gate voltage (<strong>V<sub>GS</sub></strong>) required for the circuit.<br>
-            2. Determine the required value for <strong>${targetLabel}</strong>.
+            1. Calculate the gate voltage (<strong>V<sub>GS</sub></strong>) required for the fan.<br>
+            2. Determine the required value for <strong>${targetLabel}</strong>.<br><br>
+            <div style="font-size: 15px; line-height: 1.2; margin-top: 5px; color: #444;">
+                <em>Enter the resistor value with or without a prefix (e.g., 520, 83k, or 6.1M).</em>
+            </div>
         `;
         // Ensure the internal hidden div stays hidden so layout is clean
         if (instructionsDiv) instructionsDiv.style.display = 'none';
