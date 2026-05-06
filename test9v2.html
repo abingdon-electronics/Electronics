@@ -1575,25 +1575,28 @@
 </div>
                 
 <!-- Input group G9 MOSFET--> 
-<div id="inputGroupGrade9Mosfet" class="input-group" style="display: none; flex-direction: column; align-items: flex-start; padding: 10px 0; gap: 15px; width: 100%;">
+<div id="inputGroupGrade9Mosfet" class="input-group" style="display: none; flex-direction: column; align-items: center; padding: 10px 0; width: 100%;">
     
     <div id="g9MosfetInstructions" style="width: 100%; text-align: left; margin-bottom: 10px; font-weight: bold; font-size: 15px; color: #333; line-height: 1.5; display: none;"></div>
 
-    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 5px; width: 100%;">
-        <label for="g9MosfetVGS" style="font-weight: bold; color: #E64097; font-size: 1.1em; width: 55px; text-align: left;">
-            V<sub style="position: relative; top: 6px; font-size: 0.7em;">GS</sub> =
-        </label>
-        <input type="text" id="g9MosfetVGS" placeholder="e.g. 5V" style="height: 45px; width: 120px; font-size: 18px; padding: 10px; text-align: center; border: 2px solid #ced4da; border-radius: 5px;">
-    </div>
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 15px; width: 100%;">
+        
+        <div style="display: flex; align-items: center; gap: 4px;">
+            <label for="g9MosfetVGS" style="font-weight: bold; color: #E64097; font-size: 1.1em; white-space: nowrap;">
+                V<sub style="position: relative; top: 6px; font-size: 0.7em;">GS</sub> =
+            </label>
+            <input type="text" id="g9MosfetVGS" placeholder="e.g. 5V" style="height: 45px; width: 85px; font-size: 18px; padding: 5px; text-align: center; border: 2px solid #ced4da; border-radius: 5px;">
+        </div>
 
-    <div style="display: flex; align-items: center; justify-content: flex-start; gap: 5px; width: 100%;">
-        <label for="g9MosfetR2" style="font-weight: bold; color: #E64097; font-size: 1.1em; width: 55px; text-align: left;">
-            R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub> =
-        </label>
-        <input type="text" id="g9MosfetR2" placeholder="e.g. 10k" style="height: 45px; width: 120px; font-size: 18px; padding: 10px; text-align: center; border: 2px solid #ced4da; border-radius: 5px;">
-        <span style="font-size: 20px; font-weight: bold; margin-left: 5px; color: #333;">&Omega;</span>
-    </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+            <label for="g9MosfetR2" style="font-weight: bold; color: #E64097; font-size: 1.1em; white-space: nowrap;">
+                R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub> =
+            </label>
+            <input type="text" id="g9MosfetR2" placeholder="e.g. 10k" style="height: 45px; width: 85px; font-size: 18px; padding: 5px; text-align: center; border: 2px solid #ced4da; border-radius: 5px;">
+            <span style="font-size: 20px; font-weight: bold; color: #333;">&Omega;</span>
+        </div>
 
+    </div>
 </div>
                 
     <!-- final closing DIVS of whole section-->  
