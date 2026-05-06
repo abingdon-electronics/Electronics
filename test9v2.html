@@ -9595,15 +9595,16 @@ function generateGrade9MosfetProblem() {
     if (solText) solText.innerHTML = ""; 
 
     // Clear and color inputs
-    ['g9MosfetVGS', 'g9MosfetR2'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.value = '';
-            el.style.removeProperty('border-color');
-            const label = document.querySelector(`label[for="${id}"]`);
-            if (label) label.style.color = pinkColor;
-        }
-    });
+        ['g9MosfetVGS', 'g9MosfetR2'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = '';
+                el.style.removeProperty('border-color');
+                el.style.boxShadow = ""; // 👇 ADD THIS TO KILL THE GHOST GLOW!
+                const label = document.querySelector(`label[for="${id}"]`);
+                if (label) label.style.color = pinkColor;
+            }
+        });
 
     currentMode = 'grade9mosfet';
 
