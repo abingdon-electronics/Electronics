@@ -9378,14 +9378,6 @@ function generateMosfetProblem(ctx, canvas) {
     if (typeof hideAllInputGroups === 'function') {
         hideAllInputGroups();
     }
-    // --- RESET BORDERS & COLORS ---
-    ['mosfetID', 'mosfetGM', 'mosfetVGS'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.style.borderColor = ""; // This removes the "ghost" green/red border
-            el.style.boxShadow = "";   // This removes any glow effects
-        }
-    });
 
     // 👇 --- RE-BINDING RESCUE BLOCK --- 👇
     const rocket = document.getElementById('mainGrade9Btn');
@@ -9419,12 +9411,14 @@ function generateMosfetProblem(ctx, canvas) {
     if (solContainer) solContainer.style.display = "none"; 
     if (solText) solText.innerHTML = ""; 
 
-    // Reset inputs
+    // Reset inputs, borders, and glowing shadows
     ['mosfetID0', 'mosfetGM0', 'mosfetVGS1', 'mosfetID1'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.value = '';
-            el.style.removeProperty('border-color');
+            el.style.borderColor = ""; 
+            el.style.boxShadow = ""; // <- This kills the ghost glow!
+            
             const label = document.querySelector(`label[for="${id}"]`);
             if (label) label.style.color = pinkColor;
         }
