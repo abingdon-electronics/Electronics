@@ -9992,9 +9992,20 @@ function hubController(ctx, canvas) {
     canvas.width = 600;
     canvas.height = 420;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    
     // --- NEW: STRIP OLD LISTENERS ---
-    // This prevents the "NAND" logic from firing when you are in "Block Builder" mode
+    
+    // 1. Strip rogue listeners from the Rocket Button!
+    const rocketBtn = document.getElementById('mainGrade9Btn');
+    if (rocketBtn) {
+        const newRocketBtn = rocketBtn.cloneNode(true);
+        rocketBtn.parentNode.replaceChild(newRocketBtn, rocketBtn);
+        
+        // If your HTML doesn't use onclick="handleGrade9Click()", re-attach it here:
+        newRocketBtn.addEventListener('click', handleGrade9Click);
+    }
+
+    // 2. Prevent "NAND" logic from firing in other modes
     const btnNext = document.getElementById('btnNext');
     if (btnNext) {
         const newBtnNext = btnNext.cloneNode(true);
