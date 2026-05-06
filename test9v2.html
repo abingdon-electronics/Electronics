@@ -9792,6 +9792,177 @@ function generateGrade9MosfetProblem() {
     }
 }
 //*************************************************************************************************************************************
+
+function generateComparatorProblem() {
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 0. RESET UI & STATE
+    if (typeof hideAllInputGroups === 'function') hideAllInputGroups(); 
+    currentMode = 'comparator'; 
+
+    // Show the new dedicated HTML container
+    const inputZone = document.getElementById('inputGroupComparator');
+    if (inputZone) inputZone.style.display = 'block'; 
+
+    // Clear previous answers
+    const vRefInput = document.getElementById('compVref');
+    if (vRefInput) { vRefInput.value = ""; vRefInput.placeholder = "e.g. 4.5"; }
+    
+    const rSenseInput = document.getElementById('compRsense');
+    if (rSenseInput) { rSenseInput.value = ""; rSenseInput.placeholder = "e.g. 15"; }
+    
+    const e24Input = document.getElementById('compE24');
+    if (e24Input) { e24Input.value = ""; e24Input.placeholder = "e.g. 330"; }
+
+    // 1. GENERATE CLEAN MATH SCENARIOS
+    // To ensure whole numbers for GCSE level, we use pre-tested divider ratios
+    const scenarios = [
+        { r1: 20, r2: 10, vRef: 4, r3: 10, rSens: 20 },
+        { r1: 10, r2: 10, vRef: 6, r3: 5,  rSens: 5 },
+        { r1: 10, r2: 20, vRef: 8, r3: 20, rSens: 10 },
+        { r1: 15, r2: 5,  vRef: 3, r3: 10, rSens: 30 }
+    ];
+    
+    const p = scenarios[Math.floor(Math.random() * scenarios.length)];
+    let v_in = 12; // 12V system
+    let i_led_mA = Math.floor(Math.random() * 11) + 10; // 10mA to 20mA
+    let v_f = 2.0; // LED Forward voltage
+
+    // --- Math: Step 3 (E24 Output Resistor) ---
+    // Assuming ideal op-amp, V_out = V_supply when high.
+    let v_resistor = v_in - v_f;
+    let r_ideal = (v_resistor / (i_led_mA / 1000)); // in Ohms
+    
+    const e24Base = [1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1];
+    let magnitude = Math.pow(10, Math.floor(Math.log10(r_ideal)));
+    let normalizedR = r_ideal / magnitude;
+    
+    let selectedBase = e24Base.find(val => val >= normalizedR);
+    if (!selectedBase) {
+        selectedBase = e24Base[0];
+        magnitude *= 10; 
+    }
+    let e24R = Math.round(selectedBase * magnitude * 10) / 10; 
+
+    // Save for validation
+    currentAnswers = {
+        vRef: p.vRef,
+        rSense: p.rSens,
+        e24: e24R
+    };
+
+    // Update Question Text
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.innerHTML = 
+            `<strong>A comparator circuit is used to switch on an LED when a sensor reaches a specific threshold.</strong><br><br>` +
+            `1) Calculate the reference voltage (V<sub>ref</sub>) at the inverting (-) input.<br>` +
+            `2) The comparator switches state when V<sub>sensor</sub> = V<sub>ref</sub>. Calculate the sensor resistance (in k&Omega;) at this switching threshold.<br>` +
+            `3) When the output is HIGH (${v_in}V), the LED requires ${i_led_mA}mA. Choose the correct E24 series resistor to safely limit this current.`;
+        qText.style.display = 'block';
+    }
+
+    const hintDiv = document.getElementById('hintText');
+    if (hintDiv) {
+        hintDiv.innerHTML = "<strong>Hint:</strong> Use the voltage divider formula for Parts 1 & 2. For Part 3, round UP to the next standard E24 value to ensure you don't exceed the max current!";
+    }
+
+    // 2. DRAWING CODE 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const pink = (typeof brandPink !== 'undefined') ? brandPink : "#E64097";
+    ctx.strokeStyle = "black"; 
+    ctx.lineWidth = 2;
+
+    // Power Rails
+    drawLine(ctx, 100, 50, 500, 50);  // 12V Rail
+    drawLine(ctx, 100, 250, 500, 250); // 0V Rail
+
+    ctx.fillStyle = "black"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.font = "bold 16px Arial"; 
+    ctx.fillText(v_in + "V", 90, 50);
+    ctx.fillText("0V", 90, 250);
+
+    // Divider A (Reference) - x=150
+    drawLine(ctx, 150, 50, 150, 80);
+    if (typeof drawComponent === 'function') drawComponent(ctx, 'fixed', 150, 95); // R1
+    drawLine(ctx, 150, 110, 150, 185);
+    if (typeof drawComponent === 'function') drawComponent(ctx, 'fixed', 150, 200); // R2
+    drawLine(ctx, 150, 215, 150, 250);
+
+    ctx.fillStyle = "black"; ctx.textAlign = "right";
+    ctx.fillText(p.r1 + " kΩ", 130, 95);
+    ctx.fillText(p.r2 + " kΩ", 130, 200);
+
+    // Divider B (Sensor) - x=250
+    drawLine(ctx, 250, 50, 250, 80);
+    if (typeof drawComponent === 'function') drawComponent(ctx, 'thermistor', 250, 95); // Sensor
+    drawLine(ctx, 250, 110, 250, 185);
+    if (typeof drawComponent === 'function') drawComponent(ctx, 'fixed', 250, 200); // R3
+    drawLine(ctx, 250, 215, 250, 250);
+
+    ctx.fillStyle = pink; ctx.textAlign = "left";
+    ctx.fillText("R_sensor = ?", 270, 95);
+    ctx.fillStyle = "black";
+    ctx.fillText(p.r3 + " kΩ", 270, 200);
+
+    // Draw Op-Amp (Center at x=350, y=150)
+    // The inputs are exactly at y=130 (-) and y=170 (+)
+    drawOpAmp(ctx, 350, 150, 1);
+
+    // Connect Dividers to Op-Amp
+    // V_ref (Midpoint of left divider is y=150, but we need to go to y=130)
+    drawLine(ctx, 150, 130, 320, 130); // Connects to Inverting (-)
+    ctx.beginPath(); ctx.arc(150, 130, 4, 0, 2*Math.PI); ctx.fill(); // Dot at divider A
+    
+    // V_sens (Midpoint of right divider)
+    drawLine(ctx, 250, 170, 320, 170); // Connects to Non-Inverting (+)
+    ctx.beginPath(); ctx.arc(250, 170, 4, 0, 2*Math.PI); ctx.fill(); // Dot at divider B
+
+    // Output Circuit
+    drawLine(ctx, 380, 150, 450, 150); // OpAmp out to drop-down
+    drawLine(ctx, 450, 150, 450, 170);
+    if (typeof drawComponent === 'function') drawComponent(ctx, 'fixed', 450, 185); // Output R
+    drawLine(ctx, 450, 200, 450, 215);
+
+    // Draw Output LED
+    ctx.beginPath(); 
+    ctx.moveTo(430, 215); ctx.lineTo(470, 215); ctx.lineTo(450, 235); 
+    ctx.fillStyle = "white"; ctx.fill(); ctx.closePath(); ctx.stroke();
+    drawLine(ctx, 430, 235, 470, 235); 
+    
+    // LED Arrows
+    drawLine(ctx, 460, 220, 475, 205); drawLine(ctx, 475, 205, 467, 205); drawLine(ctx, 475, 205, 475, 213); 
+    drawLine(ctx, 465, 230, 480, 215); drawLine(ctx, 480, 215, 472, 215); drawLine(ctx, 480, 215, 480, 223); 
+    
+    drawLine(ctx, 450, 235, 450, 250); // LED to GND
+
+    ctx.fillStyle = pink; ctx.textAlign = "left";
+    ctx.fillText("E24 R = ?", 470, 185);
+
+    // 3. SOLUTION TEXT
+    const solText = document.getElementById('solText');
+    if (solText) {
+        solText.innerHTML = `
+            <strong>Step 1: Reference Voltage</strong><br>
+            V<sub>ref</sub> = V<sub>in</sub> &times; [ R2 / (R1 + R2) ]<br>
+            V<sub>ref</sub> = ${v_in}V &times; [ ${p.r2}k / (${p.r1}k + ${p.r2}k) ] = <strong>${p.vRef} V</strong><br><br>
+            
+            <strong>Step 2: Sensor Resistance at Threshold</strong><br>
+            The circuit switches when V<sub>sensor</sub> = V<sub>ref</sub> (${p.vRef}V).<br>
+            ${p.vRef}V = ${v_in}V &times; [ ${p.r3}k / (R<sub>sensor</sub> + ${p.r3}k) ]<br>
+            R<sub>sensor</sub> + ${p.r3} = ${v_in * p.r3} / ${p.vRef} = ${v_in * p.r3 / p.vRef}<br>
+            R<sub>sensor</sub> = <strong>${p.rSens} k&Omega;</strong><br><br>
+
+            <strong>Step 3: E24 Series Output Resistor</strong><br>
+            Output Voltage = ${v_in}V. LED drops ${v_f.toFixed(1)}V.<br>
+            V<sub>R</sub> = ${v_in}V - ${v_f.toFixed(1)}V = ${v_resistor.toFixed(1)}V<br>
+            Ideal R = V<sub>R</sub> / I = ${v_resistor.toFixed(1)}V / ${(i_led_mA/1000).toFixed(3)}A = ${r_ideal.toFixed(1)} &Omega;<br>
+            Rounding UP to the next E24 standard value to safely limit current: <strong>${e24R} &Omega;</strong>
+        `;
+    }
+}
+//**************************************************************************************************************************************
 //**************************************************************************************************************************************
 // ===========================================================================================================================      
 // FUNCTION 3. NAVIGATION and UI (Traffic Control) 
