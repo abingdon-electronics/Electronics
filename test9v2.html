@@ -11927,6 +11927,14 @@ function provideHint() {
                 ${specificHint}
             </div>`;
             
+    } else if (currentMode === 'grade9mosfet') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Grade 9 MOSFET Hint:</strong><br>
+                • <b>V<sub>GS</sub>:</b> This is the gate-source voltage. Use the <b>Potential Divider equation</b> to find the voltage across the bottom resistor.<br>
+                • <b>R<sub>2</sub>:</b> Rearrange the Potential Divider equation, or use the voltage ratio method (V<sub>1</sub> / V<sub>2</sub> = R<sub>1</sub> / R<sub>2</sub>) to find the missing resistance value.
+            </div>`;
+            
     } else {
         // Potential Divider & General fallback
         helpText = `
