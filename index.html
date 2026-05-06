@@ -847,6 +847,7 @@
 
 <div id="menuTransistors" class="tabs" style="display:none;">
     <button class="tab" id="tab-transistor" onclick="safeSwitchTab('transistor')">Transistors</button>
+    <button class="tab" id="tab-mosfet" onclick="safeSwitchTab('mosfet')">MOSFETs</button>
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
@@ -1543,10 +1544,68 @@
         
     </div>
 </div>
+                
+<!-- Input group MOSFET--> 
+<div id="inputGroupMosfet" class="input-group" style="display: none; flex-direction: column; align-items: center; padding: 10px 0; gap: 15px; width: 100%;">
+    
+    <div id="mosfetInstructions" style="text-align: left; margin-bottom: 10px; font-weight: bold; font-size: 15px; color: #333; line-height: 1.5; display: none;"></div>
+    
+    <div id="mosfetMode0" style="display: none; flex-direction: row; justify-content: center; gap: 20px; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="mosfetID0" style="font-weight: bold; color: #E64097; margin: 0; width: 60px; text-align: right;">I<sub style="font-size: 0.7em; vertical-align: baseline; position: relative; top: 0.3em;">D</sub> =</label>
+            <input type="text" id="mosfetID0" style="width: 85px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 2A">
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="mosfetGM0" style="font-weight: bold; color: #E64097; margin: 0; width: 60px; text-align: right;">g<sub style="font-size: 0.7em; vertical-align: baseline; position: relative; top: 0.3em;">m</sub> =</label>
+            <input type="text" id="mosfetGM0" style="width: 85px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 1.5S">
+        </div>
+    </div>
+
+    <div id="mosfetMode1" style="display: none; flex-direction: row; justify-content: center; gap: 20px; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="mosfetVGS1" style="font-weight: bold; color: #E64097; margin: 0; width: 60px; text-align: right;">V<sub style="font-size: 0.7em; vertical-align: baseline; position: relative; top: 0.3em;">GS</sub> =</label>
+            <input type="text" id="mosfetVGS1" style="width: 85px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 6V">
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="mosfetID1" style="font-weight: bold; color: #E64097; margin: 0; width: 60px; text-align: right;">I<sub style="font-size: 0.7em; vertical-align: baseline; position: relative; top: 0.3em;">D</sub> =</label>
+            <input type="text" id="mosfetID1" style="width: 85px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 3A">
+        </div>
+    </div>
+
+</div>
+                
+<!-- Input group G9 MOSFET--> 
+<div id="inputGroupGrade9Mosfet" class="input-group" style="display: none; flex-direction: column; align-items: flex-start; padding: 10px 0; width: 100%;">
+    
+    <div id="g9MosfetInstructions" style="width: 100%; text-align: left; margin-bottom: 10px; font-weight: bold; font-size: 15px; color: #333; line-height: 1.5; display: none;"></div>
+
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 12px;">
+        
+        <div style="display: flex; align-items: center; gap: 5px;">
+            <label for="g9MosfetVGS" style="font-weight: bold; color: #E64097; font-size: 1.1em; width: 45px; text-align: left; white-space: nowrap;">
+                V<sub style="position: relative; top: 6px; font-size: 0.7em;">GS</sub> =
+            </label>
+            <input type="text" id="g9MosfetVGS" placeholder="e.g. 5V" style="height: 40px; width: 90px; font-size: 16px; padding: 5px; text-align: center; border: 2px solid #ced4da; border-radius: 5px;">
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 5px;">
+            <label for="g9MosfetR2" style="font-weight: bold; color: #E64097; font-size: 1.1em; width: 45px; text-align: left; white-space: nowrap;">
+                R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub> =
+            </label>
+            <input type="text" id="g9MosfetR2" placeholder="e.g. 10k" style="height: 40px; width: 90px; font-size: 16px; padding: 5px; text-align: center; border: 2px solid #ced4da; border-radius: 5px;">
+            <span style="font-size: 18px; font-weight: bold; color: #333;">&Omega;</span>
+        </div>
+
+    </div>
+</div>
+                
     <!-- final closing DIVS of whole section-->  
     </div> </div> 
+
+        
 <!-- *************************************************************************************** -->   
 <!-- *************************************************************************************** -->    
+        
 <!-- Bottom Controls, Feedback, and Solutions -->
        <div style="flex: 0 0 auto; margin-top: 5px; padding-top: 5px; border-top: 1px solid #eee;">
             <div id="feedback" style="font-weight: bold; margin-bottom: 5px; text-align: center; min-height: 0px; font-size: 0.95em;"></div>
@@ -1575,8 +1634,11 @@
         </div>
     </div>
 </div>
-<!-- *************************************************************************************** -->    
-<!-- *************************************************************************************** -->    
+
+                
+<!-- ********************************************************************************************************************* -->    
+<!-- ********************************************************************************************************************* -->    
+                
 <!-- ==========================================
       MODALS                                     
      ========================================== -->
@@ -1750,6 +1812,7 @@ function handleNewQuestionClick() {
     else if (currentMode === 'grade9boolean') { currentMode = 'logic_boolean'; escapedGrade9 = true; }
     else if (currentMode === 'grade9nand') { currentMode = 'logic_nand'; escapedGrade9 = true; }
     else if (currentMode === 'grade9transistor') { currentMode = 'transistor'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9mosfet') { currentMode = 'mosfet'; escapedGrade9 = true; } // 👇 NEW: MOSFET Escape
 
     if (escapedGrade9 && (typeof problemsAttempted !== 'undefined' && problemsAttempted > 0)) {
         const wantsToProceed = confirm("Warning: Returning to standard mode will reset your Grade 9 score to 0. Do you want to continue?");
@@ -1800,7 +1863,7 @@ function handleNewQuestionClick() {
     } else if (currentMode === 'block_diagram') {
         if (typeof generateBlockBuilderProblem === "function") generateBlockBuilderProblem(ctx, canvas);
     } else {
-        // This calls hubController which handles 'transistor' and 'grade9transistor'
+        // This calls hubController which handles 'transistor', 'grade9transistor', and now 'mosfet'!
         if (typeof hubController === "function") hubController(ctx, canvas);
     }
 }
@@ -1864,7 +1927,7 @@ function handleGrade9Click() {
         }
     }
 
-    // 👇 NEW: TRANSISTOR ROUTING ADDED HERE 👇
+    // TRANSISTOR ROUTING
     else if (currentMode === 'transistor' || currentMode === 'grade9transistor') {
         currentMode = 'grade9transistor';
         
@@ -1873,6 +1936,17 @@ function handleGrade9Click() {
             hubController(ctx, canvas);
         } else if (typeof generateGrade9TransistorProblem === "function") {
             generateGrade9TransistorProblem(ctx, canvas);
+        }
+    }
+    
+    // 👇 NEW: MOSFET ROUTING ADDED HERE 👇
+    else if (currentMode === 'mosfet' || currentMode === 'grade9mosfet') {
+        currentMode = 'grade9mosfet';
+        
+        if (typeof hubController === "function") {
+            hubController(ctx, canvas);
+        } else if (typeof generateGrade9MosfetProblem === "function") {
+            generateGrade9MosfetProblem(ctx, canvas);
         }
     }
         
@@ -2445,7 +2519,40 @@ function drawTransistor(ctx, x, y) {
     ctx.closePath();
     ctx.fill();
 }
+function drawHeater(ctx, x, y) {
+    const w = 20; 
+    const h = 60; 
     
+    ctx.save();
+    
+    // 1. Fill white background EXACTLY to the borders (no overhang!)
+    ctx.fillStyle = "white";
+    ctx.fillRect(x - w/2, y - h/2, w, h);
+    
+    // 2. Draw the outer rectangle
+    ctx.beginPath();
+    ctx.rect(x - w/2, y - h/2, w, h);
+    ctx.stroke();
+    
+    // 3. Draw the three internal horizontal lines (creates 4 equal sections)
+    ctx.beginPath();
+    
+    // Top line
+    ctx.moveTo(x - w/2, y - 15);
+    ctx.lineTo(x + w/2, y - 15);
+    
+    // Center line
+    ctx.moveTo(x - w/2, y);
+    ctx.lineTo(x + w/2, y);
+    
+    // Bottom line
+    ctx.moveTo(x - w/2, y + 15);
+    ctx.lineTo(x + w/2, y + 15);
+    
+    ctx.stroke();
+    
+    ctx.restore();
+}
 // ==========================================
 // LOGIC GATE DRAWING HELPERS
 // ==========================================
@@ -2694,6 +2801,149 @@ function drawGrade9DividerCircuit(ctx) {
     drawLine(ctx, lx, ly + 25, lx, ty - 25); // Motor to Collector
     drawLine(ctx, tx + 10, ty + 25, tx + 10, botY); // Emitter to 0V Rail
     drawNode(ctx, tx + 10, botY);
+}
+
+// =========================================================================================================
+// MOSFET Drawing HELPERS
+// =========================================================================================================
+
+/**
+ * Draws a standard N-Channel Enhancement MOSFET (GCSE/WJEC Style)
+ * Designed to have the EXACT same footprint as the Transistor to reuse wire coordinates!
+ * - Gate (G): Connect wire to (x - 25, y)
+ * - Drain (D): Connect wire to (x + 10, y - 25)
+ * - Source (S): Connect wire to (x + 10, y + 25)
+ */
+function drawMosfet(ctx, x, y) {
+    const radius = 25; 
+    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "miter";
+
+    ctx.beginPath();
+    // 1. Gate wire and plate
+    ctx.moveTo(x - radius, y);  // Start at left bounding box edge (Gate)
+    ctx.lineTo(x - 5, y);       // Wire to gate plate
+    ctx.moveTo(x - 5, y - 12);  // Top of gate plate
+    ctx.lineTo(x - 5, y + 12);  // Bottom of gate plate
+
+    // 2. Channel (3 dashed segments for Enhancement type)
+    ctx.moveTo(x + 1, y - 14); ctx.lineTo(x + 1, y - 6);   // Top segment
+    ctx.moveTo(x + 1, y - 4);  ctx.lineTo(x + 1, y + 4);   // Middle segment
+    ctx.moveTo(x + 1, y + 6);  ctx.lineTo(x + 1, y + 14);  // Bottom segment
+
+    // 3. Drain connection
+    ctx.moveTo(x + 1, y - 10);      // Connect to top segment
+    ctx.lineTo(x + 10, y - 10);     // Out to the right
+    ctx.lineTo(x + 10, y - radius); // Straight vertical up to the bounding edge (Drain)
+
+    // 4. Source connection
+    ctx.moveTo(x + 1, y + 10);      // Connect to bottom segment
+    ctx.lineTo(x + 10, y + 10);     // Out to the right
+    ctx.lineTo(x + 10, y + radius); // Straight vertical down to the bounding edge (Source)
+
+    // 5. Substrate connection (Middle to Source)
+    ctx.moveTo(x + 1, y);           // Connect to middle segment
+    ctx.lineTo(x + 10, y);          // Out to the right
+    ctx.lineTo(x + 10, y + 10);     // Down to meet the source line
+    ctx.stroke();
+
+    // 6. Arrow on Substrate (pointing IN for N-Channel)
+    ctx.beginPath();
+    ctx.fillStyle = strokeColor;
+    ctx.moveTo(x + 1, y);           // Arrow tip at the channel
+    ctx.lineTo(x + 7, y - 4);       // Top barb
+    ctx.lineTo(x + 7, y + 4);       // Bottom barb
+    ctx.closePath();
+    ctx.fill();
+}
+
+//==================================================================================
+// HELPER: Standard MOSFET Divider Circuit
+//==================================================================================
+// Draws the rails, MOSFET, standard potential divider, motor, and connecting wires.
+// Add loadText and loadSymbol to the arguments!
+//This is for Mode 1 standard MOSFET question (pot divider)  and grade 9 MOSFET
+function drawStandardMosfetCircuit(ctx, supplyVoltage, loadText = "", loadSymbol = "motor", r1Val = "", r2Val = "", vgsText = "") {
+    // 1. Setup grid coordinates (Matching Transistor Layout)
+    const topY = 40;   
+    const botY = 360;  
+    const tx = 380;     // MOSFET X
+    const ty = 250;     // MOSFET Y
+    
+    const divX = 200;   
+    const lx = tx + 10; 
+    const ly = 145;     
+    
+    const railStartX = 80; 
+    const railEndX = 500;
+
+    // Draw Power Rails 
+    drawLine(ctx, railStartX, topY, railEndX, topY); 
+    drawLine(ctx, railStartX, botY, railEndX, botY); 
+    
+    if (supplyVoltage) {
+        drawLabel(ctx, `+${supplyVoltage}V`, railStartX - 45, topY + 5, 16);
+        drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
+    }
+
+    // --- DRAW MOSFET & DYNAMIC LOAD ---
+    drawMosfet(ctx, tx, ty);
+    
+    // Choose which symbol to draw based on our instructions!
+    if (loadSymbol === "lamp") {
+        drawLamp(ctx, lx, ly); 
+    } else {
+        drawMotor(ctx, lx, ly);
+    }
+
+    // -- TOP RESISTOR --
+    ctx.save();
+    ctx.translate(divX, 145);
+    drawResistor(ctx, 0, 0); 
+    ctx.restore();
+
+    // -- BOTTOM RESISTOR --
+    ctx.save();
+    ctx.translate(divX, 305);
+    drawResistor(ctx, 0, 0);
+    ctx.restore();
+
+    // Wire Everything Together
+    drawLine(ctx, divX, topY, divX, 145 - 25); 
+    drawLine(ctx, divX, 145 + 25, divX, 305 - 25); 
+    drawLine(ctx, divX, 305 + 25, divX, botY); 
+    
+    drawNode(ctx, divX, topY);
+    drawNode(ctx, divX, botY);
+    drawNode(ctx, divX, ty); 
+
+    drawLine(ctx, divX, ty, tx - 25, ty); 
+
+    drawLine(ctx, lx, topY, lx, ly - 25); 
+    drawNode(ctx, lx, topY);
+    drawLine(ctx, lx, ly + 25, lx, ty - 25); 
+    drawLine(ctx, tx + 10, ty + 25, tx + 10, botY); 
+    drawNode(ctx, tx + 10, botY);
+
+    // --- DRAW DYNAMIC LOAD LABEL ---
+    if (loadText !== "") {
+        ctx.save();
+        ctx.font = "bold 14px Arial";
+        ctx.textAlign = "left"; 
+        
+        // Shield
+        let metrics = ctx.measureText(loadText);
+        ctx.fillStyle = "white";
+        ctx.fillRect(lx + 35, ly - 10, metrics.width + 10, 20); 
+
+        // Text
+        ctx.fillStyle = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+        ctx.fillText(loadText, lx + 35, ly + 5);
+        ctx.restore();
+    }
 }
   
 // =========================================================================================================      
@@ -6256,6 +6506,7 @@ function drawMonostable(ctx, R, C, rUnit, cUnit) {
 //*****************************************************************************************
     
 function generateMonostableProblem() {
+    
     hideAllInputGroups();
     const canvas = document.getElementById('circuitCanvas');
     if (!canvas) return;
@@ -9099,9 +9350,415 @@ function generateGrade9TransistorProblem() {
         drawSafeSubscript("V", "IN", "= 5 V", 15, 280, 16, strokeColor); 
     }
 }
-// END of Content generator functions
+    
 //**********************************************************************************************************
+
+//*************************************************************************************
+//  MOSFET GENERATORS
+//*************************************************************************************
+    
+// This helper exists for Mode 0 MOSFET (simple Id and gm question) 
+function drawDirectMosfetCircuit(ctx, vcc) {
+    const topY = 40, botY = 360;
+    const tx = 380, ty = 250, lx = tx + 10;
+    const railStartX = 80, railEndX = 500;
+
+    // Power Rails
+    drawLine(ctx, railStartX, topY, railEndX, topY);
+    drawLine(ctx, railStartX, botY, railEndX, botY);
+    drawLabel(ctx, `+${vcc}V`, railStartX - 35, topY + 5, 16);
+    drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
+
+
+    
+
+    // Gate Connection
+    drawLine(ctx, 150, ty, tx - 25, ty);
+    drawNode(ctx, 150, ty);
+
+    // Vertical Wires
+    drawLine(ctx, lx, topY, lx, 145 - 25);
+    drawNode(ctx, lx, topY);
+    drawLine(ctx, lx, 145 + 25, lx, ty - 25);
+    drawLine(ctx, lx, ty + 25, lx, botY);
+    drawNode(ctx, lx, botY);
+
+    // Main Components
+    drawMosfet(ctx, tx, ty);
+    drawHeater(ctx, lx, 145);
+}
+
 //**********************************************************************************************************
+
+function generateMosfetProblem(ctx, canvas) {
+    console.log("Standard MOSFET generator successfully fired!");
+
+    // 1. Reset UI
+    if (typeof hideAllInputGroups === 'function') {
+        hideAllInputGroups();
+    }
+
+    // 👇 --- RE-BINDING RESCUE BLOCK --- 👇
+    const rocket = document.getElementById('mainGrade9Btn');
+    if (rocket) {
+        rocket.style.setProperty("display", "inline-block", "important");
+        
+        // This is the fix: Tell the button what to do when clicked
+        rocket.onclick = function() {
+            generateGrade9MosfetProblem();
+        };
+    }
+    
+    const mainGroup = document.getElementById('inputGroupMosfet');
+    if (mainGroup) {
+        mainGroup.style.display = 'flex'; 
+        mainGroup.style.flexDirection = 'column'; 
+        mainGroup.style.flexWrap = 'wrap'; 
+        mainGroup.style.width = '100%';
+    }
+    // 👆 --- END RESCUE BLOCK --- 👆
+
+    // 2. Define other UI elements
+    const mode0 = document.getElementById('mosfetMode0');
+    const mode1 = document.getElementById('mosfetMode1');
+    const pinkColor = "#E64097";
+    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+
+    // Clear solutions
+    const solText = document.getElementById('solText');
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none"; 
+    if (solText) solText.innerHTML = ""; 
+
+    // Reset inputs, borders, and glowing shadows
+    ['mosfetID0', 'mosfetGM0', 'mosfetVGS1', 'mosfetID1'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            el.style.borderColor = ""; 
+            el.style.boxShadow = ""; // <- This kills the ghost glow!
+            
+            const label = document.querySelector(`label[for="${id}"]`);
+            if (label) label.style.color = pinkColor;
+        }
+    });
+
+    currentMode = 'mosfet';
+    
+    // Cycle modes
+    if (typeof window.mosfetMode === 'undefined') window.mosfetMode = 0;
+    else window.mosfetMode = (window.mosfetMode + 1) % 2;
+
+    // 2. Canvas Setup
+    if (!ctx || !canvas) {
+        canvas = document.getElementById('circuitCanvas');
+        ctx = canvas ? canvas.getContext('2d') : null;
+    }
+    if (ctx && canvas) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = strokeColor;
+    }
+    
+    const qText = document.getElementById('questionText');
+    if (qText) qText.style.display = 'block';
+
+    // Helper: Subscript drawing
+    function drawSafeSubscript(mainStr, subStr, suffixStr, x, y, size, color) {
+        ctx.save(); 
+        ctx.fillStyle = color || "#000000";
+        ctx.textAlign = "left"; 
+        ctx.font = "bold " + size + "px Arial";
+        ctx.fillText(mainStr, x, y);
+        let w1 = ctx.measureText(mainStr).width;
+        ctx.font = "bold " + (size * 0.7) + "px Arial";
+        ctx.fillText(subStr, x + w1 + 1, y + (size * 0.25));
+        let w2 = ctx.measureText(subStr).width;
+        if (suffixStr) {
+            ctx.font = "bold " + size + "px Arial";
+            ctx.fillText(suffixStr, x + w1 + w2 + 8, y); 
+        }
+        ctx.restore(); 
+    }
+
+    // ---------------------------------------------------------
+    // MODE 0: Basic Power and Transconductance (gm) (LAMP)
+    // ---------------------------------------------------------
+    if (window.mosfetMode === 0) {
+        if (mode0) {
+            mode0.style.display = 'flex';
+            // 👇 ADD THESE TWO LINES 👇
+            mode0.style.flexDirection = 'column';
+            mode0.style.width = '100%';
+        }
+        if (mode1) mode1.style.display = 'none';
+
+        let vcc = 12;
+        let pLoad = [24, 36, 48][Math.floor(Math.random() * 3)]; 
+        let iD = pLoad / vcc;
+        let vgs = [5, 6, 7, 8][Math.floor(Math.random() * 4)];
+        let gm = Number((iD / (vgs - 3)).toFixed(2));
+
+        currentAnswers = { mosfetID0: iD, mosfetGM0: gm };
+
+            if (qText) {
+                qText.innerHTML = `
+                    A MOSFET is used to control a heater. The MOSFET is just saturated and the heater is operating at the rated value shown. 
+                    <br><br>
+                    Find:<br>
+                    1. The drain current (I<sub>D</sub>).<br>
+                    2. The minimum transconductance (g<sub>m</sub>).
+                `;
+            }
+
+        // DRAW MODE 0
+        drawDirectMosfetCircuit(ctx, vcc);
+        drawSafeSubscript("V", "IN", "= " + vgs + "V", 80, 245, 16, pinkColor);
+        
+        // --- UPGRADED LAMP LABEL FOR MODE 0 ---
+        let motorLabel = `${vcc}V, ${pLoad}W`; 
+        ctx.font = "bold 14px Arial";
+        ctx.textAlign = "left"; 
+        
+        // 1. Draw the white shield background to clear the line
+        let metrics = ctx.measureText(motorLabel);
+        ctx.fillStyle = "white";
+        ctx.fillRect(425, 135, metrics.width + 10, 20); // 425 pushes it safely right
+        
+        // 2. Draw the text
+        ctx.fillStyle = strokeColor;
+        ctx.fillText(motorLabel, 425, 150);
+
+        if (solText) {
+            solText.innerHTML = `<strong>I<sub>D</sub> = ${iD} A | g<sub>m</sub> = ${gm} S</strong><br><br>
+            <em>Step 1:</em> I<sub>D</sub> = P / V = ${pLoad} / ${vcc} = <strong>${iD} A</strong><br>
+            <em>Step 2:</em> g<sub>m</sub> = I<sub>D</sub> / (V<sub>GS</sub> - 3) = ${iD} / (${vgs} - 3) = <strong>${gm} S</strong>`;
+        }
+    } 
+    // ---------------------------------------------------------
+    // MODE 1: Potential Divider Drive (MOTOR)
+    // ---------------------------------------------------------
+    else {
+        if (mode1) {
+            mode1.style.display = 'flex'; 
+            // 👇 ADD THESE TWO LINES 👇
+            mode1.style.flexDirection = 'column';
+            mode1.style.width = '100%';
+        }
+        if (mode0) mode0.style.display = 'none';
+
+        let vcc = 12;
+        let r1 = [10, 20, 30][Math.floor(Math.random() * 3)]; 
+        let r2 = [10, 20, 30][Math.floor(Math.random() * 3)]; 
+        let gm = [1, 1.5, 2][Math.floor(Math.random() * 3)];
+        
+        let vgs = Number((vcc * (r2 / (r1 + r2))).toFixed(2));
+        let iD = vgs > 3 ? Number((gm * (vgs - 3)).toFixed(2)) : 0;
+
+        currentAnswers = { mosfetVGS1: vgs, mosfetID1: iD };
+
+        if (qText) {
+            qText.innerHTML = `
+                The MOSFET has a g<sub>m</sub> of <strong>${gm} Siemens</strong>.<br><br>
+                1. Calculate V<sub>GS</sub>.<br>
+                2. Calculate the resulting I<sub>D</sub>.
+            `;
+        }
+
+        // DRAW MODE 1 (Instructing the helper function to draw a motor, with no text!)
+        if (typeof drawStandardMosfetCircuit === 'function') {
+            drawStandardMosfetCircuit(ctx, vcc, "", "motor");
+        }
+        drawSafeSubscript("R", "1", "= " + r1 + "kΩ", 218, 150, 14, strokeColor);
+        drawSafeSubscript("R", "2", "= " + r2 + "kΩ", 218, 310, 14, strokeColor);
+        drawSafeSubscript("V", "GS", "= ?", 255, 235, 16, pinkColor);
+
+        if (solText) {
+            solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | I<sub>D</sub> = ${iD} A</strong><br><br>
+            <em>Step 1:</em> V<sub>GS</sub> = ${vcc} × (${r2} / (${r1} + ${r2})) = <strong>${vgs} V</strong><br>
+            <em>Step 2:</em> I<sub>D</sub> = ${gm} × (${vgs} - 3) = <strong>${iD} A</strong>`;
+        }
+    }
+}
+
+//************************************************************************************************ 
+    
+function generateGrade9MosfetProblem() {
+    // 1. Reset UI
+    if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
+
+    const rocket = document.getElementById('mainGrade9Btn');
+    if (rocket) {
+        rocket.style.setProperty("display", "inline-block", "important");
+    }
+
+    const mainGroup = document.getElementById('inputGroupGrade9Mosfet');
+    if (mainGroup) {
+        mainGroup.style.display = 'flex'; 
+        mainGroup.style.flexDirection = 'column'; 
+        mainGroup.style.flexWrap = 'wrap'; 
+        mainGroup.style.width = '100%';
+    }
+
+    const pinkColor = "#E64097";
+    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+    
+    // --- SOLUTIONS UI RESET ---
+    const solText = document.getElementById('solText');
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none"; 
+    if (solText) solText.innerHTML = ""; 
+
+    // Clear and color inputs
+    ['g9MosfetVGS', 'g9MosfetR2'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            el.style.removeProperty('border-color');
+            el.style.boxShadow = ""; 
+            const label = document.querySelector(`label[for="${id}"]`);
+            if (label) label.style.color = pinkColor;
+        }
+    });
+
+    currentMode = 'grade9mosfet';
+
+    // Toggle between finding R2 (0) and R1 (1)
+    if (typeof window.g9MosfetSubMode === 'undefined') window.g9MosfetSubMode = 0;
+    else window.g9MosfetSubMode = (window.g9MosfetSubMode + 1) % 2;
+
+    // 2. Canvas Setup
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = strokeColor;
+
+    function drawSafeSubscript(mainStr, subStr, suffixStr, x, y, size, color) {
+        ctx.save(); 
+        ctx.fillStyle = color || "#000000";
+        ctx.textAlign = "left"; 
+        ctx.textBaseline = "alphabetic"; 
+        ctx.font = "bold " + size + "px Arial";
+        ctx.fillText(mainStr, x, y);
+        let w1 = ctx.measureText(mainStr).width;
+        let subSize = size * 0.75;
+        ctx.font = "bold " + subSize + "px Arial";
+        ctx.fillText(subStr, x + w1 + 1, y + (size * 0.25));
+        let w2 = ctx.measureText(subStr).width;
+        if (suffixStr) {
+            ctx.font = "bold " + size + "px Arial";
+            ctx.fillText(suffixStr, x + w1 + w2 + 8, y); 
+        }
+        ctx.restore(); 
+    }
+
+    // =======================================================================
+    // THE MATH: "Friendly Fractions" Injection
+    // =======================================================================
+    let vcc = 12;
+    
+    // Hardcoded friendly combinations to guarantee VGS is 4, 6, 8, or 9
+    const friendlyScenarios = [
+        { iD: 3, gm: 1, vgs: 6 }, // 6V (Half)
+        { iD: 6, gm: 2, vgs: 6 }, // 6V (Half)
+        { iD: 2, gm: 2, vgs: 4 }, // 4V (One Third)
+        { iD: 1, gm: 1, vgs: 4 }, // 4V (One Third)
+        { iD: 5, gm: 1, vgs: 8 }, // 8V (Two Thirds)
+        { iD: 6, gm: 1, vgs: 9 }  // 9V (Three Quarters)
+    ];
+    let scenario = friendlyScenarios[Math.floor(Math.random() * friendlyScenarios.length)];
+    let iD = scenario.iD;
+    let gm = scenario.gm;
+    let vgs = scenario.vgs;
+    
+    // Ensure clean resistor values based on the simple ratios
+    let base = [10, 20, 30][Math.floor(Math.random() * 3)];
+    let r1_k, r2_k;
+    
+    if (vgs === 6) { 
+        r1_k = base; r2_k = base; 
+    } else if (vgs === 4) { 
+        r2_k = base; r1_k = base * 2; 
+    } else if (vgs === 8) { 
+        r1_k = base; r2_k = base * 2; 
+    } else if (vgs === 9) { 
+        r1_k = base; r2_k = base * 3; 
+    }
+
+    let knownR, answerR, targetLabel, targetLabelPanelHTML, step2Formula;
+    
+    // Create the simplified fraction string for the solution box
+    let fractionText = "";
+    if (vcc % vgs === 0) fractionText = `1/${vcc/vgs}`;
+    else if (vgs === 8) fractionText = `2/3`;
+    else if (vgs === 9) fractionText = `3/4`;
+
+    if (window.g9MosfetSubMode === 0) {
+        knownR = r1_k; answerR = r2_k; targetLabel = "R<sub>2</sub>";
+        targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub>';
+        step2Formula = `Substitute knowns into the Potential Divider equation:<br>
+        V<sub>GS</sub> = V<sub>supply</sub> &times; [ R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>) ]<br>
+        ${vgs} = ${vcc} &times; [ R<sub>2</sub> / (${knownR} + R<sub>2</sub>) ]<br>
+        ${vgs}/${vcc} = R<sub>2</sub> / (${knownR} + R<sub>2</sub>)<br>
+        ${fractionText} = R<sub>2</sub> / (${knownR} + R<sub>2</sub>)`;
+    } else {
+        knownR = r2_k; answerR = r1_k; targetLabel = "R<sub>1</sub>";
+        targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">1</sub>';
+        step2Formula = `Substitute knowns into the Potential Divider equation:<br>
+        V<sub>GS</sub> = V<sub>supply</sub> &times; [ R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>) ]<br>
+        ${vgs} = ${vcc} &times; [ ${knownR} / (R<sub>1</sub> + ${knownR}) ]<br>
+        ${vgs}/${vcc} = ${knownR} / (R<sub>1</sub> + ${knownR})<br>
+        ${fractionText} = ${knownR} / (R<sub>1</sub> + ${knownR})`;
+    }
+
+    currentAnswers = { vgs: vgs, r2: answerR };
+
+    const rLabel = document.querySelector('label[for="g9MosfetR2"]');
+    if (rLabel) rLabel.innerHTML = `${targetLabelPanelHTML} = `;
+
+    // 3. Update Text 
+    const qText = document.getElementById('questionText');
+    const instructionsDiv = document.getElementById('g9MosfetInstructions');
+    
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = `
+            A cooling fan requires exactly <strong>${iD} A</strong> to run. The MOSFET has a transconductance (g<sub>m</sub>) of <strong>${gm} S</strong>.<br><br>
+            1. Calculate the gate voltage (<strong>V<sub>GS</sub></strong>) required for the fan.<br>
+            2. Determine the required value for <strong>${targetLabel}</strong>.<br><br>
+            <div style="font-size: 15px; line-height: 1.2; margin-top: 5px; color: #444;">
+                <em>Enter the resistor value with or without a prefix (e.g., 520, 83k, or 6.1M).</em>
+            </div>
+        `;
+        if (instructionsDiv) instructionsDiv.style.display = 'none';
+    }
+
+    // 4. DRAWING THE CIRCUIT
+    if (typeof drawStandardMosfetCircuit === 'function') {
+        drawStandardMosfetCircuit(ctx, vcc);
+    }
+
+    if (window.g9MosfetSubMode === 0) {
+        drawSafeSubscript("R", "1", "= " + knownR + " kΩ", 218, 150, 14, strokeColor);
+        drawSafeSubscript("R", "2", "= ?", 218, 310, 14, pinkColor);
+    } else {
+        drawSafeSubscript("R", "1", "= ?", 218, 150, 14, pinkColor);
+        drawSafeSubscript("R", "2", "= " + knownR + " kΩ", 218, 310, 14, strokeColor);
+    }
+    drawSafeSubscript("V", "GS", "= ?", 255, 235, 16, pinkColor);
+
+    // 5. Solution Logic
+    if (solText) {
+        solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | ${targetLabel} = ${answerR} k&Omega;</strong><br><br>
+        <em>Step 1:</em> Find the required V<sub>GS</sub> using I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - V<sub>th</sub>):<br>
+        V<sub>GS</sub> = (${iD} / ${gm}) + 3 = <strong>${vgs} V</strong><br><br>
+        <em>Step 2:</em> ${step2Formula}<br><br>
+        <em>Mental Math Check:</em> From the simple fraction above, we can see <strong>${targetLabel} = ${answerR} k&Omega;</strong>`;
+    }
+}
+//*************************************************************************************************************************************
+//**************************************************************************************************************************************
 // ===========================================================================================================================      
 // FUNCTION 3. NAVIGATION and UI (Traffic Control) 
 // ===========================================================================================================================      
@@ -9128,7 +9785,6 @@ function goHome() {
     document.getElementById('moduleSubtitle').innerText = "Mastering the GCSE Course";
 }
 //*****************************************************************************************
-
 //this handles switching between the main menu modules
 function openModule(module) {
     // 1. SAFETY RESET: Wipes score when moving between main modules
@@ -9173,9 +9829,7 @@ function openModule(module) {
     }
 }
 //*****************************************************************************************
- 
-// TAB SWITCHER & GLOBAL CLEANUP
-//switchTab runs when you click the navigation menu at the very top of the page   
+  
 // TAB SWITCHER & GLOBAL CLEANUP
 //switchTab runs when you click the navigation menu at the very top of the page   
 function switchTab(mode) {
@@ -9223,7 +9877,7 @@ function switchTab(mode) {
         'inputGroupBoolean',
         'booleanDropdownContainer',        
         'booleanCheckboxContainer',        
-        'inputGroupGrade9BooleanSOP',     
+        'inputGroupGrade9BooleanSOP',      
         'inputGroupGrade9BooleanPath',    
         'inputGroupLogicSystem',          
         'inputGroupLogic_ic',             
@@ -9233,7 +9887,8 @@ function switchTab(mode) {
         'inputGroupNandRedundancy',        
         'inputGroupBlockBuilder',          
         'inputGroupTransistor',
-        'inputGroupGrade9Transistor'
+        'inputGroupGrade9Transistor',
+        'inputGroupMosfet' // 👇 NEW: Added MOSFET group to hide list
     ];
 
     elementsToHide.forEach(id => {
@@ -9250,7 +9905,8 @@ function switchTab(mode) {
         else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) subtitle.innerText = "Module 3: Timing Circuits";
         else if (['silicon', 'zener', 'grade9zener', 'grade9silicon'].includes(mode)) subtitle.innerText = "Module 8: Diodes"; 
         else if (['logic_ic', 'logic_system', 'logic_boolean', 'logic_nand', 'grade9boolean'].includes(mode)) subtitle.innerText = "Module 2: Logic Gates"; 
-        else if (mode === 'transistor') subtitle.innerText = "Module 6: Transistors"; // 👇 NEW: Transistor Subtitle
+        // 👇 NEW: Grouped MOSFET and Transistor together under Module 6
+        else if (['transistor', 'mosfet'].includes(mode)) subtitle.innerText = "Module 6: Transistors"; 
     }
 
     // 5. Global Cleanup
@@ -9278,8 +9934,8 @@ function switchTab(mode) {
         return; 
     }
 
-    // 👇 ROCKET RESCUE: If we just switched to Transistors, show the G9 button!
-    if (mode === 'transistor') {
+    // 👇 ROCKET RESCUE: If we just switched to Transistors OR MOSFETs, show the G9 button!
+    if (mode === 'transistor' || mode === 'mosfet') {
         const rocket = document.getElementById('mainGrade9Btn');
         if (rocket) rocket.style.display = 'inline-block';
     }
@@ -9329,6 +9985,7 @@ function closeModal() {
 // MASTER PROBLEM GENERATOR (The "Traffic Cop")
 // ========================================================== 
 function hubController(ctx, canvas) {
+    console.log("HubController started! The current mode is:", currentMode);
     // 1. Force Canvas Resolution & Clear
     canvas.width = 600;
     canvas.height = 420;
@@ -9471,6 +10128,19 @@ function hubController(ctx, canvas) {
         }
         if (typeof generateBlockBuilderProblem === "function") generateBlockBuilderProblem(ctx, canvas);
         
+    // 👇 NEW: MOSFET ROUTE ADDED HERE 👇
+    } else if (currentMode === 'mosfet') {
+        if (document.getElementById('inputGroupMosfet')) {
+            document.getElementById('inputGroupMosfet').style.display = 'flex';
+        }
+        if (document.getElementById('mainGrade9Btn')) {
+            document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+        }
+        if (typeof generateMosfetProblem === "function") {
+            generateMosfetProblem(ctx, canvas);
+        }
+    // 👆 END NEW MOSFET ROUTE 👆
+
     } else if (currentMode === 'transistor') {
         if (document.getElementById('inputGroupTransistor')) {
             document.getElementById('inputGroupTransistor').style.display = 'flex';
@@ -9482,6 +10152,7 @@ function hubController(ctx, canvas) {
         }
         if (typeof generateTransistorProblem === "function") generateTransistorProblem(ctx, canvas);
 
+    // 👇 FIXED: GRADE 9 TRANSISTOR ROUTE 👇
     } else if (currentMode === 'grade9transistor') {
         if (document.getElementById('inputGroupGrade9Transistor')) {
             document.getElementById('inputGroupGrade9Transistor').style.display = 'block';
@@ -9489,7 +10160,11 @@ function hubController(ctx, canvas) {
         if (document.getElementById('mainGrade9Btn')) {
             document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         }
-        if (typeof generateGrade9TransistorProblem === "function") generateGrade9TransistorProblem(ctx, canvas);
+        
+        // Correctly calls the Grade 9 Transistor function instead of the MOSFET one
+        if (typeof generateGrade9TransistorProblem === "function") {
+            generateGrade9TransistorProblem(ctx, canvas);
+        }
     }
 } // <--- This closes the hubController function // This is the REAL end of the hubController function
 
@@ -10337,7 +11012,7 @@ if (currentMode === 'grade9nand') {
             }
         }
     }
-    // 👇 NEW: TRANSISTOR ACTIVE INPUTS 👇
+    // 👇 TRANSISTOR ACTIVE INPUTS 👇
     else if (currentMode === 'transistor') {
         if (window.transistorMode === 1) {
             activeInputs = ['transVIN', 'transVRB', 'transIB', 'transP']; // Top-Down Mode
@@ -10356,6 +11031,18 @@ if (currentMode === 'grade9nand') {
         } else {
             activeInputs = ['g9TransDiodePos', 'g9TransDiodeReason'];
         }
+    }
+    // 👇 UPDATED: NORMAL MOSFET ACTIVE INPUTS 👇
+    else if (currentMode === 'mosfet') {
+        if (window.mosfetMode === 0) {
+            activeInputs = ['mosfetID0', 'mosfetGM0'];
+        } else {
+            activeInputs = ['mosfetVGS1', 'mosfetID1'];
+        }
+    }
+    // 👇 GRADE 9 MOSFET ACTIVE INPUTS 👇
+    else if (currentMode === 'grade9mosfet') {
+        activeInputs = ['g9MosfetVGS', 'g9MosfetR2'];
     }
     
     if (currentMode === 'power') {
@@ -10407,14 +11094,14 @@ if (currentMode === 'grade9nand') {
             results.push(validateMatch(parseInput(acceptSpaces(inputStr)), currentAnswers.vValue, targetUnit));
         }
 
-        } else if (currentMode === 'resistance' || currentMode === 'grade9resistance') {
+    } else if (currentMode === 'resistance' || currentMode === 'grade9resistance') {
         let inputStr = document.getElementById('inputR').value;
         let cleanStr = acceptSpaces(inputStr); 
         
         if (cleanStr !== "" && !cleanStr.includes("Ω") && !cleanStr.toLowerCase().includes("ohm")) {
-        cleanStr += "Ω";
+            cleanStr += "Ω";
         }
-    results.push(validateMatch(parseInput(cleanStr), currentAnswers.rValue, currentAnswers.rTargetUnit || 'Ω'));
+        results.push(validateMatch(parseInput(cleanStr), currentAnswers.rValue, currentAnswers.rTargetUnit || 'Ω'));
 
     } else if (currentMode === 'oscilloscope') {
         results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputOscAmp').value)), currentAnswers.oscAmpValue, currentAnswers.oscAmpUnit));
@@ -10496,10 +11183,8 @@ if (currentMode === 'grade9nand') {
             // Validate the exact power input
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputP').value)), currentAnswers.exactPower, currentAnswers.vUnit));
             
-            // FIX: Match the ID used in the HTML and generation function
-            const userRating = document.getElementById('selectPowerRating').value; 
-            
             // Validate the dropdown selection
+            const userRating = document.getElementById('selectPowerRating').value; 
             results.push(userRating === currentAnswers.safeRating ? 'correct' : 'wrongval');
         } else {
             // Standard power validation for scenarios 1 and 3
@@ -10538,7 +11223,7 @@ if (currentMode === 'grade9nand') {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('siliconTP2').value)), currentAnswers.tp2, 'V'));
         }
 
-} else if (currentMode === 'grade9silicon') {
+    } else if (currentMode === 'grade9silicon') {
         // Grade OR-Gate if it's visible
         if (document.getElementById('inputGroupGrade9Silicon') && document.getElementById('inputGroupGrade9Silicon').style.display !== 'none') {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPayload').value)), currentAnswers.vLoad, 'V'));
@@ -10561,7 +11246,7 @@ if (currentMode === 'grade9nand') {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('g9SilPathVLoad').value)), currentAnswers.vLoad, 'V'));
         }
     }
-    // 👇 NEW: TRANSISTOR GRADING LOGIC 👇
+    // 👇 TRANSISTOR GRADING LOGIC 👇
     else if (currentMode === 'transistor') {
         // Grade Transistor Modes
         if (window.transistorMode === 1) {
@@ -10579,7 +11264,6 @@ if (currentMode === 'grade9nand') {
             // Mode 3: Design Mode
             let rInput = document.getElementById('transRB').value;
             let cleanR = acceptSpaces(rInput);
-            // Safety net: if they don't type Ω or ohm, we add it for them so the grader doesn't crash
             if (cleanR !== "" && !cleanR.includes("Ω") && !cleanR.toLowerCase().includes("ohm")) {
                 cleanR += "Ω";
             }
@@ -10610,8 +11294,61 @@ if (currentMode === 'grade9nand') {
             results.push(document.getElementById('g9TransDiodeReason').value === currentAnswers.reason ? 'correct' : 'wrongval');
         }
     }
+    
+// 👇 UPDATED: NORMAL MOSFET GRADING LOGIC 👇
+    else if (currentMode === 'mosfet') {
+        if (window.mosfetMode === 0) {
+            // Grade Drain Current (ID) with Amps fallback
+            let idInput = document.getElementById('mosfetID0').value;
+            let cleanID = acceptSpaces(idInput);
+            if (cleanID !== "" && !cleanID.toLowerCase().includes("a")) cleanID += "A";
+            // FIX: Ask for currentAnswers.mosfetID0
+            results.push(validateMatch(parseInput(cleanID), currentAnswers.mosfetID0, 'A')); 
 
-// 5. Final Feedback and Scoring (BORDERS ONLY)
+            // Grade Transconductance (gm) with Siemens fallback
+            let gmInput = document.getElementById('mosfetGM0').value;
+            let cleanGM = acceptSpaces(gmInput);
+            if (cleanGM !== "" && !cleanGM.toLowerCase().includes("s")) cleanGM += "S";
+            // FIX: Ask for currentAnswers.mosfetGM0
+            results.push(validateMatch(parseInput(cleanGM), currentAnswers.mosfetGM0, 'S'));
+
+        } else {
+            // Grade VGS with Volts fallback
+            let vgsInput = document.getElementById('mosfetVGS1').value;
+            let cleanVGS = acceptSpaces(vgsInput);
+            if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) cleanVGS += "V"; 
+            // FIX: Ask for currentAnswers.mosfetVGS1 (assuming you updated this in the generator too!)
+            results.push(validateMatch(parseInput(cleanVGS), currentAnswers.mosfetVGS1, 'V'));
+
+            // Grade Drain Current (ID) with Amps fallback
+            let idInput = document.getElementById('mosfetID1').value;
+            let cleanID = acceptSpaces(idInput);
+            if (cleanID !== "" && !cleanID.toLowerCase().includes("a")) cleanID += "A";
+            // FIX: Ask for currentAnswers.mosfetID1
+            results.push(validateMatch(parseInput(cleanID), currentAnswers.mosfetID1, 'A')); 
+        }
+    }
+
+    // 👇 GRADE 9 MOSFET GRADING LOGIC 👇
+    else if (currentMode === 'grade9mosfet') {
+        // Grade VGS with Volts fallback
+        let vgsInput = document.getElementById('g9MosfetVGS').value;
+        let cleanVGS = acceptSpaces(vgsInput);
+        if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) {
+            cleanVGS += "V"; 
+        }
+        results.push(validateMatch(parseInput(cleanVGS), currentAnswers.vgs, 'V'));
+
+        // Grade Resistor with Ohms fallback (Answer targets kΩ)
+        let r2Input = document.getElementById('g9MosfetR2').value;
+        let cleanR2 = acceptSpaces(r2Input);
+        if (cleanR2 !== "" && !cleanR2.includes("Ω") && !cleanR2.toLowerCase().includes("ohm")) {
+            cleanR2 += "Ω";
+        }
+        results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
+    }
+
+    // 5. Final Feedback and Scoring (BORDERS ONLY)
     activeInputs.forEach((id, index) => {
         const el = document.getElementById(id);
         if (el) {
@@ -10686,7 +11423,6 @@ if (currentMode === 'grade9nand') {
     
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
-    
 // **********************************************************************
 /**
  * Upgraded Hybrid Parser with Precision Tracking & Capacitance Support
@@ -10713,15 +11449,16 @@ function parseInput(str, dropdownUnit = null) {
         return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio', dp: 0, tol: 0.01 };
     }
 
-    const match = cleanStr.match(/^(-?[\d\.]+)([a-zA-Z\u03a9\u03bcΩμ]*)$/);
+    // FIX 1 & 3: Added eE+- for scientific notation and \/ for mA/V
+    const match = cleanStr.match(/^(-?[\d\.eE+-]+)([a-zA-Z\u03a9\u03bcΩμ\/]*)$/);
     
     if (match) {
         let numStr = match[1];
         let val = parseFloat(numStr);
         
-        // NEW: Calculate how many decimal places they typed
-        let dp = numStr.includes('.') ? numStr.split('.')[1].length : 0;
-        // Calculate their strict rounding tolerance based on their chosen decimals
+        // Strip out the exponent part before counting decimal places to keep tolerance accurate
+        let numForDp = numStr.replace(/[eE].*/, ''); 
+        let dp = numForDp.includes('.') ? numForDp.split('.')[1].length : 0;
         let tol = 0.5 * Math.pow(10, -dp);
 
         let rawUnit = match[2]; 
@@ -10730,8 +11467,9 @@ function parseInput(str, dropdownUnit = null) {
 
         if (rawUnit === 'k' || rawUnit === 'kΩ' || lowerUnit.match(/^(kohm|kohms)$/)) {
             normalizedUnit = "kΩ";
-        } else if (rawUnit === 'M' || rawUnit === 'MΩ' || lowerUnit.match(/^(mohm|mohms|megaohm|megaohms)$/)) {
-            normalizedUnit = "MΩ"; // <-- NEW: Megaohm support
+        // FIX 4: Removed 'mohm' to prevent milliohm/megaohm confusion
+        } else if (rawUnit === 'M' || rawUnit === 'MΩ' || lowerUnit.match(/^(megaohm|megaohms)$/)) {
+            normalizedUnit = "MΩ"; 
         } else if (rawUnit === 'Ω' || rawUnit === 'r' || lowerUnit.match(/^(ohm|ohms)$/)) {
             normalizedUnit = "Ω";
         } else if (lowerUnit.match(/^(millivolts|millivolt|mvolt|mvolts)$/) || rawUnit === 'mV') {
@@ -10744,15 +11482,20 @@ function parseInput(str, dropdownUnit = null) {
             normalizedUnit = "A"; 
         } else if (rawUnit === 'ms' || lowerUnit.match(/^(milliseconds|millisecond)$/)) {
             normalizedUnit = "ms";
-        } else if (lowerUnit.match(/^(s|sec|secs|seconds|second)$/)) {
-            normalizedUnit = "s";
+        } else if (rawUnit === 's' || lowerUnit.match(/^(sec|secs|seconds|second)$/)) {
+        normalizedUnit = "s";
         } else if (lowerUnit.match(/^(milliwatts|milliwatt|mwatts|mwatt)$/) || rawUnit === 'mW') {
             normalizedUnit = "mW";
         } else if (lowerUnit.match(/^(watts|watt)$/) || rawUnit === 'W') {
             normalizedUnit = "W";
         } else if (lowerUnit.match(/^(hertz|hz)$/)) {
             normalizedUnit = 'Hz'; 
-        // NEW: Capacitance unit checks added here
+        // FIX 2: Siemens & mA/V check for MOSFETs added here
+        } else if (rawUnit === 'mS' || lowerUnit.match(/^(msiemens|millisiemens|ma\/v)$/)) {
+            normalizedUnit = "mS";
+        } else if (rawUnit === 'S' || lowerUnit.match(/^(siemens|a\/v)$/)) {
+            normalizedUnit = "S";
+        // Capacitance unit checks
         } else if (rawUnit === 'mF' || lowerUnit.match(/^(mf|millifarad|millifarads)$/)) {
             normalizedUnit = "mF";
         } else if (rawUnit === 'μF' || rawUnit === 'uF' || lowerUnit.match(/^(uf|microfarad|microfarads)$/)) {
@@ -10769,20 +11512,20 @@ function parseInput(str, dropdownUnit = null) {
         return { val: val, unit: normalizedUnit, dp: dp, tol: tol };
     }
 
-    // Fallback for numbers only
-    let fallbackMatch = cleanStr.match(/^(-?[\d\.]+)/);
+    // Fallback for numbers only (Also updated for sci-notation)
+    let fallbackMatch = cleanStr.match(/^(-?[\d\.eE+-]+)/);
     let val = parseFloat(cleanStr);
     let dp = 0; let tol = 0.5;
     
     if(fallbackMatch) {
         let numStr = fallbackMatch[1];
-        dp = numStr.includes('.') ? numStr.split('.')[1].length : 0;
+        let numForDp = numStr.replace(/[eE].*/, ''); 
+        dp = numForDp.includes('.') ? numForDp.split('.')[1].length : 0;
         tol = 0.5 * Math.pow(10, -dp);
     }
 
     return { val: isNaN(val) ? null : val, unit: '', dp: dp, tol: tol }; 
 }
-
 
 //*****************************************************************************************
 function validateMatch(parsedInput, expectedVal, expectedUnit) {
@@ -10808,13 +11551,15 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
         return Math.abs(userVal - expectedVal) < 0.01 ? 'correct' : 'wrongval';
     }
     
-    // 4. AUTO-CONVERT UNITS (Scaling userVal and userTol) - Kept your FULL list!
+    // 4. AUTO-CONVERT UNITS (Scaling userVal and userTol)
     const conversions = [
         { t: 'mA', u: 'A', factor: 1000 }, { t: 'A', u: 'mA', factor: 0.001 },
         { t: 'mW', u: 'W', factor: 1000 }, { t: 'W', u: 'mW', factor: 0.001 },
         { t: 'mV', u: 'V', factor: 1000 }, { t: 'V', u: 'mV', factor: 0.001 },
         { t: 'kΩ', u: 'Ω', factor: 0.001 }, { t: 'Ω', u: 'kΩ', factor: 1000 },
         { t: 'MΩ', u: 'Ω', factor: 0.000001 }, { t: 'Ω', u: 'MΩ', factor: 1000000 },
+        { t: 'MΩ', u: 'kΩ', factor: 0.001 }, { t: 'kΩ', u: 'MΩ', factor: 1000 }, // NEW: MΩ <-> kΩ
+        { t: 'mS', u: 'S', factor: 1000 }, { t: 'S', u: 'mS', factor: 0.001 },   // NEW: mS <-> S (Transconductance)
         { t: 'μF', u: 'F', factor: 1000000 }, { t: 'F', u: 'μF', factor: 0.000001 },
         { t: 'mF', u: 'F', factor: 1000 }, { t: 'F', u: 'mF', factor: 0.001 },
         { t: 'μF', u: 'mF', factor: 1000 }, { t: 'mF', u: 'μF', factor: 0.001 },
@@ -10844,6 +11589,16 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     let valMatch = correctlyRounded && reasonablePrecision;
     
     // FALLBACK 1: System rounding match (e.g. 13.333 vs 13.3)
+    
+    // 👇 Add this safety check
+   // if (expectedVal === undefined || expectedVal === null) {
+   //     console.error("Missing answer key! expectedVal is undefined.");
+   //     return 'wrongval'; 
+  //  }
+    
+    let expectedStr = expectedVal.toString();
+    // ... rest of your function
+    
     if (!valMatch) {
         let expectedStr = expectedVal.toString();
         let expectedDp = expectedStr.includes('.') ? expectedStr.split('.')[1].length : 0;
@@ -10866,7 +11621,7 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
         }
     }
     
-    // 6. STRICT UNIT MATCHING (This is the ONLY part that changed)
+    // 6. STRICT UNIT MATCHING
     let unitMatch = (userUnit === targetUnit);
     
     // Allow blank units ONLY for the Ohms symbol
@@ -11199,6 +11954,37 @@ function provideHint() {
                 ${specificHint}
             </div>`;
             
+    } else if (currentMode === 'mosfet') {
+        let specificHint = "";
+        
+        if (window.mosfetMode === 0) {
+            // Lamp load: calculating ID and gm
+            specificHint = `
+                <br><br><b>Calculating I<sub>D</sub> and g<sub>m</sub></b><br>
+                1. First, find the drain current (I<sub>D</sub>) using the power and voltage of the load (<b>I = P / V</b>).<br>
+                2. Then, rearrange the MOSFET formula from your data sheet to find transconductance: <b>g<sub>m</sub> = I<sub>D</sub> / (V<sub>GS</sub> - 3)</b>.`;
+        } else {
+            // Divider Drive: calculating VGS and ID
+            specificHint = `
+                <br><br><b>Potential Divider Drive</b><br>
+                1. Find the gate-source voltage (V<sub>GS</sub>) using the <b>Potential Divider equation</b> from your data sheet.<br>
+                2. Use the standard MOSFET formula to find the resulting drain current: <b>I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - 3)</b>.`;
+        }
+
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 MOSFET Hint:</strong>
+                ${specificHint}
+            </div>`;
+            
+    } else if (currentMode === 'grade9mosfet') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Grade 9 MOSFET Hint:</strong><br>
+                • <b>V<sub>GS</sub>:</b> You know the required drain current (I<sub>D</sub>) and the transconductance (g<sub>m</sub>). Rearrange the MOSFET formula (<b>I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - 3)</b>) from your data sheet to solve for V<sub>GS</sub>.<br>
+                • <b>Missing Resistor:</b> Once you have V<sub>GS</sub> (the voltage across the bottom resistor), use the Potential Divider equation (<b>V<sub>out</sub> = V<sub>in</sub> &times; [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)]</b>) or the voltage ratio method (<b>V<sub>1</sub> / V<sub>2</sub> = R<sub>1</sub> / R<sub>2</sub></b>) to find the unknown resistance value.
+            </div>`;
+            
     } else {
         // Potential Divider & General fallback
         helpText = `
@@ -11268,7 +12054,9 @@ const topicMap = {
 
     // --- transistors ---
     'transistor': 'Transistors',
-    'grade9transistor': 'Grade 9 Transistors'
+    'grade9transistor': 'Grade 9 Transistors',
+    'mosfet': 'MOSFETs',
+    'grade9mosfet': 'Grade 9 MOSFETs'
 };
 
 async function processSubmission() {
