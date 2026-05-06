@@ -9666,6 +9666,94 @@ function generateGrade9MosfetProblem() {
         targetLabel = "R<sub>2</sub>";
         // Specific styling for the right panel
         targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub>';
+        step2Formula = `Using the voltage ratio (V<sub>1</sub> / V<sub>2</sub> = R<sub>1</sub> / R<sub>2</sub>) and rearranging for R<sub>2</sub>:<br>
+        R<sub>2</sub> = (V<sub>GS</sub> &times; R<sub>1</sub>) / (V<sub>supply</sub> - V<sub>GS</sub>)<br>
+        R<sub>2</sub> = (${vgs} &times; ${knownR}) / (${vcc} - ${vgs})`;
+    } else {
+        // Mode 1: Find R1
+        knownR = r2_k;
+        answerR = r1_k;
+        targetLabel = "R<sub>1</sub>";
+        // Specific styling for the right panel
+        targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">1</sub>';
+        step2Formula = `Using the voltage ratio (V<sub>1</sub> / V<sub>2</sub> = R<sub>1</sub> / R<sub>2</sub>) and rearranging for R<sub>1</sub>:<br>
+        R<sub>1</sub> = (R<sub>2</sub> &times; (V<sub>supply</sub> - V<sub>GS</sub>)) / V<sub>GS</sub><br>
+        R<sub>1</sub> = (${knownR} &times; (${vcc} - ${vgs})) / ${vgs}`;
+    }
+
+    currentAnswers = { vgs: vgs, r2: answerR };
+
+    // Update the HTML label next to the input box dynamically to maintain formatting
+    const rLabel = document.querySelector('label[for="g9MosfetR2"]');
+    if (rLabel) {
+        rLabel.innerHTML = `${targetLabelPanelHTML} = `;
+    }
+
+    // 3. Update Text 
+    const qText = document.getElementById('questionText');
+    const instructionsDiv = document.getElementById('g9MosfetInstructions');
+    
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = `
+            A cooling fan requires exactly <strong>${iD} A</strong> to run. The MOSFET has a transconductance (g<sub>m</sub>) of <strong>${gm} S</strong>.<br><br>
+            1. Calculate the gate voltage (<strong>V<sub>GS</sub></strong>) required for the fan.<br>
+            2. Determine the required value for <strong>${targetLabel}</strong>.<br><br>
+            <div style="font-size: 15px; line-height: 1.2; margin-top: 5px; color: #444;">
+                <em>Enter the resistor value with or without a prefix (e.g., 520, 83k, or 6.1M).</em>
+            </div>
+        `;
+        // Ensure the internal hidden div stays hidden so layout is clean
+        if (instructionsDiv) instructionsDiv.style.display = 'none';
+    }
+
+    // 4. DRAWING THE CIRCUIT
+    if (typeof drawStandardMosfetCircuit === 'function') {
+        drawStandardMosfetCircuit(ctx, vcc);
+    }
+
+    // Dynamically draw the ? and the known value in the correct spots with standard subscripts
+    if (window.g9MosfetSubMode === 0) {
+        drawSafeSubscript("R", "1", "= " + knownR + " kΩ", 218, 150, 14, strokeColor);
+        drawSafeSubscript("R", "2", "= ?", 218, 310, 14, pinkColor);
+    } else {
+        drawSafeSubscript("R", "1", "= ?", 218, 150, 14, pinkColor);
+        drawSafeSubscript("R", "2", "= " + knownR + " kΩ", 218, 310, 14, strokeColor);
+    }
+    
+    drawSafeSubscript("V", "GS", "= ?", 255, 235, 16, pinkColor);
+
+    // 5. Solution Logic
+    if (solText) {
+        solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | ${targetLabel} = ${answerR.toFixed(2)} k&Omega;</strong><br><br>
+        <em>Step 1:</em> Find the required V<sub>GS</sub> using I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - V<sub>th</sub>):<br>
+        V<sub>GS</sub> = (${iD} / ${gm}) + 3 = <strong>${vgs} V</strong><br><br>
+        <em>Step 2:</em> ${step2Formula} = <strong>${answerR.toFixed(2)} k&Omega;</strong>`;
+    }
+}
+
+    // =======================================================================
+    // THE MATH: Reverse Engineering
+    // =======================================================================
+    let vcc = 12;
+    let iD = [2, 3, 4][Math.floor(Math.random() * 3)];
+    let gm = [1, 2][Math.floor(Math.random() * 2)];
+    
+    let vgs = (iD / gm) + 3;
+    
+    // Generate clean values for both first
+    let r1_k = (vcc - vgs) * [1, 2][Math.floor(Math.random() * 2)]; 
+    let r2_k = (vgs * r1_k) / (vcc - vgs); 
+
+    let knownR, answerR, targetLabel, targetLabelPanelHTML, step2Formula;
+
+    if (window.g9MosfetSubMode === 0) {
+        // Mode 0: Find R2
+        knownR = r1_k;
+        answerR = r2_k;
+        targetLabel = "R<sub>2</sub>";
+        // Specific styling for the right panel
+        targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub>';
         step2Formula = `R<sub>2</sub> = (V<sub>GS</sub> &times; R<sub>1</sub>) / (V<sub>supply</sub> - V<sub>GS</sub>)<br>
         R<sub>2</sub> = (${vgs} &times; ${knownR}) / (${vcc} - ${vgs})`;
     } else {
