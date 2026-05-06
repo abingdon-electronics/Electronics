@@ -9576,7 +9576,6 @@ function generateGrade9MosfetProblem() {
     // 1. Reset UI
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
 
-    // Fixed ID to match your HTML: mainGrade9Btn
     const rocket = document.getElementById('mainGrade9Btn');
     if (rocket) {
         rocket.style.setProperty("display", "inline-block", "important");
@@ -9624,7 +9623,6 @@ function generateGrade9MosfetProblem() {
     ctx.lineWidth = 2;
     ctx.strokeStyle = strokeColor;
 
-    // Helper: Subscript drawing for Canvas
     function drawSafeSubscript(mainStr, subStr, suffixStr, x, y, size, color) {
         ctx.save(); 
         ctx.fillStyle = color || "#000000";
@@ -9645,49 +9643,68 @@ function generateGrade9MosfetProblem() {
     }
 
     // =======================================================================
-    // THE MATH: Reverse Engineering
+    // THE MATH: "Friendly Fractions" Injection
     // =======================================================================
     let vcc = 12;
-    let iD = [2, 3, 4][Math.floor(Math.random() * 3)];
-    let gm = [1, 2][Math.floor(Math.random() * 2)];
     
-    let vgs = (iD / gm) + 3;
+    // Hardcoded friendly combinations to guarantee VGS is 4, 6, 8, or 9
+    const friendlyScenarios = [
+        { iD: 3, gm: 1, vgs: 6 }, // 6V (Half)
+        { iD: 6, gm: 2, vgs: 6 }, // 6V (Half)
+        { iD: 2, gm: 2, vgs: 4 }, // 4V (One Third)
+        { iD: 1, gm: 1, vgs: 4 }, // 4V (One Third)
+        { iD: 5, gm: 1, vgs: 8 }, // 8V (Two Thirds)
+        { iD: 6, gm: 1, vgs: 9 }  // 9V (Three Quarters)
+    ];
+    let scenario = friendlyScenarios[Math.floor(Math.random() * friendlyScenarios.length)];
+    let iD = scenario.iD;
+    let gm = scenario.gm;
+    let vgs = scenario.vgs;
     
-    // Generate clean values for both first
-    let r1_k = (vcc - vgs) * [1, 2][Math.floor(Math.random() * 2)]; 
-    let r2_k = (vgs * r1_k) / (vcc - vgs); 
+    // Ensure clean resistor values based on the simple ratios
+    let base = [10, 20, 30][Math.floor(Math.random() * 3)];
+    let r1_k, r2_k;
+    
+    if (vgs === 6) { 
+        r1_k = base; r2_k = base; 
+    } else if (vgs === 4) { 
+        r2_k = base; r1_k = base * 2; 
+    } else if (vgs === 8) { 
+        r1_k = base; r2_k = base * 2; 
+    } else if (vgs === 9) { 
+        r1_k = base; r2_k = base * 3; 
+    }
 
     let knownR, answerR, targetLabel, targetLabelPanelHTML, step2Formula;
+    
+    // Create the simplified fraction string for the solution box
+    let fractionText = "";
+    if (vcc % vgs === 0) fractionText = `1/${vcc/vgs}`;
+    else if (vgs === 8) fractionText = `2/3`;
+    else if (vgs === 9) fractionText = `3/4`;
 
     if (window.g9MosfetSubMode === 0) {
-        // Mode 0: Find R2
-        knownR = r1_k;
-        answerR = r2_k;
-        targetLabel = "R<sub>2</sub>";
-        // Specific styling for the right panel
+        knownR = r1_k; answerR = r2_k; targetLabel = "R<sub>2</sub>";
         targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub>';
-        step2Formula = `Using the voltage ratio (V<sub>1</sub> / V<sub>2</sub> = R<sub>1</sub> / R<sub>2</sub>) and rearranging for R<sub>2</sub>:<br>
-        R<sub>2</sub> = (V<sub>GS</sub> &times; R<sub>1</sub>) / (V<sub>supply</sub> - V<sub>GS</sub>)<br>
-        R<sub>2</sub> = (${vgs} &times; ${knownR}) / (${vcc} - ${vgs})`;
+        step2Formula = `Substitute knowns into the Potential Divider equation:<br>
+        V<sub>GS</sub> = V<sub>supply</sub> &times; [ R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>) ]<br>
+        ${vgs} = ${vcc} &times; [ R<sub>2</sub> / (${knownR} + R<sub>2</sub>) ]<br>
+        ${vgs}/${vcc} = R<sub>2</sub> / (${knownR} + R<sub>2</sub>)<br>
+        ${fractionText} = R<sub>2</sub> / (${knownR} + R<sub>2</sub>)`;
     } else {
-        // Mode 1: Find R1
-        knownR = r2_k;
-        answerR = r1_k;
-        targetLabel = "R<sub>1</sub>";
-        // Specific styling for the right panel
+        knownR = r2_k; answerR = r1_k; targetLabel = "R<sub>1</sub>";
         targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">1</sub>';
-        step2Formula = `Using the voltage ratio (V<sub>1</sub> / V<sub>2</sub> = R<sub>1</sub> / R<sub>2</sub>) and rearranging for R<sub>1</sub>:<br>
-        R<sub>1</sub> = (R<sub>2</sub> &times; (V<sub>supply</sub> - V<sub>GS</sub>)) / V<sub>GS</sub><br>
-        R<sub>1</sub> = (${knownR} &times; (${vcc} - ${vgs})) / ${vgs}`;
+        step2Formula = `Substitute knowns into the Potential Divider equation:<br>
+        V<sub>GS</sub> = V<sub>supply</sub> &times; [ R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>) ]<br>
+        ${vgs} = ${vcc} &times; [ ${knownR} / (R<sub>1</sub> + ${knownR}) ]<br>
+        ${vgs}/${vcc} = ${knownR} / (R<sub>1</sub> + ${knownR})<br>
+        ${fractionText} = ${knownR} / (R<sub>1</sub> + ${knownR})`;
     }
 
     currentAnswers = { vgs: vgs, r2: answerR };
 
-    // Update the HTML label next to the input box dynamically to maintain formatting
     const rLabel = document.querySelector('label[for="g9MosfetR2"]');
-    if (rLabel) {
-        rLabel.innerHTML = `${targetLabelPanelHTML} = `;
-    }
+    if (rLabel) rLabel.innerHTML = `${targetLabelPanelHTML} = `;
 
     // 3. Update Text 
     const qText = document.getElementById('questionText');
@@ -9703,7 +9720,6 @@ function generateGrade9MosfetProblem() {
                 <em>Enter the resistor value with or without a prefix (e.g., 520, 83k, or 6.1M).</em>
             </div>
         `;
-        // Ensure the internal hidden div stays hidden so layout is clean
         if (instructionsDiv) instructionsDiv.style.display = 'none';
     }
 
@@ -9712,7 +9728,6 @@ function generateGrade9MosfetProblem() {
         drawStandardMosfetCircuit(ctx, vcc);
     }
 
-    // Dynamically draw the ? and the known value in the correct spots with standard subscripts
     if (window.g9MosfetSubMode === 0) {
         drawSafeSubscript("R", "1", "= " + knownR + " kΩ", 218, 150, 14, strokeColor);
         drawSafeSubscript("R", "2", "= ?", 218, 310, 14, pinkColor);
@@ -9720,15 +9735,15 @@ function generateGrade9MosfetProblem() {
         drawSafeSubscript("R", "1", "= ?", 218, 150, 14, pinkColor);
         drawSafeSubscript("R", "2", "= " + knownR + " kΩ", 218, 310, 14, strokeColor);
     }
-    
     drawSafeSubscript("V", "GS", "= ?", 255, 235, 16, pinkColor);
 
     // 5. Solution Logic
     if (solText) {
-        solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | ${targetLabel} = ${answerR.toFixed(2)} k&Omega;</strong><br><br>
+        solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | ${targetLabel} = ${answerR} k&Omega;</strong><br><br>
         <em>Step 1:</em> Find the required V<sub>GS</sub> using I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - V<sub>th</sub>):<br>
         V<sub>GS</sub> = (${iD} / ${gm}) + 3 = <strong>${vgs} V</strong><br><br>
-        <em>Step 2:</em> ${step2Formula} = <strong>${answerR.toFixed(2)} k&Omega;</strong>`;
+        <em>Step 2:</em> ${step2Formula}<br><br>
+        <em>Mental Math Check:</em> From the simple fraction above, we can see <strong>${targetLabel} = ${answerR} k&Omega;</strong>`;
     }
 }
 //*************************************************************************************************************************************
