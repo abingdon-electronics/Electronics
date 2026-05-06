@@ -11927,6 +11927,29 @@ function provideHint() {
                 ${specificHint}
             </div>`;
             
+    } else if (currentMode === 'mosfet') {
+        let specificHint = "";
+        
+        if (window.mosfetMode === 0) {
+            // Lamp load: calculating ID and gm
+            specificHint = `
+                <br><br><b>Calculating I<sub>D</sub> and g<sub>m</sub></b><br>
+                1. First, find the drain current (I<sub>D</sub>) using the power and voltage of the load (<b>I = P / V</b>).<br>
+                2. Then, rearrange the MOSFET formula from your data sheet to find transconductance: <b>g<sub>m</sub> = I<sub>D</sub> / (V<sub>GS</sub> - 3)</b>.`;
+        } else {
+            // Divider Drive: calculating VGS and ID
+            specificHint = `
+                <br><br><b>Potential Divider Drive</b><br>
+                1. Find the gate-source voltage (V<sub>GS</sub>) using the <b>Potential Divider equation</b> from your data sheet.<br>
+                2. Use the standard MOSFET formula to find the resulting drain current: <b>I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - 3)</b>.`;
+        }
+
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 MOSFET Hint:</strong>
+                ${specificHint}
+            </div>`;
+            
     } else if (currentMode === 'grade9mosfet') {
         helpText = `
             <div style="${blueBox}">
