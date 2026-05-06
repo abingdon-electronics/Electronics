@@ -2925,35 +2925,6 @@ function drawStandardMosfetCircuit(ctx, supplyVoltage, loadText = "", loadSymbol
         ctx.fillText(loadText, lx + 35, ly + 5);
         ctx.restore();
     }
-
-// --- DRAW VOLTAGE DIVIDER & VGS LABELS USING YOUR HELPER ---
-    
-    // Create a shared X position so R1 and R2 align perfectly vertically
-    // Moved a tad left from 25 to 18 to pull them closer to the components
-    const resistorLabelX = divX + 18; 
-
-    // R1 Label (Placed to the right of top resistor)
-    if (r1Val !== "") {
-        drawCanvasSubscript(ctx, "R", "1", ` = ${r1Val}`, resistorLabelX, 145 + 5, 14, "#000000");
-    }
-
-    // R2 Label (Now placed to the right of bottom resistor)
-    if (r2Val !== "") {
-        // No need to measure text width anymore since it's drawing left-to-right from the same X start point!
-        drawCanvasSubscript(ctx, "R", "2", ` = ${r2Val}`, resistorLabelX, 305 + 5, 14, "#000000");
-    }
-
-    // VGS Label (Centered above the wire going to the gate)
-    if (vgsText !== "") {
-        ctx.font = "bold 14px Arial";
-        // Find the middle of the horizontal wire
-        let wireMidX = divX + ((tx - 25 - divX) / 2); 
-        let vgsW = ctx.measureText(`VGS = ${vgsText}`).width;
-        
-        // Subtract half the width so it sits perfectly centered
-        // Changed Y from (ty - 8) to (ty - 15) to bump it up a tad!
-        drawCanvasSubscript(ctx, "V", "GS", ` = ${vgsText}`, wireMidX - (vgsW / 2), ty - 15, 14, "#E64097");
-    }
 }
   
 // =========================================================================================================      
@@ -9573,9 +9544,9 @@ function generateMosfetProblem(ctx, canvas) {
         if (typeof drawStandardMosfetCircuit === 'function') {
             drawStandardMosfetCircuit(ctx, vcc, "", "motor");
         }
-        drawSafeSubscript("R", "1", "= " + r1 + "kΩ", 235, 150, 14, strokeColor);
-        drawSafeSubscript("R", "2", "= " + r2 + "kΩ", 125, 310, 14, strokeColor);
-        drawSafeSubscript("V", "GS", "= ?", 245, 245, 16, pinkColor);
+        drawSafeSubscript("R", "1", "= " + r1 + "kΩ", 218, 150, 14, strokeColor);
+        drawSafeSubscript("R", "2", "= " + r2 + "kΩ", 218, 310, 14, strokeColor);
+        drawSafeSubscript("V", "GS", "= ?", 255, 235, 16, pinkColor);
 
         if (solText) {
             solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | I<sub>D</sub> = ${iD} A</strong><br><br>
@@ -9726,14 +9697,14 @@ function generateGrade9MosfetProblem() {
 
     // Dynamically draw the ? and the known value in the correct spots
     if (window.g9MosfetSubMode === 0) {
-        drawSafeSubscript("R", "top", "= " + knownR + " kΩ", 235, 150, 14, strokeColor);
-        drawSafeSubscript("R", "bottom", "= ?", 125, 310, 14, pinkColor);
+        drawSafeSubscript("R", "top", "= " + knownR + " kΩ", 218, 150, 14, strokeColor);
+        drawSafeSubscript("R", "bottom", "= ?", 218, 310, 14, pinkColor);
     } else {
-        drawSafeSubscript("R", "top", "= ?", 235, 150, 14, pinkColor);
-        drawSafeSubscript("R", "bottom", "= " + knownR + " kΩ", 125, 310, 14, strokeColor);
+        drawSafeSubscript("R", "top", "= ?", 218, 150, 14, pinkColor);
+        drawSafeSubscript("R", "bottom", "= " + knownR + " kΩ", 218, 310, 14, strokeColor);
     }
     
-    drawSafeSubscript("V", "GS", "= ?", 245, 245, 16, pinkColor);
+    drawSafeSubscript("V", "GS", "= ?", 255, 235, 16, pinkColor);
 
     // 5. Solution Logic
     if (solText) {
