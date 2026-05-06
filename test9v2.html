@@ -9666,7 +9666,8 @@ function generateGrade9MosfetProblem() {
         targetLabel = "R<sub>2</sub>";
         // Specific styling for the right panel
         targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub>';
-        step2Formula = `R<sub>2</sub> = (V<sub>GS</sub> &times; R<sub>1</sub>) / (V<sub>supply</sub> - V<sub>GS</sub>)<br>
+        step2Formula = `Using the voltage ratio (V<sub>1</sub> / V<sub>2</sub> = R<sub>1</sub> / R<sub>2</sub>) and rearranging for R<sub>2</sub>:<br>
+        R<sub>2</sub> = (V<sub>GS</sub> &times; R<sub>1</sub>) / (V<sub>supply</sub> - V<sub>GS</sub>)<br>
         R<sub>2</sub> = (${vgs} &times; ${knownR}) / (${vcc} - ${vgs})`;
     } else {
         // Mode 1: Find R1
@@ -9675,7 +9676,8 @@ function generateGrade9MosfetProblem() {
         targetLabel = "R<sub>1</sub>";
         // Specific styling for the right panel
         targetLabelPanelHTML = 'R<sub style="position: relative; top: 6px; font-size: 0.7em;">1</sub>';
-        step2Formula = `R<sub>1</sub> = (R<sub>2</sub> &times; (V<sub>supply</sub> - V<sub>GS</sub>)) / V<sub>GS</sub><br>
+        step2Formula = `Using the voltage ratio (V<sub>1</sub> / V<sub>2</sub> = R<sub>1</sub> / R<sub>2</sub>) and rearranging for R<sub>1</sub>:<br>
+        R<sub>1</sub> = (R<sub>2</sub> &times; (V<sub>supply</sub> - V<sub>GS</sub>)) / V<sub>GS</sub><br>
         R<sub>1</sub> = (${knownR} &times; (${vcc} - ${vgs})) / ${vgs}`;
     }
 
@@ -9726,8 +9728,7 @@ function generateGrade9MosfetProblem() {
         solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | ${targetLabel} = ${answerR.toFixed(2)} k&Omega;</strong><br><br>
         <em>Step 1:</em> Find the required V<sub>GS</sub> using I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - V<sub>th</sub>):<br>
         V<sub>GS</sub> = (${iD} / ${gm}) + 3 = <strong>${vgs} V</strong><br><br>
-        <em>Step 2:</em> Use the divider ratio:<br>
-        ${step2Formula} = <strong>${answerR.toFixed(2)} k&Omega;</strong>`;
+        <em>Step 2:</em> ${step2Formula} = <strong>${answerR.toFixed(2)} k&Omega;</strong>`;
     }
 }
 //*************************************************************************************************************************************
