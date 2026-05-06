@@ -1581,7 +1581,7 @@
 
     <div style="display: flex; align-items: center; justify-content: flex-end; width: 220px;">
         <label for="g9MosfetVGS" style="font-weight: bold; color: #E64097; margin-right: 10px;">
-            Minimum V<sub>GS</sub> =
+            V<sub>GS</sub> =
         </label>
         <input type="text" id="g9MosfetVGS" placeholder="e.g. 5V" style="width: 85px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;">
     </div>
@@ -9693,7 +9693,7 @@ function generateGrade9MosfetProblem() {
         qText.innerHTML = `
             <strong>🚀 GRADE 9 CHALLENGE: SYSTEM DESIGN</strong><br><br>
             A cooling fan requires exactly <strong>${iD} A</strong> to run. The MOSFET has a transconductance (g<sub>m</sub>) of <strong>${gm} S</strong>.<br><br>
-            1. Calculate the minimum <strong>V<sub>GS</sub></strong> needed for the fan.<br>
+            1. Calculate the gate voltage (<strong>V<sub>GS</sub></strong>) required for the fan.<br>
             2. Determine the required value for <strong>${targetLabel}</strong>.
         `;
         // Ensure the internal hidden div stays hidden so layout is clean
@@ -9719,7 +9719,7 @@ function generateGrade9MosfetProblem() {
     // 5. Solution Logic
     if (solText) {
         solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | ${targetLabel} = ${answerR.toFixed(2)} k&Omega;</strong><br><br>
-        <em>Step 1:</em> Find minimum V<sub>GS</sub> using I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - V<sub>th</sub>):<br>
+        <em>Step 1:</em> Find the required V<sub>GS</sub> using I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - V<sub>th</sub>):<br>
         V<sub>GS</sub> = (${iD} / ${gm}) + 3 = <strong>${vgs} V</strong><br><br>
         <em>Step 2:</em> Use the divider ratio:<br>
         ${step2Formula} = <strong>${answerR.toFixed(2)} k&Omega;</strong>`;
