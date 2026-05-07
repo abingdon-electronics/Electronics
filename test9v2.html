@@ -9842,7 +9842,7 @@ function generateGrade9MosfetProblem() {
 }
 //*************************************************************************************************************************************
 
-function generateComparatorProblem() {
+/**function generateComparatorProblem() {
     const canvas = document.getElementById('circuitCanvas');
     const ctx = canvas.getContext('2d');
 
@@ -10010,7 +10010,7 @@ function generateComparatorProblem() {
             Rounding UP to the next E24 standard value to safely limit current: <strong>${e24R} &Omega;</strong>
         `;
     }
-}
+}*/
 //**************************************************************************************************************************************
 //**************************************************************************************************************************************
 // ===========================================================================================================================      
@@ -10143,7 +10143,7 @@ function switchTab(mode) {
         'inputGroupLogicSystem',          
         'inputGroupLogic_ic',             
         'inputGroupLogic_NAND',  
-        'inputGroupGrade9NandMaster',      
+        'inputGroupGrade9NandMaster',     
         'inputGroupNandConversion',        
         'inputGroupNandRedundancy',        
         'inputGroupBlockBuilder',          
@@ -10151,7 +10151,8 @@ function switchTab(mode) {
         'inputGroupGrade9Transistor',
         'inputGroupMosfet',
         'inputGroupGrade9Mosfet',
-        'inputGroupComparator' // 👇 NEW: Added Comparator group to hide list
+        'inputGroupComparator',
+        'inputGroupOpAmp' // Added this for your upcoming Op-Amp work
     ];
 
     elementsToHide.forEach(id => {
@@ -10169,8 +10170,12 @@ function switchTab(mode) {
         else if (['silicon', 'zener', 'grade9zener', 'grade9silicon'].includes(mode)) subtitle.innerText = "Module 8: Diodes"; 
         else if (['logic_ic', 'logic_system', 'logic_boolean', 'logic_nand', 'grade9boolean'].includes(mode)) subtitle.innerText = "Module 2: Logic Gates"; 
         else if (['transistor', 'mosfet', 'grade9transistor', 'grade9mosfet'].includes(mode)) subtitle.innerText = "Module 6: Transistors"; 
-        // 👇 NEW: Added Subtitle routing for Op-Amps & Comparators
-        else if (['comparator', 'opamp'].includes(mode)) subtitle.innerText = "Module 7: Op Amps"; 
+        
+        // COMPARATOR DISABLED FOR NOW
+        // else if (['comparator', 'opamp'].includes(mode)) subtitle.innerText = "Module 7: Op Amps"; 
+        
+        // OP-AMP ACTIVE
+        else if (mode === 'opamp') subtitle.innerText = "Module 7: Op Amps"; 
     }
 
     // 5. Global Cleanup
