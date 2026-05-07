@@ -11233,6 +11233,151 @@ if (currentMode === 'grade9nand') {
         if (typeof updateScoreboard === "function") updateScoreboard();
         return; 
     }
+
+    function generateOpAmpProblem(ctx, canvas) {
+    // --- 1. THE JANITOR PROTOCOL ---
+    currentMode = 'opamp'; 
+    hasCheckedCurrentProblem = false; 
+    isCurrentProblemSolved = false; 
+
+    // Hide other UI elements, show OpAmp UI
+    if (typeof hideAllInputGroups === "function") hideAllInputGroups();
+    const wrapper = document.getElementById('inputGroupOpAmp');
+    if (wrapper) wrapper.style.display = 'flex'; 
+
+    // Clear old overlays
+    let oldOverlay = document.getElementById('opAmpCanvasOverlay');
+    if (oldOverlay) oldOverlay.remove();
+
+    // Randomly select the mode for this question
+    const targetConfig = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
+    window.opAmpTargetConfig = targetConfig;
+
+    // --- 2. INSTRUCTIONS PANEL ---
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.innerHTML = `
+            <strong style="color:#d65093; font-size: 18px;">Target: ${targetConfig} Amplifier</strong><br>
+            Drag the correct components from the tray into the empty boxes to build a ${targetConfig} Op-Amp circuit. 
+            <em>(Double click a box to remove an item)</em>
+        `;
+    }
+
+    // --- 3. CREATE NEW OVERLAY ---
+    canvas.parentNode.style.position = 'relative'; 
+    let overlay = document.createElement('div');
+    overlay.id = 'opAmpCanvasOverlay';
+    overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none; z-index:10;`;
+    canvas.parentNode.appendChild(overlay);
+
+    // --- 4. CLEAR CANVAS & DRAW STATIC CIRCUIT ---
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const cx = 300; // Center X of canvas
+    const cy = 180; // Center Y of canvas (shifted up to leave room for tray)
+    
+    // Draw the Op-Amp
+    drawOpAmp(ctx, cx, cy, 1);
+
+    // Draw the Wires
+    ctx.strokeStyle = "#333"; 
+    ctx.lineWidth = 2;
+
+    // Output Wire
+    ctx.beginPath();
+    ctx.moveTo(cx + 30, cy); 
+    ctx.lineTo(cx + 120, cy);
+    ctx.stroke();
+    drawNode(ctx, cx + 80, cy); // Node for feedback split
+    drawLabel(ctx, "Vout", cx + 130, cy + 5);
+
+    // Feedback Loop Wires (Top)
+    ctx.beginPath();
+    ctx.moveTo(cx + 80, cy);
+    ctx.lineTo(cx + 80, cy - 80); // Up from output
+    ctx.lineTo(cx - 30, cy - 80); // Across the top (Box goes here)
+    ctx.lineTo(cx - 30, cy - 20); // Down into Inverting (-) input
+    ctx.stroke();
+    drawNode(ctx, cx - 30, cy - 20); // Node at inverting input
+
+    // Inverting Input Wire (Left)
+    ctx.beginPath();
+    ctx.moveTo(cx - 30, cy - 20);
+    ctx.lineTo(cx - 150, cy - 20); // (Box goes here)
+    ctx.stroke();
+
+    // Non-Inverting Input Wire (Bottom Left)
+    ctx.beginPath();
+    ctx.moveTo(cx - 30, cy + 20);
+    ctx.lineTo(cx - 150, cy + 20); // (Box goes here)
+    ctx.stroke();
+
+    // --- 5. SETUP DROPZONES (Boxes) ---
+    // Define positions for the 3 empty component boxes
+    const dropzones = [
+        { id: "boxFeedback", x: cx - 15, y: cy - 105, correctInv: "Rf", correctNon: "Rf" }, // Top loop
+        { id: "boxInverting", x: cx - 120, y: cy - 45, correctInv: "Rin / Signal", correctNon: "0V Ground" }, // Left top wire
+        { id: "boxNonInverting", x: cx - 120, y: cy - 5, correctInv: "0V Ground", correctNon: "Rin / Signal" }  // Left bottom wire
+    ];
+
+    dropzones.forEach(zone => {
+        const box = document.createElement('div');
+        box.className = 'gcse-block-ui dropzone';
+        box.style.cssText = `position:absolute; left:${zone.x}px; top:${zone.y}px; width:70px; height:50px; border:2px dashed #222; background:#fff; display:flex; align-items:center; justify-content:center; text-align:center; font-family:Arial; font-weight:bold; font-size:12px; pointer-events:auto; cursor:pointer; transition: 0.3s; box-sizing:border-box;`;
+        
+        box.dataset.id = zone.id;
+        
+        box.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            box.style.backgroundColor = '#d1f0d1'; 
+        });
+        
+        box.addEventListener('dragleave', () => {
+            box.style.backgroundColor = '#fff';
+        });
+        
+        box.addEventListener('drop', (e) => {
+            e.preventDefault();
+            box.style.backgroundColor = '#fff';
+            const data = e.dataTransfer.getData('text/plain');
+            box.innerText = data;
+            box.style.border = '2px solid #222';
+            box.dataset.current = data;
+        });
+
+        box.addEventListener('dblclick', () => {
+            box.innerText = ''; 
+            box.dataset.current = ''; 
+            box.style.border = '2px dashed #222'; 
+        });
+
+        overlay.appendChild(box);
+    });
+
+    // --- 6. DRAW TRAY & DRAGGABLE ITEMS ---
+    const trayY = canvas.height - 90; 
+    ctx.strokeStyle = "#888";
+    ctx.setLineDash([5, 5]);
+    ctx.strokeRect(5, trayY, 590, 85); 
+    ctx.setLineDash([]);
+    
+    // The items students can drag
+    const options = ["Rf", "Rin", "Input Signal", "0V Ground"];
+    
+    options.forEach((opt, index) => {
+        const item = document.createElement('div');
+        item.innerText = opt;
+        item.style.cssText = `position:absolute; left:${30 + (index * 140)}px; top:${trayY + 25}px; width:110px; height:35px; background:#3498db; color:#fff; border-radius:4px; cursor:grab; font-size:12px; font-weight:bold; font-family:Arial; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.2); pointer-events:auto;`;
+        item.draggable = true;
+
+        item.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', opt);
+            e.dataTransfer.effectAllowed = 'copy';
+        });
+
+        overlay.appendChild(item); 
+    });
+}
     
     //New function code pasted above this line for grag and drop
     //*******************************************************************************************************************************
