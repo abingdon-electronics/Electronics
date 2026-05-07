@@ -851,10 +851,26 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
-<div id="menuOpAmps" class="tabs" style="display:none;">
+<!--<div id="menuOpAmps" class="tabs" style="display:none;">
     <button class="tab" id="tab-comparator" onclick="safeSwitchTab('comparator')">Comparators</button>
     <button class="tab" id="tab-opamp" onclick="safeSwitchTab('opamp')">Op-Amp</button>
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
+</div>
+ -->
+    
+<div id="menuOpAmps" class="tabs" style="display:none;">
+    <button class="tab" id="tab-comparator" 
+            style="opacity: 0.5; pointer-events: none; cursor: not-allowed; background: #444;">
+        Comparators (Coming Soon)
+    </button>
+    
+    <button class="tab" id="tab-opamp" onclick="safeSwitchTab('opamp')">
+        Op-Amp Math
+    </button>
+    
+    <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">
+        🏠 Home
+    </button>
 </div>
 
 <div id="menuPlaceholder" class="tabs" style="display:none;">
