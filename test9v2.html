@@ -10261,32 +10261,25 @@ function hubController(ctx, canvas) {
     canvas.height = 420;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // --- NEW: STRIP OLD LISTENERS ---
+    // --- STRIP OLD LISTENERS THE CLEAN WAY ---
     
-    // 1. Strip rogue listeners from the Rocket Button!
+    // 1. Bulletproof Rocket Button Trigger
     const rocketBtn = document.getElementById('mainGrade9Btn');
     if (rocketBtn) {
-        const newRocketBtn = rocketBtn.cloneNode(true);
-        rocketBtn.parentNode.replaceChild(newRocketBtn, rocketBtn);
-        
-        // If your HTML doesn't use onclick="handleGrade9Click()", re-attach it here:
-        newRocketBtn.addEventListener('click', handleGrade9Click);
+        // This instantly overwrites ALL previous clicks/HTML attributes. No cloning needed!
+        rocketBtn.onclick = handleGrade9Click; 
     }
 
     // 2. Prevent "NAND" logic from firing in other modes
     const btnNext = document.getElementById('btnNext');
     if (btnNext) {
-        const newBtnNext = btnNext.cloneNode(true);
-        btnNext.parentNode.replaceChild(newBtnNext, btnNext);
-        // Re-attach the fresh listener
-        newBtnNext.addEventListener('click', () => hubController(ctx, canvas));
+        btnNext.onclick = () => hubController(ctx, canvas);
     }
 
     const btnCheck = document.getElementById('btnCheck');
     if (btnCheck) {
-        const newBtnCheck = btnCheck.cloneNode(true);
-        btnCheck.parentNode.replaceChild(newBtnCheck, btnCheck);
-        // Note: The specific mode generator will attach its own 'click' listener to this new button
+        // Just clear it so the specific module can attach its own logic safely
+        btnCheck.onclick = null; 
     }
     
     // 2. Full UI Reset (The "Master Wipe")
