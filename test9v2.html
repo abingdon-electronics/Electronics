@@ -6024,7 +6024,7 @@ function generateGrade9NandProblem(ctx, canvas) {
             if (inputArea) inputArea.appendChild(qContainer);
         }
         qContainer.style.display = 'block';
-        qContainer.innerHTML = ""; 
+        // (Wipeout bug removed to protect the UI)
 
         let circuitContainer = document.getElementById('circuitContainer');
         if (circuitContainer) {
@@ -6043,7 +6043,7 @@ function generateGrade9NandProblem(ctx, canvas) {
         overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none; z-index:10;`;
         if (circuitContainer) circuitContainer.appendChild(overlay);
 
-        // THE ALTERNATOR: Flips between the two modes
+        // 🛠️ RESTORED: The strict alternator! Forces students to switch modes every click.
         window.grade9NandMode = (window.grade9NandMode === 'conversion') ? 'redundancy' : 'conversion';
 
         // =========================================================
