@@ -8,7 +8,7 @@
     <title>Abingdon School - Electronics Quiz</title>
     
 <style>
-    /* ============================================================
+    /* ===========================================================
         1. GLOBAL STYLES & BACKGROUND
        ============================================================ */
     body { 
@@ -10218,8 +10218,9 @@ function setupHingeProblem(ctx, canvas) {
     const targetConfig = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     window.opAmpTargetConfig = targetConfig;
     
+    // Start both inputs to be initially horizontal.
     window.topWireState = 'horizontal'; 
-    window.bottomWireState = 'vertical';
+    window.bottomWireState = 'horizontal';
 
     const qText = document.getElementById('questionText');
     if (qText) {
