@@ -10067,6 +10067,9 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.textBaseline = "middle";
     ctx.fillText(window.opAmpTargetConfig + " Op-Amp", cx, 40);
     
+    // Reset baseline so subsequent text doesn't drift
+    ctx.textBaseline = "alphabetic"; 
+    
     // Draw the Op-Amp
     drawOpAmp(ctx, cx, cy, 1);
     
@@ -10161,23 +10164,20 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.strokeStyle = "#e74c3c";
     ctx.setLineDash([3, 3]);
     
-    // Top Hinge Highlight
     ctx.beginPath();
     ctx.arc(cx - 100, cy - 20, 14, 0, Math.PI*2);
     ctx.stroke();
     
-    // Bottom Hinge Highlight
     ctx.beginPath();
     ctx.arc(cx - 60, cy + 20, 14, 0, Math.PI*2); 
     ctx.stroke();
     ctx.setLineDash([]);
     
-    // Instructions Text
+    // Instructions Text - Just the top one now!
     ctx.fillStyle = "#e74c3c";
     ctx.font = "bold 11px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("Click to Toggle", cx - 100, cy - 45);
-    ctx.fillText("Click to Toggle", cx - 60, cy + 45);
+    ctx.fillText("Click to Toggle", cx - 100, cy - 45); 
 }
 
 //***********************************************************************************************************
