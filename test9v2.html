@@ -11293,7 +11293,7 @@ function checkAnswers() {
         return; // Exits the checkAnswers function so it doesn't accidentally run anything else
     }
 
-// ==========================================
+    // ==========================================
     // NAND EQUIVALENTS INTERCEPTORS
     // ==========================================
 
@@ -11386,7 +11386,7 @@ if (currentMode === 'grade9nand') {
     const checkansBtn = document.getElementById('checkansBtn');
     const showsolutionsBtn = document.getElementById('showsolutionsBtn');
 
- // ==========================================
+    // ==========================================
     // BRANCH A: SYSTEM CONVERSION (Drag & Drop)
     // ==========================================
     if (window.grade9NandMode === 'conversion') {
@@ -11613,74 +11613,79 @@ if (currentMode === 'grade9nand') {
     }
 
     
-    // ==========================================
-    // OP-AMP INTERCEPTOR
-    // ==========================================
-    if (currentMode === 'op_amp') {
-        const feedback = document.getElementById('feedback');
-        const solDiv = document.getElementById('solutions');
-        const checkansBtn = document.getElementById('checkansBtn');
-        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+// ==========================================
+// OP-AMP INTERCEPTOR (Checker for 'opamp' mode)
+// ==========================================
+if (currentMode === 'opamp') {
+    const feedback = document.getElementById('feedback');
+    const solDiv = document.getElementById('solutions');
+    const checkansBtn = document.getElementById('checkansBtn');
+    const showsolutionsBtn = document.getElementById('showsolutionsBtn');
 
-        // 1. Check Formula Dropzone
-        // Assuming your formula dropzone has class 'formula-dropzone' 
-        // and stores answer in data-answer and result in data-current
-        const formulaZone = document.querySelector('.formula-dropzone');
-        const formulaFilled = formulaZone ? (formulaZone.dataset.current || "").trim() : "";
-        const formulaTarget = formulaZone ? formulaZone.dataset.answer : "";
+    // 1. Identify the Target from your global variable
+    const targetType = window.opAmpTargetConfig; // "Inverting" or "Non-Inverting"
 
-        // 2. Check Wiring
-        // Assuming window.opAmpHinges stores the state of the two hinges
-        // and window.targetConfig is 'Inverting' or 'Non-Inverting'
-        let wiringCorrect = false;
-        const h1 = window.opAmpHinges?.h1; // 'top' or 'bottom'
-        const h2 = window.opAmpHinges?.h2; // 'top' or 'bottom'
-
-        if (window.targetConfig === 'Inverting') {
-            // Inverting: Vin goes to Top (-), Ground goes to Bottom (+)
-            if (h1 === 'top' && h2 === 'bottom') wiringCorrect = true;
-        } else {
-            // Non-Inverting: Vin goes to Bottom (+), Ground goes to Top (-)
-            if (h1 === 'bottom' && h2 === 'top') wiringCorrect = true;
+    // 2. Grade the Wiring (Hinges)
+    // Using your window.topWireState and window.bottomWireState
+    let wiringCorrect = false;
+    
+    if (targetType === 'Inverting') {
+        // Inverting: Vin must be on top (-) hinge, Ground on bottom (+) hinge
+        // In your drawing code, 'vertical' usually connects the input to the terminal
+        if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
+            wiringCorrect = true;
         }
-
-        // 3. Status Tracking
-        if (!hasCheckedCurrentProblem) {
-            problemsAttempted++;
-            hasCheckedCurrentProblem = true;
+    } else {
+        // Non-Inverting: Vin must be on bottom (+) hinge, Ground on top (-) hinge
+        if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
+            wiringCorrect = true;
         }
-
-        const formulaCorrect = (formulaFilled === formulaTarget);
-
-        // 4. Grading Logic
-        if (wiringCorrect && formulaCorrect) {
-            isCurrentProblemSolved = true;
-            if (canEarnPoints) { problemsCorrect++; }
-            
-            feedback.innerHTML = `<span style='color: #198754;'><b>Excellent!</b> The ${window.targetConfig} circuit is wired correctly with the right formula.</span>`;
-            
-            // Success: Hide buttons
-            if (checkansBtn) checkansBtn.style.display = 'none';
-            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-            canEarnPoints = false;
-        } else {
-            canEarnPoints = false;
-            
-            // Contextual Feedback
-            if (!wiringCorrect && !formulaCorrect) {
-                feedback.innerHTML = `<span style='color: #dc3545;'>Both the wiring and the formula are incorrect.</span>`;
-            } else if (!wiringCorrect) {
-                feedback.innerHTML = `<span style='color: #dc3545;'>Formula is right, but the wiring is wrong! Check your input connections.</span>`;
-            } else {
-                feedback.innerHTML = `<span style='color: #dc3545;'>Wiring is perfect, but that's the wrong gain formula for this configuration.</span>`;
-            }
-
-            if (solDiv) solDiv.style.display = 'block';
-        }
-
-        if (typeof updateScoreboard === "function") updateScoreboard();
-        return; // Exit
     }
+
+    // 3. Grade the Formula (Drag & Drop)
+    // Your generator gives the zone id "boxFormula"
+    const formulaZone = document.getElementById('boxFormula');
+    const filledFormulaId = formulaZone ? formulaZone.dataset.current : "";
+    
+    // Determine the correct ID based on the target
+    const correctFormulaId = (targetType === 'Inverting') ? 'inv' : 'non-inv';
+    const formulaCorrect = (filledFormulaId === correctFormulaId);
+
+    // 4. Update Global Problem Stats
+    if (!hasCheckedCurrentProblem) {
+        problemsAttempted++;
+        hasCheckedCurrentProblem = true;
+    }
+
+    // 5. Provide Feedback and Score
+    if (wiringCorrect && formulaCorrect) {
+        isCurrentProblemSolved = true;
+        if (canEarnPoints) { problemsCorrect++; }
+        
+        feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> The ${targetType} circuit is correctly wired and the formula matches.</span>`;
+        
+        // Hide buttons on success
+        if (checkansBtn) checkansBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+        canEarnPoints = false;
+    } else {
+        canEarnPoints = false;
+        
+        // Contextual hints
+        if (!wiringCorrect && !formulaCorrect) {
+            feedback.innerHTML = `<span style='color: #dc3545;'>The wiring and the formula are both incorrect.</span>`;
+        } else if (!wiringCorrect) {
+            feedback.innerHTML = `<span style='color: #dc3545;'>Formula is right, but your wiring doesn't match a ${targetType} setup.</span>`;
+        } else {
+            feedback.innerHTML = `<span style='color: #dc3545;'>Wiring is correct, but that's the wrong formula for a ${targetType} Op-Amp.</span>`;
+        }
+
+        if (solDiv) solDiv.style.display = 'block';
+    }
+
+    if (typeof updateScoreboard === "function") updateScoreboard();
+    return; // Exit interceptor
+}
     
     //New function code pasted above this line for grag and drop
     //*******************************************************************************************************************************
