@@ -10182,10 +10182,30 @@ function drawOpAmpCircuit(ctx, canvas) {
 
 //***********************************************************************************************************
 
+
+  // Global tracker for Op-Amp sub-modes
+if (!window.opAmpScenarioTracker) { 
+    window.opAmpScenarioTracker = { mode: 0 }; 
+}
+// Op AMP question contoller 
 function generateOpAmpProblem(ctx, canvas) {
     currentMode = 'opamp'; 
     hasCheckedCurrentProblem = false; 
 
+    // Use the modulo tracker to alternate
+    const qType = window.opAmpScenarioTracker.type;
+    // Currently set to % 1 because we only have one mode ready. 
+    // Change to % 2 once you add the setupDrawnCircuitProblem function!
+    window.opAmpScenarioTracker.type = (window.opAmpScenarioTracker.type + 1) % 1; 
+
+    if (qType === 0) {
+        setupHingeProblem(ctx, canvas);
+    } 
+    // Future modes go here:
+    // else if (qType === 1) { setupDrawnCircuitProblem(ctx, canvas); }
+}
+//Op Amp Hinge mode function
+function setupHingeProblem(ctx, canvas) {
     if (typeof hideAllInputGroups === "function") hideAllInputGroups();
     const wrapper = document.getElementById('inputGroupOpAmp');
     if (wrapper) wrapper.style.display = 'flex'; 
@@ -10199,13 +10219,9 @@ function generateOpAmpProblem(ctx, canvas) {
     window.topWireState = 'horizontal'; 
     window.bottomWireState = 'vertical';
 
-    // --- Right Panel INSTRUCTION INJECTION ---
     const qText = document.getElementById('questionText');
     if (qText) {
-        // 1. THE ANTIDOTE: Force the display back to 'block' 
-        // (This undoes the 'none' from hideAllInputGroups)
         qText.style.display = 'block';
-
         qText.innerHTML = `
             <div style="background: transparent; border: none; padding: 0; margin-bottom: 20px; color: #333; text-align: left; font-family: Arial, sans-serif;">
                 <h3 style="color:#d65093; margin: 0 0 10px 0; font-size: 18px; font-weight: bold;">Target: ${targetConfig} Op-Amp</h3>
@@ -10221,8 +10237,7 @@ function generateOpAmpProblem(ctx, canvas) {
     overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none; z-index:10;`;
     canvas.parentNode.appendChild(overlay);
 
-    // Formula Dropzone (Kept in top right)
-    const rightColX = 380; // Baseline X coordinate for the right column
+    const rightColX = 380; 
     const formulaZone = document.createElement('div');
     formulaZone.id = "boxFormula";
     formulaZone.className = 'dropzone';
@@ -10239,7 +10254,6 @@ function generateOpAmpProblem(ctx, canvas) {
         const htmlData = e.dataTransfer.getData('text/html');
         const idData = e.dataTransfer.getData('data-id');
         formulaZone.innerHTML = htmlData; 
-        
         formulaZone.style.backgroundColor = '#d65093';
         formulaZone.style.border = '2px solid #d65093';
         formulaZone.style.color = '#fff';
@@ -10251,7 +10265,6 @@ function generateOpAmpProblem(ctx, canvas) {
     formulaZone.addEventListener('dblclick', () => {
         formulaZone.innerHTML = 'Drag correct<br>formula here'; 
         formulaZone.dataset.current = ''; 
-        
         formulaZone.style.backgroundColor = '#f9f9f9';
         formulaZone.style.border = '2px dashed #999'; 
         formulaZone.style.color = '#666';
@@ -10260,16 +10273,12 @@ function generateOpAmpProblem(ctx, canvas) {
     });
     overlay.appendChild(formulaZone);
 
-    // --- NEW: Stacked Tray in Bottom Right ---
-    const trayStartY = canvas.height - 135; // Positioned relative to bottom of canvas
-    
+    const trayStartY = canvas.height - 135; 
     const trayLabel = document.createElement('div');
     trayLabel.innerHTML = 'Op-Amp Formulae:<br>Drag the correct one';
-    // Adjusted width and left position to center under the dropzone
     trayLabel.style.cssText = `position:absolute; left:${rightColX - 10}px; top:${trayStartY}px; width:200px; text-align:center; color:#555; font-weight:bold; font-family:Arial; font-size:14px; pointer-events:none; line-height: 1.3;`;
     overlay.appendChild(trayLabel);
 
-    // Tray Formulas 
     const options = [
         { id: "inv", html: "G = - (R<sub>F</sub> / R<sub>IN</sub>)" }, 
         { id: "non-inv", html: "G = 1 + (R<sub>F</sub> / R<sub>1</sub>)" }
@@ -10278,7 +10287,6 @@ function generateOpAmpProblem(ctx, canvas) {
     options.forEach((opt, index) => {
         const item = document.createElement('div');
         item.innerHTML = opt.html;
-        // Stack them vertically using (index * 45) spacing
         item.style.cssText = `position:absolute; left:${rightColX - 10}px; top:${trayStartY + 45 + (index * 45)}px; width:200px; height:35px; background:#3498db; color:#fff; border-radius:4px; cursor:grab; font-size:16px; font-weight:bold; font-family:Arial; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.2); pointer-events:auto;`;
         item.draggable = true;
         item.addEventListener('dragstart', (e) => {
@@ -10291,6 +10299,40 @@ function generateOpAmpProblem(ctx, canvas) {
     drawOpAmpCircuit(ctx, canvas);
     setupOpAmpCanvasClick(ctx, canvas);
 }
+//Op Amp Calculator mode function
+function setupDrawnCircuitProblem(ctx, canvas) {
+    const targetConfig = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
+    window.opAmpTargetConfig = targetConfig;
+
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = `
+            <h3 style="color:#d65093;">Challenge: Identify the Circuit</h3>
+            <p>Look at the drawn circuit and select the correct gain formula.</p>
+        `;
+    }
+
+    // NEW LOGIC HERE: 
+    // 1. Force the wire states to be correct for the targetConfig (No hinges)
+    if (targetConfig === 'Inverting') {
+        window.topWireState = 'horizontal'; 
+        window.bottomWireState = 'vertical';
+    } else {
+        window.topWireState = 'vertical'; 
+        window.bottomWireState = 'horizontal';
+    }
+
+    // 2. Draw the circuit (it will draw based on the states above)
+    drawOpAmpCircuit(ctx, canvas);
+
+    // 3. Optional: Create an overlay for the formula tray only (No hinge clicks)
+    // setupDrawnFormulaTray(ctx, canvas); 
+}        
+    
+    
+    
+  
 
 //***********************************************************************************************************
     
