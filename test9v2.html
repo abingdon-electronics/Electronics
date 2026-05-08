@@ -10438,6 +10438,9 @@ function closeModal() {
 // ==========================================================    
 // MASTER PROBLEM GENERATOR (The "Traffic Cop")
 // ========================================================== 
+// ==========================================================   
+// MASTER PROBLEM GENERATOR (The "Traffic Cop")
+// ========================================================== 
 function hubController(ctx, canvas) {
     console.log("HubController started! The current mode is:", currentMode);
     // 1. Force Canvas Resolution & Clear
@@ -10637,7 +10640,21 @@ function hubController(ctx, canvas) {
         if (typeof generateComparatorProblem === "function") {
             generateComparatorProblem(ctx, canvas);
         }
+    } 
+    // 👇 NEW OP-AMP ROUTING ADDED HERE 👇
+    else if (currentMode === 'opamp') {
+        if (document.getElementById('inputGroupOpAmp')) {
+            document.getElementById('inputGroupOpAmp').style.display = 'flex';
+        }
+        // Hide the rocket button for Op-Amps initially
+        const rocket = document.getElementById('mainGrade9Btn');
+        if (rocket) rocket.style.display = 'none';
+        
+        if (typeof generateOpAmpProblem === "function") {
+            generateOpAmpProblem(ctx, canvas);
+        }
     }
+}
 }// This closes the hubController function 
 
 //*****************************************************************************************
