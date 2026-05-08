@@ -10192,18 +10192,20 @@ function generateOpAmpProblem(ctx, canvas) {
     currentMode = 'opamp'; 
     hasCheckedCurrentProblem = false; 
 
-    // Use the modulo tracker to alternate
-    const qType = window.opAmpScenarioTracker.type;
-    // Currently set to % 1 because we only have one mode ready. 
-    // Change to % 2 once you add the setupDrawnCircuitProblem function!
-    window.opAmpScenarioTracker.type = (window.opAmpScenarioTracker.type + 1) % 1; 
+    // FIX: Change .type to .mode to match the tracker above
+    const qType = window.opAmpScenarioTracker.mode;
+    
+    // FIX: Change .type to .mode here as well
+    // While you only have one mode, (0 + 1) % 1 = 0, so it stays on Hinge mode.
+    window.opAmpScenarioTracker.mode = (window.opAmpScenarioTracker.mode + 1) % 1; 
 
     if (qType === 0) {
         setupHingeProblem(ctx, canvas);
     } 
-    // Future modes go here:
+    // Once you add the next function, change the % 1 above to % 2
     // else if (qType === 1) { setupDrawnCircuitProblem(ctx, canvas); }
 }
+    
 //Op Amp Hinge mode function
 function setupHingeProblem(ctx, canvas) {
     if (typeof hideAllInputGroups === "function") hideAllInputGroups();
@@ -10299,6 +10301,7 @@ function setupHingeProblem(ctx, canvas) {
     drawOpAmpCircuit(ctx, canvas);
     setupOpAmpCanvasClick(ctx, canvas);
 }
+    
 //Op Amp Calculator mode function
 function setupDrawnCircuitProblem(ctx, canvas) {
     const targetConfig = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
