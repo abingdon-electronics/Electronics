@@ -11615,70 +11615,69 @@ if (currentMode === 'grade9nand') {
 
     
     // ==========================================
-    // OP-AMP INTERCEPTOR (FINAL FIX)
-    // ==========================================
-    if (currentMode === 'opamp') {
-        const feedback = document.getElementById('feedback');
-        const solDiv = document.getElementById('solutions');
-        const checkansBtn = document.getElementById('checkansBtn');
-        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+// OP-AMP INTERCEPTOR (Corrected Wire States)
+// ==========================================
+if (currentMode === 'opamp') {
+    const feedback = document.getElementById('feedback');
+    const solDiv = document.getElementById('solutions');
+    const checkansBtn = document.getElementById('checkansBtn');
+    const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+
+    const targetType = window.opAmpTargetConfig; 
+    let wiringCorrect = false;
     
-        const targetType = window.opAmpTargetConfig; 
-        let wiringCorrect = false;
-        
-        // Terminal Logic Check:
-        // Inverting Target: Input must hit the TOP (-) terminal.
-        // Non-Inverting Target: Input must hit the BOTTOM (+) terminal.
-        if (targetType === 'Inverting') {
-            if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
-                wiringCorrect = true;
-            }
-        } else {
-            // Non-Inverting: Top must be horizontal (disconnected), Bottom must be vertical (connected)
-            if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
-                wiringCorrect = true;
-            }
+    // BASED ON YOUR CORRECTION:
+    // Inverting Target: Top branch = Horizontal (Connected), Bottom = Vertical (Disconnected)
+    // Non-Inverting Target: Top branch = Vertical (Disconnected), Bottom = Horizontal (Connected)
+
+    if (targetType === 'Inverting') {
+        if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
+            wiringCorrect = true;
         }
-    
-        // Formula Check
-        const formulaZone = document.getElementById('boxFormula');
-        const filledFormulaId = formulaZone ? formulaZone.dataset.current : "";
-        const correctFormulaId = (targetType === 'Inverting') ? 'inv' : 'non-inv';
-        const formulaCorrect = (filledFormulaId === correctFormulaId);
-    
-        if (!hasCheckedCurrentProblem) {
-            problemsAttempted++;
-            hasCheckedCurrentProblem = true;
+    } else {
+        if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
+            wiringCorrect = true;
         }
-    
-        if (wiringCorrect && formulaCorrect) {
-            isCurrentProblemSolved = true;
-            if (canEarnPoints) { problemsCorrect++; }
-            
-            feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> The ${targetType} circuit is correctly wired and the formula matches.</span>`;
-            
-            if (checkansBtn) checkansBtn.style.display = 'none';
-            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-            canEarnPoints = false;
-        } else {
-            canEarnPoints = false;
-            
-            // No LaTeX used here to prevent rendering issues
-            if (!wiringCorrect && formulaCorrect) {
-                const term = (targetType === 'Inverting') ? 'minus (-)' : 'plus (+)';
-                feedback.innerHTML = `<span style='color: #dc3545;'>Formula is right, but for a ${targetType} setup, VIN must hit the ${term} terminal.</span>`;
-            } else if (wiringCorrect && !formulaCorrect) {
-                feedback.innerHTML = `<span style='color: #dc3545;'>Wiring is perfect, but that formula is for a different Op-Amp configuration.</span>`;
-            } else {
-                feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. Check your wiring hinges and your gain formula.</span>`;
-            }
-    
-            if (solDiv) solDiv.style.display = 'block';
-        }
-    
-        if (typeof updateScoreboard === "function") updateScoreboard();
-        return; 
     }
+
+    // Formula Check
+    const formulaZone = document.getElementById('boxFormula');
+    const filledFormulaId = formulaZone ? formulaZone.dataset.current : "";
+    const correctFormulaId = (targetType === 'Inverting') ? 'inv' : 'non-inv';
+    const formulaCorrect = (filledFormulaId === correctFormulaId);
+
+    if (!hasCheckedCurrentProblem) {
+        problemsAttempted++;
+        hasCheckedCurrentProblem = true;
+    }
+
+    if (wiringCorrect && formulaCorrect) {
+        isCurrentProblemSolved = true;
+        if (canEarnPoints) { problemsCorrect++; }
+        
+        feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> The ${targetType} circuit is correctly wired and the formula matches.</span>`;
+        
+        if (checkansBtn) checkansBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+        canEarnPoints = false;
+    } else {
+        canEarnPoints = false;
+        
+        if (!wiringCorrect && formulaCorrect) {
+            const term = (targetType === 'Inverting') ? 'minus (-)' : 'plus (+)';
+            feedback.innerHTML = `<span style='color: #dc3545;'>Formula is right, but for an ${targetType} setup, VIN must be switched to the ${term} terminal.</span>`;
+        } else if (wiringCorrect && !formulaCorrect) {
+            feedback.innerHTML = `<span style='color: #dc3545;'>Wiring is correct, but the gain formula is wrong for this setup.</span>`;
+        } else {
+            feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. Check your wiring hinges and the gain formula.</span>`;
+        }
+
+        if (solDiv) solDiv.style.display = 'block';
+    }
+
+    if (typeof updateScoreboard === "function") updateScoreboard();
+    return; 
+}
     
     //New function code pasted above this line for grag and drop
     //*******************************************************************************************************************************
