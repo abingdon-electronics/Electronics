@@ -10049,13 +10049,16 @@ function generateGrade9MosfetProblem() {
         `;
     }
 }*/
-// The main dynamic drawing engine for the Op-Amp circuit
-// UPDATED: Main drawing engine using the global drawCanvasSubscript helper
+
+    
+//***********************************************************************************************************
+    
+// The main dynamic drawing engine for the Op-Amp circuit using the global drawCanvasSubscript helper
 function drawOpAmpCircuit(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     const cx = 300;
-    const cy = 240; // Shifted down to create space for dropzone
+    const cy = 240; 
     
     // --- CANVAS TITLE ---
     ctx.fillStyle = "#d65093";
@@ -10069,22 +10072,16 @@ function drawOpAmpCircuit(ctx, canvas) {
     
     ctx.strokeStyle = "#333";
     ctx.lineWidth = 2;
-    
-    // Switch to left-alignment for the subscript helper math to work correctly
     ctx.textAlign = "left"; 
     
     // --- 1. FIXED WIRES ---
-    // Output Wire
     ctx.beginPath();
     ctx.moveTo(cx + 30, cy);
     ctx.lineTo(cx + 120, cy); 
     ctx.stroke();
     drawNode(ctx, cx + 80, cy);
-    
-    // Using your global helper! (X adjusted slightly to center visually)
     drawCanvasSubscript(ctx, "V", "OUT", "", cx + 125, cy, 16, "black");
     
-    // Feedback wire & RF Resistor
     ctx.beginPath();
     ctx.moveTo(cx + 80, cy);
     ctx.lineTo(cx + 80, cy - 90);
@@ -10094,29 +10091,27 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.fillStyle = "#fff";
     ctx.fillRect(cx - 30, cy - 105, 60, 30); 
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
-    drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black"); // RF Label
+    drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
     
     ctx.beginPath();
     ctx.moveTo(cx - 30, cy - 90);
     ctx.lineTo(cx - 100, cy - 90);
-    ctx.lineTo(cx - 100, cy - 20); // Down to top hinge
+    ctx.lineTo(cx - 100, cy - 20); 
     ctx.stroke();
-    drawNode(ctx, cx - 100, cy - 20); // TOP HINGE NODE
+    drawNode(ctx, cx - 100, cy - 20);
     
-    // MISSING WIRE ADDED: Connect Top Hinge to Inverting Input
     ctx.beginPath();
     ctx.moveTo(cx - 100, cy - 20);
     ctx.lineTo(cx - 30, cy - 20);
     ctx.stroke();
     
-    // Non-Inverting wire fixed start
     ctx.beginPath();
     ctx.moveTo(cx - 30, cy + 20);
     ctx.lineTo(cx - 60, cy + 20);
     ctx.stroke();
-    drawNode(ctx, cx - 60, cy + 20); // BOTTOM HINGE NODE
+    drawNode(ctx, cx - 60, cy + 20);
     
-    // --- 2. TOGGLEABLE TOP WIRE (Inverting Input) ---
+    // --- 2. TOGGLEABLE TOP WIRE ---
     ctx.beginPath();
     ctx.moveTo(cx - 100, cy - 20);
     if (window.topWireState === 'horizontal') {
@@ -10126,22 +10121,21 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.fillStyle = "#fff";
         ctx.fillRect(cx - 190, cy - 35, 60, 30); 
         ctx.strokeRect(cx - 190, cy - 35, 60, 30);
-        drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black"); // RIN Label
+        drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black");
         
         ctx.beginPath();
         ctx.moveTo(cx - 190, cy - 20);
         ctx.lineTo(cx - 230, cy - 20);
         ctx.stroke();
-        drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy - 20, 16, "black"); // VIN Label
+        drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy - 20, 16, "black");
     } else {
-        // Swung vertically to Ground
         ctx.lineTo(cx - 100, cy + 50);
         ctx.stroke();
         
         ctx.fillStyle = "#fff";
         ctx.fillRect(cx - 115, cy + 50, 30, 50); 
         ctx.strokeRect(cx - 115, cy + 50, 30, 50);
-        drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black"); // R1 Label
+        drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black");
         
         ctx.beginPath();
         ctx.moveTo(cx - 100, cy + 100);
@@ -10150,15 +10144,14 @@ function drawOpAmpCircuit(ctx, canvas) {
         drawGround(ctx, cx - 100, cy + 120);
     }
     
-    // --- 3. TOGGLEABLE BOTTOM WIRE (Non-Inverting Input) ---
+    // --- 3. TOGGLEABLE BOTTOM WIRE ---
     ctx.beginPath();
     ctx.moveTo(cx - 60, cy + 20);
     if (window.bottomWireState === 'horizontal') {
         ctx.lineTo(cx - 230, cy + 20);
         ctx.stroke();
-        drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy + 20, 16, "black"); // VIN Label
+        drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy + 20, 16, "black");
     } else {
-        // Swung vertically to Ground
         ctx.lineTo(cx - 60, cy + 80);
         ctx.stroke();
         drawGround(ctx, cx - 60, cy + 80);
@@ -10167,12 +10160,29 @@ function drawOpAmpCircuit(ctx, canvas) {
     // --- 4. HINGE VISUAL CUES ---
     ctx.strokeStyle = "#e74c3c";
     ctx.setLineDash([3, 3]);
+    
+    // Top Hinge Highlight
     ctx.beginPath();
     ctx.arc(cx - 100, cy - 20, 14, 0, Math.PI*2);
+    ctx.stroke();
+    
+    // Bottom Hinge Highlight
+    ctx.beginPath();
     ctx.arc(cx - 60, cy + 20, 14, 0, Math.PI*2); 
     ctx.stroke();
     ctx.setLineDash([]);
+    
+    // Instructions Text
+    ctx.fillStyle = "#e74c3c";
+    ctx.font = "bold 11px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Click to Toggle", cx - 100, cy - 45);
+    ctx.fillText("Click to Toggle", cx - 60, cy + 45);
 }
+
+//***********************************************************************************************************
+
+    
 function generateOpAmpProblem(ctx, canvas) {
     currentMode = 'opamp'; 
     hasCheckedCurrentProblem = false; 
@@ -10209,35 +10219,46 @@ function generateOpAmpProblem(ctx, canvas) {
     const formulaZone = document.createElement('div');
     formulaZone.id = "boxFormula";
     formulaZone.className = 'dropzone';
-    formulaZone.innerHTML = 'Drag correct<br>formula here'; // Instruction added
-    // Position adjusted slightly to look neat above the newly shifted circuit
+    formulaZone.innerHTML = 'Drag correct<br>formula here'; 
     formulaZone.style.cssText = `position:absolute; left:380px; top:80px; width:180px; height:45px; border:2px dashed #999; background:#f9f9f9; color:#666; display:flex; align-items:center; justify-content:center; text-align:center; font-family:Arial; font-size:13px; pointer-events:auto; cursor:pointer; transition: 0.3s; line-height: 1.2;`;
     
-    formulaZone.addEventListener('dragover', (e) => { e.preventDefault(); formulaZone.style.backgroundColor = '#d1f0d1'; });
-    formulaZone.addEventListener('dragleave', () => { formulaZone.style.backgroundColor = '#f9f9f9'; });
+    formulaZone.addEventListener('dragover', (e) => { e.preventDefault(); formulaZone.style.backgroundColor = '#f1d1e4'; });
+    formulaZone.addEventListener('dragleave', () => { 
+        // Only revert if empty
+        if (!formulaZone.dataset.current) formulaZone.style.backgroundColor = '#f9f9f9'; 
+    });
+    
     formulaZone.addEventListener('drop', (e) => {
         e.preventDefault();
         const htmlData = e.dataTransfer.getData('text/html');
         const idData = e.dataTransfer.getData('data-id');
-        formulaZone.innerHTML = htmlData; // Render the HTML subscripts
-        formulaZone.style.backgroundColor = '#fff';
-        formulaZone.style.border = '2px solid #222';
-        formulaZone.style.color = '#000';
+        formulaZone.innerHTML = htmlData; 
+        
+        // --- PINK THEME ON DROP ---
+        formulaZone.style.backgroundColor = '#d65093';
+        formulaZone.style.border = '2px solid #d65093';
+        formulaZone.style.color = '#fff';
+        
         formulaZone.style.fontWeight = 'bold';
         formulaZone.style.fontSize = '16px';
-        formulaZone.dataset.current = idData; // Save simple ID for checking
+        formulaZone.dataset.current = idData; 
     });
+    
     formulaZone.addEventListener('dblclick', () => {
         formulaZone.innerHTML = 'Drag correct<br>formula here'; 
         formulaZone.dataset.current = ''; 
+        
+        // --- REVERT TO EMPTY THEME ---
+        formulaZone.style.backgroundColor = '#f9f9f9';
         formulaZone.style.border = '2px dashed #999'; 
         formulaZone.style.color = '#666';
+        
         formulaZone.style.fontWeight = 'normal';
         formulaZone.style.fontSize = '13px';
     });
     overlay.appendChild(formulaZone);
 
-    // Tray Formulas (Using HTML Subscripts)
+    // Tray Formulas 
     const trayY = canvas.height - 90; 
     const options = [
         { id: "inv", html: "G = -(R<sub>F</sub> / R<sub>IN</sub>)" },
@@ -10259,6 +10280,9 @@ function generateOpAmpProblem(ctx, canvas) {
     drawOpAmpCircuit(ctx, canvas);
     setupOpAmpCanvasClick(ctx, canvas);
 }
+
+//***********************************************************************************************************
+    
 function setupOpAmpCanvasClick(ctx, canvas) {
     if (window.opAmpClickHandler) {
         canvas.removeEventListener('click', window.opAmpClickHandler);
