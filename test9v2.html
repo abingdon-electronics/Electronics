@@ -10202,6 +10202,11 @@ function generateOpAmpProblem(ctx, canvas) {
     // --- UPDATED INSTRUCTION CARD INJECTION ---
     const qText = document.getElementById('questionText');
     if (qText) {
+        // 1. THE ANTIDOTE: Force the display back to 'block' 
+        // (This undoes the 'none' from hideAllInputGroups)
+        qText.style.display = 'block';
+
+        // 2. Inject the styled card
         qText.innerHTML = `
             <div style="background: #fdf2f8; border: 2px solid #f1d1e4; border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #333; text-align: left; font-family: Arial, sans-serif; font-weight: normal;">
                 <h3 style="color:#d65093; margin: 0 0 10px 0; font-size: 18px; font-weight: bold;">Target: ${targetConfig} Op-Amp</h3>
