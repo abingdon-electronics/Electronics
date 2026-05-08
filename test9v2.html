@@ -10215,12 +10215,13 @@ function generateOpAmpProblem(ctx, canvas) {
     overlay.style.cssText = `position:absolute; top:${canvas.offsetTop}px; left:${canvas.offsetLeft}px; width:${canvas.width}px; height:${canvas.height}px; pointer-events:none; z-index:10;`;
     canvas.parentNode.appendChild(overlay);
 
-    // Formula Dropzone
+    // Formula Dropzone (Kept in top right)
+    const rightColX = 380; // Baseline X coordinate for the right column
     const formulaZone = document.createElement('div');
     formulaZone.id = "boxFormula";
     formulaZone.className = 'dropzone';
     formulaZone.innerHTML = 'Drag correct<br>formula here'; 
-    formulaZone.style.cssText = `position:absolute; left:380px; top:80px; width:180px; height:45px; border:2px dashed #999; background:#f9f9f9; color:#666; display:flex; align-items:center; justify-content:center; text-align:center; font-family:Arial; font-size:13px; pointer-events:auto; cursor:pointer; transition: 0.3s; line-height: 1.2;`;
+    formulaZone.style.cssText = `position:absolute; left:${rightColX}px; top:80px; width:180px; height:45px; border:2px dashed #999; background:#f9f9f9; color:#666; display:flex; align-items:center; justify-content:center; text-align:center; font-family:Arial; font-size:13px; pointer-events:auto; cursor:pointer; transition: 0.3s; line-height: 1.2;`;
     
     formulaZone.addEventListener('dragover', (e) => { e.preventDefault(); formulaZone.style.backgroundColor = '#f1d1e4'; });
     formulaZone.addEventListener('dragleave', () => { 
@@ -10253,23 +10254,26 @@ function generateOpAmpProblem(ctx, canvas) {
     });
     overlay.appendChild(formulaZone);
 
-    // --- NEW: Instruction Label Above Formula Tray ---
-    const trayY = canvas.height - 65; // Pushed further down the canvas
+    // --- NEW: Stacked Tray in Bottom Right ---
+    const trayStartY = canvas.height - 135; // Positioned relative to bottom of canvas
+    
     const trayLabel = document.createElement('div');
-    trayLabel.innerHTML = 'Op-Amp Formulae: Drag the correct one';
-    trayLabel.style.cssText = `position:absolute; left:0; top:${trayY - 10}px; width:100%; text-align:center; color:#555; font-weight:bold; font-family:Arial; font-size:14px; pointer-events:none;`;
+    trayLabel.innerHTML = 'Op-Amp Formulae:<br>Drag the correct one';
+    // Adjusted width and left position to center under the dropzone
+    trayLabel.style.cssText = `position:absolute; left:${rightColX - 10}px; top:${trayStartY}px; width:200px; text-align:center; color:#555; font-weight:bold; font-family:Arial; font-size:14px; pointer-events:none; line-height: 1.3;`;
     overlay.appendChild(trayLabel);
 
     // Tray Formulas 
     const options = [
-        { id: "inv", html: "G = - (R<sub>F</sub> / R<sub>IN</sub>)" }, // Added space after minus
+        { id: "inv", html: "G = - (R<sub>F</sub> / R<sub>IN</sub>)" }, 
         { id: "non-inv", html: "G = 1 + (R<sub>F</sub> / R<sub>1</sub>)" }
     ];
     
     options.forEach((opt, index) => {
         const item = document.createElement('div');
         item.innerHTML = opt.html;
-        item.style.cssText = `position:absolute; left:${80 + (index * 220)}px; top:${trayY + 15}px; width:200px; height:35px; background:#3498db; color:#fff; border-radius:4px; cursor:grab; font-size:16px; font-weight:bold; font-family:Arial; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.2); pointer-events:auto;`;
+        // Stack them vertically using (index * 45) spacing
+        item.style.cssText = `position:absolute; left:${rightColX - 10}px; top:${trayStartY + 45 + (index * 45)}px; width:200px; height:35px; background:#3498db; color:#fff; border-radius:4px; cursor:grab; font-size:16px; font-weight:bold; font-family:Arial; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.2); pointer-events:auto;`;
         item.draggable = true;
         item.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/html', opt.html);
