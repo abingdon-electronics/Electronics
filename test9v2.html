@@ -10183,7 +10183,7 @@ function drawOpAmpCircuit(ctx, canvas) {
 //***********************************************************************************************************
 
     
-function generateOpAmpProblem(ctx, canvas) {
+ffunction generateOpAmpProblem(ctx, canvas) {
     currentMode = 'opamp'; 
     hasCheckedCurrentProblem = false; 
 
@@ -10200,12 +10200,15 @@ function generateOpAmpProblem(ctx, canvas) {
     window.topWireState = 'horizontal'; 
     window.bottomWireState = 'vertical';
 
+    // --- UPDATED INSTRUCTION CARD INJECTION ---
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.innerHTML = `
-            <strong style="color:#d65093; font-size: 18px;">Target: ${targetConfig} Op-Amp</strong><br>
-            <strong>1.</strong> Click the red hinge circles to correctly wire the circuit.<br>
-            <strong>2.</strong> Drag the correct formula from the tray into the empty box.
+            <div style="background: #fdf2f8; border: 2px solid #f1d1e4; border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #333; text-align: left; font-family: Arial, sans-serif; font-weight: normal;">
+                <h3 style="color:#d65093; margin: 0 0 10px 0; font-size: 18px; font-weight: bold;">Target: ${targetConfig} Op-Amp</h3>
+                <p style="margin: 0 0 8px 0; font-size: 14px;"><strong>1.</strong> Click the red hinge circles to correctly wire the circuit.</p>
+                <p style="margin: 0; font-size: 14px;"><strong>2.</strong> Drag the correct formula from the tray into the empty box.</p>
+            </div>
         `;
     }
 
