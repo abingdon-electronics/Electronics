@@ -11615,28 +11615,32 @@ if (currentMode === 'grade9nand') {
 
     
     // ==========================================
-    // OP-AMP INTERCEPTOR (Corrected Terminal Logic)
+    // OP-AMP INTERCEPTOR (FINAL FIX)
     // ==========================================
     if (currentMode === 'opamp') {
         const feedback = document.getElementById('feedback');
         const solDiv = document.getElementById('solutions');
-        
-        const targetType = window.opAmpTargetConfig; // "Inverting" or "Non-Inverting"
-        let wiringCorrect = false;
+        const checkansBtn = document.getElementById('checkansBtn');
+        const showsolutionsBtn = document.getElementById('showsolutionsBtn');
     
-        // Based on your diagram: Top is (-), Bottom is (+)
+        const targetType = window.opAmpTargetConfig; 
+        let wiringCorrect = false;
+        
+        // Terminal Logic Check:
+        // Inverting Target: Input must hit the TOP (-) terminal.
+        // Non-Inverting Target: Input must hit the BOTTOM (+) terminal.
         if (targetType === 'Inverting') {
-            // Inverting requires input to the MINUS (-) terminal (Top)
             if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
                 wiringCorrect = true;
             }
         } else {
-            // Non-Inverting requires input to the PLUS (+) terminal (Bottom)
+            // Non-Inverting: Top must be horizontal (disconnected), Bottom must be vertical (connected)
             if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
                 wiringCorrect = true;
             }
         }
     
+        // Formula Check
         const formulaZone = document.getElementById('boxFormula');
         const filledFormulaId = formulaZone ? formulaZone.dataset.current : "";
         const correctFormulaId = (targetType === 'Inverting') ? 'inv' : 'non-inv';
@@ -11650,23 +11654,30 @@ if (currentMode === 'grade9nand') {
         if (wiringCorrect && formulaCorrect) {
             isCurrentProblemSolved = true;
             if (canEarnPoints) { problemsCorrect++; }
-            feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> The ${targetType} circuit is correctly wired to the ${targetType === 'Inverting' ? '(-) Inverting' : '(+) Non-Inverting'} terminal.</span>`;
             
-            document.getElementById('checkansBtn').style.display = 'none';
-            document.getElementById('showsolutionsBtn').style.display = 'none';
+            feedback.innerHTML = `<span style='color: #198754;'><b>Perfect!</b> The ${targetType} circuit is correctly wired and the formula matches.</span>`;
+            
+            if (checkansBtn) checkansBtn.style.display = 'none';
+            if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
             canEarnPoints = false;
         } else {
             canEarnPoints = false;
+            
+            // No LaTeX used here to prevent rendering issues
             if (!wiringCorrect && formulaCorrect) {
-                feedback.innerHTML = `<span style='color: #dc3545;'>Formula is right, but for an ${targetType} setup, $V_{IN}$ must hit the ${targetType === 'Inverting' ? 'minus (-)' : 'plus (+)'} terminal.</span>`;
+                const term = (targetType === 'Inverting') ? 'minus (-)' : 'plus (+)';
+                feedback.innerHTML = `<span style='color: #dc3545;'>Formula is right, but for a ${targetType} setup, VIN must hit the ${term} terminal.</span>`;
+            } else if (wiringCorrect && !formulaCorrect) {
+                feedback.innerHTML = `<span style='color: #dc3545;'>Wiring is perfect, but that formula is for a different Op-Amp configuration.</span>`;
             } else {
-                feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. Check your wiring and gain formula.</span>`;
+                feedback.innerHTML = `<span style='color: #dc3545;'>Incorrect. Check your wiring hinges and your gain formula.</span>`;
             }
+    
             if (solDiv) solDiv.style.display = 'block';
         }
     
         if (typeof updateScoreboard === "function") updateScoreboard();
-        return;
+        return; 
     }
     
     //New function code pasted above this line for grag and drop
