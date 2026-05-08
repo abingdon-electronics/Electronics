@@ -10224,7 +10224,6 @@ function generateOpAmpProblem(ctx, canvas) {
     
     formulaZone.addEventListener('dragover', (e) => { e.preventDefault(); formulaZone.style.backgroundColor = '#f1d1e4'; });
     formulaZone.addEventListener('dragleave', () => { 
-        // Only revert if empty
         if (!formulaZone.dataset.current) formulaZone.style.backgroundColor = '#f9f9f9'; 
     });
     
@@ -10234,11 +10233,9 @@ function generateOpAmpProblem(ctx, canvas) {
         const idData = e.dataTransfer.getData('data-id');
         formulaZone.innerHTML = htmlData; 
         
-        // --- PINK THEME ON DROP ---
         formulaZone.style.backgroundColor = '#d65093';
         formulaZone.style.border = '2px solid #d65093';
         formulaZone.style.color = '#fff';
-        
         formulaZone.style.fontWeight = 'bold';
         formulaZone.style.fontSize = '16px';
         formulaZone.dataset.current = idData; 
@@ -10248,27 +10245,31 @@ function generateOpAmpProblem(ctx, canvas) {
         formulaZone.innerHTML = 'Drag correct<br>formula here'; 
         formulaZone.dataset.current = ''; 
         
-        // --- REVERT TO EMPTY THEME ---
         formulaZone.style.backgroundColor = '#f9f9f9';
         formulaZone.style.border = '2px dashed #999'; 
         formulaZone.style.color = '#666';
-        
         formulaZone.style.fontWeight = 'normal';
         formulaZone.style.fontSize = '13px';
     });
     overlay.appendChild(formulaZone);
 
+    // --- NEW: Instruction Label Above Formula Tray ---
+    const trayY = canvas.height - 65; // Pushed further down the canvas
+    const trayLabel = document.createElement('div');
+    trayLabel.innerHTML = 'Op-Amp Formulae: Drag the correct one';
+    trayLabel.style.cssText = `position:absolute; left:0; top:${trayY - 10}px; width:100%; text-align:center; color:#555; font-weight:bold; font-family:Arial; font-size:14px; pointer-events:none;`;
+    overlay.appendChild(trayLabel);
+
     // Tray Formulas 
-    const trayY = canvas.height - 90; 
     const options = [
-        { id: "inv", html: "G = -(R<sub>F</sub> / R<sub>IN</sub>)" },
+        { id: "inv", html: "G = - (R<sub>F</sub> / R<sub>IN</sub>)" }, // Added space after minus
         { id: "non-inv", html: "G = 1 + (R<sub>F</sub> / R<sub>1</sub>)" }
     ];
     
     options.forEach((opt, index) => {
         const item = document.createElement('div');
         item.innerHTML = opt.html;
-        item.style.cssText = `position:absolute; left:${80 + (index * 220)}px; top:${trayY + 25}px; width:200px; height:35px; background:#3498db; color:#fff; border-radius:4px; cursor:grab; font-size:16px; font-weight:bold; font-family:Arial; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.2); pointer-events:auto;`;
+        item.style.cssText = `position:absolute; left:${80 + (index * 220)}px; top:${trayY + 15}px; width:200px; height:35px; background:#3498db; color:#fff; border-radius:4px; cursor:grab; font-size:16px; font-weight:bold; font-family:Arial; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,0.2); pointer-events:auto;`;
         item.draggable = true;
         item.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/html', opt.html);
@@ -10280,7 +10281,6 @@ function generateOpAmpProblem(ctx, canvas) {
     drawOpAmpCircuit(ctx, canvas);
     setupOpAmpCanvasClick(ctx, canvas);
 }
-
 //***********************************************************************************************************
     
 function setupOpAmpCanvasClick(ctx, canvas) {
