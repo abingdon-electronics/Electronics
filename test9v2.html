@@ -10183,29 +10183,39 @@ function drawOpAmpCircuit(ctx, canvas) {
 //***********************************************************************************************************
 
 
-  // Global tracker for Op-Amp sub-modes
+// Global tracker for Op-Amp sub-modes
 if (!window.opAmpScenarioTracker) { 
     window.opAmpScenarioTracker = { mode: 0 }; 
 }
-// Op AMP question contoller 
+
 function generateOpAmpProblem(ctx, canvas) {
     currentMode = 'opamp'; 
     hasCheckedCurrentProblem = false; 
 
-    // FIX: Change .type to .mode to match the tracker above
+    // 1. Cycle through 3 modes: 0 (Hinge), 1 (Forward Math), 2 (Design/Resistors)
     const qType = window.opAmpScenarioTracker.mode;
-    
-    // FIX: Change .type to .mode here as well
-    // While you only have one mode, (0 + 1) % 1 = 0, so it stays on Hinge mode.
-    window.opAmpScenarioTracker.mode = (window.opAmpScenarioTracker.mode + 1) % 1; 
+    window.opAmpScenarioTracker.mode = (window.opAmpScenarioTracker.mode + 1) % 3; 
+
+    // Reset UI visibility before starting a mode
+    document.getElementById('opAmpMathInputs').style.display = 'none';
+    const formulaTray = document.getElementById('opAmpCanvasOverlay'); // Our previous overlay
+    if (formulaTray) formulaTray.remove();
 
     if (qType === 0) {
         setupHingeProblem(ctx, canvas);
     } 
-    // Once you add the next function, change the % 1 above to % 2
-    // else if (qType === 1) { setupDrawnCircuitProblem(ctx, canvas); }
+    else if (qType === 1) {
+        setupForwardMathProblem(ctx, canvas);
+    }
+    else if (qType === 2) {
+        setupDesignResistorProblem(ctx, canvas);
+    }
 }
-    
+
+
+// ==========================================
+// TYPE 1: HINGE
+// ==========================================   
 //Op Amp Hinge mode function
 function setupHingeProblem(ctx, canvas) {
     if (typeof hideAllInputGroups === "function") hideAllInputGroups();
@@ -10302,42 +10312,73 @@ function setupHingeProblem(ctx, canvas) {
     drawOpAmpCircuit(ctx, canvas);
     setupOpAmpCanvasClick(ctx, canvas);
 }
-    
-//Op Amp Calculator mode function
-function setupDrawnCircuitProblem(ctx, canvas) {
+
+// ==========================================
+// TYPE 2: FORWARD MATH (Calculate Gain)
+// ==========================================
+function setupForwardMathProblem(ctx, canvas) {
     const targetConfig = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     window.opAmpTargetConfig = targetConfig;
+    window.opAmpQuestionType = 'calcGain';
+
+    // 1. Fix the wiring for the student (No hinges needed)
+    if (targetConfig === 'Inverting') {
+        window.topWireState = 'horizontal'; window.bottomWireState = 'vertical';
+    } else {
+        window.topWireState = 'vertical'; window.bottomWireState = 'horizontal';
+    }
+
+    // 2. Generate clean values
+    const rin = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
+    const rf = rin * (Math.floor(Math.random() * 10) + 2); // Ensures integer gain
+    window.opAmpValues = { rf, rin };
+
+    // 3. Setup UI
+    document.getElementById('opAmpMathInputs').style.display = 'flex';
+    document.getElementById('opAmpGain').parentElement.style.display = 'flex'; // Show Gain
+    document.getElementById('opAmpRf').parentElement.style.display = 'none';   // Hide Rf input
+    document.getElementById('opAmpVout').parentElement.style.display = 'none';
+    document.getElementById('opAmpBW').parentElement.style.display = 'none';
 
     const qText = document.getElementById('questionText');
-    if (qText) {
-        qText.style.display = 'block';
-        qText.innerHTML = `
-            <h3 style="color:#d65093;">Challenge: Identify the Circuit</h3>
-            <p>Look at the drawn circuit and select the correct gain formula.</p>
-        `;
-    }
+    qText.innerHTML = `<h3 style="color:#d65093;">Calculate Voltage Gain</h3>
+                       <p>Using <b>Rf = ${rf}kΩ</b> and <b>R1 = ${rin}kΩ</b>, calculate the Gain (G).</p>`;
 
-    // NEW LOGIC HERE: 
-    // 1. Force the wire states to be correct for the targetConfig (No hinges)
+    drawOpAmpCircuit(ctx, canvas); // You'll need to update your draw function to show text labels for Rf/Rin
+}
+
+// ==========================================
+// TYPE 3: DESIGN (Suggest Resistors)
+// ==========================================
+function setupDesignResistorProblem(ctx, canvas) {
+    const targetConfig = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
+    window.opAmpTargetConfig = targetConfig;
+    window.opAmpQuestionType = 'design';
+
+    const targetG = (targetConfig === "Inverting") ? -(Math.floor(Math.random() * 9) + 2) : (Math.floor(Math.random() * 9) + 2);
+    window.targetGain = targetG;
+
+    // Fix wiring
     if (targetConfig === 'Inverting') {
-        window.topWireState = 'horizontal'; 
-        window.bottomWireState = 'vertical';
+        window.topWireState = 'horizontal'; window.bottomWireState = 'vertical';
     } else {
-        window.topWireState = 'vertical'; 
-        window.bottomWireState = 'horizontal';
+        window.topWireState = 'vertical'; window.bottomWireState = 'horizontal';
     }
 
-    // 2. Draw the circuit (it will draw based on the states above)
+    // Setup UI
+    document.getElementById('opAmpMathInputs').style.display = 'flex';
+    document.getElementById('opAmpRf').parentElement.style.display = 'flex';   // Show Rf input
+    document.getElementById('opAmpGain').parentElement.style.display = 'none'; // Hide Gain input (it's in the prompt)
+    
+    // We need to add an Rin/R1 input to your HTML if we want them to suggest both!
+    const qText = document.getElementById('questionText');
+    qText.innerHTML = `<h3 style="color:#d65093;">Design Challenge</h3>
+                       <p>Suggest suitable values for <b>Rf</b> and <b>R1</b> to achieve a Gain of <b>${targetG}</b>.</p>
+                       <p style="font-size:12px; color:#666;">Note: Resistors must be ≥ 1kΩ.</p>`;
+
     drawOpAmpCircuit(ctx, canvas);
-
-    // 3. Optional: Create an overlay for the formula tray only (No hinge clicks)
-    // setupDrawnFormulaTray(ctx, canvas); 
-}        
-    
-    
-    
-  
-
+}
+      
 //***********************************************************************************************************
     
 function setupOpAmpCanvasClick(ctx, canvas) {
