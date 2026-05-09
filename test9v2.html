@@ -12907,7 +12907,50 @@ function provideHint() {
                 • <b>V<sub>GS</sub>:</b> You know the required drain current (I<sub>D</sub>) and the transconductance (g<sub>m</sub>). Rearrange the MOSFET formula (<b>I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - 3)</b>) from your data sheet to solve for V<sub>GS</sub>.<br>
                 • <b>Missing Resistor:</b> Once you have V<sub>GS</sub>, plug it into the standard Potential Divider equation (<b>V<sub>out</sub> = V<sub>in</sub> &times; [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)]</b>). Because the numbers are simple, you can simplify the fraction to easily find the missing resistor!
             </div>`;
+
+} else if (currentMode === 'opamp') {
+        let specificHint = "";
+        
+        if (window.opAmpQuestionType === 'hinge') {
+            specificHint = `
+                <br><br><b>Wiring & Formulas</b><br>
+                • <b>Inverting:</b> The input signal goes into the negative (-) terminal. The gain formula always features a minus sign.<br>
+                • <b>Non-Inverting:</b> The input signal goes into the positive (+) terminal. The gain formula is <b>1 + (R<sub>F</sub> / R<sub>1</sub>)</b>.`;
+                
+        } else if (window.opAmpQuestionType === 'calcGain') {
+            if (window.opAmpTargetConfig === 'Inverting') {
+                specificHint = `
+                    <br><br><b>Inverting Math</b><br>
+                    1. Find the Voltage Gain using: <b>G = - (R<sub>F</sub> / R<sub>IN</sub>)</b>. Don't forget the negative sign!<br>
+                    2. To find V<sub>out</sub>, multiply the input voltage (V<sub>in</sub>, shown on the left) by your calculated Gain.`;
+            } else {
+                specificHint = `
+                    <br><br><b>Non-Inverting Math</b><br>
+                    1. Find the Voltage Gain using: <b>G = 1 + (R<sub>F</sub> / R<sub>1</sub>)</b>.<br>
+                    2. To find V<sub>out</sub>, multiply the input voltage (V<sub>in</sub>, shown on the left) by your calculated Gain.`;
+            }
             
+        } else if (window.opAmpQuestionType === 'design') {
+            if (window.opAmpTargetConfig === 'Inverting') {
+                specificHint = `
+                    <br><br><b>Inverting Design</b><br>
+                    You need a gain of <b>${window.targetGain}</b>. Since G = -(R<sub>F</sub> / R<sub>IN</sub>), the magnitude of your gain is simply the ratio of the two resistors.<br>
+                    <em>Pro-Tip:</em> Pick a simple value for R<sub>IN</sub> (like 1 k&Omega; or 10 k&Omega;) and multiply it by ${Math.abs(window.targetGain)} to find R<sub>F</sub>!`;
+            } else {
+                specificHint = `
+                    <br><br><b>Non-Inverting Design</b><br>
+                    You need a gain of <b>${window.targetGain}</b>. Remember, G = 1 + (R<sub>F</sub> / R<sub>1</sub>).<br>
+                    1. Subtract 1 from your target gain.<br>
+                    2. Make the ratio of R<sub>F</sub> / R<sub>1</sub> equal to that new number.<br>
+                    <em>Pro-Tip:</em> Pick a simple value for R<sub>1</sub> (like 1 k&Omega; or 2 k&Omega;) and multiply it by your new number to find R<sub>F</sub>!`;
+            }
+        }
+
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Op-Amp Hint:</strong>
+                ${specificHint}
+            </div>`;      
     } else {
         // Potential Divider & General fallback
         helpText = `
