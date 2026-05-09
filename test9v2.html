@@ -10441,9 +10441,9 @@ function setupDesignResistorProblem(ctx, canvas) {
     // THE FIX FOR SUBSCRIPTS: Save the specific inline style you used in your HTML
     const subStyle = 'style="font-size: 0.7em; vertical-align: baseline; position: relative; top: 0.3em;"';
 
-    // 1. Update Rf label, placeholder, and set unit to Ω
+   // 1. Update Rf label, placeholder, and set unit to Ω
     const rfLabel = document.querySelector('label[for="opAmpRf"]');
-    if (rfLabel) rfLabel.innerHTML = `R<sub ${subStyle}>f</sub> =`;
+    if (rfLabel) rfLabel.innerHTML = `R<sub ${subStyle}>F</sub> =`; // <-- Capital F
     
     const rfInput = document.getElementById('opAmpRf');
     if (rfInput) {
@@ -10455,12 +10455,12 @@ function setupDesignResistorProblem(ctx, canvas) {
     const bwLabel = document.querySelector('label[for="opAmpBW"]');
     if (bwLabel) {
         if (targetConfig === 'Inverting') {
-            bwLabel.innerHTML = `R<sub ${subStyle}>in</sub> =`;
+            bwLabel.innerHTML = `R<sub ${subStyle}>IN</sub> =`; // <-- Capital IN
         } else {
             bwLabel.innerHTML = `R<sub ${subStyle}>1</sub> =`;
         }
     }
-
+    
     const bwInput = document.getElementById('opAmpBW');
     if (bwInput) {
         bwInput.placeholder = "e.g. 2k"; 
@@ -10474,7 +10474,7 @@ function setupDesignResistorProblem(ctx, canvas) {
     if (qText) {
         qText.style.display = 'block'; 
         qText.innerHTML = `<h3 style="color:#d65093;">Design Challenge</h3>
-                           <p>Suggest suitable values for the feedback resistor (<b>R<sub ${subStyle}>f</sub></b>) and the ${resistorText} to achieve a Voltage Gain of <b>${targetG}</b>.</p>`;
+                           <p>Suggest suitable values for the feedback resistor (<b>R<sub ${subStyle}>F</sub></b>) and the ${resistorText} to achieve a Voltage Gain of <b>${targetG}</b>.</p>`; // <-- Capital F
     }
 
     drawOpAmpCircuit(ctx, canvas);
