@@ -10384,13 +10384,13 @@ function setupForwardMathProblem(ctx, canvas) {
     document.getElementById('opAmpBW').closest('div').style.display = 'none';  
 
     // Dynamic label for the text depending on the configuration
-    const inputResistorLabel = (targetConfig === 'Inverting') ? "R<sub>in</sub>" : "R<sub>1</sub>";
+    const inputResistorLabel = (targetConfig === 'Inverting') ? "R<sub>IN</sub>" : "R<sub>1</sub>"; // <-- Capital IN
 
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.style.display = 'block'; // FIX: Force text to show
+        qText.style.display = 'block'; 
         qText.innerHTML = `<h3 style="color:#d65093;">Voltage Gain</h3>
-                           <p>Calculate the Op-Amp Voltage Gain.</p>`;
+                           <p>Using <b>R<sub>F</sub> = ${rf} kΩ</b> and <b>${inputResistorLabel} = ${rin} kΩ</b>, calculate the Voltage Gain (<b>G</b>).</p>`; // <-- Capital F
     }
 
     drawOpAmpCircuit(ctx, canvas); 
