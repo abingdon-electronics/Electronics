@@ -12915,9 +12915,8 @@ function provideHint() {
         if (window.opAmpQuestionType === 'hinge') {
             specificHint = `
                 <br><br><b>Wiring & Formulas</b><br>
-                • <b>Inverting:</b> The input signal connects to the negative (-) terminal. If you check your Exam Data Sheet, its gain formula features a minus sign.<br>
-                • <b>Non-Inverting:</b> The input signal connects to the positive (+) terminal. Its Data Sheet formula features a plus sign.`;
-                
+                • <b>Inverting:</b> The input signal connects to the negative (-) terminal through a resistor. The other terminal (+) angles down to ground. Inverting Op-Amps have a minus sign in their Data Sheet formula!<br>
+                • <b>Non-Inverting:</b> The input signal connects directly to the positive (+) terminal. The other terminal (-) angles down to ground through a resistor. Its Data Sheet formula features a plus sign.`;
         } else if (window.opAmpQuestionType === 'calcGain') {
             specificHint = `
                 <br><br><b>Calculating Gain & V<sub>out</sub></b><br>
