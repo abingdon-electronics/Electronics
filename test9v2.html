@@ -10254,7 +10254,8 @@ function generateOpAmpProblem(ctx, canvas) {
 // ==========================================   
 //Op Amp Hinge mode function
 function setupHingeProblem(ctx, canvas) {
-
+    
+    window.opAmpQuestionType = 'hinge';
     window.opAmpInteractive = true;
     
     let oldOverlay = document.getElementById('opAmpCanvasOverlay');
