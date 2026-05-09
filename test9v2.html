@@ -10521,50 +10521,6 @@ function setupOpAmpCanvasClick(ctx, canvas) {
         newBtn.addEventListener('click', checkOpAmpAnswer);
     }
 }
-
-function checkOpAmpAnswer() {
-    const droppedId = document.getElementById('boxFormula').dataset.current || "";
-    let isCorrect = false;
-    let feedbackMsg = "";
-
-    if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
-        feedbackMsg = "❌ Both inputs are connected to the signal! You shorted the inputs.";
-    } else if (window.topWireState === 'vertical' && window.bottomWireState === 'vertical') {
-        feedbackMsg = "❌ Both inputs are grounded! Vout will permanently be zero.";
-    } 
-    else if (window.opAmpTargetConfig === "Inverting") {
-        if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
-            if (droppedId === "inv") {
-                isCorrect = true;
-            } else {
-                feedbackMsg = "❌ Circuit is correct, but you selected the wrong formula!";
-            }
-        } else {
-            feedbackMsg = "❌ Incorrect wiring. Where does the input signal go for an Inverting Amp?";
-        }
-    } else { 
-        if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
-            if (droppedId === "non-inv") {
-                isCorrect = true;
-            } else {
-                feedbackMsg = "❌ Circuit is correct, but you selected the wrong formula!";
-            }
-        } else {
-            feedbackMsg = "❌ Incorrect wiring. Where does the input signal go for a Non-Inverting Amp?";
-        }
-    }
-
-    const feedbackEl = document.getElementById('feedback');
-    if (isCorrect) {
-        if (typeof playCorrectSound === 'function') playCorrectSound();
-        feedbackEl.innerHTML = `<span style="color:#2ecc71; font-weight:bold;">✅ Correct! You successfully built a ${window.opAmpTargetConfig} Amplifier.</span>`;
-        if (typeof logAttempt === 'function') logAttempt(true);
-    } else {
-        if (typeof playIncorrectSound === 'function') playIncorrectSound();
-        feedbackEl.innerHTML = `<span style="color:#e74c3c; font-weight:bold;">${feedbackMsg}</span>`;
-        if (typeof logAttempt === 'function') logAttempt(false);
-    }
-}
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
 //**************************************************************************************************************************************
@@ -10835,8 +10791,8 @@ function hubController(ctx, canvas) {
 
     const btnCheck = document.getElementById('btnCheck');
     if (btnCheck) {
-        // Just clear it so the specific module can attach its own logic safely
-        btnCheck.onclick = null; 
+        // Re-attach the master checkAnswer function!
+        btnCheck.onclick = checkAnswer; 
     }
     
     // 2. Full UI Reset (The "Master Wipe")
@@ -10862,6 +10818,13 @@ function hubController(ctx, canvas) {
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.innerHTML = '&nbsp;'; 
+    }
+    // 👇 ADD THIS TO CLEAR THE OP-AMP HINGE BOX 👇
+    const boxFormula = document.getElementById('boxFormula');
+    if (boxFormula) {
+        boxFormula.dataset.current = "";
+        boxFormula.innerHTML = "Drop Formula Here"; // Change to your default empty text
+        boxFormula.style.backgroundColor = ""; // Clears any colors from previous grading
     }
 
     // 4. ROUTER: Setup the UI for the specific mode
@@ -11979,6 +11942,16 @@ if (currentMode === 'opamp') {
             activeInputs.push('inputP'); 
         }
     }
+    // 👇 OP-AMP ACTIVE INPUTS 👇
+    else if (currentMode === 'opamp') {
+        if (window.opAmpQuestionType === 'calcGain') {
+            activeInputs = ['opAmpGain', 'opAmpVout']; // Standard text inputs
+        } else if (window.opAmpQuestionType === 'design') {
+            activeInputs = ['opAmpRf', 'opAmpBW']; // Standard text inputs
+        } else if (window.opAmpQuestionType === 'hinge') {
+            activeInputs = []; // Hinge uses drag-and-drop and wires, no standard text boxes!
+        }
+    }
     
     // ------------------------------------------
     // 3. Check for empty boxes
@@ -12271,6 +12244,62 @@ if (currentMode === 'opamp') {
         }
         results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
     }
+    // 👇 OP-AMP GRADING LOGIC 👇
+    else if (currentMode === 'opamp') {
+        
+        if (window.opAmpQuestionType === 'hinge') {
+            // Hinge is a special interactive mode! No text boxes to parse.
+            const droppedId = document.getElementById('boxFormula').dataset.current || "";
+            let hingeCorrect = false;
+            let customFeedback = "";
+
+            if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
+                customFeedback = "❌ Both inputs are connected to the signal! You shorted the inputs.";
+            } else if (window.topWireState === 'vertical' && window.bottomWireState === 'vertical') {
+                customFeedback = "❌ Both inputs are grounded! Vout will permanently be zero.";
+            } else if (window.opAmpTargetConfig === "Inverting") {
+                if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
+                    if (droppedId === "inv") hingeCorrect = true;
+                    else customFeedback = "❌ Circuit is correct, but you selected the wrong formula!";
+                } else customFeedback = "❌ Incorrect wiring. Where does the input signal go for an Inverting Amp?";
+            } else { // Non-Inverting
+                if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
+                    if (droppedId === "non-inv") hingeCorrect = true;
+                    else customFeedback = "❌ Circuit is correct, but you selected the wrong formula!";
+                } else customFeedback = "❌ Incorrect wiring. Where does the input signal go for a Non-Inverting Amp?";
+            }
+
+            if (hingeCorrect) {
+                results.push('correct');
+            } else {
+                results.push('wrongval');
+                feedback.innerHTML = `<span style='color: #dc3545;'>${customFeedback}</span>`;
+                // We return early here so it doesn't overwrite our custom error message with the standard "Incorrect" text at the bottom of the function
+                const solDiv = document.getElementById('solutions');
+                if (solDiv) solDiv.style.display = 'block';
+                if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+                return; 
+            }
+        } 
+        
+        else if (window.opAmpQuestionType === 'calcGain') {
+            // Grade Math Mode
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('opAmpGain').value)), currentAnswers.gain, 'none')); // Gain has no units
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('opAmpVout').value)), currentAnswers.vout, 'V'));
+        } 
+        
+        else if (window.opAmpQuestionType === 'design') {
+            // Grade Design Mode (Ensure fallback to Ohms and Hz if user forgets units)
+            let rfInput = acceptSpaces(document.getElementById('opAmpRf').value);
+            if (rfInput !== "" && !rfInput.includes("Ω") && !rfInput.toLowerCase().includes("ohm")) rfInput += "Ω";
+            results.push(validateMatch(parseInput(rfInput), currentAnswers.rf, 'Ω')); // Validates against kΩ, MΩ etc automatically if validateMatch is robust
+
+            let bwInput = acceptSpaces(document.getElementById('opAmpBW').value);
+            if (bwInput !== "" && !bwInput.toLowerCase().includes("hz")) bwInput += "Hz";
+            results.push(validateMatch(parseInput(bwInput), currentAnswers.bw, 'Hz'));
+        }
+    }
+    
 
     // 5. Final Feedback and Scoring (BORDERS ONLY)
     activeInputs.forEach((id, index) => {
