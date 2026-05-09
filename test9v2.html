@@ -12245,13 +12245,16 @@ if (currentMode === 'opamp') {
         results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
     }
     // 👇 OP-AMP GRADING LOGIC 👇
-    else if (currentMode === 'opamp') {
-        
+    } else if (currentMode === 'opamp') {
+        let isOpAmpCorrect = false;
+        let customFeedback = "";
+        let stepByStepHtml = "";
+
+        // ---------------------------------------------
+        // MODE 0: HINGE WIRING
+        // ---------------------------------------------
         if (window.opAmpQuestionType === 'hinge') {
-            // Hinge is a special interactive mode! No text boxes to parse.
             const droppedId = document.getElementById('boxFormula').dataset.current || "";
-            let hingeCorrect = false;
-            let customFeedback = "";
 
             if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
                 customFeedback = "❌ Both inputs are connected to the signal! You shorted the inputs.";
@@ -12259,28 +12262,67 @@ if (currentMode === 'opamp') {
                 customFeedback = "❌ Both inputs are grounded! Vout will permanently be zero.";
             } else if (window.opAmpTargetConfig === "Inverting") {
                 if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
-                    if (droppedId === "inv") hingeCorrect = true;
-                    else customFeedback = "❌ Circuit is correct, but you selected the wrong formula!";
+                    if (droppedId === "inv") isOpAmpCorrect = true;
+                    else customFeedback = "❌ Wiring is correct, but the gain formula is wrong for this setup.";
                 } else customFeedback = "❌ Incorrect wiring. Where does the input signal go for an Inverting Amp?";
             } else { // Non-Inverting
                 if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
-                    if (droppedId === "non-inv") hingeCorrect = true;
-                    else customFeedback = "❌ Circuit is correct, but you selected the wrong formula!";
+                    if (droppedId === "non-inv") isOpAmpCorrect = true;
+                    else customFeedback = "❌ Wiring is correct, but the gain formula is wrong for this setup.";
                 } else customFeedback = "❌ Incorrect wiring. Where does the input signal go for a Non-Inverting Amp?";
             }
+        }
+        // ---------------------------------------------
+        // MODE 1: CALCULATE GAIN
+        // ---------------------------------------------
+        else if (window.opAmpQuestionType === 'calcGain') {
+            const userGainInput = document.getElementById('opAmpGain').value;
+            const userGain = parseFloat(userGainInput);
+            let actualGain = 0;
 
-            if (hingeCorrect) {
-                results.push('correct');
-            } else {
-                results.push('wrongval');
-                feedback.innerHTML = `<span style='color: #dc3545;'>${customFeedback}</span>`;
-                // We return early here so it doesn't overwrite our custom error message with the standard "Incorrect" text at the bottom of the function
-                const solDiv = document.getElementById('solutions');
-                if (solDiv) solDiv.style.display = 'block';
-                if (typeof viewedSolution !== 'undefined') viewedSolution = true;
-                return; 
+            if (window.opAmpTargetConfig === "Inverting") {
+                actualGain = -(window.opAmpRf / window.opAmpRin);
+                stepByStepHtml = `<b>Step 1:</b> Identify the circuit as an Inverting Amplifier.<br>
+                                  <b>Step 2:</b> Use the formula: G = -(R<sub>F</sub> / R<sub>IN</sub>)<br>
+                                  <b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${actualGain}</b>`;
+            } else { // Non-Inverting
+                actualGain = 1 + (window.opAmpRf / window.opAmpR1);
+                stepByStepHtml = `<b>Step 1:</b> Identify the circuit as a Non-Inverting Amplifier.<br>
+                                  <b>Step 2:</b> Use the formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>
+                                  <b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${actualGain}</b>`;
             }
-        } 
+
+            if (userGainInput !== "" && userGain === actualGain) {
+                isOpAmpCorrect = true;
+            } else {
+                customFeedback = "❌ Incorrect Gain. Check your formula and math!";
+            }
+        }
+
+        // ---------------------------------------------
+        // MASTER ARRAY UPDATER
+        // ---------------------------------------------
+        if (isOpAmpCorrect) {
+            results.push('correct');
+        } else {
+            results.push('wrongval');
+            const feedbackEl = document.getElementById('feedback');
+            if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
+            
+            // Inject Sol Text and show the div
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) {
+                solDiv.style.display = 'block';
+                if (stepByStepHtml !== "") {
+                    solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
+                }
+            }
+            if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+            
+            // We return early here so the master function doesn't overwrite our custom error messages!
+            return; 
+        }
+    }
         
         else if (window.opAmpQuestionType === 'calcGain') {
             // Grade Math Mode
