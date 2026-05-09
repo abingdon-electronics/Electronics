@@ -12227,33 +12227,15 @@ if (currentMode === 'opamp') {
     }
 
     // 👇 GRADE 9 MOSFET GRADING LOGIC 👇
-    else if (currentMode === 'grade9mosfet') {
-        // Grade VGS with Volts fallback
-        let vgsInput = document.getElementById('g9MosfetVGS').value;
-        let cleanVGS = acceptSpaces(vgsInput);
-        if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) {
-            cleanVGS += "V"; 
-        }
-        results.push(validateMatch(parseInput(cleanVGS), currentAnswers.vgs, 'V'));
-
-        // Grade Resistor with Ohms fallback (Answer targets kΩ)
-        let r2Input = document.getElementById('g9MosfetR2').value;
-        let cleanR2 = acceptSpaces(r2Input);
-        if (cleanR2 !== "" && !cleanR2.includes("Ω") && !cleanR2.toLowerCase().includes("ohm")) {
-            cleanR2 += "Ω";
-        }
-        results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
-    }
-    // 👇 OP-AMP GRADING LOGIC 👇
-    } else if (currentMode === 'opamp') {
-        let isOpAmpCorrect = false;
-        let customFeedback = "";
-        let stepByStepHtml = "";
-
+// 👇 OP-AMP GRADING LOGIC 👇
+    else if (currentMode === 'opamp') {
+        
         // ---------------------------------------------
-        // MODE 0: HINGE WIRING
+        // MODE 0: HINGE WIRING (Interactive)
         // ---------------------------------------------
         if (window.opAmpQuestionType === 'hinge') {
+            let isOpAmpCorrect = false;
+            let customFeedback = "";
             const droppedId = document.getElementById('boxFormula').dataset.current || "";
 
             if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
@@ -12271,71 +12253,64 @@ if (currentMode === 'opamp') {
                     else customFeedback = "❌ Wiring is correct, but the gain formula is wrong for this setup.";
                 } else customFeedback = "❌ Incorrect wiring. Where does the input signal go for a Non-Inverting Amp?";
             }
+
+            if (isOpAmpCorrect) {
+                results.push('correct');
+            } else {
+                results.push('wrongval');
+                const feedbackEl = document.getElementById('feedback');
+                if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
+                if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+                
+                // We return early here ONLY for Hinge mode so it doesn't overwrite custom error messages!
+                return; 
+            }
         }
+        
         // ---------------------------------------------
-        // MODE 1: CALCULATE GAIN
+        // MODE 1: CALCULATE GAIN & VOUT (Text Inputs)
         // ---------------------------------------------
         else if (window.opAmpQuestionType === 'calcGain') {
-            const userGainInput = document.getElementById('opAmpGain').value;
-            const userGain = parseFloat(userGainInput);
-            let actualGain = 0;
+            // Grade Gain
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('opAmpGain').value)), currentAnswers.gain, 'none')); 
+            
+            // Grade Vout (with Volts fallback)
+            let voutInput = document.getElementById('opAmpVout').value;
+            let cleanVout = acceptSpaces(voutInput);
+            if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) {
+                cleanVout += "V"; 
+            }
+            results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
 
+            // Build the Step-by-Step logic for the Solutions box
+            let stepByStepHtml = "";
             if (window.opAmpTargetConfig === "Inverting") {
-                actualGain = -(window.opAmpRf / window.opAmpRin);
                 stepByStepHtml = `<b>Step 1:</b> Identify the circuit as an Inverting Amplifier.<br>
                                   <b>Step 2:</b> Use the formula: G = -(R<sub>F</sub> / R<sub>IN</sub>)<br>
-                                  <b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${actualGain}</b>`;
+                                  <b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>`;
             } else { // Non-Inverting
-                actualGain = 1 + (window.opAmpRf / window.opAmpR1);
                 stepByStepHtml = `<b>Step 1:</b> Identify the circuit as a Non-Inverting Amplifier.<br>
                                   <b>Step 2:</b> Use the formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>
-                                  <b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${actualGain}</b>`;
+                                  <b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
             }
-
-            if (userGainInput !== "" && userGain === actualGain) {
-                isOpAmpCorrect = true;
-            } else {
-                customFeedback = "❌ Incorrect Gain. Check your formula and math!";
-            }
-        }
-
-        // ---------------------------------------------
-        // MASTER ARRAY UPDATER
-        // ---------------------------------------------
-        if (isOpAmpCorrect) {
-            results.push('correct');
-        } else {
-            results.push('wrongval');
-            const feedbackEl = document.getElementById('feedback');
-            if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
             
-            // Inject Sol Text and show the div
+            // Inject it into the solution div (your master function will handle making it visible if they get it wrong)
             const solDiv = document.getElementById('solutions');
             if (solDiv) {
-                solDiv.style.display = 'block';
-                if (stepByStepHtml !== "") {
-                    solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
-                }
+                solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
             }
-            if (typeof viewedSolution !== 'undefined') viewedSolution = true;
-            
-            // We return early here so the master function doesn't overwrite our custom error messages!
-            return; 
-        }
-    }
-        
-        else if (window.opAmpQuestionType === 'calcGain') {
-            // Grade Math Mode
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('opAmpGain').value)), currentAnswers.gain, 'none')); // Gain has no units
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('opAmpVout').value)), currentAnswers.vout, 'V'));
         } 
         
+        // ---------------------------------------------
+        // MODE 2: DESIGN (Text Inputs)
+        // ---------------------------------------------
         else if (window.opAmpQuestionType === 'design') {
-            // Grade Design Mode (Ensure fallback to Ohms and Hz if user forgets units)
+            // Grade Rf (with Ohms fallback)
             let rfInput = acceptSpaces(document.getElementById('opAmpRf').value);
             if (rfInput !== "" && !rfInput.includes("Ω") && !rfInput.toLowerCase().includes("ohm")) rfInput += "Ω";
-            results.push(validateMatch(parseInput(rfInput), currentAnswers.rf, 'Ω')); // Validates against kΩ, MΩ etc automatically if validateMatch is robust
+            results.push(validateMatch(parseInput(rfInput), currentAnswers.rf, 'Ω')); 
 
+            // Grade BW (with Hz fallback)
             let bwInput = acceptSpaces(document.getElementById('opAmpBW').value);
             if (bwInput !== "" && !bwInput.toLowerCase().includes("hz")) bwInput += "Hz";
             results.push(validateMatch(parseInput(bwInput), currentAnswers.bw, 'Hz'));
