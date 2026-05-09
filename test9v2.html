@@ -10218,10 +10218,7 @@ function generateOpAmpProblem(ctx, canvas) {
 // ==========================================   
 //Op Amp Hinge mode function
 function setupHingeProblem(ctx, canvas) {
-    if (typeof hideAllInputGroups === "function") hideAllInputGroups();
-    const wrapper = document.getElementById('inputGroupOpAmp');
-    if (wrapper) wrapper.style.display = 'flex'; 
-
+    
     let oldOverlay = document.getElementById('opAmpCanvasOverlay');
     if (oldOverlay) oldOverlay.remove();
 
@@ -10333,18 +10330,21 @@ function setupForwardMathProblem(ctx, canvas) {
     const rf = rin * (Math.floor(Math.random() * 10) + 2); // Ensures integer gain
     window.opAmpValues = { rf, rin };
 
-    // 3. Setup UI
-    document.getElementById('opAmpMathInputs').style.display = 'flex';
-    document.getElementById('opAmpGain').parentElement.style.display = 'flex'; // Show Gain
-    document.getElementById('opAmpRf').parentElement.style.display = 'none';   // Hide Rf input
-    document.getElementById('opAmpVout').parentElement.style.display = 'none';
-    document.getElementById('opAmpBW').parentElement.style.display = 'none';
+    // 3. Setup UI cleanly
+    const mathGroup = document.getElementById('opAmpMathInputs');
+    if (mathGroup) mathGroup.style.display = 'flex';
+
+    // Safely target the wrappers using .closest('div')
+    document.getElementById('opAmpGain').closest('div').style.display = 'flex'; // Show Gain
+    document.getElementById('opAmpRf').closest('div').style.display = 'none';   // Hide Rf input
+    document.getElementById('opAmpVout').closest('div').style.display = 'none'; // Hide Vout
+    document.getElementById('opAmpBW').closest('div').style.display = 'none';  // Hide BW
 
     const qText = document.getElementById('questionText');
     qText.innerHTML = `<h3 style="color:#d65093;">Calculate Voltage Gain</h3>
                        <p>Using <b>Rf = ${rf}kΩ</b> and <b>R1 = ${rin}kΩ</b>, calculate the Gain (G).</p>`;
 
-    drawOpAmpCircuit(ctx, canvas); // You'll need to update your draw function to show text labels for Rf/Rin
+    drawOpAmpCircuit(ctx, canvas);
 }
 
 // ==========================================
@@ -10365,20 +10365,29 @@ function setupDesignResistorProblem(ctx, canvas) {
         window.topWireState = 'vertical'; window.bottomWireState = 'horizontal';
     }
 
-    // Setup UI
-    document.getElementById('opAmpMathInputs').style.display = 'flex';
-    document.getElementById('opAmpRf').parentElement.style.display = 'flex';   // Show Rf input
-    document.getElementById('opAmpGain').parentElement.style.display = 'none'; // Hide Gain input (it's in the prompt)
-    
-    // We need to add an Rin/R1 input to your HTML if we want them to suggest both!
+    // Setup UI cleanly
+    const mathGroup = document.getElementById('opAmpMathInputs');
+    if (mathGroup) mathGroup.style.display = 'flex';
+
+    // Show Rf and repurpose BW as Rin
+    document.getElementById('opAmpRf').closest('div').style.display = 'flex';   
+    document.getElementById('opAmpBW').closest('div').style.display = 'flex';   
+    document.getElementById('opAmpGain').closest('div').style.display = 'none'; 
+    document.getElementById('opAmpVout').closest('div').style.display = 'none'; 
+
+    // Repurpose the BW label and unit to act as R1/Rin
+    const bwLabel = document.querySelector('label[for="opAmpBW"]');
+    if (bwLabel) bwLabel.innerHTML = "R<sub>in</sub> =";
+    const bwInput = document.getElementById('opAmpBW');
+    if (bwInput && bwInput.nextElementSibling) bwInput.nextElementSibling.innerHTML = "k&Omega;";
+
     const qText = document.getElementById('questionText');
     qText.innerHTML = `<h3 style="color:#d65093;">Design Challenge</h3>
                        <p>Suggest suitable values for <b>Rf</b> and <b>R1</b> to achieve a Gain of <b>${targetG}</b>.</p>
                        <p style="font-size:12px; color:#666;">Note: Resistors must be ≥ 1kΩ.</p>`;
 
     drawOpAmpCircuit(ctx, canvas);
-}
-      
+}   
 //***********************************************************************************************************
     
 function setupOpAmpCanvasClick(ctx, canvas) {
