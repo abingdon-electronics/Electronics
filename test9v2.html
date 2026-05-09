@@ -10209,6 +10209,9 @@ function generateOpAmpProblem(ctx, canvas) {
     currentMode = 'opamp'; 
     hasCheckedCurrentProblem = false; 
 
+    // 👇 ADD THIS LINE to safely initialize the tracker 👇
+    window.opAmpScenarioTracker = window.opAmpScenarioTracker || { mode: 0 };
+    
     // 1. Cycle through 3 modes: 0 (Hinge), 1 (Forward Math), 2 (Design/Resistors)
     const qType = window.opAmpScenarioTracker.mode;
     window.opAmpScenarioTracker.mode = (window.opAmpScenarioTracker.mode + 1) % 3; 
