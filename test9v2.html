@@ -10065,7 +10065,14 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.font = "bold 22px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(window.opAmpTargetConfig + " Op-Amp", cx, 40);
+    
+    // DYNAMIC TITLE: Hide the amp type if we are in Math or Design mode!
+    let canvasTitle = window.opAmpTargetConfig + " Op-Amp";
+    if (window.opAmpInteractive === false) {
+        if (window.opAmpQuestionType === 'calcGain') canvasTitle = "Voltage Gain";
+        if (window.opAmpQuestionType === 'design') canvasTitle = "Design Challenge";
+    }
+    ctx.fillText(canvasTitle, cx, 40);
     
     // Reset baseline so subsequent text doesn't drift
     ctx.textBaseline = "alphabetic"; 
@@ -10096,9 +10103,9 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
     if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
 
-    // NEW: Draw Rf value if in Math mode
+    // Draw Rf value (Now in Black)
     if (window.opAmpInteractive === false && window.opAmpQuestionType === 'calcGain' && window.opAmpValues) {
-        ctx.fillStyle = "#3498db";
+        ctx.fillStyle = "black";
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "center";
         ctx.fillText(window.opAmpValues.rf + " kΩ", cx, cy - 115);
@@ -10120,7 +10127,11 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.moveTo(cx - 30, cy + 20);
     ctx.lineTo(cx - 60, cy + 20);
     ctx.stroke();
-    if (typeof drawNode === "function") drawNode(ctx, cx - 60, cy + 20);
+    
+    // ONLY draw the non-inverting node if it's the interactive Hinge mode
+    if (window.opAmpInteractive !== false) {
+        if (typeof drawNode === "function") drawNode(ctx, cx - 60, cy + 20);
+    }
     
     // --- 2. TOGGLEABLE TOP WIRE ---
     ctx.beginPath();
@@ -10134,9 +10145,9 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.strokeRect(cx - 190, cy - 35, 60, 30);
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black");
         
-        // NEW: Draw Rin value for Inverting configuration
+        // Draw Rin value (Now in Black)
         if (window.opAmpInteractive === false && window.opAmpQuestionType === 'calcGain' && window.opAmpValues) {
-            ctx.fillStyle = "#3498db";
+            ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
             ctx.fillText(window.opAmpValues.rin + " kΩ", cx - 160, cy - 45);
@@ -10156,9 +10167,9 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.strokeRect(cx - 115, cy + 50, 30, 50);
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black");
 
-        // NEW: Draw R1 (Rin) value for Non-Inverting configuration
+        // Draw R1 value (Now in Black)
         if (window.opAmpInteractive === false && window.opAmpQuestionType === 'calcGain' && window.opAmpValues) {
-            ctx.fillStyle = "#3498db";
+            ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
             ctx.fillText(window.opAmpValues.rin + " kΩ", cx - 145, cy + 80);
@@ -10204,7 +10215,6 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.fillText("Click to Toggle", cx - 100, cy - 45); 
     }
 }
-
 function generateOpAmpProblem(ctx, canvas) {
     currentMode = 'opamp'; 
     hasCheckedCurrentProblem = false; 
@@ -10402,10 +10412,9 @@ function setupDesignResistorProblem(ctx, canvas) {
 
     const qText = document.getElementById('questionText');
     if (qText) {
-        qText.style.display = 'block'; // FIX: Force text to show
+        qText.style.display = 'block'; 
         qText.innerHTML = `<h3 style="color:#d65093;">Design Challenge</h3>
-                           <p>Suggest suitable values for <b>Rf</b> and <b>R1</b> to achieve a Gain of <b>${targetG}</b>.</p>
-                           <p style="font-size:12px; color:#666;">Note: Resistors must be ≥ 1kΩ.</p>`;
+                           <p>Suggest suitable values for <b>Rf</b> and <b>R1</b> to achieve a Gain of <b>${targetG}</b>.</p>`;
     }
 
     drawOpAmpCircuit(ctx, canvas);
