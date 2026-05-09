@@ -10413,54 +10413,65 @@ function setupDesignResistorProblem(ctx, canvas) {
     const mathGroup = document.getElementById('opAmpMathInputs');
     if (mathGroup) {
         mathGroup.style.display = 'flex';
-        // Force the stack and prevent the panel from stretching
         mathGroup.style.flexDirection = 'column'; 
         mathGroup.style.gap = '15px';
         mathGroup.style.alignItems = 'center';
         mathGroup.style.width = '100%'; 
     }
 
-    // Get the wrappers for our inputs
+    // Get the individual wrappers for our inputs
     const rfWrapper = document.getElementById('opAmpRf').closest('div');
     const bwWrapper = document.getElementById('opAmpBW').closest('div');
+
+    // THE FIX FOR VERTICAL STACKING: Grab the inner row holding Rf and BW and force it to column!
+    const innerRow = rfWrapper.parentElement; 
+    if (innerRow) {
+        innerRow.style.flexDirection = 'column';
+        innerRow.style.gap = '15px'; // Add some breathing room between the stacked boxes
+    }
 
     rfWrapper.style.display = 'flex';   
     bwWrapper.style.display = 'flex';   
     document.getElementById('opAmpGain').closest('div').style.display = 'none'; 
     document.getElementById('opAmpVout').closest('div').style.display = 'none'; 
 
+    // THE FIX FOR SUBSCRIPTS: Save the specific inline style you used in your HTML
+    const subStyle = 'style="font-size: 0.7em; vertical-align: baseline; position: relative; top: 0.3em;"';
+
     // 1. Update Rf label, placeholder, and set unit to Ω
     const rfLabel = document.querySelector('label[for="opAmpRf"]');
-    if (rfLabel) rfLabel.innerHTML = "R<sub>f</sub> =";
+    if (rfLabel) rfLabel.innerHTML = `R<sub ${subStyle}>f</sub> =`;
     
     const rfInput = document.getElementById('opAmpRf');
     if (rfInput) {
-        rfInput.placeholder = "e.g. 3k"; // Added Placeholder
-        if (rfInput.nextElementSibling) rfInput.nextElementSibling.innerHTML = "&Omega;"; // Changed to Ω
+        rfInput.placeholder = "e.g. 3k"; 
+        if (rfInput.nextElementSibling) rfInput.nextElementSibling.innerHTML = "&Omega;"; 
     }
 
     // 2. Update dynamic Rin/R1 label, placeholder, and set unit to Ω
     const bwLabel = document.querySelector('label[for="opAmpBW"]');
     if (bwLabel) {
         if (targetConfig === 'Inverting') {
-            bwLabel.innerHTML = "R<sub>in</sub> =";
+            bwLabel.innerHTML = `R<sub ${subStyle}>in</sub> =`;
         } else {
-            bwLabel.innerHTML = "R<sub>1</sub> =";
+            bwLabel.innerHTML = `R<sub ${subStyle}>1</sub> =`;
         }
     }
 
     const bwInput = document.getElementById('opAmpBW');
     if (bwInput) {
-        bwInput.placeholder = "e.g. 2k"; // Added Placeholder
-        if (bwInput.nextElementSibling) bwInput.nextElementSibling.innerHTML = "&Omega;"; // Changed to Ω
+        bwInput.placeholder = "e.g. 2k"; 
+        if (bwInput.nextElementSibling) bwInput.nextElementSibling.innerHTML = "&Omega;"; 
     }
 
-    // FIX: Restored the missing backtick ` at the end of the HTML string!
+    // 3. THE FIX FOR "GROUND RESISTOR": Dynamic text variable
+    const resistorText = (targetConfig === 'Inverting') ? "input resistor" : "ground resistor";
+
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.style.display = 'block'; 
         qText.innerHTML = `<h3 style="color:#d65093;">Design Challenge</h3>
-                           <p>Suggest suitable values for the feedback resistor (<b>R<sub>f</sub></b>) and the input resistor to achieve a Voltage Gain of <b>${targetG}</b>.</p>`;
+                           <p>Suggest suitable values for the feedback resistor (<b>R<sub ${subStyle}>f</sub></b>) and the ${resistorText} to achieve a Voltage Gain of <b>${targetG}</b>.</p>`;
     }
 
     drawOpAmpCircuit(ctx, canvas);
