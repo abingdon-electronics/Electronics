@@ -12245,7 +12245,7 @@ if (currentMode === 'opamp') {
 
     // 👇 GRADE 9 MOSFET GRADING LOGIC 👇
 // 👇 OP-AMP GRADING LOGIC 👇
-    else if (currentMode === 'opamp') {
+else if (currentMode === 'opamp') {
         
         // ---------------------------------------------
         // MODE 0: HINGE WIRING (Interactive)
@@ -12297,7 +12297,10 @@ if (currentMode === 'opamp') {
             if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) {
                 cleanVout += "V"; 
             }
-            results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
+            // Protect against undefined if Vout isn't being used in a specific problem
+            if (currentAnswers.vout) {
+                results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
+            }
 
             // Build the Step-by-Step logic for the Solutions box
             let stepByStepHtml = "";
@@ -12319,18 +12322,70 @@ if (currentMode === 'opamp') {
         } 
         
         // ---------------------------------------------
-        // MODE 2: DESIGN (Text Inputs)
+        // MODE 2: DESIGN (Resistor Ratios)
         // ---------------------------------------------
         else if (window.opAmpQuestionType === 'design') {
-            // Grade Rf (with Ohms fallback)
-            let rfInput = acceptSpaces(document.getElementById('opAmpRf').value);
-            if (rfInput !== "" && !rfInput.includes("Ω") && !rfInput.toLowerCase().includes("ohm")) rfInput += "Ω";
-            results.push(validateMatch(parseInput(rfInput), currentAnswers.rf, 'Ω')); 
+            // 1. Get raw inputs and apply Ohms fallback
+            let rfInput = document.getElementById('opAmpRf').value;
+            let cleanRf = acceptSpaces(rfInput);
+            if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
 
-            // Grade BW (with Hz fallback)
-            let bwInput = acceptSpaces(document.getElementById('opAmpBW').value);
-            if (bwInput !== "" && !bwInput.toLowerCase().includes("hz")) bwInput += "Hz";
-            results.push(validateMatch(parseInput(bwInput), currentAnswers.bw, 'Hz'));
+            // (Note: Using the BW box ID since your generator re-used it for Rin/R1)
+            let rinInput = document.getElementById('opAmpBW').value; 
+            let cleanRin = acceptSpaces(rinInput);
+            if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
+
+            // 2. Parse inputs to numbers so we can divide them
+            let numRf = Number(parseInput(cleanRf));
+            let numRin = Number(parseInput(cleanRin));
+
+            let isCorrectRatio = false;
+            let expectedRatio = 0;
+
+            // 3. Check if the ratio is correct based on the config
+            if (numRf > 0 && numRin > 0) { // Protects against empty/zero inputs
+                if (window.opAmpTargetConfig === "Inverting") {
+                    expectedRatio = Math.abs(window.targetGain); // |G| = Rf / Rin
+                    if (Math.abs((numRf / numRin) - expectedRatio) < 0.01) isCorrectRatio = true;
+                } else { // Non-Inverting
+                    expectedRatio = window.targetGain - 1; // G - 1 = Rf / R1
+                    if (Math.abs((numRf / numRin) - expectedRatio) < 0.01) isCorrectRatio = true;
+                }
+            }
+
+            // 4. Set the master answer key to exactly what they typed if they are right!
+            window.currentAnswers = window.currentAnswers || {};
+            if (isCorrectRatio) {
+                window.currentAnswers.rf = [parseInput(cleanRf)];
+                window.currentAnswers.bw = [parseInput(cleanRin)];
+            } else {
+                window.currentAnswers.rf = ["ratio_error"];
+                window.currentAnswers.bw = ["ratio_error"];
+            }
+
+            // 5. Push to results so validateMatch handles the UI borders
+            results.push(validateMatch(parseInput(cleanRf), currentAnswers.rf, 'Ω')); 
+            results.push(validateMatch(parseInput(cleanRin), currentAnswers.bw, 'Ω'));
+
+            // 6. Build the Step-by-Step for the Solutions box
+            let exampleRin = 2; // kΩ
+            let exampleRf = expectedRatio * exampleRin; 
+            
+            let stepByStepHtml = "";
+            if (window.opAmpTargetConfig === "Inverting") {
+                stepByStepHtml = `<b>Step 1:</b> Inverting Gain Formula: |G| = R<sub>F</sub> / R<sub>IN</sub><br>
+                                  <b>Step 2:</b> We need a ratio of <b>${expectedRatio}</b> to achieve a gain of ${Math.abs(window.targetGain)}.<br>
+                                  <b>Step 3:</b> Any resistor pair with this ratio works! (e.g., R<sub>IN</sub> = ${exampleRin}kΩ, R<sub>F</sub> = ${exampleRf}kΩ)`;
+            } else {
+                stepByStepHtml = `<b>Step 1:</b> Non-Inverting Gain Formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>
+                                  <b>Step 2:</b> Subtract 1 from the target gain (${window.targetGain} - 1 = ${expectedRatio}). We need an R<sub>F</sub> / R<sub>1</sub> ratio of <b>${expectedRatio}</b>.<br>
+                                  <b>Step 3:</b> Any resistor pair with this ratio works! (e.g., R<sub>1</sub> = ${exampleRin}kΩ, R<sub>F</sub> = ${exampleRf}kΩ)`;
+            }
+
+            const solDiv = document.getElementById('solutions');
+            if (solDiv) {
+                solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
+            }
         }
     }
     
