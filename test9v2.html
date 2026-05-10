@@ -10529,11 +10529,13 @@ function setupOpAmpCanvasClick(ctx, canvas) {
     
     canvas.addEventListener('click', window.opAmpClickHandler);
     
-    const checkBtn = document.getElementById('btnCheckOpAmp');
-    if (checkBtn) {
-        const newBtn = checkBtn.cloneNode(true);
-        checkBtn.parentNode.replaceChild(newBtn, checkBtn);
-        newBtn.addEventListener('click', checkOpAmpAnswer);
+    const checkBtn = document.getElementById('btnCheckOpAmp'); // (Or whatever your button ID is)
+        if (checkBtn) {
+            const newBtn = checkBtn.cloneNode(true);
+            checkBtn.parentNode.replaceChild(newBtn, checkBtn);
+            
+            // 👇 FIX: Change 'checkOpAmpAnswer' to your master 'checkAnswer' 👇
+            newBtn.addEventListener('click', checkAnswer); 
     }
 }
 //END OF CONTENT FUNCTIONS
