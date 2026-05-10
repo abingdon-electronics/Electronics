@@ -11966,14 +11966,14 @@ if (currentMode === 'opamp') {
         if (window.opAmpQuestionType === 'calcGain') {
             activeInputs = ['opAmpGain']; // Always require Gain
             
-            // Only require Vout if the current problem actually has a Vout answer key!
-            if (window.currentAnswers && window.currentAnswers.vout) {
+            // Only require Vout if the current problem actually has a Vout answer key
+            if (window.currentAnswers && typeof window.currentAnswers.vout !== 'undefined') {
                 activeInputs.push('opAmpVout');
             }
         } else if (window.opAmpQuestionType === 'design') {
-            activeInputs = ['opAmpRf', 'opAmpBW']; // Standard text inputs
+            activeInputs = ['opAmpRf', 'opAmpBW']; 
         } else if (window.opAmpQuestionType === 'hinge') {
-            activeInputs = []; // Hinge uses drag-and-drop and wires, no standard text boxes!
+            activeInputs = []; 
         }
     }
     
@@ -12252,7 +12252,7 @@ if (currentMode === 'opamp') {
 
     // 👇 GRADE 9 MOSFET GRADING LOGIC 👇
 // 👇 OP-AMP GRADING LOGIC 👇
-else if (currentMode === 'opamp') {
+    else if (currentMode === 'opamp') {
         
         // ---------------------------------------------
         // MODE 0: HINGE WIRING (Interactive)
@@ -12260,7 +12260,7 @@ else if (currentMode === 'opamp') {
         if (window.opAmpQuestionType === 'hinge') {
             let isOpAmpCorrect = false;
             let customFeedback = "";
-            const droppedId = document.getElementById('boxFormula').dataset.current || "";
+            const droppedId = document.getElementById('boxFormula')?.dataset.current || "";
 
             if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
                 customFeedback = "❌ Both inputs are connected to the signal! You shorted the inputs.";
@@ -12286,8 +12286,7 @@ else if (currentMode === 'opamp') {
                 if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
                 if (typeof viewedSolution !== 'undefined') viewedSolution = true;
                 
-                // We return early here ONLY for Hinge mode so it doesn't overwrite custom error messages!
-                return; 
+                return; // Return early so we don't overwrite custom error messages
             }
         }
         
@@ -12295,21 +12294,26 @@ else if (currentMode === 'opamp') {
         // MODE 1: CALCULATE GAIN & VOUT (Text Inputs)
         // ---------------------------------------------
         else if (window.opAmpQuestionType === 'calcGain') {
-            // Grade Gain
-            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('opAmpGain').value)), currentAnswers.gain, 'none')); 
             
-            // Grade Vout (with Volts fallback)
-            let voutInput = document.getElementById('opAmpVout').value;
-            let cleanVout = acceptSpaces(voutInput);
-            if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) {
-                cleanVout += "V"; 
+            // 1. Grade Gain Safely
+            const gainEl = document.getElementById('opAmpGain');
+            if (gainEl) {
+                results.push(validateMatch(parseInput(acceptSpaces(gainEl.value)), currentAnswers.gain, 'none')); 
             }
-            // Protect against undefined if Vout isn't being used in a specific problem
-            if (currentAnswers.vout) {
-                results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
+            
+            // 2. Grade Vout Safely (No more crashing if the box doesn't exist!)
+            if (window.currentAnswers && typeof window.currentAnswers.vout !== 'undefined') {
+                const voutEl = document.getElementById('opAmpVout');
+                if (voutEl) {
+                    let cleanVout = acceptSpaces(voutEl.value);
+                    if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) {
+                        cleanVout += "V"; 
+                    }
+                    results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
+                }
             }
 
-            // Build the Step-by-Step logic for the Solutions box
+            // 3. Build the Step-by-Step logic
             let stepByStepHtml = "";
             if (window.opAmpTargetConfig === "Inverting") {
                 stepByStepHtml = `<b>Step 1:</b> Identify the circuit as an Inverting Amplifier.<br>
@@ -12321,46 +12325,38 @@ else if (currentMode === 'opamp') {
                                   <b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
             }
             
-            // Inject it into the solution div (your master function will handle making it visible if they get it wrong)
             const solDiv = document.getElementById('solutions');
-            if (solDiv) {
-                solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
-            }
+            if (solDiv) solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
         } 
         
         // ---------------------------------------------
         // MODE 2: DESIGN (Resistor Ratios)
         // ---------------------------------------------
         else if (window.opAmpQuestionType === 'design') {
-            // 1. Get raw inputs and apply Ohms fallback
-            let rfInput = document.getElementById('opAmpRf').value;
+            let rfInput = document.getElementById('opAmpRf') ? document.getElementById('opAmpRf').value : "";
             let cleanRf = acceptSpaces(rfInput);
             if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
 
-            // (Note: Using the BW box ID since your generator re-used it for Rin/R1)
-            let rinInput = document.getElementById('opAmpBW').value; 
+            let rinInput = document.getElementById('opAmpBW') ? document.getElementById('opAmpBW').value : ""; 
             let cleanRin = acceptSpaces(rinInput);
             if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
 
-            // 2. Parse inputs to numbers so we can divide them
             let numRf = Number(parseInput(cleanRf));
             let numRin = Number(parseInput(cleanRin));
 
             let isCorrectRatio = false;
             let expectedRatio = 0;
 
-            // 3. Check if the ratio is correct based on the config
-            if (numRf > 0 && numRin > 0) { // Protects against empty/zero inputs
+            if (numRf > 0 && numRin > 0) { 
                 if (window.opAmpTargetConfig === "Inverting") {
-                    expectedRatio = Math.abs(window.targetGain); // |G| = Rf / Rin
+                    expectedRatio = Math.abs(window.targetGain); 
                     if (Math.abs((numRf / numRin) - expectedRatio) < 0.01) isCorrectRatio = true;
-                } else { // Non-Inverting
-                    expectedRatio = window.targetGain - 1; // G - 1 = Rf / R1
+                } else { 
+                    expectedRatio = window.targetGain - 1; 
                     if (Math.abs((numRf / numRin) - expectedRatio) < 0.01) isCorrectRatio = true;
                 }
             }
 
-            // 4. Set the master answer key to exactly what they typed if they are right!
             window.currentAnswers = window.currentAnswers || {};
             if (isCorrectRatio) {
                 window.currentAnswers.rf = [parseInput(cleanRf)];
@@ -12370,12 +12366,10 @@ else if (currentMode === 'opamp') {
                 window.currentAnswers.bw = ["ratio_error"];
             }
 
-            // 5. Push to results so validateMatch handles the UI borders
             results.push(validateMatch(parseInput(cleanRf), currentAnswers.rf, 'Ω')); 
             results.push(validateMatch(parseInput(cleanRin), currentAnswers.bw, 'Ω'));
 
-            // 6. Build the Step-by-Step for the Solutions box
-            let exampleRin = 2; // kΩ
+            let exampleRin = 2; 
             let exampleRf = expectedRatio * exampleRin; 
             
             let stepByStepHtml = "";
@@ -12390,9 +12384,7 @@ else if (currentMode === 'opamp') {
             }
 
             const solDiv = document.getElementById('solutions');
-            if (solDiv) {
-                solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
-            }
+            if (solDiv) solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
         }
     }
     
