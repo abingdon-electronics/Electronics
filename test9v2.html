@@ -12250,8 +12250,26 @@ if (currentMode === 'opamp') {
         }
     }
 
-    // 👇 GRADE 9 MOSFET GRADING LOGIC 👇
-// 👇 OP-AMP GRADING LOGIC 👇
+// 👇 GRADE 9 MOSFET GRADING LOGIC 👇
+    else if (currentMode === 'grade9mosfet') {
+        // Grade VGS with Volts fallback
+        let vgsInput = document.getElementById('g9MosfetVGS').value;
+        let cleanVGS = acceptSpaces(vgsInput);
+        if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) {
+            cleanVGS += "V"; 
+        }
+        results.push(validateMatch(parseInput(cleanVGS), currentAnswers.vgs, 'V'));
+
+        // Grade Resistor with Ohms fallback (Answer targets kΩ)
+        let r2Input = document.getElementById('g9MosfetR2').value;
+        let cleanR2 = acceptSpaces(r2Input);
+        if (cleanR2 !== "" && !cleanR2.includes("Ω") && !cleanR2.toLowerCase().includes("ohm")) {
+            cleanR2 += "Ω";
+        }
+        results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
+    }
+        
+    // 👇 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
         
         // ---------------------------------------------
