@@ -11961,13 +11961,13 @@ if (currentMode === 'opamp') {
         }
     }
     
-    // 👇 OP-AMP ACTIVE INPUTS 👇
+// 👇 OP-AMP ACTIVE INPUTS 👇
     else if (currentMode === 'opamp') {
         if (window.opAmpQuestionType === 'calcGain') {
             activeInputs = ['opAmpGain']; // Always require Gain
             
-            // Only require Vout if the current problem actually has a Vout answer key
-            if (window.currentAnswers && typeof window.currentAnswers.vout !== 'undefined') {
+            // THE FIX: Only require Vout if the box ACTUALLY EXISTS in the HTML!
+            if (document.getElementById('opAmpVout')) {
                 activeInputs.push('opAmpVout');
             }
         } else if (window.opAmpQuestionType === 'design') {
