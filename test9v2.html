@@ -10225,12 +10225,33 @@ function generateOpAmpProblem(ctx, canvas) {
     currentMode = 'opamp'; 
     hasCheckedCurrentProblem = false; 
 
-    // 👇 ADD THIS LINE to safely initialize the tracker 👇
+    // 👇 Safely initialize the tracker 👇
     window.opAmpScenarioTracker = window.opAmpScenarioTracker || { mode: 0 };
     
     // 1. Cycle through 3 modes: 0 (Hinge), 1 (Forward Math), 2 (Design/Resistors)
     const qType = window.opAmpScenarioTracker.mode;
     window.opAmpScenarioTracker.mode = (window.opAmpScenarioTracker.mode + 1) % 3; 
+
+    // 👇 THE FIX: Completely scrub the UI of old errors, solutions, text, and borders! 👇
+    const feedbackEl = document.getElementById('feedback');
+    if (feedbackEl) feedbackEl.innerHTML = ""; // Erase ghost text!
+
+    const solDiv = document.getElementById('solutions');
+    if (solDiv) {
+        solDiv.innerHTML = ""; 
+        solDiv.style.display = 'none'; // Hide old solutions
+    }
+
+    // Wipe old text inputs and reset the red/green borders back to default
+    ['opAmpGain', 'opAmpVout', 'opAmpRf', 'opAmpBW'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = ""; 
+            el.style.setProperty('border-color', '#ced4da', 'important'); 
+            el.style.setProperty('border-width', '1px', 'important');
+            el.style.setProperty('box-shadow', 'none', 'important');
+        }
+    });
 
     // Reset UI visibility before starting a mode
     document.getElementById('opAmpMathInputs').style.display = 'none';
