@@ -11962,20 +11962,22 @@ if (currentMode === 'opamp') {
     }
     
 // 👇 OP-AMP ACTIVE INPUTS 👇
-    else if (currentMode === 'opamp') {
-        if (window.opAmpQuestionType === 'calcGain') {
-            activeInputs = ['opAmpGain']; // Always require Gain
-            
-            // THE FIX: Only require Vout if the box ACTUALLY EXISTS in the HTML!
-            if (document.getElementById('opAmpVout')) {
-                activeInputs.push('opAmpVout');
-            }
-        } else if (window.opAmpQuestionType === 'design') {
-            activeInputs = ['opAmpRf', 'opAmpBW']; 
-        } else if (window.opAmpQuestionType === 'hinge') {
-            activeInputs = []; 
+else if (currentMode === 'opamp') {
+    if (window.opAmpQuestionType === 'calcGain') {
+        activeInputs = ['opAmpGain']; // Always require Gain
+        
+        // THE FIX: Check if it exists AND is not hidden!
+        const voutEl = document.getElementById('opAmpVout');
+        if (voutEl && voutEl.closest('div').style.display !== 'none') {
+            activeInputs.push('opAmpVout');
         }
+        
+    } else if (window.opAmpQuestionType === 'design') {
+        activeInputs = ['opAmpRf', 'opAmpBW']; 
+    } else if (window.opAmpQuestionType === 'hinge') {
+        activeInputs = []; 
     }
+}
     
     // ------------------------------------------
     // 3. Check for empty boxes
