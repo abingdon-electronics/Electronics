@@ -12305,8 +12305,6 @@ else if (currentMode === 'opamp') {
                 const feedbackEl = document.getElementById('feedback');
                 if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
                 if (typeof viewedSolution !== 'undefined') viewedSolution = true;
-                
-                return; // Return early so we don't overwrite custom error messages
             }
         }
         
@@ -12460,7 +12458,39 @@ else if (currentMode === 'opamp') {
         canEarnPoints = false; 
         if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
 
-    } else {
+
+
+
+
+
+} else {
+        canEarnPoints = false; 
+        const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
+        
+        // 👇 ADD THIS IF STATEMENT: Only set generic feedback if it's NOT a Hinge question 👇
+        if (window.opAmpQuestionType !== 'hinge') {
+            if (results.includes('wrongunit')) {
+                unitErrorMade = true;
+                feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost). See solution.</span>";
+            } else if (correctCount > 0) {
+                feedback.innerHTML = `<span style='color: #dc3545;'>Partially correct (${correctCount}/${results.length}). (Mark lost). See solution.</span>`;
+            } else {
+                feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. (Mark lost). See solution below.</span>";
+            }
+        }
+
+        const solDiv = document.getElementById('solutions');
+        if (solDiv) solDiv.style.display = 'block';
+        if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+    }
+
+
+
+
+//commented out until testing done
+
+  /**  } else {
         canEarnPoints = false; 
         const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
         
@@ -12477,7 +12507,7 @@ else if (currentMode === 'opamp') {
         if (solDiv) solDiv.style.display = 'block';
         if (typeof viewedSolution !== 'undefined') viewedSolution = true;
         if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-    }
+    }*/
     
     const checkansBtn = document.getElementById('checkansBtn');
     if (checkansBtn) checkansBtn.style.display = 'none';
