@@ -10782,9 +10782,6 @@ function closeModal() {
 }
 
 //*****************************************************************************************
-// ==========================================================    
-// MASTER PROBLEM GENERATOR (The "Traffic Cop")
-// ========================================================== 
 // ==========================================================   
 // MASTER PROBLEM GENERATOR (The "Traffic Cop")
 // ========================================================== 
@@ -12289,6 +12286,8 @@ else if (currentMode === 'opamp') {
 
         // --- BRANCH A: CALCULATION MODE ---
         if (isCalcMode) {
+            window.opAmpQuestionType = 'calcGain'; // 🧹 CLEARS THE GHOST STATE
+
             // Grade Gain
             let gainRes = validateMatch(parseInput(acceptSpaces(gainInput.value)), currentAnswers.gain, 'none');
             results.push(gainRes);
@@ -12310,6 +12309,8 @@ else if (currentMode === 'opamp') {
         
         // --- BRANCH B: DESIGN MODE ---
         else if (isDesignMode) {
+            window.opAmpQuestionType = 'design'; // 🧹 CLEARS THE GHOST STATE
+
             let cleanRf = acceptSpaces(designInput.value);
             if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
             let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
@@ -12360,9 +12361,6 @@ else if (currentMode === 'opamp') {
             }
         }
     }
-    // Continue flow to next "else if" (e.g., logic gates, etc.)
-    
-
     // 5. Final Feedback and Scoring (BORDERS ONLY)
     activeInputs.forEach((id, index) => {
         const el = document.getElementById(id);
@@ -12414,12 +12412,7 @@ else if (currentMode === 'opamp') {
         canEarnPoints = false; 
         if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
 
-
-
-
-
-
-} else {
+    } else {
         canEarnPoints = false; 
         const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
         
@@ -12441,35 +12434,12 @@ else if (currentMode === 'opamp') {
         if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
     }
 
-
-
-
-//commented out until testing done
-
-  /**  } else {
-        canEarnPoints = false; 
-        const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
-        
-        if (results.includes('wrongunit')) {
-            unitErrorMade = true;
-            feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost). See solution.</span>";
-        } else if (correctCount > 0) {
-            feedback.innerHTML = `<span style='color: #dc3545;'>Partially correct (${correctCount}/${results.length}). (Mark lost). See solution.</span>`;
-        } else {
-            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. (Mark lost). See solution below.</span>";
-        }
-
-        const solDiv = document.getElementById('solutions');
-        if (solDiv) solDiv.style.display = 'block';
-        if (typeof viewedSolution !== 'undefined') viewedSolution = true;
-        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-    }*/
-    
     const checkansBtn = document.getElementById('checkansBtn');
     if (checkansBtn) checkansBtn.style.display = 'none';
     
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
+
 // **********************************************************************
 /**
  * Upgraded Hybrid Parser with Precision Tracking & Capacitance Support
