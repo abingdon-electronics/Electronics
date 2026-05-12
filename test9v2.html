@@ -10542,6 +10542,7 @@ function setupOpAmpCanvasClick(ctx, canvas) {
             newBtn.addEventListener('click', checkAnswer); 
     }
 }
+//End of Op AMP FUNCTIONS
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
 //**************************************************************************************************************************************
@@ -12273,8 +12274,8 @@ else if (currentMode === 'opamp') {
     }
         
 // 👇 OP-AMP GRADING LOGIC 👇
-    // =============================================
-    // OP-AMP INTEGRATED GRADER (Maintains Flow)
+// =============================================
+    // OP-AMP INTEGRATED GRADER
     // =============================================
     else if (currentMode === 'opamp') {
         
@@ -12330,7 +12331,6 @@ else if (currentMode === 'opamp') {
         }
 
         // --- BRANCH C: HINGE / WIRING MODE ---
-        // This ONLY runs if Branch A and Branch B are false
         else if (window.opAmpQuestionType === 'hinge') {
             let isWiringCorrect = false;
             let customFeedback = "";
@@ -12412,12 +12412,14 @@ else if (currentMode === 'opamp') {
         canEarnPoints = false; 
         if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
 
-    } else {
+   } else {
         canEarnPoints = false; 
         const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
         
-        // 👇 ADD THIS IF STATEMENT: Only set generic feedback if it's NOT a Hinge question 👇
-        if (window.opAmpQuestionType !== 'hinge') {
+        // 👇 THE ULTIMATE FIX: Only skip generic feedback if we are actively on an Op-Amp Hinge question 👇
+        let isCurrentlyHinge = (currentMode === 'opamp' && window.opAmpQuestionType === 'hinge');
+
+        if (!isCurrentlyHinge) {
             if (results.includes('wrongunit')) {
                 unitErrorMade = true;
                 feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost). See solution.</span>";
