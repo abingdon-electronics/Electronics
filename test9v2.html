@@ -12275,24 +12275,19 @@ else if (currentMode === 'opamp') {
         results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
     }
 
-// 👇 OP-AMP GRADING LOGIC 👇
+// 👇 THE FINAL OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
-        
-        // Clear previous feedback immediately to prevent ghost messages
         const feedbackEl = document.getElementById('feedback');
         const solDiv = document.getElementById('solutions');
-        if (feedbackEl) feedbackEl.innerHTML = "";
-        if (solDiv) solDiv.innerHTML = "";
+        
+        // 1. Identify what is physically on the screen
+        const gainBox = document.getElementById('opAmpGain');
+        const designBox = document.getElementById('opAmpRf');
 
-        // 1. PHYSICAL UI CHECK (Most reliable)
-        const gainInput = document.getElementById('opAmpGain');
-        const designInput = document.getElementById('opAmpRf');
-
-        // ---------------------------------------------
-        // MODE 1: CALCULATE GAIN & VOUT (Priority 1)
-        // ---------------------------------------------
-        if (gainInput) {
-            results.push(validateMatch(parseInput(acceptSpaces(gainInput.value)), currentAnswers.gain, 'none')); 
+        // --- PRIORITY 1: CALCULATION MODE ---
+        // If the 'Gain' input exists, ONLY run this.
+        if (gainBox) {
+            results.push(validateMatch(parseInput(acceptSpaces(gainBox.value)), currentAnswers.gain, 'none')); 
             
             const voutEl = document.getElementById('opAmpVout');
             if (voutEl && voutEl.closest('div').style.display !== 'none') {
@@ -12306,14 +12301,13 @@ else if (currentMode === 'opamp') {
                 `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
             
             if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepByStepHtml}</div>`;
-            return; // EXIT: Prevent Hinge logic from running
-        } 
-        
-        // ---------------------------------------------
-        // MODE 2: DESIGN (Priority 2)
-        // ---------------------------------------------
-        if (designInput) {
-            let cleanRf = acceptSpaces(designInput.value);
+            
+            return; // 🛑 IMPORTANT: Stop here so Hinge Logic never runs
+        }
+
+        // --- PRIORITY 2: DESIGN MODE ---
+        if (designBox) {
+            let cleanRf = acceptSpaces(designBox.value);
             if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
             let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
             if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
@@ -12325,13 +12319,12 @@ else if (currentMode === 'opamp') {
             window.currentAnswers = { rf: isCorrectRatio ? [parseInput(cleanRf)] : ["err"], bw: isCorrectRatio ? [parseInput(cleanRin)] : ["err"] };
             results.push(validateMatch(parseInput(cleanRf), window.currentAnswers.rf, 'Ω')); 
             results.push(validateMatch(parseInput(cleanRin), window.currentAnswers.bw, 'Ω'));
-            return; // EXIT: Prevent Hinge logic from running
+            
+            return; // 🛑 IMPORTANT: Stop here
         }
 
-        // ---------------------------------------------
-        // MODE 0: HINGE WIRING (Interactive)
-        // ---------------------------------------------
-        // Only runs if Mode 1 and Mode 2 tests were skipped
+        // --- PRIORITY 3: HINGE MODE ---
+        // This will ONLY run if GainBox and DesignBox do not exist.
         if (window.opAmpQuestionType === 'hinge') {
             let isOpAmpCorrect = false;
             let customFeedback = "";
@@ -12358,7 +12351,6 @@ else if (currentMode === 'opamp') {
             } else {
                 results.push('wrongval');
                 if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
-                if (typeof viewedSolution !== 'undefined') viewedSolution = true;
             }
         }
     }
