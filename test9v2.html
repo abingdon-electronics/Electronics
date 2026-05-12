@@ -11062,6 +11062,43 @@ function checkLogicNand() {
 //**********************************************************
 //***********************************************************
 function checkAnswers() {
+    // --- 1. Your existing variables ---
+    const results = [];
+    const feedbackEl = document.getElementById('feedback');
+    const solDiv = document.getElementById('solutions');
+    // ... any other initial variables like currentMode ...
+
+    // --- 2. THE TOP-LEVEL OP-AMP GATEKEEPER ---
+    if (currentMode === 'opamp') {
+        console.log("!!! OP-AMP GRADER STARTING AT TOP OF FUNCTION !!!");
+        
+        const gainBox = document.getElementById('opAmpGain');
+        
+        // If we find a math box, we grade it and STOP the function immediately
+        if (gainBox) {
+            console.log("Calculation Box Found. Grading math...");
+            
+            // Wipe any "ghost" wiring messages immediately
+            if (feedbackEl) feedbackEl.innerHTML = ""; 
+
+            let val = validateMatch(parseInput(acceptSpaces(gainBox.value)), currentAnswers.gain, 'none');
+            results.push(val);
+
+            // Logic for Step-by-Step
+            let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
+                `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>` :
+                `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
+            
+            if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+            
+            // This 'return' prevents the other 1000 lines (and canvas stuff) from running
+            console.log("Grading finished. Blocking rest of checkAnswer().");
+            return finalizeGrading(results); 
+        }
+    }
+
+
+    //========================================================
     // 1. Prevent double-checking if already solved
     if (isCurrentProblemSolved) return; 
 
