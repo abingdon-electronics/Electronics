@@ -10052,6 +10052,8 @@ function generateGrade9MosfetProblem() {
 
     
 //***********************************************************************************************************
+// OP-AMPS
+//***********************************************************************************************************
     
 // The main dynamic drawing engine for the Op-Amp circuit using the global drawCanvasSubscript helper
 function drawOpAmpCircuit(ctx, canvas) {
@@ -10366,30 +10368,32 @@ function setupForwardMathProblem(ctx, canvas) {
     window.opAmpQuestionType = 'calcGain';
     window.opAmpInteractive = false; 
 
+    // Set wire states based on configuration
     if (targetConfig === 'Inverting') {
-        window.topWireState = 'horizontal'; window.bottomWireState = 'vertical';
+        window.topWireState = 'horizontal'; 
+        window.bottomWireState = 'vertical';
     } else {
-        window.topWireState = 'vertical'; window.bottomWireState = 'horizontal';
+        window.topWireState = 'vertical'; 
+        window.bottomWireState = 'horizontal';
     }
 
     const rinValue = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
     const rfValue = rinValue * (Math.floor(Math.random() * 10) + 2); 
     
-    // SET THE VALUES CLEARLY
+    // --- SYNC GLOBALS FOR DRAWING & GRADING ---
     window.opAmpRf = rfValue;
-    if (targetConfig === "Inverting") {
-        window.opAmpRin = rinValue;
-        window.opAmpR1 = 0;
-    } else {
-        window.opAmpR1 = rinValue;
-        window.opAmpRin = 0;
-    }
+    window.opAmpRin = (targetConfig === "Inverting") ? rinValue : 0;
+    window.opAmpR1 = (targetConfig === "Non-Inverting") ? rinValue : 0;
+    
+    // Fallback object for older grader logic
+    window.opAmpValues = { rf: rfValue, rin: rinValue };
 
     // Set the Answer for the grader
     window.currentAnswers = window.currentAnswers || {};
     let actualGain = (targetConfig === "Inverting") ? -(rfValue / rinValue) : 1 + (rfValue / rinValue);
     window.currentAnswers.gain = [actualGain.toString()]; 
 
+    // UI Management
     const mathGroup = document.getElementById('opAmpMathInputs');
     if (mathGroup) {
         mathGroup.style.display = 'flex';
@@ -10398,6 +10402,7 @@ function setupForwardMathProblem(ctx, canvas) {
         mathGroup.style.alignItems = 'center';
     }
 
+    // Toggle specific input visibility
     document.getElementById('opAmpGain').closest('div').style.display = 'flex'; 
     document.getElementById('opAmpRf').closest('div').style.display = 'none';   
     document.getElementById('opAmpVout').closest('div').style.display = 'none'; 
@@ -10408,12 +10413,14 @@ function setupForwardMathProblem(ctx, canvas) {
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.style.display = 'block'; 
-        qText.innerHTML = `<h3 style="color:#d65093;">Voltage Gain</h3>
-                           <p>Using <b>R<sub>F</sub> = ${rfValue} kΩ</b> and <b>${inputResistorLabel} = ${rinValue} kΩ</b>, calculate the Voltage Gain (<b>G</b>).</p>`; 
+        qText.innerHTML = `
+            <h3 style="color:#d65093;">Voltage Gain</h3>
+            <p>Using <b>R<sub>F</sub> = ${rfValue} kΩ</b> and <b>${inputResistorLabel} = ${rinValue} kΩ</b>, calculate the Voltage Gain (<b>G</b>).</p>`; 
     }
 
     drawOpAmpCircuit(ctx, canvas); 
 }
+
 // ==========================================
 // TYPE 3: DESIGN (Suggest Resistors)
 // ==========================================
@@ -10421,7 +10428,7 @@ function setupDesignResistorProblem(ctx, canvas) {
     const targetConfig = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     window.opAmpTargetConfig = targetConfig;
     window.opAmpQuestionType = 'design';
-    window.opAmpInteractive = false; // Turn OFF hinges
+    window.opAmpInteractive = false; 
 
     const targetG = (targetConfig === "Inverting") ? -(Math.floor(Math.random() * 9) + 2) : (Math.floor(Math.random() * 9) + 2);
     window.targetGain = targetG;
@@ -10432,6 +10439,7 @@ function setupDesignResistorProblem(ctx, canvas) {
         window.topWireState = 'vertical'; window.bottomWireState = 'horizontal';
     }
 
+    // Reset UI visibility
     const mathGroup = document.getElementById('opAmpMathInputs');
     if (mathGroup) {
         mathGroup.style.display = 'flex';
@@ -10441,15 +10449,14 @@ function setupDesignResistorProblem(ctx, canvas) {
         mathGroup.style.width = '100%'; 
     }
 
-    // Get the individual wrappers for our inputs
     const rfWrapper = document.getElementById('opAmpRf').closest('div');
     const bwWrapper = document.getElementById('opAmpBW').closest('div');
-
-    // THE FIX FOR VERTICAL STACKING: Grab the inner row holding Rf and BW and force it to column!
+    
+    // Stack Inputs Vertically
     const innerRow = rfWrapper.parentElement; 
     if (innerRow) {
         innerRow.style.flexDirection = 'column';
-        innerRow.style.gap = '15px'; // Add some breathing room between the stacked boxes
+        innerRow.style.gap = '15px'; 
     }
 
     rfWrapper.style.display = 'flex';   
@@ -10457,43 +10464,37 @@ function setupDesignResistorProblem(ctx, canvas) {
     document.getElementById('opAmpGain').closest('div').style.display = 'none'; 
     document.getElementById('opAmpVout').closest('div').style.display = 'none'; 
 
-    // THE FIX FOR SUBSCRIPTS: Save the specific inline style you used in your HTML
     const subStyle = 'style="font-size: 0.7em; vertical-align: baseline; position: relative; top: 0.3em;"';
 
-   // 1. Update Rf label, placeholder, and set unit to Ω
+    // 1. Setup RF Input
     const rfLabel = document.querySelector('label[for="opAmpRf"]');
-    if (rfLabel) rfLabel.innerHTML = `R<sub ${subStyle}>F</sub> =`; // <-- Capital F
+    if (rfLabel) rfLabel.innerHTML = `R<sub ${subStyle}>F</sub> =`; 
     
     const rfInput = document.getElementById('opAmpRf');
     if (rfInput) {
-        rfInput.placeholder = "e.g. 3k"; 
+        rfInput.placeholder = "e.g. 10k"; 
         if (rfInput.nextElementSibling) rfInput.nextElementSibling.innerHTML = "&Omega;"; 
     }
 
-    // 2. Update dynamic Rin/R1 label, placeholder, and set unit to Ω
+    // 2. Setup RIN/R1 Input
     const bwLabel = document.querySelector('label[for="opAmpBW"]');
-    if (bwLabel) {
-        if (targetConfig === 'Inverting') {
-            bwLabel.innerHTML = `R<sub ${subStyle}>IN</sub> =`; // <-- Capital IN
-        } else {
-            bwLabel.innerHTML = `R<sub ${subStyle}>1</sub> =`;
-        }
-    }
-    
     const bwInput = document.getElementById('opAmpBW');
+    const resName = (targetConfig === 'Inverting') ? "IN" : "1";
+    
+    if (bwLabel) bwLabel.innerHTML = `R<sub ${subStyle}>${resName}</sub> =`;
     if (bwInput) {
-        bwInput.placeholder = "e.g. 2k"; 
+        bwInput.placeholder = "e.g. 1k"; 
         if (bwInput.nextElementSibling) bwInput.nextElementSibling.innerHTML = "&Omega;"; 
     }
 
-    // 3. THE FIX FOR "GROUND RESISTOR": Dynamic text variable
+    // 3. Question Text
     const resistorText = (targetConfig === 'Inverting') ? "input resistor" : "ground resistor";
-
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.style.display = 'block'; 
-        qText.innerHTML = `<h3 style="color:#d65093;">Design Challenge</h3>
-                           <p>Suggest suitable values for the feedback resistor (<b>R<sub ${subStyle}>F</sub></b>) and the ${resistorText} to achieve a Voltage Gain of <b>${targetG}</b>.</p>`; // <-- Capital F
+        qText.innerHTML = `
+            <h3 style="color:#d65093;">Design Challenge</h3>
+            <p>Suggest suitable values for the feedback resistor (<b>R<sub ${subStyle}>F</sub></b>) and the ${resistorText} to achieve a Voltage Gain of <b>${targetG}</b>.</p>`;
     }
 
     drawOpAmpCircuit(ctx, canvas);
