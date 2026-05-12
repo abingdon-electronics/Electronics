@@ -10060,19 +10060,18 @@ function drawOpAmpCircuit(ctx, canvas) {
     const cx = 300;
     const cy = 240; 
     
-    // --- CANVAS TITLE ---
+    // --- 1. CANVAS TITLE ---
     ctx.fillStyle = "#d65093";
     ctx.font = "bold 22px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
-    let canvasTitle = window.opAmpTargetConfig + " Op-Amp";
+    let canvasTitle = (window.opAmpTargetConfig || "") + " Op-Amp";
     if (window.opAmpInteractive === false) {
         if (window.opAmpQuestionType === 'calcGain') canvasTitle = "Voltage Gain";
         if (window.opAmpQuestionType === 'design') canvasTitle = "Design Challenge";
     }
     ctx.fillText(canvasTitle, cx, 40);
-    
     ctx.textBaseline = "alphabetic"; 
     
     if (typeof drawOpAmp === "function") drawOpAmp(ctx, cx, cy, 1);
@@ -10080,8 +10079,8 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.strokeStyle = "#333";
     ctx.lineWidth = 2;
     ctx.textAlign = "left"; 
-    
-    // --- 1. FIXED WIRES ---
+
+    // --- 2. FEEDBACK PATH (RF) ---
     ctx.beginPath();
     ctx.moveTo(cx + 30, cy);
     ctx.lineTo(cx + 120, cy); 
@@ -10099,16 +10098,14 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.fillRect(cx - 30, cy - 105, 60, 30); 
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
     
-    // ONLY draw the "RF" label if we are in Hinge mode
+    // Logic Fix: Use opAmpRf instead of the non-existent opAmpValues.rf
     if (window.opAmpInteractive !== false) {
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
-    }
-
-    if (window.opAmpInteractive === false && window.opAmpQuestionType === 'calcGain' && window.opAmpValues) {
+    } else if (window.opAmpQuestionType === 'calcGain' && window.opAmpRf) {
         ctx.fillStyle = "black";
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "center";
-        ctx.fillText(window.opAmpValues.rf + " kΩ", cx, cy - 115);
+        ctx.fillText(window.opAmpRf + " kΩ", cx, cy - 115);
     }
     
     ctx.beginPath();
@@ -10132,27 +10129,23 @@ function drawOpAmpCircuit(ctx, canvas) {
         if (typeof drawNode === "function") drawNode(ctx, cx - 60, cy + 20);
     }
     
-    // --- 2. TOGGLEABLE TOP WIRE ---
+    // --- 3. TOP INPUT WIRE (RIN / R1) ---
     ctx.beginPath();
     ctx.moveTo(cx - 100, cy - 20);
     if (window.topWireState === 'horizontal') {
         ctx.lineTo(cx - 130, cy - 20);
         ctx.stroke();
-        
         ctx.fillStyle = "#fff";
         ctx.fillRect(cx - 190, cy - 35, 60, 30); 
         ctx.strokeRect(cx - 190, cy - 35, 60, 30);
         
-        // ONLY draw "RIN" if in Hinge mode
         if (window.opAmpInteractive !== false) {
             if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black");
-        }
-        
-        if (window.opAmpInteractive === false && window.opAmpQuestionType === 'calcGain' && window.opAmpValues) {
+        } else if (window.opAmpQuestionType === 'calcGain' && window.opAmpRin) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(window.opAmpValues.rin + " kΩ", cx - 160, cy - 45);
+            ctx.fillText(window.opAmpRin + " kΩ", cx - 160, cy - 45);
         }
 
         ctx.beginPath();
@@ -10163,21 +10156,17 @@ function drawOpAmpCircuit(ctx, canvas) {
     } else {
         ctx.lineTo(cx - 100, cy + 50);
         ctx.stroke();
-        
         ctx.fillStyle = "#fff";
         ctx.fillRect(cx - 115, cy + 50, 30, 50); 
         ctx.strokeRect(cx - 115, cy + 50, 30, 50);
         
-        // ONLY draw "R1" if in Hinge mode
         if (window.opAmpInteractive !== false) {
             if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black");
-        }
-
-        if (window.opAmpInteractive === false && window.opAmpQuestionType === 'calcGain' && window.opAmpValues) {
+        } else if (window.opAmpQuestionType === 'calcGain' && window.opAmpR1) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(window.opAmpValues.rin + " kΩ", cx - 145, cy + 80);
+            ctx.fillText(window.opAmpR1 + " kΩ", cx - 145, cy + 80);
         }
         
         ctx.beginPath();
@@ -10187,7 +10176,7 @@ function drawOpAmpCircuit(ctx, canvas) {
         if (typeof drawGround === "function") drawGround(ctx, cx - 100, cy + 120);
     }
     
-    // --- 3. TOGGLEABLE BOTTOM WIRE ---
+    // --- 4. BOTTOM INPUT WIRE ---
     ctx.beginPath();
     ctx.moveTo(cx - 60, cy + 20);
     if (window.bottomWireState === 'horizontal') {
@@ -10200,18 +10189,13 @@ function drawOpAmpCircuit(ctx, canvas) {
         if (typeof drawGround === "function") drawGround(ctx, cx - 60, cy + 80);
     }
 
-    // --- 4. HINGE VISUAL CUES (ONLY IF INTERACTIVE) ---
+    // --- 5. HINGES ---
     if (window.opAmpInteractive !== false) {
         ctx.strokeStyle = "#e74c3c";
         ctx.setLineDash([3, 3]);
-        ctx.beginPath();
-        ctx.arc(cx - 100, cy - 20, 14, 0, Math.PI*2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(cx - 60, cy + 20, 14, 0, Math.PI*2); 
-        ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx - 100, cy - 20, 14, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx - 60, cy + 20, 14, 0, Math.PI*2);  ctx.stroke();
         ctx.setLineDash([]);
-        
         ctx.fillStyle = "#e74c3c";
         ctx.font = "bold 11px Arial";
         ctx.textAlign = "center";
@@ -10380,7 +10364,7 @@ function setupForwardMathProblem(ctx, canvas) {
     const targetConfig = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     window.opAmpTargetConfig = targetConfig;
     window.opAmpQuestionType = 'calcGain';
-    window.opAmpInteractive = false; // Turn OFF hinges
+    window.opAmpInteractive = false; 
 
     if (targetConfig === 'Inverting') {
         window.topWireState = 'horizontal'; window.bottomWireState = 'vertical';
@@ -10388,29 +10372,28 @@ function setupForwardMathProblem(ctx, canvas) {
         window.topWireState = 'vertical'; window.bottomWireState = 'horizontal';
     }
 
-    const rin = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
-    const rf = rin * (Math.floor(Math.random() * 10) + 2); 
+    const rinValue = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
+    const rfValue = rinValue * (Math.floor(Math.random() * 10) + 2); 
     
-    // 👇 CRITICAL FIX 1: Save the exact variables our Grader's step-by-step logic looks for! 👇
-    window.opAmpRf = rf;
+    // SET THE VALUES CLEARLY
+    window.opAmpRf = rfValue;
     if (targetConfig === "Inverting") {
-        window.opAmpRin = rin;
-        window.opAmpR1 = 0; // Fallback so it's never undefined
+        window.opAmpRin = rinValue;
+        window.opAmpR1 = 0;
     } else {
-        window.opAmpR1 = rin;
-        window.opAmpRin = 0; // Fallback
+        window.opAmpR1 = rinValue;
+        window.opAmpRin = 0;
     }
 
-    // 👇 CRITICAL FIX 2: Save the answer to the master array so validateMatch can turn the box green! 👇
+    // Set the Answer for the grader
     window.currentAnswers = window.currentAnswers || {};
-    let actualGain = (targetConfig === "Inverting") ? -(rf / rin) : 1 + (rf / rin);
+    let actualGain = (targetConfig === "Inverting") ? -(rfValue / rinValue) : 1 + (rfValue / rinValue);
     window.currentAnswers.gain = [actualGain.toString()]; 
-    // (Note: If you add Vout to this mode later, make sure to set currentAnswers.vout = [...] here too!)
 
     const mathGroup = document.getElementById('opAmpMathInputs');
     if (mathGroup) {
         mathGroup.style.display = 'flex';
-        mathGroup.style.flexDirection = 'column'; // Stack inputs for neatness
+        mathGroup.style.flexDirection = 'column';
         mathGroup.style.gap = '15px';
         mathGroup.style.alignItems = 'center';
     }
@@ -10420,14 +10403,13 @@ function setupForwardMathProblem(ctx, canvas) {
     document.getElementById('opAmpVout').closest('div').style.display = 'none'; 
     document.getElementById('opAmpBW').closest('div').style.display = 'none';  
 
-    // Dynamic label for the text depending on the configuration
     const inputResistorLabel = (targetConfig === 'Inverting') ? "R<sub>IN</sub>" : "R<sub>1</sub>"; 
 
     const qText = document.getElementById('questionText');
     if (qText) {
         qText.style.display = 'block'; 
         qText.innerHTML = `<h3 style="color:#d65093;">Voltage Gain</h3>
-                           <p>Using <b>R<sub>F</sub> = ${rf} kΩ</b> and <b>${inputResistorLabel} = ${rin} kΩ</b>, calculate the Voltage Gain (<b>G</b>).</p>`; 
+                           <p>Using <b>R<sub>F</sub> = ${rfValue} kΩ</b> and <b>${inputResistorLabel} = ${rinValue} kΩ</b>, calculate the Voltage Gain (<b>G</b>).</p>`; 
     }
 
     drawOpAmpCircuit(ctx, canvas); 
