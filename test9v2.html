@@ -12245,9 +12245,10 @@ else if (currentMode === 'opamp') {
         if (isCalcMode) {
             window.opAmpQuestionType = 'calc'; // 🧹 CLEARS THE GHOST STATE
 
-            // Grade Gain if it exists
+            // Grade Gain if it exists (Added safety fallback to prevent silent crashes)
             if (isGainVisible) {
-                let gainRes = validateMatch(parseInput(acceptSpaces(gainInput.value)), currentAnswers.gain, 'none');
+                let expectedGain = window.currentAnswers?.gain || "err";
+                let gainRes = validateMatch(parseInput(acceptSpaces(gainInput.value)), expectedGain, 'none');
                 results.push(gainRes);
             }
             
@@ -12255,14 +12256,16 @@ else if (currentMode === 'opamp') {
             if (isVoutVisible) {
                 let cleanVout = acceptSpaces(voutInput.value);
                 if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) cleanVout += "V"; 
-                results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
+                let expectedVout = window.currentAnswers?.vout || "err";
+                results.push(validateMatch(parseInput(cleanVout), expectedVout, 'V'));
             }
 
             // Step-by-Step UI
             if (isGainVisible) {
+                let gainDisplay = window.currentAnswers?.gain ? window.currentAnswers.gain : "";
                 let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
-                    `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>` :
-                    `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
+                    `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gainDisplay}</b>` :
+                    `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gainDisplay}</b>`;
                 if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
             }
         } 
@@ -12276,16 +12279,23 @@ else if (currentMode === 'opamp') {
             let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
             if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
 
-            let numRf = Number(parseInput(cleanRf)), numRin = Number(parseInput(cleanRin));
+            let parsedRf = parseInput(cleanRf);
+            let parsedRin = parseInput(cleanRin);
+            
+            // EXTRACT NUMBERS safely to prevent Object-to-String matching failures!
+            let numRf = parsedRf ? parsedRf.val : 0;
+            let numRin = parsedRin ? parsedRin.val : 0;
+
             let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : window.targetGain - 1;
             let isCorrectRatio = (numRf > 0 && numRin > 0 && Math.abs((numRf / numRin) - expectedRatio) < 0.01);
 
+            // Send primitives instead of full objects into the expected answers
             window.currentAnswers = { 
-                rf: isCorrectRatio ? [parseInput(cleanRf)] : ["err"], 
-                bw: isCorrectRatio ? [parseInput(cleanRin)] : ["err"] 
+                rf: isCorrectRatio ? numRf : "err", 
+                bw: isCorrectRatio ? numRin : "err" 
             };
-            results.push(validateMatch(parseInput(cleanRf), window.currentAnswers.rf, 'Ω')); 
-            results.push(validateMatch(parseInput(cleanRin), window.currentAnswers.bw, 'Ω'));
+            results.push(validateMatch(parsedRf, window.currentAnswers.rf, 'Ω')); 
+            results.push(validateMatch(parsedRin, window.currentAnswers.bw, 'Ω'));
         }
 
         // --- BRANCH C: HINGE / WIRING MODE ---
@@ -12421,7 +12431,6 @@ function parseInput(str, dropdownUnit = null) {
     
     if (dropdownUnit !== null && dropdownUnit !== undefined) {
         let val = parseFloat(cleanStr);
-        // Calculate decimal places for dropdown inputs
         let dp = cleanStr.includes('.') ? cleanStr.split('.')[1].length : 0;
         let tol = 0.5 * Math.pow(10, -dp);
         return { val: isNaN(val) ? null : val, unit: dropdownUnit, dp: dp, tol: tol };
@@ -12433,14 +12442,12 @@ function parseInput(str, dropdownUnit = null) {
         return { val: parseFloat(parts[0]) / parseFloat(parts[1]), unit: 'ratio', dp: 0, tol: 0.01 };
     }
 
-    // FIX 1 & 3: Added eE+- for scientific notation and \/ for mA/V
     const match = cleanStr.match(/^(-?[\d\.eE+-]+)([a-zA-Z\u03a9\u03bcΩμ\/]*)$/);
     
     if (match) {
         let numStr = match[1];
         let val = parseFloat(numStr);
         
-        // Strip out the exponent part before counting decimal places to keep tolerance accurate
         let numForDp = numStr.replace(/[eE].*/, ''); 
         let dp = numForDp.includes('.') ? numForDp.split('.')[1].length : 0;
         let tol = 0.5 * Math.pow(10, -dp);
@@ -12451,7 +12458,6 @@ function parseInput(str, dropdownUnit = null) {
 
         if (rawUnit === 'k' || rawUnit === 'kΩ' || lowerUnit.match(/^(kohm|kohms)$/)) {
             normalizedUnit = "kΩ";
-        // FIX 4: Removed 'mohm' to prevent milliohm/megaohm confusion
         } else if (rawUnit === 'M' || rawUnit === 'MΩ' || lowerUnit.match(/^(megaohm|megaohms)$/)) {
             normalizedUnit = "MΩ"; 
         } else if (rawUnit === 'Ω' || rawUnit === 'r' || lowerUnit.match(/^(ohm|ohms)$/)) {
@@ -12474,12 +12480,10 @@ function parseInput(str, dropdownUnit = null) {
             normalizedUnit = "W";
         } else if (lowerUnit.match(/^(hertz|hz)$/)) {
             normalizedUnit = 'Hz'; 
-        // FIX 2: Siemens & mA/V check for MOSFETs added here
         } else if (rawUnit === 'mS' || lowerUnit.match(/^(msiemens|millisiemens|ma\/v)$/)) {
             normalizedUnit = "mS";
         } else if (rawUnit === 'S' || lowerUnit.match(/^(siemens|a\/v)$/)) {
             normalizedUnit = "S";
-        // Capacitance unit checks
         } else if (rawUnit === 'mF' || lowerUnit.match(/^(mf|millifarad|millifarads)$/)) {
             normalizedUnit = "mF";
         } else if (rawUnit === 'μF' || rawUnit === 'uF' || lowerUnit.match(/^(uf|microfarad|microfarads)$/)) {
@@ -12492,11 +12496,9 @@ function parseInput(str, dropdownUnit = null) {
             normalizedUnit = "F";
         }
 
-        // Return the new properties!
         return { val: val, unit: normalizedUnit, dp: dp, tol: tol };
     }
 
-    // Fallback for numbers only (Also updated for sci-notation)
     let fallbackMatch = cleanStr.match(/^(-?[\d\.eE+-]+)/);
     let val = parseFloat(cleanStr);
     let dp = 0; let tol = 0.5;
@@ -12523,10 +12525,9 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     if (!parsedInput || isNaN(parsedInput.val)) return 'wrongval';
     
     let userVal = parsedInput.val;
-    let userUnit = (parsedInput.unit || "").trim(); // Kept .trim() for safety against accidental spaces
+    let userUnit = (parsedInput.unit || "").trim();
     let targetUnit = (expectedUnit || "").trim(); 
     
-    // Pull the calculated tolerance and decimals from the parser
     let userTol = parsedInput.tol !== undefined ? parsedInput.tol : 0;
     let userDp = parsedInput.dp !== undefined ? parsedInput.dp : 0;
 
@@ -12535,15 +12536,15 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
         return Math.abs(userVal - expectedVal) < 0.01 ? 'correct' : 'wrongval';
     }
     
-    // 4. AUTO-CONVERT UNITS (Scaling userVal and userTol)
+    // 4. AUTO-CONVERT UNITS
     const conversions = [
         { t: 'mA', u: 'A', factor: 1000 }, { t: 'A', u: 'mA', factor: 0.001 },
         { t: 'mW', u: 'W', factor: 1000 }, { t: 'W', u: 'mW', factor: 0.001 },
         { t: 'mV', u: 'V', factor: 1000 }, { t: 'V', u: 'mV', factor: 0.001 },
         { t: 'kΩ', u: 'Ω', factor: 0.001 }, { t: 'Ω', u: 'kΩ', factor: 1000 },
         { t: 'MΩ', u: 'Ω', factor: 0.000001 }, { t: 'Ω', u: 'MΩ', factor: 1000000 },
-        { t: 'MΩ', u: 'kΩ', factor: 0.001 }, { t: 'kΩ', u: 'MΩ', factor: 1000 }, // NEW: MΩ <-> kΩ
-        { t: 'mS', u: 'S', factor: 1000 }, { t: 'S', u: 'mS', factor: 0.001 },   // NEW: mS <-> S (Transconductance)
+        { t: 'MΩ', u: 'kΩ', factor: 0.001 }, { t: 'kΩ', u: 'MΩ', factor: 1000 },
+        { t: 'mS', u: 'S', factor: 1000 }, { t: 'S', u: 'mS', factor: 0.001 },  
         { t: 'μF', u: 'F', factor: 1000000 }, { t: 'F', u: 'μF', factor: 0.000001 },
         { t: 'mF', u: 'F', factor: 1000 }, { t: 'F', u: 'mF', factor: 0.001 },
         { t: 'μF', u: 'mF', factor: 1000 }, { t: 'mF', u: 'μF', factor: 0.001 },
@@ -12572,16 +12573,11 @@ function validateMatch(parsedInput, expectedVal, expectedUnit) {
     
     let valMatch = correctlyRounded && reasonablePrecision;
     
-    // FALLBACK 1: System rounding match (e.g. 13.333 vs 13.3)
-    
-    // 👇 Add this safety check
-   // if (expectedVal === undefined || expectedVal === null) {
-   //     console.error("Missing answer key! expectedVal is undefined.");
-   //     return 'wrongval'; 
-  //  }
-    
-    let expectedStr = expectedVal.toString();
-    // ... rest of your function
+    // 👇 The Missing Answer Key Safety Guard (Activated) 👇
+    if (expectedVal === undefined || expectedVal === null) {
+        console.error("Missing answer key! expectedVal is undefined.");
+        return 'wrongval'; 
+    }
     
     if (!valMatch) {
         let expectedStr = expectedVal.toString();
