@@ -12257,16 +12257,41 @@ else if (currentMode === 'opamp') {
     }
 
 // 👇 GRADE 9 MOSFET GRADING LOGIC 👇
-else if (currentMode === 'opamp') {
+    else if (currentMode === 'grade9mosfet') {
+        // Grade VGS with Volts fallback
+        let vgsInput = document.getElementById('g9MosfetVGS').value;
+        let cleanVGS = acceptSpaces(vgsInput);
+        if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) {
+            cleanVGS += "V"; 
+        }
+        results.push(validateMatch(parseInput(cleanVGS), currentAnswers.vgs, 'V'));
+
+        // Grade Resistor with Ohms fallback (Answer targets kΩ)
+        let r2Input = document.getElementById('g9MosfetR2').value;
+        let cleanR2 = acceptSpaces(r2Input);
+        if (cleanR2 !== "" && !cleanR2.includes("Ω") && !cleanR2.toLowerCase().includes("ohm")) {
+            cleanR2 += "Ω";
+        }
+        results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
+    }
+        
+    // 👇 DEBUG-ENABLED OP-AMP GRADING LOGIC 👇
+    else if (currentMode === 'opamp') {
+        console.log("--- DEBUG START: OP-AMP GRADER ---");
+        
         const gainBox = document.getElementById('opAmpGain');
         const designBox = document.getElementById('opAmpRf');
+        
+        console.log("Current Variable Type:", window.opAmpQuestionType);
+        console.log("Physically found GainBox?", !!gainBox);
+        console.log("Physically found DesignBox?", !!designBox);
 
-        // FORCE state correction if the UI doesn't match the variable
-        if (gainBox) window.opAmpQuestionType = 'calcGain';
-        if (designBox) window.opAmpQuestionType = 'design';
-
-        // --- PRIORITY 1: CALCULATION MODE ---
-        if (window.opAmpQuestionType === 'calcGain' && gainBox) {
+        // ---------------------------------------------
+        // MODE 1: CALCULATE GAIN & VOUT
+        // ---------------------------------------------
+        if (gainBox) {
+            console.log("Triggered: MODE 1 (CALCULATION)");
+            
             results.push(validateMatch(parseInput(acceptSpaces(gainBox.value)), currentAnswers.gain, 'none')); 
             
             const voutEl = document.getElementById('opAmpVout');
@@ -12276,35 +12301,22 @@ else if (currentMode === 'opamp') {
                 results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
             }
 
-            let stepByStepHtml = window.opAmpTargetConfig === "Inverting" ? 
+            let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
                 `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>` :
                 `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
             
             const solDiv = document.getElementById('solutions');
-            if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepByStepHtml}</div>`;
-            return; // 🛑 KILL EXECUTION
+            if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+            
+            console.log("Exiting Grader: Calculation complete.");
+            return; // Stops here
         }
 
-        // --- PRIORITY 2: DESIGN MODE ---
-        else if (window.opAmpQuestionType === 'design' && designBox) {
-            let cleanRf = acceptSpaces(designBox.value);
-            if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
-            let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
-            if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
-
-            let numRf = Number(parseInput(cleanRf)), numRin = Number(parseInput(cleanRin));
-            let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : window.targetGain - 1;
-            let isCorrectRatio = (numRf > 0 && numRin > 0 && Math.abs((numRf / numRin) - expectedRatio) < 0.01);
-
-            window.currentAnswers = { rf: isCorrectRatio ? [parseInput(cleanRf)] : ["err"], bw: isCorrectRatio ? [parseInput(cleanRin)] : ["err"] };
-            results.push(validateMatch(parseInput(cleanRf), window.currentAnswers.rf, 'Ω')); 
-            results.push(validateMatch(parseInput(cleanRin), window.currentAnswers.bw, 'Ω'));
-            return; // 🛑 KILL EXECUTION
-        }
-
-        // --- PRIORITY 3: HINGE MODE ---
-        // This will ONLY run if GainBox and DesignBox do not exist.
+        // ---------------------------------------------
+        // MODE 0: HINGE WIRING (Interactive)
+        // ---------------------------------------------
         else if (window.opAmpQuestionType === 'hinge') {
+            console.log("Triggered: MODE 0 (HINGE)");
             let isOpAmpCorrect = false;
             let customFeedback = "";
             const droppedId = document.getElementById('boxFormula')?.dataset.current || "";
@@ -12329,11 +12341,17 @@ else if (currentMode === 'opamp') {
                 results.push('correct');
             } else {
                 results.push('wrongval');
-                if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
+                const feedbackEl = document.getElementById('feedback');
+                if (feedbackEl) {
+                    console.log("Setting custom feedback:", customFeedback);
+                    feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
+                }
             }
+        } else {
+            console.warn("WARNING: Grader ran but no mode matched!");
         }
+        console.log("--- DEBUG END: OP-AMP GRADER ---");
     }
-    
 
     // 5. Final Feedback and Scoring (BORDERS ONLY)
     activeInputs.forEach((id, index) => {
