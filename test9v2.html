@@ -11062,66 +11062,6 @@ function checkLogicNand() {
 //**********************************************************
 //***********************************************************
 function checkAnswers() {
-    // --- 1. Your existing variables ---
-    const results = [];
-    const feedbackEl = document.getElementById('feedback');
-    const solDiv = document.getElementById('solutions');
-    // ... any other initial variables like currentMode ...
-
-// --- 2. THE TOP-LEVEL OP-AMP GATEKEEPER ---
-    if (currentMode === 'opamp') {
-        console.log("!!! OP-AMP GRADER STARTING !!!");
-        const gainBox = document.getElementById('opAmpGain');
-        
-        if (gainBox) {
-            console.log("Calculation Mode Detected.");
-            
-            // 1. CLEAR THE GHOST MESSAGE IMMEDIATELY
-            if (feedbackEl) feedbackEl.innerHTML = ""; 
-
-            // 2. FORCE ANSWERS (Skip the 1000 lines below)
-            if (!window.currentAnswers || !window.currentAnswers.gain) {
-                let gainVal = window.opAmpTargetConfig === "Inverting" ? 
-                    -(window.opAmpRf / window.opAmpRin) : 
-                    (1 + (window.opAmpRf / window.opAmpR1));
-                window.currentAnswers = { gain: [gainVal.toString()] };
-            }
-
-            // 3. GRADE
-            let userVal = parseInput(acceptSpaces(gainBox.value));
-            results.push(validateMatch(userVal, window.currentAnswers.gain, 'none'));
-
-            // 4. SHOW SOLUTION
-            let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
-                `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${window.currentAnswers.gain[0]}</b>` :
-                `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${window.currentAnswers.gain[0]}</b>`;
-            if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
-
-            // 5. THE REAL "FINALIZE" LOGIC (Copied from the bottom of your PDF)
-            let allCorrect = results.every(res => res === 'correct');
-            if (allCorrect) {
-                problemsCorrect++;
-                if (typeof correctSound !== 'undefined') correctSound.play();
-                if (feedbackEl) feedbackEl.innerHTML = "<span style='color: #28a745; font-weight: bold;'>Correct!</span>";
-                
-                // Trigger Rocket/Success UI
-                const rocketBtn = document.getElementById('rocketQuestionBtn');
-                if (rocketBtn) rocketBtn.style.display = 'inline-block';
-            } else {
-                if (typeof wrongSound !== 'undefined') wrongSound.play();
-                if (feedbackEl && feedbackEl.innerHTML === "") {
-                    feedbackEl.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Not quite, check your calculation!</span>";
-                }
-            }
-            
-            if (typeof updateScoreUI === 'function') updateScoreUI();
-            
-            console.log("Grading finished successfully.");
-            return; // 🛑 This stops the rest of the 1000 lines from running
-        }
-    }
-
-    //========================================================
     // 1. Prevent double-checking if already solved
     if (isCurrentProblemSolved) return; 
 
@@ -12056,7 +11996,9 @@ else if (currentMode === 'opamp') {
         hasCheckedCurrentProblem = true; 
     }
 
-    // 4. Grade the inputs using the Hybrid Parser    
+    // 4. Grade the inputs using the Hybrid Parser
+    let results = [];
+    
     if (currentMode === 'analysis') {
         const expectedVUnit = currentAnswers.vUnit || 'V'; 
         const expectedIUnit = currentAnswers.iUnit || 'A';
@@ -12333,83 +12275,93 @@ else if (currentMode === 'opamp') {
         results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
     }
         
-    // 👇 DEBUG-ENABLED OP-AMP GRADING LOGIC 👇
+// 👇 OP-AMP GRADING LOGIC 👇
+    // =============================================
+    // OP-AMP INTEGRATED GRADER (Maintains Flow)
+    // =============================================
     else if (currentMode === 'opamp') {
-        console.log("--- DEBUG START: OP-AMP GRADER ---");
         
-        const gainBox = document.getElementById('opAmpGain');
-        const designBox = document.getElementById('opAmpRf');
-        
-        console.log("Current Variable Type:", window.opAmpQuestionType);
-        console.log("Physically found GainBox?", !!gainBox);
-        console.log("Physically found DesignBox?", !!designBox);
+        // 1. Source of Truth: Look at the screen, not just variables
+        const gainInput = document.getElementById('opAmpGain');
+        const designInput = document.getElementById('opAmpRf');
+        const isCalcMode = !!gainInput && gainInput.offsetParent !== null;
+        const isDesignMode = !!designInput && !isCalcMode && designInput.offsetParent !== null;
 
-        // ---------------------------------------------
-        // MODE 1: CALCULATE GAIN & VOUT
-        // ---------------------------------------------
-        if (gainBox) {
-            console.log("Triggered: MODE 1 (CALCULATION)");
+        // --- BRANCH A: CALCULATION MODE ---
+        if (isCalcMode) {
+            // Grade Gain
+            let gainRes = validateMatch(parseInput(acceptSpaces(gainInput.value)), currentAnswers.gain, 'none');
+            results.push(gainRes);
             
-            results.push(validateMatch(parseInput(acceptSpaces(gainBox.value)), currentAnswers.gain, 'none')); 
-            
+            // Grade Vout (if visible)
             const voutEl = document.getElementById('opAmpVout');
-            if (voutEl && voutEl.closest('div').style.display !== 'none') {
+            if (voutEl && voutEl.offsetParent !== null) {
                 let cleanVout = acceptSpaces(voutEl.value);
                 if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) cleanVout += "V"; 
                 results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
             }
 
+            // Step-by-Step UI
             let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
                 `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>` :
                 `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
-            
-            const solDiv = document.getElementById('solutions');
             if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
-            
-            console.log("Exiting Grader: Calculation complete.");
-            return; // Stops here
+        } 
+        
+        // --- BRANCH B: DESIGN MODE ---
+        else if (isDesignMode) {
+            let cleanRf = acceptSpaces(designInput.value);
+            if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
+            let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
+            if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
+
+            let numRf = Number(parseInput(cleanRf)), numRin = Number(parseInput(cleanRin));
+            let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : window.targetGain - 1;
+            let isCorrectRatio = (numRf > 0 && numRin > 0 && Math.abs((numRf / numRin) - expectedRatio) < 0.01);
+
+            // Dynamically set answers based on ratio
+            window.currentAnswers = { 
+                rf: isCorrectRatio ? [parseInput(cleanRf)] : ["err"], 
+                bw: isCorrectRatio ? [parseInput(cleanRin)] : ["err"] 
+            };
+            results.push(validateMatch(parseInput(cleanRf), window.currentAnswers.rf, 'Ω')); 
+            results.push(validateMatch(parseInput(cleanRin), window.currentAnswers.bw, 'Ω'));
         }
 
-        // ---------------------------------------------
-        // MODE 0: HINGE WIRING (Interactive)
-        // ---------------------------------------------
+        // --- BRANCH C: HINGE / WIRING MODE ---
+        // This ONLY runs if Branch A and Branch B are false
         else if (window.opAmpQuestionType === 'hinge') {
-            console.log("Triggered: MODE 0 (HINGE)");
-            let isOpAmpCorrect = false;
+            let isWiringCorrect = false;
             let customFeedback = "";
             const droppedId = document.getElementById('boxFormula')?.dataset.current || "";
 
+            // Wiring Logic
             if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
                 customFeedback = "❌ Both inputs are connected to the signal! You shorted the inputs.";
             } else if (window.topWireState === 'vertical' && window.bottomWireState === 'vertical') {
                 customFeedback = "❌ Both inputs are grounded! Vout will permanently be zero.";
             } else if (window.opAmpTargetConfig === "Inverting") {
                 if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
-                    if (droppedId === "inv") isOpAmpCorrect = true;
-                    else customFeedback = "❌ Wiring is correct, but the gain formula is wrong for this setup.";
-                } else customFeedback = "❌ Incorrect wiring. Where does the input signal go for an Inverting Amp?";
+                    if (droppedId === "inv") isWiringCorrect = true;
+                    else customFeedback = "❌ Wiring is correct, but the gain formula is wrong.";
+                } else customFeedback = "❌ Incorrect wiring. Input signal must go to the (-) terminal.";
             } else { // Non-Inverting
                 if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
-                    if (droppedId === "non-inv") isOpAmpCorrect = true;
-                    else customFeedback = "❌ Wiring is correct, but the gain formula is wrong for this setup.";
-                } else customFeedback = "❌ Incorrect wiring. Where does the input signal go for a Non-Inverting Amp?";
+                    if (droppedId === "non-inv") isWiringCorrect = true;
+                    else customFeedback = "❌ Wiring is correct, but the gain formula is wrong.";
+                } else customFeedback = "❌ Incorrect wiring. Input signal must go to the (+) terminal.";
             }
 
-            if (isOpAmpCorrect) {
+            if (isWiringCorrect) {
                 results.push('correct');
             } else {
                 results.push('wrongval');
-                const feedbackEl = document.getElementById('feedback');
-                if (feedbackEl) {
-                    console.log("Setting custom feedback:", customFeedback);
-                    feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
-                }
+                if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
             }
-        } else {
-            console.warn("WARNING: Grader ran but no mode matched!");
         }
-        console.log("--- DEBUG END: OP-AMP GRADER ---");
     }
+    // Continue flow to next "else if" (e.g., logic gates, etc.)
+    
 
     // 5. Final Feedback and Scoring (BORDERS ONLY)
     activeInputs.forEach((id, index) => {
@@ -12489,15 +12441,35 @@ else if (currentMode === 'opamp') {
         if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
     }
 
+
+
+
+//commented out until testing done
+
+  /**  } else {
+        canEarnPoints = false; 
+        const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
+        
+        if (results.includes('wrongunit')) {
+            unitErrorMade = true;
+            feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost). See solution.</span>";
+        } else if (correctCount > 0) {
+            feedback.innerHTML = `<span style='color: #dc3545;'>Partially correct (${correctCount}/${results.length}). (Mark lost). See solution.</span>`;
+        } else {
+            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. (Mark lost). See solution below.</span>";
+        }
+
+        const solDiv = document.getElementById('solutions');
+        if (solDiv) solDiv.style.display = 'block';
+        if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+    }*/
+    
     const checkansBtn = document.getElementById('checkansBtn');
     if (checkansBtn) checkansBtn.style.display = 'none';
     
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
-
-
- 
-    
 // **********************************************************************
 /**
  * Upgraded Hybrid Parser with Precision Tracking & Capacitance Support
