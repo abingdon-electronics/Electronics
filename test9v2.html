@@ -12278,15 +12278,61 @@ else if (currentMode === 'opamp') {
 // 👇 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
         
-        // 1. Identify the actual state of the UI to prevent "Hinge Mode" leakage
-        const isCalcMode = !!document.getElementById('opAmpGain');
-        const isDesignMode = !!document.getElementById('opAmpRf') && !isCalcMode;
-        const isHingeMode = window.opAmpQuestionType === 'hinge' && !isCalcMode && !isDesignMode;
+        // Clear previous feedback immediately to prevent ghost messages
+        const feedbackEl = document.getElementById('feedback');
+        const solDiv = document.getElementById('solutions');
+        if (feedbackEl) feedbackEl.innerHTML = "";
+        if (solDiv) solDiv.innerHTML = "";
+
+        // 1. PHYSICAL UI CHECK (Most reliable)
+        const gainInput = document.getElementById('opAmpGain');
+        const designInput = document.getElementById('opAmpRf');
+
+        // ---------------------------------------------
+        // MODE 1: CALCULATE GAIN & VOUT (Priority 1)
+        // ---------------------------------------------
+        if (gainInput) {
+            results.push(validateMatch(parseInput(acceptSpaces(gainInput.value)), currentAnswers.gain, 'none')); 
+            
+            const voutEl = document.getElementById('opAmpVout');
+            if (voutEl && voutEl.closest('div').style.display !== 'none') {
+                let cleanVout = acceptSpaces(voutEl.value);
+                if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) cleanVout += "V"; 
+                results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
+            }
+
+            let stepByStepHtml = window.opAmpTargetConfig === "Inverting" ? 
+                `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>` :
+                `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
+            
+            if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepByStepHtml}</div>`;
+            return; // EXIT: Prevent Hinge logic from running
+        } 
+        
+        // ---------------------------------------------
+        // MODE 2: DESIGN (Priority 2)
+        // ---------------------------------------------
+        if (designInput) {
+            let cleanRf = acceptSpaces(designInput.value);
+            if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
+            let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
+            if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
+
+            let numRf = Number(parseInput(cleanRf)), numRin = Number(parseInput(cleanRin));
+            let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : window.targetGain - 1;
+            let isCorrectRatio = (numRf > 0 && numRin > 0 && Math.abs((numRf / numRin) - expectedRatio) < 0.01);
+
+            window.currentAnswers = { rf: isCorrectRatio ? [parseInput(cleanRf)] : ["err"], bw: isCorrectRatio ? [parseInput(cleanRin)] : ["err"] };
+            results.push(validateMatch(parseInput(cleanRf), window.currentAnswers.rf, 'Ω')); 
+            results.push(validateMatch(parseInput(cleanRin), window.currentAnswers.bw, 'Ω'));
+            return; // EXIT: Prevent Hinge logic from running
+        }
 
         // ---------------------------------------------
         // MODE 0: HINGE WIRING (Interactive)
         // ---------------------------------------------
-        if (isHingeMode) {
+        // Only runs if Mode 1 and Mode 2 tests were skipped
+        if (window.opAmpQuestionType === 'hinge') {
             let isOpAmpCorrect = false;
             let customFeedback = "";
             const droppedId = document.getElementById('boxFormula')?.dataset.current || "";
@@ -12311,51 +12357,9 @@ else if (currentMode === 'opamp') {
                 results.push('correct');
             } else {
                 results.push('wrongval');
-                const feedbackEl = document.getElementById('feedback');
                 if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
                 if (typeof viewedSolution !== 'undefined') viewedSolution = true;
             }
-        }
-        
-        // ---------------------------------------------
-        // MODE 1: CALCULATE GAIN & VOUT
-        // ---------------------------------------------
-        else if (isCalcMode) {
-            const gainEl = document.getElementById('opAmpGain');
-            results.push(validateMatch(parseInput(acceptSpaces(gainEl.value)), currentAnswers.gain, 'none')); 
-            
-            const voutEl = document.getElementById('opAmpVout');
-            if (voutEl && voutEl.closest('div').style.display !== 'none') {
-                let cleanVout = acceptSpaces(voutEl.value);
-                if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) cleanVout += "V"; 
-                results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
-            }
-
-            // Generate Step-by-Step UI
-            let stepByStepHtml = window.opAmpTargetConfig === "Inverting" ? 
-                `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>` :
-                `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
-            
-            const solDiv = document.getElementById('solutions');
-            if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepByStepHtml}</div>`;
-        } 
-        
-        // ---------------------------------------------
-        // MODE 2: DESIGN
-        // ---------------------------------------------
-        else if (isDesignMode) {
-            let cleanRf = acceptSpaces(document.getElementById('opAmpRf').value);
-            if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
-            let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
-            if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
-
-            let numRf = Number(parseInput(cleanRf)), numRin = Number(parseInput(cleanRin));
-            let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : window.targetGain - 1;
-            let isCorrectRatio = (numRf > 0 && numRin > 0 && Math.abs((numRf / numRin) - expectedRatio) < 0.01);
-
-            window.currentAnswers = { rf: isCorrectRatio ? [parseInput(cleanRf)] : ["err"], bw: isCorrectRatio ? [parseInput(cleanRin)] : ["err"] };
-            results.push(validateMatch(parseInput(cleanRf), window.currentAnswers.rf, 'Ω')); 
-            results.push(validateMatch(parseInput(cleanRin), window.currentAnswers.bw, 'Ω'));
         }
     }
     
