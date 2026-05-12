@@ -11072,41 +11072,54 @@ function checkAnswers() {
     if (currentMode === 'opamp') {
         console.log("!!! OP-AMP GRADER STARTING !!!");
         const gainBox = document.getElementById('opAmpGain');
-        const feedbackEl = document.getElementById('feedback');
-        const solDiv = document.getElementById('solutions');
-
+        
         if (gainBox) {
-            console.log("Calculation Box Found.");
-            // Wipe the old "Hinge" error message immediately before it can crash again
+            console.log("Calculation Mode Detected.");
+            
+            // 1. CLEAR THE GHOST MESSAGE IMMEDIATELY
             if (feedbackEl) feedbackEl.innerHTML = ""; 
 
-            // 🛑 CRITICAL: Force generate answers if they are missing at the top
+            // 2. FORCE ANSWERS (Skip the 1000 lines below)
             if (!window.currentAnswers || !window.currentAnswers.gain) {
-                console.log("Regenerating missing answers for calculation...");
-                let targetGain = (window.opAmpTargetConfig === "Inverting") ? 
+                let gainVal = window.opAmpTargetConfig === "Inverting" ? 
                     -(window.opAmpRf / window.opAmpRin) : 
                     (1 + (window.opAmpRf / window.opAmpR1));
-                
-                // Ensure it's stored as a string inside an array for validateMatch
-                window.currentAnswers = { gain: [targetGain.toString()] };
+                window.currentAnswers = { gain: [gainVal.toString()] };
             }
 
-            // Grade the math input
+            // 3. GRADE
             let userVal = parseInput(acceptSpaces(gainBox.value));
             results.push(validateMatch(userVal, window.currentAnswers.gain, 'none'));
 
-            // Generate Step-by-Step UI
+            // 4. SHOW SOLUTION
             let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
                 `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${window.currentAnswers.gain[0]}</b>` :
                 `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${window.currentAnswers.gain[0]}</b>`;
-            
             if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+
+            // 5. THE REAL "FINALIZE" LOGIC (Copied from the bottom of your PDF)
+            let allCorrect = results.every(res => res === 'correct');
+            if (allCorrect) {
+                problemsCorrect++;
+                if (typeof correctSound !== 'undefined') correctSound.play();
+                if (feedbackEl) feedbackEl.innerHTML = "<span style='color: #28a745; font-weight: bold;'>Correct!</span>";
+                
+                // Trigger Rocket/Success UI
+                const rocketBtn = document.getElementById('rocketQuestionBtn');
+                if (rocketBtn) rocketBtn.style.display = 'inline-block';
+            } else {
+                if (typeof wrongSound !== 'undefined') wrongSound.play();
+                if (feedbackEl && feedbackEl.innerHTML === "") {
+                    feedbackEl.innerHTML = "<span style='color: #dc3545; font-weight: bold;'>Not quite, check your calculation!</span>";
+                }
+            }
             
-            console.log("Grading complete. Results:", results);
-            return finalizeGrading(results); // Stop the rest of the 1000 lines
+            if (typeof updateScoreUI === 'function') updateScoreUI();
+            
+            console.log("Grading finished successfully.");
+            return; // 🛑 This stops the rest of the 1000 lines from running
         }
     }
-
 
     //========================================================
     // 1. Prevent double-checking if already solved
