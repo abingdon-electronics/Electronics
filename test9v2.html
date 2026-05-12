@@ -12257,36 +12257,16 @@ else if (currentMode === 'opamp') {
     }
 
 // 👇 GRADE 9 MOSFET GRADING LOGIC 👇
-    else if (currentMode === 'grade9mosfet') {
-        // Grade VGS with Volts fallback
-        let vgsInput = document.getElementById('g9MosfetVGS').value;
-        let cleanVGS = acceptSpaces(vgsInput);
-        if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) {
-            cleanVGS += "V"; 
-        }
-        results.push(validateMatch(parseInput(cleanVGS), currentAnswers.vgs, 'V'));
-
-        // Grade Resistor with Ohms fallback (Answer targets kΩ)
-        let r2Input = document.getElementById('g9MosfetR2').value;
-        let cleanR2 = acceptSpaces(r2Input);
-        if (cleanR2 !== "" && !cleanR2.includes("Ω") && !cleanR2.toLowerCase().includes("ohm")) {
-            cleanR2 += "Ω";
-        }
-        results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
-    }
-
-// 👇 THE FINAL OP-AMP GRADING LOGIC 👇
-    else if (currentMode === 'opamp') {
-        const feedbackEl = document.getElementById('feedback');
-        const solDiv = document.getElementById('solutions');
-        
-        // 1. Identify what is physically on the screen
+else if (currentMode === 'opamp') {
         const gainBox = document.getElementById('opAmpGain');
         const designBox = document.getElementById('opAmpRf');
 
+        // FORCE state correction if the UI doesn't match the variable
+        if (gainBox) window.opAmpQuestionType = 'calcGain';
+        if (designBox) window.opAmpQuestionType = 'design';
+
         // --- PRIORITY 1: CALCULATION MODE ---
-        // If the 'Gain' input exists, ONLY run this.
-        if (gainBox) {
+        if (window.opAmpQuestionType === 'calcGain' && gainBox) {
             results.push(validateMatch(parseInput(acceptSpaces(gainBox.value)), currentAnswers.gain, 'none')); 
             
             const voutEl = document.getElementById('opAmpVout');
@@ -12300,13 +12280,13 @@ else if (currentMode === 'opamp') {
                 `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>` :
                 `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
             
+            const solDiv = document.getElementById('solutions');
             if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepByStepHtml}</div>`;
-            
-            return; // 🛑 IMPORTANT: Stop here so Hinge Logic never runs
+            return; // 🛑 KILL EXECUTION
         }
 
         // --- PRIORITY 2: DESIGN MODE ---
-        if (designBox) {
+        else if (window.opAmpQuestionType === 'design' && designBox) {
             let cleanRf = acceptSpaces(designBox.value);
             if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
             let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
@@ -12319,13 +12299,12 @@ else if (currentMode === 'opamp') {
             window.currentAnswers = { rf: isCorrectRatio ? [parseInput(cleanRf)] : ["err"], bw: isCorrectRatio ? [parseInput(cleanRin)] : ["err"] };
             results.push(validateMatch(parseInput(cleanRf), window.currentAnswers.rf, 'Ω')); 
             results.push(validateMatch(parseInput(cleanRin), window.currentAnswers.bw, 'Ω'));
-            
-            return; // 🛑 IMPORTANT: Stop here
+            return; // 🛑 KILL EXECUTION
         }
 
         // --- PRIORITY 3: HINGE MODE ---
         // This will ONLY run if GainBox and DesignBox do not exist.
-        if (window.opAmpQuestionType === 'hinge') {
+        else if (window.opAmpQuestionType === 'hinge') {
             let isOpAmpCorrect = false;
             let customFeedback = "";
             const droppedId = document.getElementById('boxFormula')?.dataset.current || "";
