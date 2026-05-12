@@ -12275,7 +12275,7 @@ else if (currentMode === 'opamp') {
         results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
     }
         
-    // 👇 OP-AMP GRADING LOGIC 👇
+// 👇 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
         
         // ---------------------------------------------
@@ -12323,32 +12323,34 @@ else if (currentMode === 'opamp') {
                 results.push(validateMatch(parseInput(acceptSpaces(gainEl.value)), currentAnswers.gain, 'none')); 
             }
             
-            // 2. Grade Vout Safely (No more crashing if the box doesn't exist!)
-            if (window.currentAnswers && typeof window.currentAnswers.vout !== 'undefined') {
-                const voutEl = document.getElementById('opAmpVout');
-                if (voutEl) {
-                    let cleanVout = acceptSpaces(voutEl.value);
-                    if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) {
-                        cleanVout += "V"; 
-                    }
-                    results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
+            // 2. Grade Vout Safely (Only if the box is visible/active)
+            const voutEl = document.getElementById('opAmpVout');
+            if (voutEl && voutEl.closest('div').style.display !== 'none') {
+                let cleanVout = acceptSpaces(voutEl.value);
+                if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) {
+                    cleanVout += "V"; 
                 }
+                results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
             }
 
             // 3. Build the Step-by-Step logic
             let stepByStepHtml = "";
             if (window.opAmpTargetConfig === "Inverting") {
-                stepByStepHtml = `<b>Step 1:</b> Identify the circuit as an Inverting Amplifier.<br>
-                                  <b>Step 2:</b> Use the formula: G = -(R<sub>F</sub> / R<sub>IN</sub>)<br>
-                                  <b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>`;
+                stepByStepHtml = `<b>Step 1:</b> Identify the circuit as an <b>Inverting Amplifier</b>.<br>
+                                  <b>Step 2:</b> Use the formula: <b>G = -(R<sub>F</sub> / R<sub>IN</sub>)</b><br>
+                                  <b>Step 3:</b> G = -(${window.opAmpRf}kΩ / ${window.opAmpRin}kΩ) = <b>${currentAnswers.gain}</b>`;
             } else { // Non-Inverting
-                stepByStepHtml = `<b>Step 1:</b> Identify the circuit as a Non-Inverting Amplifier.<br>
-                                  <b>Step 2:</b> Use the formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>
-                                  <b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
+                stepByStepHtml = `<b>Step 1:</b> Identify the circuit as a <b>Non-Inverting Amplifier</b>.<br>
+                                  <b>Step 2:</b> Use the formula: <b>G = 1 + (R<sub>F</sub> / R<sub>1</sub>)</b><br>
+                                  <b>Step 3:</b> G = 1 + (${window.opAmpRf}kΩ / ${window.opAmpR1}kΩ) = <b>${currentAnswers.gain}</b>`;
             }
             
             const solDiv = document.getElementById('solutions');
-            if (solDiv) solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
+            if (solDiv) {
+                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">
+                                        <span style="color:#2c3e50;">${stepByStepHtml}</span>
+                                    </div>`;
+            }
         } 
         
         // ---------------------------------------------
@@ -12406,7 +12408,11 @@ else if (currentMode === 'opamp') {
             }
 
             const solDiv = document.getElementById('solutions');
-            if (solDiv) solDiv.innerHTML = `<span style="color:#2c3e50;">${stepByStepHtml}</span>`;
+            if (solDiv) {
+                 solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">
+                                        <span style="color:#2c3e50;">${stepByStepHtml}</span>
+                                    </div>`;
+            }
         }
     }
     
