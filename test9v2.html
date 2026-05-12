@@ -10502,6 +10502,7 @@ function setupDesignResistorProblem(ctx, canvas) {
 //***********************************************************************************************************
     
 function setupOpAmpCanvasClick(ctx, canvas) {
+    // Remove old listeners to prevent double-firing
     if (window.opAmpClickHandler) {
         canvas.removeEventListener('click', window.opAmpClickHandler);
     }
@@ -10509,14 +10510,14 @@ function setupOpAmpCanvasClick(ctx, canvas) {
     window.opAmpClickHandler = function(e) {
         if (currentMode !== 'opamp') return; 
         
-        // 👇 NEW GUARD CLAUSE: Ignore clicks if we are in Math or Design modes
+        // Guard Clause: Ignore clicks if we are in Math or Design modes
         if (window.opAmpInteractive === false) return; 
         
         const rect = canvas.getBoundingClientRect();
         const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
         const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
         
-        // UPDATED Y-COORDINATES (shifted down by 60px)
+        // Hinge hitboxes
         const topHingeX = 200, topHingeY = 220; 
         const bottomHingeX = 240, bottomHingeY = 260; 
         
@@ -10533,14 +10534,9 @@ function setupOpAmpCanvasClick(ctx, canvas) {
     
     canvas.addEventListener('click', window.opAmpClickHandler);
     
-    const checkBtn = document.getElementById('btnCheckOpAmp'); // (Or whatever your button ID is)
-        if (checkBtn) {
-            const newBtn = checkBtn.cloneNode(true);
-            checkBtn.parentNode.replaceChild(newBtn, checkBtn);
-            
-            // 👇 FIX: Change 'checkOpAmpAnswer' to your master 'checkAnswer' 👇
-            newBtn.addEventListener('click', checkAnswer); 
-    }
+    // 👇 FIX APPLIED: Button cloning logic completely removed. 👇
+    // The master Check Answers button will now safely rely on your 
+    // main checkAnswers() function without being hijacked.
 }
 //End of Op AMP FUNCTIONS
 //END OF CONTENT FUNCTIONS
