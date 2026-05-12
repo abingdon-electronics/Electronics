@@ -12274,14 +12274,19 @@ else if (currentMode === 'opamp') {
         }
         results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
     }
-        
+
 // 👇 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
         
+        // 1. Identify the actual state of the UI to prevent "Hinge Mode" leakage
+        const isCalcMode = !!document.getElementById('opAmpGain');
+        const isDesignMode = !!document.getElementById('opAmpRf') && !isCalcMode;
+        const isHingeMode = window.opAmpQuestionType === 'hinge' && !isCalcMode && !isDesignMode;
+
         // ---------------------------------------------
         // MODE 0: HINGE WIRING (Interactive)
         // ---------------------------------------------
-        if (window.opAmpQuestionType === 'hinge') {
+        if (isHingeMode) {
             let isOpAmpCorrect = false;
             let customFeedback = "";
             const droppedId = document.getElementById('boxFormula')?.dataset.current || "";
@@ -12313,106 +12318,44 @@ else if (currentMode === 'opamp') {
         }
         
         // ---------------------------------------------
-        // MODE 1: CALCULATE GAIN & VOUT (Text Inputs)
+        // MODE 1: CALCULATE GAIN & VOUT
         // ---------------------------------------------
-        else if (window.opAmpQuestionType === 'calcGain') {
-            
-            // 1. Grade Gain Safely
+        else if (isCalcMode) {
             const gainEl = document.getElementById('opAmpGain');
-            if (gainEl) {
-                results.push(validateMatch(parseInput(acceptSpaces(gainEl.value)), currentAnswers.gain, 'none')); 
-            }
+            results.push(validateMatch(parseInput(acceptSpaces(gainEl.value)), currentAnswers.gain, 'none')); 
             
-            // 2. Grade Vout Safely (Only if the box is visible/active)
             const voutEl = document.getElementById('opAmpVout');
             if (voutEl && voutEl.closest('div').style.display !== 'none') {
                 let cleanVout = acceptSpaces(voutEl.value);
-                if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) {
-                    cleanVout += "V"; 
-                }
+                if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) cleanVout += "V"; 
                 results.push(validateMatch(parseInput(cleanVout), currentAnswers.vout, 'V'));
             }
 
-            // 3. Build the Step-by-Step logic
-            let stepByStepHtml = "";
-            if (window.opAmpTargetConfig === "Inverting") {
-                stepByStepHtml = `<b>Step 1:</b> Identify the circuit as an <b>Inverting Amplifier</b>.<br>
-                                  <b>Step 2:</b> Use the formula: <b>G = -(R<sub>F</sub> / R<sub>IN</sub>)</b><br>
-                                  <b>Step 3:</b> G = -(${window.opAmpRf}kΩ / ${window.opAmpRin}kΩ) = <b>${currentAnswers.gain}</b>`;
-            } else { // Non-Inverting
-                stepByStepHtml = `<b>Step 1:</b> Identify the circuit as a <b>Non-Inverting Amplifier</b>.<br>
-                                  <b>Step 2:</b> Use the formula: <b>G = 1 + (R<sub>F</sub> / R<sub>1</sub>)</b><br>
-                                  <b>Step 3:</b> G = 1 + (${window.opAmpRf}kΩ / ${window.opAmpR1}kΩ) = <b>${currentAnswers.gain}</b>`;
-            }
+            // Generate Step-by-Step UI
+            let stepByStepHtml = window.opAmpTargetConfig === "Inverting" ? 
+                `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>` :
+                `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
             
             const solDiv = document.getElementById('solutions');
-            if (solDiv) {
-                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">
-                                        <span style="color:#2c3e50;">${stepByStepHtml}</span>
-                                    </div>`;
-            }
+            if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepByStepHtml}</div>`;
         } 
         
         // ---------------------------------------------
-        // MODE 2: DESIGN (Resistor Ratios)
+        // MODE 2: DESIGN
         // ---------------------------------------------
-        else if (window.opAmpQuestionType === 'design') {
-            let rfInput = document.getElementById('opAmpRf') ? document.getElementById('opAmpRf').value : "";
-            let cleanRf = acceptSpaces(rfInput);
+        else if (isDesignMode) {
+            let cleanRf = acceptSpaces(document.getElementById('opAmpRf').value);
             if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
-
-            let rinInput = document.getElementById('opAmpBW') ? document.getElementById('opAmpBW').value : ""; 
-            let cleanRin = acceptSpaces(rinInput);
+            let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
             if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
 
-            let numRf = Number(parseInput(cleanRf));
-            let numRin = Number(parseInput(cleanRin));
+            let numRf = Number(parseInput(cleanRf)), numRin = Number(parseInput(cleanRin));
+            let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : window.targetGain - 1;
+            let isCorrectRatio = (numRf > 0 && numRin > 0 && Math.abs((numRf / numRin) - expectedRatio) < 0.01);
 
-            let isCorrectRatio = false;
-            let expectedRatio = 0;
-
-            if (numRf > 0 && numRin > 0) { 
-                if (window.opAmpTargetConfig === "Inverting") {
-                    expectedRatio = Math.abs(window.targetGain); 
-                    if (Math.abs((numRf / numRin) - expectedRatio) < 0.01) isCorrectRatio = true;
-                } else { 
-                    expectedRatio = window.targetGain - 1; 
-                    if (Math.abs((numRf / numRin) - expectedRatio) < 0.01) isCorrectRatio = true;
-                }
-            }
-
-            window.currentAnswers = window.currentAnswers || {};
-            if (isCorrectRatio) {
-                window.currentAnswers.rf = [parseInput(cleanRf)];
-                window.currentAnswers.bw = [parseInput(cleanRin)];
-            } else {
-                window.currentAnswers.rf = ["ratio_error"];
-                window.currentAnswers.bw = ["ratio_error"];
-            }
-
-            results.push(validateMatch(parseInput(cleanRf), currentAnswers.rf, 'Ω')); 
-            results.push(validateMatch(parseInput(cleanRin), currentAnswers.bw, 'Ω'));
-
-            let exampleRin = 2; 
-            let exampleRf = expectedRatio * exampleRin; 
-            
-            let stepByStepHtml = "";
-            if (window.opAmpTargetConfig === "Inverting") {
-                stepByStepHtml = `<b>Step 1:</b> Inverting Gain Formula: |G| = R<sub>F</sub> / R<sub>IN</sub><br>
-                                  <b>Step 2:</b> We need a ratio of <b>${expectedRatio}</b> to achieve a gain of ${Math.abs(window.targetGain)}.<br>
-                                  <b>Step 3:</b> Any resistor pair with this ratio works! (e.g., R<sub>IN</sub> = ${exampleRin}kΩ, R<sub>F</sub> = ${exampleRf}kΩ)`;
-            } else {
-                stepByStepHtml = `<b>Step 1:</b> Non-Inverting Gain Formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>
-                                  <b>Step 2:</b> Subtract 1 from the target gain (${window.targetGain} - 1 = ${expectedRatio}). We need an R<sub>F</sub> / R<sub>1</sub> ratio of <b>${expectedRatio}</b>.<br>
-                                  <b>Step 3:</b> Any resistor pair with this ratio works! (e.g., R<sub>1</sub> = ${exampleRin}kΩ, R<sub>F</sub> = ${exampleRf}kΩ)`;
-            }
-
-            const solDiv = document.getElementById('solutions');
-            if (solDiv) {
-                 solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">
-                                        <span style="color:#2c3e50;">${stepByStepHtml}</span>
-                                    </div>`;
-            }
+            window.currentAnswers = { rf: isCorrectRatio ? [parseInput(cleanRf)] : ["err"], bw: isCorrectRatio ? [parseInput(cleanRin)] : ["err"] };
+            results.push(validateMatch(parseInput(cleanRf), window.currentAnswers.rf, 'Ω')); 
+            results.push(validateMatch(parseInput(cleanRin), window.currentAnswers.bw, 'Ω'));
         }
     }
     
@@ -12495,35 +12438,15 @@ else if (currentMode === 'opamp') {
         if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
     }
 
-
-
-
-//commented out until testing done
-
-  /**  } else {
-        canEarnPoints = false; 
-        const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
-        
-        if (results.includes('wrongunit')) {
-            unitErrorMade = true;
-            feedback.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost). See solution.</span>";
-        } else if (correctCount > 0) {
-            feedback.innerHTML = `<span style='color: #dc3545;'>Partially correct (${correctCount}/${results.length}). (Mark lost). See solution.</span>`;
-        } else {
-            feedback.innerHTML = "<span style='color: #dc3545;'>Incorrect. (Mark lost). See solution below.</span>";
-        }
-
-        const solDiv = document.getElementById('solutions');
-        if (solDiv) solDiv.style.display = 'block';
-        if (typeof viewedSolution !== 'undefined') viewedSolution = true;
-        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-    }*/
-    
     const checkansBtn = document.getElementById('checkansBtn');
     if (checkansBtn) checkansBtn.style.display = 'none';
     
     if (typeof updateScoreboard === "function") updateScoreboard();
 }
+
+
+ 
+    
 // **********************************************************************
 /**
  * Upgraded Hybrid Parser with Precision Tracking & Capacitance Support
