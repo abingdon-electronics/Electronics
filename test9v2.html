@@ -12033,9 +12033,7 @@ else if (currentMode === 'opamp') {
         hasCheckedCurrentProblem = true; 
     }
 
-    // 4. Grade the inputs using the Hybrid Parser
-    let results = [];
-    
+    // 4. Grade the inputs using the Hybrid Parser    
     if (currentMode === 'analysis') {
         const expectedVUnit = currentAnswers.vUnit || 'V'; 
         const expectedIUnit = currentAnswers.iUnit || 'A';
