@@ -11068,32 +11068,42 @@ function checkAnswers() {
     const solDiv = document.getElementById('solutions');
     // ... any other initial variables like currentMode ...
 
-    // --- 2. THE TOP-LEVEL OP-AMP GATEKEEPER ---
+// --- 2. THE TOP-LEVEL OP-AMP GATEKEEPER ---
     if (currentMode === 'opamp') {
-        console.log("!!! OP-AMP GRADER STARTING AT TOP OF FUNCTION !!!");
-        
+        console.log("!!! OP-AMP GRADER STARTING !!!");
         const gainBox = document.getElementById('opAmpGain');
-        
-        // If we find a math box, we grade it and STOP the function immediately
+        const feedbackEl = document.getElementById('feedback');
+        const solDiv = document.getElementById('solutions');
+
         if (gainBox) {
-            console.log("Calculation Box Found. Grading math...");
-            
-            // Wipe any "ghost" wiring messages immediately
+            console.log("Calculation Box Found.");
+            // Wipe the old "Hinge" error message immediately before it can crash again
             if (feedbackEl) feedbackEl.innerHTML = ""; 
 
-            let val = validateMatch(parseInput(acceptSpaces(gainBox.value)), currentAnswers.gain, 'none');
-            results.push(val);
+            // 🛑 CRITICAL: Force generate answers if they are missing at the top
+            if (!window.currentAnswers || !window.currentAnswers.gain) {
+                console.log("Regenerating missing answers for calculation...");
+                let targetGain = (window.opAmpTargetConfig === "Inverting") ? 
+                    -(window.opAmpRf / window.opAmpRin) : 
+                    (1 + (window.opAmpRf / window.opAmpR1));
+                
+                // Ensure it's stored as a string inside an array for validateMatch
+                window.currentAnswers = { gain: [targetGain.toString()] };
+            }
 
-            // Logic for Step-by-Step
+            // Grade the math input
+            let userVal = parseInput(acceptSpaces(gainBox.value));
+            results.push(validateMatch(userVal, window.currentAnswers.gain, 'none'));
+
+            // Generate Step-by-Step UI
             let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
-                `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${currentAnswers.gain}</b>` :
-                `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${currentAnswers.gain}</b>`;
+                `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${window.currentAnswers.gain[0]}</b>` :
+                `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${window.currentAnswers.gain[0]}</b>`;
             
             if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
             
-            // This 'return' prevents the other 1000 lines (and canvas stuff) from running
-            console.log("Grading finished. Blocking rest of checkAnswer().");
-            return finalizeGrading(results); 
+            console.log("Grading complete. Results:", results);
+            return finalizeGrading(results); // Stop the rest of the 1000 lines
         }
     }
 
