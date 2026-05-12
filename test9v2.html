@@ -10430,16 +10430,28 @@ function setupDesignResistorProblem(ctx, canvas) {
     window.opAmpQuestionType = 'design';
     window.opAmpInteractive = false; 
 
-    const targetG = (targetConfig === "Inverting") ? -(Math.floor(Math.random() * 9) + 2) : (Math.floor(Math.random() * 9) + 2);
+    // Generate target gain
+    const targetG = (targetConfig === "Inverting") 
+        ? -(Math.floor(Math.random() * 9) + 2) 
+        : (Math.floor(Math.random() * 9) + 2);
+        
     window.targetGain = targetG;
 
+    // 👇 FIX APPLIED: Pass the target to the master grader's answer key 👇
+    window.currentAnswers = window.currentAnswers || {};
+    window.currentAnswers.gain = [targetG.toString()]; 
+    // Storing explicitly as designTarget as well, in case your grader logic prefers it
+    window.currentAnswers.designTarget = [targetG.toString()];
+
     if (targetConfig === 'Inverting') {
-        window.topWireState = 'horizontal'; window.bottomWireState = 'vertical';
+        window.topWireState = 'horizontal'; 
+        window.bottomWireState = 'vertical';
     } else {
-        window.topWireState = 'vertical'; window.bottomWireState = 'horizontal';
+        window.topWireState = 'vertical'; 
+        window.bottomWireState = 'horizontal';
     }
 
-    // Reset UI visibility
+    // Reset UI visibility safely
     const mathGroup = document.getElementById('opAmpMathInputs');
     if (mathGroup) {
         mathGroup.style.display = 'flex';
@@ -10449,20 +10461,29 @@ function setupDesignResistorProblem(ctx, canvas) {
         mathGroup.style.width = '100%'; 
     }
 
-    const rfWrapper = document.getElementById('opAmpRf').closest('div');
-    const bwWrapper = document.getElementById('opAmpBW').closest('div');
+    const rfInput = document.getElementById('opAmpRf');
+    const bwInput = document.getElementById('opAmpBW'); // Used for RIN or R1
     
-    // Stack Inputs Vertically
-    const innerRow = rfWrapper.parentElement; 
-    if (innerRow) {
-        innerRow.style.flexDirection = 'column';
-        innerRow.style.gap = '15px'; 
+    if (rfInput && bwInput) {
+        const rfWrapper = rfInput.closest('div');
+        const bwWrapper = bwInput.closest('div');
+        
+        // Stack Inputs Vertically
+        const innerRow = rfWrapper.parentElement; 
+        if (innerRow) {
+            innerRow.style.flexDirection = 'column';
+            innerRow.style.gap = '15px'; 
+        }
+
+        rfWrapper.style.display = 'flex';   
+        bwWrapper.style.display = 'flex';   
     }
 
-    rfWrapper.style.display = 'flex';   
-    bwWrapper.style.display = 'flex';   
-    document.getElementById('opAmpGain').closest('div').style.display = 'none'; 
-    document.getElementById('opAmpVout').closest('div').style.display = 'none'; 
+    // Safely hide unused inputs using optional chaining (?.)
+    const gainWrapper = document.getElementById('opAmpGain')?.closest('div');
+    const voutWrapper = document.getElementById('opAmpVout')?.closest('div');
+    if (gainWrapper) gainWrapper.style.display = 'none'; 
+    if (voutWrapper) voutWrapper.style.display = 'none'; 
 
     const subStyle = 'style="font-size: 0.7em; vertical-align: baseline; position: relative; top: 0.3em;"';
 
@@ -10470,7 +10491,6 @@ function setupDesignResistorProblem(ctx, canvas) {
     const rfLabel = document.querySelector('label[for="opAmpRf"]');
     if (rfLabel) rfLabel.innerHTML = `R<sub ${subStyle}>F</sub> =`; 
     
-    const rfInput = document.getElementById('opAmpRf');
     if (rfInput) {
         rfInput.placeholder = "e.g. 10k"; 
         if (rfInput.nextElementSibling) rfInput.nextElementSibling.innerHTML = "&Omega;"; 
@@ -10478,7 +10498,6 @@ function setupDesignResistorProblem(ctx, canvas) {
 
     // 2. Setup RIN/R1 Input
     const bwLabel = document.querySelector('label[for="opAmpBW"]');
-    const bwInput = document.getElementById('opAmpBW');
     const resName = (targetConfig === 'Inverting') ? "IN" : "1";
     
     if (bwLabel) bwLabel.innerHTML = `R<sub ${subStyle}>${resName}</sub> =`;
