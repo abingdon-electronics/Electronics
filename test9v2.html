@@ -10607,14 +10607,13 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
-function generateGrade9OpAmpProblem() {
-    // 1. Set the Mode for the Rocket/Escape logic
+function generateGrade9OpAmpProblem(ctx, canvas) {
+    // 1. Core State Setup
     currentMode = 'grade9opamp'; 
-    window.opAmpQuestionType = 'grade9'; // Flag for your 'checkAnswers' logic
+    window.opAmpQuestionType = 'grade9'; 
 
-    // 2. Clear UI
-    if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
-    
+    // 2. Clear UI - Note: we don't call hideAllInputGroups here 
+    // because HubController already did it.
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
     const modeA = document.getElementById('g9OpAmpModeA');
     const modeB = document.getElementById('g9OpAmpModeB');
@@ -10627,31 +10626,32 @@ function generateGrade9OpAmpProblem() {
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
 
-    // 4. Setup Canvas and pick Config
-    const canvas = document.getElementById('circuitCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear old drawing
-
+    // 4. Config & Circuit Drawing
     const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     window.opAmpTargetConfig = config;
-    const vcc = 15; // Supply Voltage
+    const vcc = 15; // Rails
 
-    // Draw the circuit
-    if (config === "Inverting") {
-        if (typeof drawInvertingAmp === 'function') drawInvertingAmp(ctx);
-    } else {
-        if (typeof drawNonInvertingAmp === 'function') drawNonInvertingAmp(ctx);
+    // Use the passed-in context to draw
+    if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (config === "Inverting") {
+            if (typeof drawInvertingAmp === 'function') drawInvertingAmp(ctx);
+        } else {
+            if (typeof drawNonInvertingAmp === 'function') drawNonInvertingAmp(ctx);
+        }
     }
 
-    // --- MODE 0: VOLTAGE ANALYSIS ---
+    // --- MODE 0: VOLTAGE ANALYSIS (Saturation Focus) ---
     if (window.g9OpAmpMode === 0) {
         if (modeA) modeA.style.display = 'block';
         if (modeB) modeB.style.display = 'none';
 
-        let rf = 10 * (Math.floor(Math.random() * 5) + 1); 
-        let rin = 10;
+        // Diversify Resistors: RF (10k-100k), RIN (2k-20k)
+        let rf = 10 * (Math.floor(Math.random() * 9) + 1); 
+        let rin = 2 * (Math.floor(Math.random() * 5) + 1);
+        
         let gain = (config === "Inverting") ? -(rf/rin) : (1 + (rf/rin));
-        let vin = (Math.random() * 2 + 1).toFixed(1); 
+        let vin = (Math.random() * 3 + 1).toFixed(1); // 1.0V to 4.0V
         
         let idealVout = vin * gain;
         let saturated = Math.abs(idealVout) > vcc;
@@ -10660,38 +10660,42 @@ function generateGrade9OpAmpProblem() {
         window.currentAnswers = { vin: vin, vout: finalVout.toFixed(1) };
         
         instructions.innerHTML = `
-            <b>TECHNICAL BRIEF:</b><br>
-            The amplifier shown is powered by a <b>±${vcc}V</b> supply. <br>
-            Component values: <b>R<sub>F</sub> = ${rf}kΩ</b> and <b>R<sub>IN</sub> = ${rin}kΩ</b>.<br><br>
-            1. Determine the expected V<sub>OUT</sub> for an input of <b>${vin}V</b>.<br>
-            2. <i>Note:</i> Account for power supply saturation.`;
+            <span style="color: #E64097; font-weight: bold;">ANALYSIS TASK</span><br>
+            Supply Voltage: <b>±${vcc}V</b><br>
+            Components: <b>R<sub>F</sub> = ${rf}kΩ</b>, <b>R<sub>IN</sub> = ${rin}kΩ</b>.<br><br>
+            Calculate <b>V<sub>OUT</sub></b> if <b>V<sub>IN</sub> = ${vin}V</b>.<br>
+            <small><i>Warning: Check for amplifier saturation!</i></small>`;
 
-        solText.innerHTML = `<b>Step 1:</b> Gain = ${gain.toFixed(1)}<br>
-                             <b>Step 2:</b> Ideal V<sub>OUT</sub> = ${vin}V × ${gain.toFixed(1)} = ${idealVout.toFixed(1)}V<br>
-                             <b>Step 3:</b> Since supply is ±15V, V<sub>OUT</sub> ${saturated ? "is saturated at <b>" + finalVout.toFixed(1) + "V</b>" : "is <b>" + finalVout.toFixed(1) + "V</b>"}.`;
+        solText.innerHTML = `
+            <b>1. Gain:</b> ${gain.toFixed(2)}<br>
+            <b>2. Ideal V<sub>out</sub>:</b> ${vin}V × ${gain.toFixed(2)} = ${idealVout.toFixed(2)}V<br>
+            <b>3. Result:</b> ${saturated ? "Saturated at <b>" + finalVout.toFixed(1) + "V</b>" : "<b>" + finalVout.toFixed(1) + "V</b>"}`;
     }
 
-    // --- MODE 1: COMPONENT DESIGN ---
+    // --- MODE 1: COMPONENT DESIGN (Synthesis Focus) ---
     else {
         if (modeA) modeA.style.display = 'none';
         if (modeB) modeB.style.display = 'block';
 
-        let targetVout = (config === "Inverting" ? -10 : 12);
-        let vin = 2;
+        // Pick a Target Vout that is physically possible (<15V)
+        let targetVout = config === "Inverting" ? -12 : 10;
+        let vin = (Math.random() > 0.5) ? 2 : 5;
         let requiredGain = targetVout / vin;
         
         window.targetGain = requiredGain;
         window.currentAnswers = { targetVout: targetVout, vin: vin };
 
         instructions.innerHTML = `
-            <b>TECHNICAL BRIEF:</b><br>
-            Design a ${config} circuit to produce an output of <b>${targetVout}V</b> from a <b>${vin}V</b> input signal.<br><br>
-            1. Select R<sub>F</sub> and R<sub>IN</sub> to achieve the required gain.<br>
-            2. Use values of <b>1kΩ or greater</b>.`;
+            <span style="color: #E64097; font-weight: bold;">DESIGN TASK</span><br>
+            Build a <b>${config}</b> circuit.<br>
+            <b>Goal:</b> V<sub>OUT</sub> = <b>${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
+            Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1kΩ).`;
 
-        solText.innerHTML = `<b>Step 1:</b> Required Gain = ${targetVout}V / ${vin}V = <b>${requiredGain}</b><br>
-                             <b>Step 2:</b> Use Gain formula to find R ratio.<br>
-                             <b>Example:</b> R<sub>F</sub> = ${Math.abs(requiredGain * 10)}kΩ, R<sub>IN</sub> = 10kΩ.`;
+        let formulaText = config === "Inverting" ? "Gain = -R<sub>F</sub> / R<sub>IN</sub>" : "Gain = 1 + (R<sub>F</sub> / R<sub>IN</sub>)";
+        solText.innerHTML = `
+            <b>1. Target Gain:</b> ${targetVout}/${vin} = <b>${requiredGain}</b><br>
+            <b>2. Formula:</b> ${formulaText}<br>
+            <b>3. Solution:</b> If R<sub>IN</sub> = 10kΩ, then R<sub>F</sub> = ${Math.abs(requiredGain * 10)}kΩ.`;
     }
 }
 //END OF CONTENT FUNCTIONS
