@@ -13491,6 +13491,22 @@ function hideAllInputGroups() {
     const showsolutionsBtn = document.getElementById('showsolutionsBtn');
     if (checkansBtn) checkansBtn.style.display = 'block';
     if (showsolutionsBtn) showsolutionsBtn.style.display = 'block';
+
+    // 👇 11. NEW: THE DRAG AND DROP WIPER (Cleans up Hinge / Block Elements) 👇
+    const blockDragBank = document.getElementById('blockBank');
+    if (blockDragBank) {
+        blockDragBank.style.display = 'none';
+        blockDragBank.innerHTML = ""; // Empty out any lingering blocks
+    }
+
+    // Hide any other potential block diagram containers
+    const blockOptions = document.getElementById('blockOptions');
+    if (blockOptions) blockOptions.style.display = 'none';
+    
+    // Safely remove any floating draggable items left behind
+    document.querySelectorAll('.draggable-block, .drag-item, .block-drop-zone').forEach(el => {
+        el.style.display = 'none';
+    });
 }
 
 // Master Switch on Load
