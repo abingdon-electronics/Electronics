@@ -11118,12 +11118,21 @@ function hubController(ctx, canvas) {
         if (typeof generateOpAmpProblem === "function") generateOpAmpProblem(ctx, canvas);
 
     } else if (currentMode === 'grade9opamp') {
-        if (document.getElementById('inputGroupGrade9OpAmp')) document.getElementById('inputGroupGrade9OpAmp').style.display = 'block';
-        // Hide rocket because they are ALREADY in Grade 9
-        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
-        if (typeof generateGrade9OpAmpProblem === "function") generateGrade9OpAmpProblem(ctx, canvas);
+        // 1. Show the group FIRST
+        const g9Group = document.getElementById('inputGroupGrade9OpAmp');
+        if (g9Group) g9Group.style.display = 'block';
+
+        // 2. Hide the rocket (as intended for G9)
+        if (document.getElementById('mainGrade9Btn')) {
+            document.getElementById('mainGrade9Btn').style.display = 'none';
+        }
+
+        // 3. NOW draw
+        if (typeof generateGrade9OpAmpProblem === "function") {
+            // Make sure your generator doesn't RE-CALL hubController or itself!
+            generateGrade9OpAmpProblem(ctx, canvas);
+        }
     }
-}
 //*****************************************************************************************
 // ==============================================================
 // INPUT PROCESS AND SCORING SECTION (THE GRADERS) 
