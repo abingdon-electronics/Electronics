@@ -10944,15 +10944,11 @@ function hubController(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     // --- STRIP OLD LISTENERS THE CLEAN WAY ---
-    
-    // 1. Bulletproof Rocket Button Trigger
     const rocketBtn = document.getElementById('mainGrade9Btn');
     if (rocketBtn) {
-        // This instantly overwrites ALL previous clicks/HTML attributes. No cloning needed!
         rocketBtn.onclick = handleGrade9Click; 
     }
 
-    // 2. Prevent "NAND" logic from firing in other modes
     const btnNext = document.getElementById('btnNext');
     if (btnNext) {
         btnNext.onclick = () => hubController(ctx, canvas);
@@ -10960,15 +10956,18 @@ function hubController(ctx, canvas) {
 
     const btnCheck = document.getElementById('btnCheck');
     if (btnCheck) {
-        // Re-attach the master checkAnswer function!
         btnCheck.onclick = checkAnswer; 
     }
     
-    // 2. Full UI Reset (The "Master Wipe")
+    // 2. Full UI Reset
     if (typeof hideAllInputGroups === "function") hideAllInputGroups();
     
-    // 👇 SAFETY CATCH: Force hide new panels just in case hideAllInputGroups() misses them! 👇
-    ['inputGroupGrade9Mosfet', 'inputGroupGrade9Transistor', 'inputGroupMosfet', 'inputGroupTransistor'].forEach(id => {
+    // SAFETY CATCH: Force hide specific panels
+    [
+        'inputGroupGrade9Mosfet', 'inputGroupGrade9Transistor', 
+        'inputGroupMosfet', 'inputGroupTransistor', 
+        'inputGroupOpAmp', 'inputGroupGrade9OpAmp' // 👈 Added Op-Amp IDs here
+    ].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.setProperty("display", "none", "important");
     });
@@ -10985,15 +10984,13 @@ function hubController(ctx, canvas) {
 
     // 3. Clear text containers
     const qText = document.getElementById('questionText');
-    if (qText) {
-        qText.innerHTML = '&nbsp;'; 
-    }
-    // 👇 ADD THIS TO CLEAR THE OP-AMP HINGE BOX 👇
+    if (qText) qText.innerHTML = '&nbsp;'; 
+
     const boxFormula = document.getElementById('boxFormula');
     if (boxFormula) {
         boxFormula.dataset.current = "";
-        boxFormula.innerHTML = "Drop Formula Here"; // Change to your default empty text
-        boxFormula.style.backgroundColor = ""; // Clears any colors from previous grading
+        boxFormula.innerHTML = "Drop Formula Here"; 
+        boxFormula.style.backgroundColor = ""; 
     }
 
     // 4. ROUTER: Setup the UI for the specific mode
@@ -11092,72 +11089,42 @@ function hubController(ctx, canvas) {
         if (typeof generateBlockBuilderProblem === "function") generateBlockBuilderProblem(ctx, canvas);
         
     } else if (currentMode === 'mosfet') {
-        if (document.getElementById('inputGroupMosfet')) {
-            document.getElementById('inputGroupMosfet').style.display = 'flex';
-        }
-        if (document.getElementById('mainGrade9Btn')) {
-            document.getElementById('mainGrade9Btn').style.display = 'inline-block';
-        }
-        if (typeof generateMosfetProblem === "function") {
-            generateMosfetProblem(ctx, canvas);
-        }
+        if (document.getElementById('inputGroupMosfet')) document.getElementById('inputGroupMosfet').style.display = 'flex';
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+        if (typeof generateMosfetProblem === "function") generateMosfetProblem(ctx, canvas);
 
     } else if (currentMode === 'transistor') {
-        if (document.getElementById('inputGroupTransistor')) {
-            document.getElementById('inputGroupTransistor').style.display = 'flex';
-        }
-        const rocket = document.getElementById('mainGrade9Btn');
-        if (rocket) {
-            rocket.style.setProperty("display", "inline-block", "important");
-            console.log("Hub: Rocket button forced to visible for Transistors");
-        }
+        if (document.getElementById('inputGroupTransistor')) document.getElementById('inputGroupTransistor').style.display = 'flex';
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateTransistorProblem === "function") generateTransistorProblem(ctx, canvas);
 
     } else if (currentMode === 'grade9transistor') {
-        if (document.getElementById('inputGroupGrade9Transistor')) {
-            document.getElementById('inputGroupGrade9Transistor').style.display = 'block';
-        }
-        if (document.getElementById('mainGrade9Btn')) {
-            document.getElementById('mainGrade9Btn').style.display = 'inline-block';
-        }
-        if (typeof generateGrade9TransistorProblem === "function") {
-            generateGrade9TransistorProblem(ctx, canvas);
-        }
-    }
+        if (document.getElementById('inputGroupGrade9Transistor')) document.getElementById('inputGroupGrade9Transistor').style.display = 'block';
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+        if (typeof generateGrade9TransistorProblem === "function") generateGrade9TransistorProblem(ctx, canvas);
 
-    else if (currentMode === 'grade9mosfet') {
-        if (document.getElementById('inputGroupGrade9Mosfet')) {
-            document.getElementById('inputGroupGrade9Mosfet').style.setProperty("display", "flex", "important");
-        }
-        if (document.getElementById('mainGrade9Btn')) {
-            document.getElementById('mainGrade9Btn').style.display = 'inline-block';
-        }
-        if (typeof generateGrade9MosfetProblem === "function") {
-            generateGrade9MosfetProblem(ctx, canvas);
-        }
+    } else if (currentMode === 'grade9mosfet') {
+        if (document.getElementById('inputGroupGrade9Mosfet')) document.getElementById('inputGroupGrade9Mosfet').style.display = 'flex';
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+        if (typeof generateGrade9MosfetProblem === "function") generateGrade9MosfetProblem(ctx, canvas);
+
     } else if (currentMode === 'comparator') {
-        if (document.getElementById('inputGroupComparator')) {
-            document.getElementById('inputGroupComparator').style.display = 'flex';
-        }
-        if (typeof generateComparatorProblem === "function") {
-            generateComparatorProblem(ctx, canvas);
-        }
-    } 
-    // 👇 NEW OP-AMP ROUTING ADDED HERE 👇
-    else if (currentMode === 'opamp') {
-        if (document.getElementById('inputGroupOpAmp')) {
-            document.getElementById('inputGroupOpAmp').style.display = 'flex';
-        }
-        // Hide the rocket button for Op-Amps initially
-        const rocket = document.getElementById('mainGrade9Btn');
-        if (rocket) rocket.style.display = 'none';
-        
-        if (typeof generateOpAmpProblem === "function") {
-            generateOpAmpProblem(ctx, canvas);
-        }
-    }
-}// This closes the hubController function 
+        if (document.getElementById('inputGroupComparator')) document.getElementById('inputGroupComparator').style.display = 'flex';
+        if (typeof generateComparatorProblem === "function") generateComparatorProblem(ctx, canvas);
 
+    } else if (currentMode === 'opamp') {
+        if (document.getElementById('inputGroupOpAmp')) document.getElementById('inputGroupOpAmp').style.display = 'flex';
+        // 🚀 SHOW rocket so they can switch to Grade 9
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
+        if (typeof generateOpAmpProblem === "function") generateOpAmpProblem(ctx, canvas);
+
+    } else if (currentMode === 'grade9opamp') {
+        if (document.getElementById('inputGroupGrade9OpAmp')) document.getElementById('inputGroupGrade9OpAmp').style.display = 'block';
+        // Hide rocket because they are ALREADY in Grade 9
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
+        if (typeof generateGrade9OpAmpProblem === "function") generateGrade9OpAmpProblem(ctx, canvas);
+    }
+}
 //*****************************************************************************************
 // ==============================================================
 // INPUT PROCESS AND SCORING SECTION (THE GRADERS) 
