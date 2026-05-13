@@ -13486,6 +13486,10 @@ function hideAllInputGroups() {
     const blockOverlay = document.getElementById('canvasOverlay');
     if (blockOverlay) blockOverlay.remove();
 
+    // 👇 ADD THIS NEW BLOCK: 9d. CLEAR OP-AMP HINGE OVERLAYS 👇
+    const opAmpOverlay = document.getElementById('opAmpCanvasOverlay');
+    if (opAmpOverlay) opAmpOverlay.remove();
+
     // 10. REVEAL ACTION BUTTONS
     const checkansBtn = document.getElementById('checkansBtn');
     const showsolutionsBtn = document.getElementById('showsolutionsBtn');
