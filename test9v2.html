@@ -12225,38 +12225,42 @@ function checkAnswers() {
                 
      // 👇 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
-        // Define UI elements up front so they are safe to use anywhere in this block
+        console.log("--- Op-Amp Grading Started ---");
+        
         const gainInput = document.getElementById('opAmpGain');
         const voutInput = document.getElementById('opAmpVout');
-        const designInput = document.getElementById('opAmpRf');
-        const designInput2 = document.getElementById('opAmpBW');
+        const designInputRf = document.getElementById('opAmpRf');
+        const designInputRin = document.getElementById('opAmpBW');
         const solDiv = document.getElementById('solutions');
 
-        // Visibility checks
-        const isGainVisible = !!gainInput && gainInput.offsetParent !== null;
-        const isVoutVisible = !!voutInput && voutInput.offsetParent !== null;
-        const isDesignVisible = !!designInput && designInput.offsetParent !== null;
+        const isGainVisible = !!(gainInput && gainInput.offsetParent);
+        const isVoutVisible = !!(voutInput && voutInput.offsetParent);
+        const isDesignVisible = !!(designInputRf && designInputRf.offsetParent);
+
+        console.log("Visibility Check -> Gain:", isGainVisible, "Vout:", isVoutVisible, "Design:", isDesignVisible);
 
         const isCalcMode = isGainVisible || isVoutVisible;
         const isDesignMode = isDesignVisible && !isCalcMode;
 
         // --- BRANCH A: CALCULATION MODE ---
         if (isCalcMode) {
+            console.log("Grading Branch: CALCULATION");
             window.opAmpQuestionType = 'calc'; 
 
             if (isGainVisible) {
-                // Safely get expected value from your window object
-                let expectedGain = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "err";
-                // Your parseInput handles the cleaning, so we just pass the raw value
-                results.push(validateMatch(parseInput(gainInput.value), expectedGain, 'none'));
+                let expectedGain = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : 0;
+                let parsed = parseInput(gainInput.value);
+                console.log("Gain Check -> User:", parsed, "Target:", expectedGain);
+                results.push(validateMatch(parsed, expectedGain, 'none'));
             }
             
             if (isVoutVisible) {
-                let expectedVout = (window.currentAnswers && window.currentAnswers.vout) ? window.currentAnswers.vout : "err";
-                results.push(validateMatch(parseInput(voutInput.value), expectedVout, 'V'));
+                let expectedVout = (window.currentAnswers && window.currentAnswers.vout) ? window.currentAnswers.vout : 0;
+                let parsed = parseInput(voutInput.value);
+                console.log("Vout Check -> User:", parsed, "Target:", expectedVout);
+                results.push(validateMatch(parsed, expectedVout, 'V'));
             }
 
-            // Step-by-Step UI update
             if (isGainVisible && solDiv) {
                 let gainDisplay = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "";
                 let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
@@ -12268,65 +12272,72 @@ function checkAnswers() {
         
         // --- BRANCH B: DESIGN MODE ---
         else if (isDesignMode) {
+            console.log("Grading Branch: DESIGN");
             window.opAmpQuestionType = 'design';
 
-            let parsedRf = parseInput(designInput.value);
-            let parsedRin = parseInput(designInput2 ? designInput2.value : "");
+            let pRf = parseInput(designInputRf ? designInputRf.value : "");
+            let pRin = parseInput(designInputRin ? designInputRin.value : "");
             
-            // Safety Check: Only calculate if both inputs actually returned a parsed object
             let rfBase = 0, rinBase = 0;
-            if (parsedRf && parsedRf.val !== null) {
-                let factor = (parsedRf.unit === 'kΩ') ? 1000 : (parsedRf.unit === 'MΩ' ? 1000000 : 1);
-                rfBase = parsedRf.val * factor;
+            if (pRf && pRf.val !== null) {
+                let factor = (pRf.unit === 'kΩ') ? 1000 : (pRf.unit === 'MΩ' ? 1000000 : 1);
+                rfBase = pRf.val * factor;
             }
-            if (parsedRin && parsedRin.val !== null) {
-                let factor = (parsedRin.unit === 'kΩ') ? 1000 : (parsedRin.unit === 'MΩ' ? 1000000 : 1);
-                rinBase = parsedRin.val * factor;
+            if (pRin && pRin.val !== null) {
+                let factor = (pRin.unit === 'kΩ') ? 1000 : (pRin.unit === 'MΩ' ? 1000000 : 1);
+                rinBase = pRin.val * factor;
             }
 
-            // Determine if the user's chosen resistors meet the design requirement
-            let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : (window.targetGain - 1);
-            let isCorrectRatio = (rfBase > 0 && rinBase > 0 && Math.abs((rfBase / rinBase) - expectedRatio) < 0.01);
+            let targetRatio = (window.opAmpTargetConfig === "Inverting") ? Math.abs(window.targetGain) : (window.targetGain - 1);
+            let actualRatio = (rfBase > 0 && rinBase > 0) ? (rfBase / rinBase) : 0;
+            let isCorrect = (rfBase > 0 && rinBase > 0 && Math.abs(actualRatio - targetRatio) < 0.01);
 
-            // Grade using the user's own numbers as the target if the ratio is correct
-            let targetRf = isCorrectRatio ? rfBase : "err";
-            let targetRin = isCorrectRatio ? rinBase : "err";
+            console.log("Design Ratio Check -> Target:", targetRatio, "User Actual:", actualRatio, "Match:", isCorrect);
 
-            results.push(validateMatch(parsedRf, targetRf, 'Ω'));
-            results.push(validateMatch(parsedRin, targetRin, 'Ω'));
+            let resRf = validateMatch(pRf, isCorrect ? rfBase : "err", 'Ω');
+            let resRin = validateMatch(pRin, isCorrect ? rinBase : "err", 'Ω');
+            
+            console.log("Design Validation Results -> Rf:", resRf, "Rin:", resRin);
+            results.push(resRf);
+            results.push(resRin);
         }
 
         // --- BRANCH C: HINGE / WIRING MODE ---
         else if (window.opAmpQuestionType === 'hinge' && activeInputs.length === 0) {
+            console.log("Grading Branch: HINGE/WIRING");
             let isWiringCorrect = false;
             let customFeedback = "";
-            const formulaBox = document.getElementById('boxFormula');
-            const droppedId = formulaBox ? (formulaBox.dataset.current || "") : "";
+            const fBox = document.getElementById('boxFormula');
+            const dId = fBox ? (fBox.dataset.current || "") : "";
+
+            console.log("Wiring States -> Top:", window.topWireState, "Bottom:", window.bottomWireState, "FormulaID:", dId);
 
             if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
-                customFeedback = "❌ Both inputs are connected to the signal! You shorted the inputs.";
+                customFeedback = "❌ Both inputs are connected to the signal!";
             } else if (window.topWireState === 'vertical' && window.bottomWireState === 'vertical') {
-                customFeedback = "❌ Both inputs are grounded! Vout will permanently be zero.";
+                customFeedback = "❌ Both inputs are grounded!";
             } else if (window.opAmpTargetConfig === "Inverting") {
                 if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
-                    if (droppedId === "inv") isWiringCorrect = true;
-                    else customFeedback = "❌ Wiring is correct, but the gain formula is wrong.";
-                } else customFeedback = "❌ Incorrect wiring. Input signal must go to the (-) terminal.";
-            } else { // Non-Inverting
+                    if (dId === "inv") isWiringCorrect = true;
+                    else customFeedback = "❌ Wiring is correct, but formula is wrong.";
+                } else customFeedback = "❌ Input must go to the (-) terminal.";
+            } else { 
                 if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
-                    if (droppedId === "non-inv") isWiringCorrect = true;
-                    else customFeedback = "❌ Wiring is correct, but the gain formula is wrong.";
-                } else customFeedback = "❌ Incorrect wiring. Input signal must go to the (+) terminal.";
+                    if (dId === "non-inv") isWiringCorrect = true;
+                    else customFeedback = "❌ Wiring is correct, but formula is wrong.";
+                } else customFeedback = "❌ Input must go to the (+) terminal.";
             }
 
             if (isWiringCorrect) {
                 results.push('correct');
             } else {
                 results.push('wrongval');
-                const feedbackEl = document.getElementById('feedback');
-                if (feedbackEl) feedbackEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
+                console.log("Hinge Error:", customFeedback);
+                const feedEl = document.getElementById('feedback');
+                if (feedEl) feedEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
             }
         }
+        console.log("Final Results Array:", results);
     }
 }
 
