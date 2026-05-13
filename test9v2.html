@@ -9575,8 +9575,7 @@ function generateMosfetProblem(ctx, canvas) {
         
         // This is the fix: Tell the button what to do when clicked
         rocket.onclick = handleGrade9Click;
-        };
-    }
+    } // FIXED: Removed the extra }; and } that were breaking the function here!
     
     const mainGroup = document.getElementById('inputGroupMosfet');
     if (mainGroup) {
@@ -9618,11 +9617,13 @@ function generateMosfetProblem(ctx, canvas) {
     if (typeof window.mosfetMode === 'undefined') window.mosfetMode = 0;
     else window.mosfetMode = (window.mosfetMode + 1) % 2;
 
-    // 2. Canvas Setup
+    // 3. Canvas Setup & Fallback
+    // If the Hub didn't pass ctx/canvas, this safely grabs them!
     if (!ctx || !canvas) {
         canvas = document.getElementById('circuitCanvas');
         ctx = canvas ? canvas.getContext('2d') : null;
     }
+
     if (ctx && canvas) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.lineWidth = 2;
