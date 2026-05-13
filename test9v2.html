@@ -9574,8 +9574,7 @@ function generateMosfetProblem(ctx, canvas) {
         rocket.style.setProperty("display", "inline-block", "important");
         
         // This is the fix: Tell the button what to do when clicked
-        rocket.onclick = function() {
-            generateGrade9MosfetProblem();
+        rocket.onclick = handleGrade9Click;
         };
     }
     
@@ -10838,7 +10837,8 @@ function switchTab(mode) {
         'inputGroupMosfet',
         'inputGroupGrade9Mosfet',
         'inputGroupComparator',
-        'inputGroupOpAmp' 
+        'inputGroupOpAmp',
+        'inputGroupGrade9OpAmp' // 👇 ADDED THIS
     ];
 
     elementsToHide.forEach(id => {
@@ -10857,11 +10857,8 @@ function switchTab(mode) {
         else if (['logic_ic', 'logic_system', 'logic_boolean', 'logic_nand', 'grade9boolean'].includes(mode)) subtitle.innerText = "Module 2: Logic Gates"; 
         else if (['transistor', 'mosfet', 'grade9transistor', 'grade9mosfet'].includes(mode)) subtitle.innerText = "Module 6: Transistors"; 
         
-        // COMPARATOR DISABLED FOR NOW
-        // else if (['comparator', 'opamp'].includes(mode)) subtitle.innerText = "Module 7: Op Amps"; 
-        
-        // OP-AMP ACTIVE
-        else if (mode === 'opamp') subtitle.innerText = "Module 7: Op Amps"; 
+        // 👇 UPDATED: OP-AMP & COMPARATOR
+        else if (['opamp', 'comparator', 'grade9opamp'].includes(mode)) subtitle.innerText = "Module 7: Op Amps"; 
     }
 
     // 5. Global Cleanup
@@ -10889,8 +10886,8 @@ function switchTab(mode) {
         return; 
     }
 
-    // ROCKET RESCUE: If we just switched to Transistors OR MOSFETs, show the G9 button!
-    if (mode === 'transistor' || mode === 'mosfet') {
+    // 👇 ROCKET RESCUE: Added 'opamp' to the list of modules that show the button
+    if (['transistor', 'mosfet', 'opamp', 'comparator'].includes(mode)) {
         const rocket = document.getElementById('mainGrade9Btn');
         if (rocket) rocket.style.display = 'inline-block';
     }
