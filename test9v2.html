@@ -12225,12 +12225,7 @@ function checkAnswers() {
                 
     // 👇 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
-        console.log("Op-Amp Grading Started...");
-        
-        // --- 1. RESET STATE ---
-        // Ensure global state doesn't "leak" from the previous question
-        window.opAmpQuestionType = ''; 
-
+        window.opAmpQuestionType = ''; // Reset type
         const gainIn = document.getElementById('opAmpGain');
         const voutIn = document.getElementById('opAmpVout');
         const rfIn = document.getElementById('opAmpRf');
@@ -12241,22 +12236,19 @@ function checkAnswers() {
         const isVoutVisible = !!(voutIn && voutIn.offsetParent);
         const isDesignVisible = !!(rfIn && rfIn.offsetParent);
 
-        // --- 2. BRANCH A: CALCULATION MODE ---
+        // --- BRANCH A: CALCULATION MODE ---
         if (isGainVisible || isVoutVisible) {
             window.opAmpQuestionType = 'calc'; 
-
             if (isGainVisible) {
                 activeInputs.push('opAmpGain');
                 let target = (window.currentAnswers && window.currentAnswers.gain) || 0;
                 results.push(validateMatch(parseInput(gainIn.value), target, 'none'));
             }
-            
             if (isVoutVisible) {
                 activeInputs.push('opAmpVout');
                 let target = (window.currentAnswers && window.currentAnswers.vout) || 0;
                 results.push(validateMatch(parseInput(voutIn.value), target, 'V'));
             }
-
             if (isGainVisible && solDiv) {
                 let gDisp = (window.currentAnswers && window.currentAnswers.gain) || "";
                 let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
@@ -12265,62 +12257,126 @@ function checkAnswers() {
                 solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
             }
         } 
-        
-        // --- 3. BRANCH B: DESIGN MODE ---
+        // --- BRANCH B: DESIGN MODE ---
         else if (isDesignVisible) {
             window.opAmpQuestionType = 'design';
             activeInputs.push('opAmpRf', 'opAmpBW');
-
             let pRf = parseInput(rfIn ? rfIn.value : "");
             let pRin = parseInput(rinIn ? rinIn.value : "");
-            
             const getBase = (p) => {
                 if (!p || p.val === null) return 0;
                 let mult = (p.unit === 'kΩ') ? 1000 : (p.unit === 'MΩ' ? 1000000 : 1);
                 return p.val * mult;
             };
-
             let rfBase = getBase(pRf);
             let rinBase = getBase(pRin);
             let targetRatio = (window.opAmpTargetConfig === "Inverting") ? Math.abs(window.targetGain) : (window.targetGain - 1);
             let isCorrect = (rfBase > 0 && rinBase > 0 && Math.abs((rfBase / rinBase) - targetRatio) < 0.01);
-
             results.push(validateMatch(pRf, isCorrect ? (pRf.val || 0) : "err", pRf ? pRf.unit : 'Ω'));
             results.push(validateMatch(pRin, isCorrect ? (pRin.val || 0) : "err", pRin ? pRin.unit : 'Ω'));
         }
-
-        // --- 4. BRANCH C: HINGE / WIRING MODE ---
+        // --- BRANCH C: HINGE / WIRING MODE ---
         else {
             window.opAmpQuestionType = 'hinge';
             let isWiringCorrect = false;
             let customFeedback = "";
             const fBox = document.getElementById('boxFormula');
             const dId = fBox ? (fBox.dataset.current || "") : "";
-
-            if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
-                customFeedback = "❌ Both inputs are connected to the signal!";
-            } else if (window.topWireState === 'vertical' && window.bottomWireState === 'vertical') {
-                customFeedback = "❌ Both inputs are grounded!";
-            } else if (window.opAmpTargetConfig === "Inverting") {
+            if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') customFeedback = "❌ Both connected to signal!";
+            else if (window.topWireState === 'vertical' && window.bottomWireState === 'vertical') customFeedback = "❌ Both grounded!";
+            else if (window.opAmpTargetConfig === "Inverting") {
                 if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
                     if (dId === "inv") isWiringCorrect = true;
-                    else customFeedback = "❌ Wiring is correct, but formula is wrong.";
-                } else customFeedback = "❌ Input must go to the (-) terminal.";
+                    else customFeedback = "❌ Wiring correct, formula wrong.";
+                } else customFeedback = "❌ Signal must go to (-).";
             } else { 
                 if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
                     if (dId === "non-inv") isWiringCorrect = true;
-                    else customFeedback = "❌ Wiring is correct, but formula is wrong.";
-                } else customFeedback = "❌ Input must go to the (+) terminal.";
+                    else customFeedback = "❌ Wiring correct, formula wrong.";
+                } else customFeedback = "❌ Signal must go to (+).";
             }
-
             if (isWiringCorrect) results.push('correct');
             else {
                 results.push('wrongval');
-                const feedEl = document.getElementById('feedback');
-                if (feedEl) feedEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
+                const fEl = document.getElementById('feedback');
+                if (fEl) fEl.innerHTML = `<span style='color: #dc3545;'>${customFeedback}</span>`;
             }
         }
     }
+
+    // --- 5. FINAL FEEDBACK AND SCORING (RE-INTEGRATED FROM HISTORY) ---
+    activeInputs.forEach((id, index) => {
+        const el = document.getElementById(id);
+        if (el) {
+            let mainColor = "";
+            if (results[index] === 'wrongunit') {
+                mainColor = "#fd7e14"; 
+            } else if (results[index] === 'correct' || results[index] === 'manydecimals') {
+                mainColor = "#28a745"; 
+            } else {
+                mainColor = "#dc3545"; 
+            }
+            el.style.setProperty('border-color', mainColor, 'important');
+            el.style.setProperty('border-width', '2px', 'important');
+            el.style.setProperty('border-style', 'solid', 'important');
+            el.style.setProperty('box-shadow', `0 0 5px ${mainColor}`, 'important');
+            el.style.setProperty('color', '#333', 'important');
+            el.style.setProperty('background-color', '#ffffff', 'important');
+        }
+    });
+
+    const isPass = results.length > 0 && results.every(r => r === 'correct' || r === 'manydecimals');
+    const hasLongDecimals = results.includes('manydecimals');
+    const fEl = document.getElementById('feedback');
+
+    if (isPass) {
+        isCurrentProblemSolved = true;
+        if (canEarnPoints) {
+            if (hasLongDecimals && fEl) {
+                fEl.innerHTML = "<span style='color: #D4A017;'>Correct! (Tip: Round to 2-3 decimal places).</span>";
+            } else if (fEl) {
+                fEl.innerHTML = "<span style='color: #198754;'>Correct! Great job!</span>";
+            }
+            problemsCorrect++; 
+        } else if (typeof viewedSolution !== 'undefined' && viewedSolution && fEl) {
+            fEl.innerHTML = "<span style='color: #E64097;'>Correct! (Solution viewed, 0 points).</span>";
+        } else if (typeof unitErrorMade !== 'undefined' && unitErrorMade && fEl) {
+            fEl.innerHTML = "<span style='color: #fd7e14;'>Correct! (Unit fixed, 0 points).</span>";
+        } else if (fEl) {
+            fEl.innerHTML = "<span style='color: #dc3545;'>Correct! (Took multiple tries, 0 points).</span>";
+        }
+        
+        canEarnPoints = false; 
+        const showSolBtn = document.getElementById('showsolutionsBtn');
+        if (showSolBtn) showSolBtn.style.display = 'none';
+
+    } else {
+        canEarnPoints = false; 
+        const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
+        let isCurrentlyHinge = (currentMode === 'opamp' && window.opAmpQuestionType === 'hinge' && activeInputs.length === 0);
+
+        if (!isCurrentlyHinge && fEl) {
+            if (results.includes('wrongunit')) {
+                if (typeof unitErrorMade !== 'undefined') unitErrorMade = true;
+                fEl.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost).</span>";
+            } else if (correctCount > 0) {
+                fEl.innerHTML = `<span style='color: #dc3545;'>Partially correct (${correctCount}/${results.length}). (Mark lost).</span>`;
+            } else {
+                fEl.innerHTML = "<span style='color: #dc3545;'>Incorrect. (Mark lost). See solution below.</span>";
+            }
+        }
+
+        const solDiv = document.getElementById('solutions');
+        if (solDiv) solDiv.style.display = 'block';
+        if (typeof viewedSolution !== 'undefined') viewedSolution = true;
+        const showSolBtn = document.getElementById('showsolutionsBtn');
+        if (showSolBtn) showSolBtn.style.display = 'none';
+    }
+
+    const checkansBtn = document.getElementById('checkansBtn');
+    if (checkansBtn) checkansBtn.style.display = 'none';
+    
+    if (typeof updateScoreboard === "function") updateScoreboard();
 } // Closing Bracket for Check Answers
 
 // **********************************************************************
