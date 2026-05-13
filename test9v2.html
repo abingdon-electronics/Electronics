@@ -12963,32 +12963,38 @@ function provideHint() {
             </div>`;
 
 } else if (currentMode === 'opamp') {
-        let specificHint = "";
-        
-        if (window.opAmpQuestionType === 'hinge') {
-            specificHint = `
-                <br><br><b>Wiring & Formulas</b><br>
-                • <b>Inverting:</b> The input signal connects to the negative (-) terminal through a resistor. The other terminal (+) angles down to ground. Inverting Op-Amps have a minus sign in their Data Sheet formula!<br>
-                • <b>Non-Inverting:</b> The input signal connects directly to the positive (+) terminal. The other terminal (-) angles down to ground through a resistor. Its Data Sheet formula features a plus sign.`;
-        } else if (window.opAmpQuestionType === 'calcGain') {
-            specificHint = `
-                <br><br><b>Calculating Gain & V<sub>out</sub></b><br>
-                1. Check your Exam Data Sheet to find the correct Gain formula for this specific amplifier configuration.<br>
-                2. Once you have calculated the Voltage Gain (<b>G</b>), remember the core rule of amplifiers: The output voltage (V<sub>out</sub>) is simply the input voltage multiplied by the Gain!`;
-            
-        } else if (window.opAmpQuestionType === 'design') {
-            specificHint = `
-                <br><br><b>Design Strategy</b><br>
-                • First, check your Exam Data Sheet for the correct formula. Remember: <b>Inverting</b> amplifiers have a negative gain formula, while <b>Non-Inverting</b> amplifiers have a formula with a plus sign.<br>
-                • For GCSE, choose resistor values of e <b>1 k&Omega; or greater</b>.<br>
-                <em>Pro-Tip:</em> Don't overcomplicate the math! Pick a simple starting value for your input/ground resistor (like 1 k&Omega; or 10 k&Omega;), plug it into your data sheet formula alongside your target gain of <b>${window.targetGain}</b>, and solve for R<sub>F</sub>.`;
-        }
+    let specificHint = "";
+    
+    // Safety check: if targetGain is missing, avoid showing 'undefined'
+    let displayGain = window.targetGain || "the required";
 
-        helpText = `
-            <div style="${blueBox}">
-                <strong>💡 Op-Amp Hint:</strong>
-                ${specificHint}
-            </div>`;
+    if (window.opAmpQuestionType === 'hinge') {
+        specificHint = `
+            <br><br><b>Wiring & Formulas</b><br>
+            • <b>Inverting:</b> The input signal connects to the negative (-) terminal through a resistor. The other terminal (+) goes to ground. Look for the <b>minus sign</b> in the Data Sheet formula!<br>
+            • <b>Non-Inverting:</b> The input signal connects directly to the positive (+) terminal. The other terminal (-) goes to ground through a resistor. The formula features a <b>1 +</b> calculation.`;
+    } 
+    // FIXED: Changed 'calcGain' to 'calc' to match your grading logic
+    else if (window.opAmpQuestionType === 'calc') {
+        specificHint = `
+            <br><br><b>Calculating Gain & V<sub>out</sub></b><br>
+            1. Identify the type: Signal into (-) is Inverting; Signal into (+) is Non-Inverting.<br>
+            2. Check your Exam Data Sheet for the correct Gain formula.`;
+    } 
+    else if (window.opAmpQuestionType === 'design') {
+        specificHint = `
+            <br><br><b>Design Strategy</b><br>
+            • <b>Inverting:</b> |Gain| = R<sub>F</sub> / R<sub>IN</sub>. <br>
+            • <b>Non-Inverting:</b> Gain = 1 + (R<sub>F</sub> / R<sub>1</sub>).<br>
+            • <b>GCSE Rule:</b> Use resistor values of <b>1 k&Omega; or greater</b>.<br>
+            <em>Pro-Tip:</em> Pick a simple value for your bottom resistor (like 10 k&Omega;), then use your target gain of <b>${displayGain}</b> to calculate the required R<sub>F</sub>.`;
+    }
+
+    helpText = `
+        <div style="${blueBox}">
+            <strong>💡 Op-Amp Hint:</strong>
+            ${specificHint}
+        </div>`;
         
     } else {
         // Potential Divider & General fallback
