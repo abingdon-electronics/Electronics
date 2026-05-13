@@ -12223,94 +12223,84 @@ function checkAnswers() {
                 results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
             }
                 
-     // 👇 OP-AMP GRADING LOGIC 👇
+    // 👇 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
-        console.log("--- Op-Amp Grading Started ---");
-        
-        const gainInput = document.getElementById('opAmpGain');
-        const voutInput = document.getElementById('opAmpVout');
-        const designInputRf = document.getElementById('opAmpRf');
-        const designInputRin = document.getElementById('opAmpBW');
+        console.log("Op-Amp Logic Triggered");
+
+        // 1. SAFELY grab elements (Check if they exist before touching them)
+        const gainIn = document.getElementById('opAmpGain');
+        const voutIn = document.getElementById('opAmpVout');
+        const rfIn = document.getElementById('opAmpRf');
+        const rinIn = document.getElementById('opAmpBW'); // This is the RIN box in design mode
         const solDiv = document.getElementById('solutions');
 
-        const isGainVisible = !!(gainInput && gainInput.offsetParent);
-        const isVoutVisible = !!(voutInput && voutInput.offsetParent);
-        const isDesignVisible = !!(designInputRf && designInputRf.offsetParent);
-
-        console.log("Visibility Check -> Gain:", isGainVisible, "Vout:", isVoutVisible, "Design:", isDesignVisible);
+        // 2. Determine visibility (Double !! converts to boolean)
+        const isGainVisible = !!(gainIn && gainIn.offsetParent);
+        const isVoutVisible = !!(voutIn && voutIn.offsetParent);
+        const isDesignVisible = !!(rfIn && rfIn.offsetParent);
 
         const isCalcMode = isGainVisible || isVoutVisible;
         const isDesignMode = isDesignVisible && !isCalcMode;
 
         // --- BRANCH A: CALCULATION MODE ---
         if (isCalcMode) {
-            console.log("Grading Branch: CALCULATION");
             window.opAmpQuestionType = 'calc'; 
 
             if (isGainVisible) {
-                let expectedGain = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : 0;
-                let parsed = parseInput(gainInput.value);
-                console.log("Gain Check -> User:", parsed, "Target:", expectedGain);
-                results.push(validateMatch(parsed, expectedGain, 'none'));
+                activeInputs.push('opAmpGain');
+                let targetG = (window.currentAnswers && window.currentAnswers.gain) || 0;
+                results.push(validateMatch(parseInput(gainIn.value), targetG, 'none'));
             }
             
             if (isVoutVisible) {
-                let expectedVout = (window.currentAnswers && window.currentAnswers.vout) ? window.currentAnswers.vout : 0;
-                let parsed = parseInput(voutInput.value);
-                console.log("Vout Check -> User:", parsed, "Target:", expectedVout);
-                results.push(validateMatch(parsed, expectedVout, 'V'));
+                activeInputs.push('opAmpVout');
+                let targetV = (window.currentAnswers && window.currentAnswers.vout) || 0;
+                results.push(validateMatch(parseInput(voutIn.value), targetV, 'V'));
             }
 
+            // Step-by-Step UI
             if (isGainVisible && solDiv) {
-                let gainDisplay = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "";
+                let gDisp = (window.currentAnswers && window.currentAnswers.gain) || "";
                 let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
-                    `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gainDisplay}</b>` :
-                    `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gainDisplay}</b>`;
+                    `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gDisp}</b>` :
+                    `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gDisp}</b>`;
                 solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
             }
         } 
         
         // --- BRANCH B: DESIGN MODE ---
         else if (isDesignMode) {
-            console.log("Grading Branch: DESIGN");
             window.opAmpQuestionType = 'design';
+            activeInputs.push('opAmpRf', 'opAmpBW');
 
-            let pRf = parseInput(designInputRf ? designInputRf.value : "");
-            let pRin = parseInput(designInputRin ? designInputRin.value : "");
+            let pRf = parseInput(rfIn ? rfIn.value : "");
+            let pRin = parseInput(rinIn ? rinIn.value : "");
             
-            let rfBase = 0, rinBase = 0;
-            if (pRf && pRf.val !== null) {
-                let factor = (pRf.unit === 'kΩ') ? 1000 : (pRf.unit === 'MΩ' ? 1000000 : 1);
-                rfBase = pRf.val * factor;
-            }
-            if (pRin && pRin.val !== null) {
-                let factor = (pRin.unit === 'kΩ') ? 1000 : (pRin.unit === 'MΩ' ? 1000000 : 1);
-                rinBase = pRin.val * factor;
-            }
+            // Convert to base units for the ratio check
+            const getBase = (p) => {
+                if (!p || p.val === null) return 0;
+                let mult = (p.unit === 'kΩ') ? 1000 : (p.unit === 'MΩ' ? 1000000 : 1);
+                return p.val * mult;
+            };
+
+            let rfBase = getBase(pRf);
+            let rinBase = getBase(pRin);
 
             let targetRatio = (window.opAmpTargetConfig === "Inverting") ? Math.abs(window.targetGain) : (window.targetGain - 1);
-            let actualRatio = (rfBase > 0 && rinBase > 0) ? (rfBase / rinBase) : 0;
-            let isCorrect = (rfBase > 0 && rinBase > 0 && Math.abs(actualRatio - targetRatio) < 0.01);
+            let isCorrect = (rfBase > 0 && rinBase > 0 && Math.abs((rfBase / rinBase) - targetRatio) < 0.01);
 
-            console.log("Design Ratio Check -> Target:", targetRatio, "User Actual:", actualRatio, "Match:", isCorrect);
+            console.log("Design Check:", { rfBase, rinBase, targetRatio, isCorrect });
 
-            let resRf = validateMatch(pRf, isCorrect ? rfBase : "err", 'Ω');
-            let resRin = validateMatch(pRin, isCorrect ? rinBase : "err", 'Ω');
-            
-            console.log("Design Validation Results -> Rf:", resRf, "Rin:", resRin);
-            results.push(resRf);
-            results.push(resRin);
+            results.push(validateMatch(pRf, isCorrect ? (pRf.val || 0) : "err", pRf ? pRf.unit : 'Ω'));
+            results.push(validateMatch(pRin, isCorrect ? (pRin.val || 0) : "err", pRin ? pRin.unit : 'Ω'));
         }
 
         // --- BRANCH C: HINGE / WIRING MODE ---
-        else if (window.opAmpQuestionType === 'hinge' && activeInputs.length === 0) {
-            console.log("Grading Branch: HINGE/WIRING");
+        else if (window.opAmpQuestionType === 'hinge' && (activeInputs.length === 0)) {
             let isWiringCorrect = false;
             let customFeedback = "";
             const fBox = document.getElementById('boxFormula');
             const dId = fBox ? (fBox.dataset.current || "") : "";
-
-            console.log("Wiring States -> Top:", window.topWireState, "Bottom:", window.bottomWireState, "FormulaID:", dId);
 
             if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
                 customFeedback = "❌ Both inputs are connected to the signal!";
@@ -12332,14 +12322,13 @@ function checkAnswers() {
                 results.push('correct');
             } else {
                 results.push('wrongval');
-                console.log("Hinge Error:", customFeedback);
                 const feedEl = document.getElementById('feedback');
                 if (feedEl) feedEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
             }
         }
-        console.log("Final Results Array:", results);
+        console.log("Current Results:", results);
     }
-}
+} // Closing Bracket for Check Answers
 
 // **********************************************************************
 /**
