@@ -12223,9 +12223,9 @@ function checkAnswers() {
                 results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
             }
                 
-    // 👇 OP-AMP GRADING LOGIC 👇
+  // 👇 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
-        window.opAmpQuestionType = ''; // Reset type
+        window.opAmpQuestionType = ''; 
         const gainIn = document.getElementById('opAmpGain');
         const voutIn = document.getElementById('opAmpVout');
         const rfIn = document.getElementById('opAmpRf');
@@ -12242,7 +12242,8 @@ function checkAnswers() {
             if (isGainVisible) {
                 activeInputs.push('opAmpGain');
                 let target = (window.currentAnswers && window.currentAnswers.gain) || 0;
-                results.push(validateMatch(parseInput(gainIn.value), target, 'none'));
+                // FIX: Changed 'none' to '' so unitless gain doesn't trigger "Wrong Units"
+                results.push(validateMatch(parseInput(gainIn.value), target, ''));
             }
             if (isVoutVisible) {
                 activeInputs.push('opAmpVout');
@@ -12263,17 +12264,31 @@ function checkAnswers() {
             activeInputs.push('opAmpRf', 'opAmpBW');
             let pRf = parseInput(rfIn ? rfIn.value : "");
             let pRin = parseInput(rinIn ? rinIn.value : "");
+            
             const getBase = (p) => {
                 if (!p || p.val === null) return 0;
-                let mult = (p.unit === 'kΩ') ? 1000 : (p.unit === 'MΩ' ? 1000000 : 1);
+                let mult = (p.unit === 'kΩ' || p.unit === 'k') ? 1000 : (p.unit === 'MΩ' || p.unit === 'M' ? 1000000 : 1);
                 return p.val * mult;
             };
+
             let rfBase = getBase(pRf);
             let rinBase = getBase(pRin);
-            let targetRatio = (window.opAmpTargetConfig === "Inverting") ? Math.abs(window.targetGain) : (window.targetGain - 1);
+            let targetGain = window.targetGain || 0;
+            let targetRatio = (window.opAmpTargetConfig === "Inverting") ? Math.abs(targetGain) : (targetGain - 1);
             let isCorrect = (rfBase > 0 && rinBase > 0 && Math.abs((rfBase / rinBase) - targetRatio) < 0.01);
+
             results.push(validateMatch(pRf, isCorrect ? (pRf.val || 0) : "err", pRf ? pRf.unit : 'Ω'));
             results.push(validateMatch(pRin, isCorrect ? (pRin.val || 0) : "err", pRin ? pRin.unit : 'Ω'));
+
+            // FIX: Added Solution Text for Design Challenge
+            if (solDiv) {
+                let formulaText = (window.opAmpTargetConfig === "Inverting") ? `|G| = R<sub>F</sub> / R<sub>IN</sub>` : `(G - 1) = R<sub>F</sub> / R<sub>1</sub>`;
+                let stepHtml = `<b>Step 1:</b> Identify Type: ${window.opAmpTargetConfig} Amp.<br>
+                                <b>Step 2:</b> Required Ratio: ${formulaText}<br>
+                                <b>Step 3:</b> Target Ratio = <b>${targetRatio.toFixed(2)}</b><br>
+                                <b>Step 4:</b> Pick resistors that match: (e.g., R<sub>F</sub> = ${(targetRatio * 10).toFixed(1)}kΩ and R<sub>IN</sub> = 10kΩ)`;
+                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+            }
         }
         // --- BRANCH C: HINGE / WIRING MODE ---
         else {
@@ -12282,24 +12297,25 @@ function checkAnswers() {
             let customFeedback = "";
             const fBox = document.getElementById('boxFormula');
             const dId = fBox ? (fBox.dataset.current || "") : "";
+            
             if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') customFeedback = "❌ Both connected to signal!";
             else if (window.topWireState === 'vertical' && window.bottomWireState === 'vertical') customFeedback = "❌ Both grounded!";
             else if (window.opAmpTargetConfig === "Inverting") {
                 if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
                     if (dId === "inv") isWiringCorrect = true;
-                    else customFeedback = "❌ Wiring correct, formula wrong.";
-                } else customFeedback = "❌ Signal must go to (-).";
+                    else customFeedback = "❌ Wiring correct, gain formula is wrong.";
+                } else customFeedback = "❌ Input must go to the (-) terminal.";
             } else { 
                 if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
                     if (dId === "non-inv") isWiringCorrect = true;
-                    else customFeedback = "❌ Wiring correct, formula wrong.";
-                } else customFeedback = "❌ Signal must go to (+).";
+                    else customFeedback = "❌ Wiring correct, gain formula is wrong.";
+                } else customFeedback = "❌ Input must go to the (+) terminal.";
             }
             if (isWiringCorrect) results.push('correct');
             else {
                 results.push('wrongval');
                 const fEl = document.getElementById('feedback');
-                if (fEl) fEl.innerHTML = `<span style='color: #dc3545;'>${customFeedback}</span>`;
+                if (fEl) fEl.innerHTML = `<span style='color: #dc3545; font-weight:bold;'>${customFeedback}</span>`;
             }
         }
     }
