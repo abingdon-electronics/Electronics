@@ -12232,78 +12232,78 @@ else if (currentMode === 'opamp') {
         const voutInput = document.getElementById('opAmpVout');
         const designInput = document.getElementById('opAmpRf');
 
-        // Check what is actually visible on screen
+        // Check visibility
         const isGainVisible = !!gainInput && gainInput.offsetParent !== null;
         const isVoutVisible = !!voutInput && voutInput.offsetParent !== null;
         const isDesignVisible = !!designInput && designInput.offsetParent !== null;
 
-        // If Gain OR Vout is visible, it's a Calculation question
         const isCalcMode = isGainVisible || isVoutVisible;
         const isDesignMode = isDesignVisible && !isCalcMode;
 
         // --- BRANCH A: CALCULATION MODE ---
         if (isCalcMode) {
-            window.opAmpQuestionType = 'calc'; // 🧹 CLEARS THE GHOST STATE
+            window.opAmpQuestionType = 'calc'; 
 
-            // Grade Gain if it exists (Added safety fallback to prevent silent crashes)
             if (isGainVisible) {
-                let expectedGain = window.currentAnswers?.gain || "err";
-                let gainRes = validateMatch(parseInput(acceptSpaces(gainInput.value)), expectedGain, 'none');
-                results.push(gainRes);
+                // Legacy-safe check instead of ?.
+                var expectedGain = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "err";
+                // Pass raw value directly to parseInput
+                results.push(validateMatch(parseInput(gainInput.value), expectedGain, 'none'));
             }
             
-            // Grade Vout if it exists
             if (isVoutVisible) {
-                let cleanVout = acceptSpaces(voutInput.value);
-                if (cleanVout !== "" && !cleanVout.toLowerCase().includes("v")) cleanVout += "V"; 
-                let expectedVout = window.currentAnswers?.vout || "err";
-                results.push(validateMatch(parseInput(cleanVout), expectedVout, 'V'));
+                var expectedVout = (window.currentAnswers && window.currentAnswers.vout) ? window.currentAnswers.vout : "err";
+                results.push(validateMatch(parseInput(voutInput.value), expectedVout, 'V'));
             }
 
-            // Step-by-Step UI
             if (isGainVisible) {
-                let gainDisplay = window.currentAnswers?.gain ? window.currentAnswers.gain : "";
-                let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
+                var gainDisplay = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "";
+                var stepHtml = window.opAmpTargetConfig === "Inverting" ? 
                     `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gainDisplay}</b>` :
                     `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gainDisplay}</b>`;
+                const solDiv = document.getElementById('solutions');
                 if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
             }
         } 
         
         // --- BRANCH B: DESIGN MODE ---
         else if (isDesignMode) {
-            window.opAmpQuestionType = 'design'; // 🧹 CLEARS THE GHOST STATE
+            window.opAmpQuestionType = 'design';
 
-            let cleanRf = acceptSpaces(designInput.value);
-            if (cleanRf !== "" && !cleanRf.includes("Ω") && !cleanRf.toLowerCase().includes("ohm")) cleanRf += "Ω";
-            let cleanRin = acceptSpaces(document.getElementById('opAmpBW').value);
-            if (cleanRin !== "" && !cleanRin.includes("Ω") && !cleanRin.toLowerCase().includes("ohm")) cleanRin += "Ω";
-
-            let parsedRf = parseInput(cleanRf);
-            let parsedRin = parseInput(cleanRin);
+            // 1. Let parseInput handle all cleaning and unit extraction
+            let parsedRf = parseInput(designInput.value);
+            let parsedRin = parseInput(document.getElementById('opAmpBW').value);
             
-            // EXTRACT NUMBERS safely to prevent Object-to-String matching failures!
-            let numRf = parsedRf ? parsedRf.val : 0;
-            let numRin = parsedRin ? parsedRin.val : 0;
+            // 2. Convert to base Ohms for the ratio math check
+            let rfBase = 0, rinBase = 0;
+            if (parsedRf && parsedRf.val) {
+                rfBase = parsedRf.val * (parsedRf.unit === 'kΩ' ? 1000 : (parsedRf.unit === 'MΩ' ? 1000000 : 1));
+            }
+            if (parsedRin && parsedRin.val) {
+                rinBase = parsedRin.val * (parsedRin.unit === 'kΩ' ? 1000 : (parsedRin.unit === 'MΩ' ? 1000000 : 1));
+            }
 
             let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : window.targetGain - 1;
-            let isCorrectRatio = (numRf > 0 && numRin > 0 && Math.abs((numRf / numRin) - expectedRatio) < 0.01);
+            let isCorrectRatio = (rfBase > 0 && rinBase > 0 && Math.abs((rfBase / rinBase) - expectedRatio) < 0.01);
 
-            // Send primitives instead of full objects into the expected answers
+            // 3. Set targets based on whether the ratio is correct
             window.currentAnswers = { 
-                rf: isCorrectRatio ? numRf : "err", 
-                bw: isCorrectRatio ? numRin : "err" 
+                rf: isCorrectRatio ? rfBase : "err", 
+                bw: isCorrectRatio ? rinBase : "err" 
             };
-            results.push(validateMatch(parsedRf, window.currentAnswers.rf, 'Ω')); 
+
+            // 4. Grade using base Ohms; validateMatch handles conversion if they typed 'k'
+            results.push(validateMatch(parsedRf, window.currentAnswers.rf, 'Ω'));
             results.push(validateMatch(parsedRin, window.currentAnswers.bw, 'Ω'));
         }
 
         // --- BRANCH C: HINGE / WIRING MODE ---
-        // THE SILVER BULLET: Hinge logic CANNOT run if there are any active text inputs on the screen!
         else if (window.opAmpQuestionType === 'hinge' && activeInputs.length === 0) {
             let isWiringCorrect = false;
             let customFeedback = "";
-            const droppedId = document.getElementById('boxFormula')?.dataset.current || "";
+            
+            const formulaBox = document.getElementById('boxFormula');
+            const droppedId = formulaBox ? (formulaBox.dataset.current || "") : "";
 
             if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
                 customFeedback = "❌ Both inputs are connected to the signal! You shorted the inputs.";
@@ -12330,92 +12330,6 @@ else if (currentMode === 'opamp') {
             }
         }
     }
-    
-    // Continue flow to next "else if" (e.g., logic gates, etc.)
-
-    // 5. Final Feedback and Scoring (BORDERS ONLY)
-    activeInputs.forEach((id, index) => {
-        const el = document.getElementById(id);
-        if (el) {
-            let mainColor = "";
-
-            if (results[index] === 'wrongunit') {
-                mainColor = "#fd7e14"; 
-            } else if (results[index] === 'correct' || results[index] === 'manydecimals') {
-                mainColor = "#28a745"; 
-            } else {
-                mainColor = "#dc3545"; 
-            }
-
-            el.style.setProperty('border-color', mainColor, 'important');
-            el.style.setProperty('border-width', '2px', 'important');
-            el.style.setProperty('border-style', 'solid', 'important');
-            el.style.setProperty('box-shadow', `0 0 5px ${mainColor}`, 'important');
-
-            el.style.setProperty('color', '#333', 'important');
-            el.style.setProperty('background-color', '#ffffff', 'important');
-        }
-    });
-
-    // Ensure results exist before passing
-    const isPass = results.length > 0 && results.every(r => r === 'correct' || r === 'manydecimals');
-    const hasLongDecimals = results.includes('manydecimals');
-
-    if (isPass) {
-        isCurrentProblemSolved = true;
-        const fEl = document.getElementById('feedback'); // Use safe lookup
-        
-        if (canEarnPoints) {
-            if (hasLongDecimals) {
-                if (fEl) fEl.innerHTML = "<span style='color: #D4A017;'>Correct! (Tip: In the future, try rounding to 2 or 3 decimal places max).</span>";
-            } else {
-                if (fEl) fEl.innerHTML = "<span style='color: #198754;'>Correct! Great job!</span>";
-            }
-            problemsCorrect++; 
-        } else if (viewedSolution) {
-            if (fEl) fEl.innerHTML = "<span style='color: #E64097;'>Correct! (Solution viewed, 0 points).</span>";
-        } else if (unitErrorMade) {
-            if (fEl) fEl.innerHTML = "<span style='color: #fd7e14;'>Correct! (Unit fixed, 0 points).</span>";
-        } else {
-            if (fEl) fEl.innerHTML = "<span style='color: #dc3545;'>Correct! (Took multiple tries, 0 points).</span>";
-        }
-        
-        canEarnPoints = false; 
-        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-
-    } else {
-        canEarnPoints = false; 
-        const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
-        
-        // 👇 THE ABSOLUTE SILVER BULLET 👇
-        // A Hinge question has NO text inputs. If activeInputs.length > 0, it is 100% NOT a Hinge question.
-        let isCurrentlyHinge = (currentMode === 'opamp' && window.opAmpQuestionType === 'hinge' && activeInputs.length === 0);
-
-        if (!isCurrentlyHinge) {
-            const fEl = document.getElementById('feedback'); // Use safe lookup to prevent crash
-            if (fEl) {
-                if (results.includes('wrongunit')) {
-                    unitErrorMade = true;
-                    fEl.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost). See solution.</span>";
-                } else if (correctCount > 0) {
-                    fEl.innerHTML = `<span style='color: #dc3545;'>Partially correct (${correctCount}/${results.length}). (Mark lost). See solution.</span>`;
-                } else {
-                    fEl.innerHTML = "<span style='color: #dc3545;'>Incorrect. (Mark lost). See solution below.</span>";
-                }
-            }
-        }
-
-        const solDiv = document.getElementById('solutions');
-        if (solDiv) solDiv.style.display = 'block';
-        if (typeof viewedSolution !== 'undefined') viewedSolution = true;
-        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
-    }
-
-    const checkansBtn = document.getElementById('checkansBtn');
-    if (checkansBtn) checkansBtn.style.display = 'none';
-    
-    if (typeof updateScoreboard === "function") updateScoreboard();
-}
 
 // **********************************************************************
 /**
