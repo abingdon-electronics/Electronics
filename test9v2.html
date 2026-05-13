@@ -11136,10 +11136,10 @@ function checkAnswers() {
         
         if (typeof updateScoreboard === "function") updateScoreboard();
         return; 
-    } // <-- This is the end of the iposort interceptor
-
-    // BOOLEAN LOGIC GRADING INTERCEPTOR
-    if (currentMode === 'logic_boolean') {
+        } // <-- This is the end of the iposort interceptor
+    
+        // BOOLEAN LOGIC GRADING INTERCEPTOR
+        if (currentMode === 'logic_boolean') {
         const selectedDropdownValue = document.getElementById('booleanSelect').value;
         
         if (selectedDropdownValue === "") {
@@ -11315,7 +11315,7 @@ function checkAnswers() {
         }
     }
 
-   // ==========================================
+    // ==========================================
     // LOGIC IC INTERCEPTOR
     // ==========================================
     if (currentMode === 'logic_ic') {
@@ -11407,27 +11407,27 @@ function checkAnswers() {
         
         if (typeof updateScoreboard === "function") updateScoreboard();
         return; 
-    }
-
-    // ==========================================
-    // LOGIC SYSTEMS INTERCEPTOR (TRUTH TABLE)
-    // ==========================================
-    if (currentMode === 'logic_system') {
-        let allCorrect = true;
-        let hasEmpty = false;
-
-        const feedback = document.getElementById('feedback');
-
-        // 1. Safety Check: Did they fill out all 24 boxes?
-        for (let i = 0; i < 8; i++) {
-            let dVal = document.getElementById(`sysD_${i}`).value.trim();
-            let eVal = document.getElementById(`sysE_${i}`).value.trim();
-            let qVal = document.getElementById(`sysQ_${i}`).value.trim();
-            if (dVal === "" || eVal === "" || qVal === "") {
-                hasEmpty = true;
-                break;
-            }
         }
+
+        // ==========================================
+        // LOGIC SYSTEMS INTERCEPTOR (TRUTH TABLE)
+        // ==========================================
+        if (currentMode === 'logic_system') {
+            let allCorrect = true;
+            let hasEmpty = false;
+    
+            const feedback = document.getElementById('feedback');
+    
+            // 1. Safety Check: Did they fill out all 24 boxes?
+            for (let i = 0; i < 8; i++) {
+                let dVal = document.getElementById(`sysD_${i}`).value.trim();
+                let eVal = document.getElementById(`sysE_${i}`).value.trim();
+                let qVal = document.getElementById(`sysQ_${i}`).value.trim();
+                if (dVal === "" || eVal === "" || qVal === "") {
+                    hasEmpty = true;
+                    break;
+                }
+            }
 
         if (hasEmpty) {
             if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>Please fill in all 0s and 1s in the table!</span>";
@@ -11563,8 +11563,8 @@ function checkAnswers() {
         return; // Stop here so it doesn't try to grade other modes
     }
 
-// --- 2. NEW GRADE 9 SYSTEM NAND MODE ---
-if (currentMode === 'grade9nand') { 
+    // --- 2. NEW GRADE 9 SYSTEM NAND MODE ---
+    if (currentMode === 'grade9nand') { 
     const feedback = document.getElementById('feedback');
     
     if (!hasCheckedCurrentProblem) { 
@@ -11639,27 +11639,27 @@ if (currentMode === 'grade9nand') {
             const solDiv = document.getElementById('solutions');
             if (solDiv) solDiv.style.display = 'block';
         }
-    }
-    // ==========================================
-    // BRANCH B: REDUNDANCY HUNTER (Click to Cross Out)
-    // ==========================================
-    else {
-        let allCorrect = true; 
-        let anythingSelected = false;
-        let customFeedback = "";
-        
-        const gates = document.querySelectorAll('.nand-gate-clickable');
+        }
+        // ==========================================
+        // BRANCH B: REDUNDANCY HUNTER (Click to Cross Out)
+        // ==========================================
+        else {
+            let allCorrect = true; 
+            let anythingSelected = false;
+            let customFeedback = "";
+            
+            const gates = document.querySelectorAll('.nand-gate-clickable');
+    
+            // We track the math for each of the 3 zones (Z0, Z1, Z2)
+            // totalInv: total NOT gates generated in this branch
+            // selInv: how many the user crossed out
+            const zones = {
+                'Z0': { totalInv: 0, selInv: 0 },
+                'Z1': { totalInv: 0, selInv: 0 },
+                'Z2': { totalInv: 0, selInv: 0 }
+            };
 
-        // We track the math for each of the 3 zones (Z0, Z1, Z2)
-        // totalInv: total NOT gates generated in this branch
-        // selInv: how many the user crossed out
-        const zones = {
-            'Z0': { totalInv: 0, selInv: 0 },
-            'Z1': { totalInv: 0, selInv: 0 },
-            'Z2': { totalInv: 0, selInv: 0 }
-        };
-
-        gates.forEach(gate => {
+            gates.forEach(gate => {
             const isSelected = gate.dataset.selected === "true";
             if (isSelected) anythingSelected = true;
 
@@ -11676,9 +11676,9 @@ if (currentMode === 'grade9nand') {
                     // FATAL: User crossed out a structural 2-input gate
                     allCorrect = false;
                     customFeedback = "You crossed out a necessary 2-input NAND gate! You must only eliminate redundant NOT gates.";
+                    }
                 }
-            }
-        });
+            });
 
         // If they didn't break a structural gate, evaluate the parity rules per zone
         if (allCorrect && anythingSelected) {
@@ -11726,9 +11726,9 @@ if (currentMode === 'grade9nand') {
 
     if (typeof updateScoreboard === "function") updateScoreboard();
     return; 
-}
+    }
 
-  // ==========================================
+    // ==========================================
     // BLOCK DIAGRAMS INTERCEPTOR
     // ==========================================
     if (currentMode === 'block_diagram') {
@@ -11801,9 +11801,7 @@ if (currentMode === 'grade9nand') {
         return; 
     }
 
-    
-
-    
+       
     //New function code pasted above this line for grag and drop
     //*******************************************************************************************************************************
     //********************************************************************************************************************************
@@ -11915,23 +11913,23 @@ if (currentMode === 'grade9nand') {
         }
     }
     
-// 👇 OP-AMP ACTIVE INPUTS 👇
-else if (currentMode === 'opamp') {
-    if (window.opAmpQuestionType === 'calcGain') {
-        activeInputs = ['opAmpGain']; // Always require Gain
-        
-        // THE FIX: Check if it exists AND is not hidden!
-        const voutEl = document.getElementById('opAmpVout');
-        if (voutEl && voutEl.closest('div').style.display !== 'none') {
-            activeInputs.push('opAmpVout');
+    // 👇 OP-AMP ACTIVE INPUTS 👇
+    else if (currentMode === 'opamp') {
+        if (window.opAmpQuestionType === 'calcGain') {
+            activeInputs = ['opAmpGain']; // Always require Gain
+            
+            // THE FIX: Check if it exists AND is not hidden!
+            const voutEl = document.getElementById('opAmpVout');
+            if (voutEl && voutEl.closest('div').style.display !== 'none') {
+                activeInputs.push('opAmpVout');
+            }
+            
+        } else if (window.opAmpQuestionType === 'design') {
+            activeInputs = ['opAmpRf', 'opAmpBW']; 
+        } else if (window.opAmpQuestionType === 'hinge') {
+            activeInputs = []; 
         }
-        
-    } else if (window.opAmpQuestionType === 'design') {
-        activeInputs = ['opAmpRf', 'opAmpBW']; 
-    } else if (window.opAmpQuestionType === 'hinge') {
-        activeInputs = []; 
     }
-}
     
     // ------------------------------------------
     // 3. Check for empty boxes
@@ -12172,22 +12170,22 @@ else if (currentMode === 'opamp') {
         }
     }
     
-// 👇 UPDATED: NORMAL MOSFET GRADING LOGIC 👇
-    else if (currentMode === 'mosfet') {
-        if (window.mosfetMode === 0) {
-            // Grade Drain Current (ID) with Amps fallback
-            let idInput = document.getElementById('mosfetID0').value;
-            let cleanID = acceptSpaces(idInput);
-            if (cleanID !== "" && !cleanID.toLowerCase().includes("a")) cleanID += "A";
-            // FIX: Ask for currentAnswers.mosfetID0
-            results.push(validateMatch(parseInput(cleanID), currentAnswers.mosfetID0, 'A')); 
-
-            // Grade Transconductance (gm) with Siemens fallback
-            let gmInput = document.getElementById('mosfetGM0').value;
-            let cleanGM = acceptSpaces(gmInput);
-            if (cleanGM !== "" && !cleanGM.toLowerCase().includes("s")) cleanGM += "S";
-            // FIX: Ask for currentAnswers.mosfetGM0
-            results.push(validateMatch(parseInput(cleanGM), currentAnswers.mosfetGM0, 'S'));
+    // 👇 UPDATED: NORMAL MOSFET GRADING LOGIC 👇
+        else if (currentMode === 'mosfet') {
+            if (window.mosfetMode === 0) {
+                // Grade Drain Current (ID) with Amps fallback
+                let idInput = document.getElementById('mosfetID0').value;
+                let cleanID = acceptSpaces(idInput);
+                if (cleanID !== "" && !cleanID.toLowerCase().includes("a")) cleanID += "A";
+                // FIX: Ask for currentAnswers.mosfetID0
+                results.push(validateMatch(parseInput(cleanID), currentAnswers.mosfetID0, 'A')); 
+    
+                // Grade Transconductance (gm) with Siemens fallback
+                let gmInput = document.getElementById('mosfetGM0').value;
+                let cleanGM = acceptSpaces(gmInput);
+                if (cleanGM !== "" && !cleanGM.toLowerCase().includes("s")) cleanGM += "S";
+                // FIX: Ask for currentAnswers.mosfetGM0
+                results.push(validateMatch(parseInput(cleanGM), currentAnswers.mosfetGM0, 'S'));
 
         } else {
             // Grade VGS with Volts fallback
@@ -12206,65 +12204,65 @@ else if (currentMode === 'opamp') {
         }
     }
 
-// 👇 GRADE 9 MOSFET GRADING LOGIC 👇
-    else if (currentMode === 'grade9mosfet') {
-        // Grade VGS with Volts fallback
-        let vgsInput = document.getElementById('g9MosfetVGS').value;
-        let cleanVGS = acceptSpaces(vgsInput);
-        if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) {
-            cleanVGS += "V"; 
-        }
-        results.push(validateMatch(parseInput(cleanVGS), currentAnswers.vgs, 'V'));
-
-        // Grade Resistor with Ohms fallback (Answer targets kΩ)
-        let r2Input = document.getElementById('g9MosfetR2').value;
-        let cleanR2 = acceptSpaces(r2Input);
-        if (cleanR2 !== "" && !cleanR2.includes("Ω") && !cleanR2.toLowerCase().includes("ohm")) {
-            cleanR2 += "Ω";
-        }
-        results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
-    }
+        // 👇 GRADE 9 MOSFET GRADING LOGIC 👇
+            else if (currentMode === 'grade9mosfet') {
+                // Grade VGS with Volts fallback
+                let vgsInput = document.getElementById('g9MosfetVGS').value;
+                let cleanVGS = acceptSpaces(vgsInput);
+                if (cleanVGS !== "" && !cleanVGS.toLowerCase().includes("v")) {
+                    cleanVGS += "V"; 
+                }
+                results.push(validateMatch(parseInput(cleanVGS), currentAnswers.vgs, 'V'));
         
-// 👇 OP-AMP GRADING LOGIC 👇
-    else if (currentMode === 'opamp') {
-        
-        const gainInput = document.getElementById('opAmpGain');
-        const voutInput = document.getElementById('opAmpVout');
-        const designInput = document.getElementById('opAmpRf');
-
-        // Check visibility
-        const isGainVisible = !!gainInput && gainInput.offsetParent !== null;
-        const isVoutVisible = !!voutInput && voutInput.offsetParent !== null;
-        const isDesignVisible = !!designInput && designInput.offsetParent !== null;
-
-        const isCalcMode = isGainVisible || isVoutVisible;
-        const isDesignMode = isDesignVisible && !isCalcMode;
-
-        // --- BRANCH A: CALCULATION MODE ---
-        if (isCalcMode) {
-            window.opAmpQuestionType = 'calc'; 
-
-            if (isGainVisible) {
-                // Legacy-safe check instead of ?.
-                var expectedGain = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "err";
-                // Pass raw value directly to parseInput
-                results.push(validateMatch(parseInput(gainInput.value), expectedGain, 'none'));
+                // Grade Resistor with Ohms fallback (Answer targets kΩ)
+                let r2Input = document.getElementById('g9MosfetR2').value;
+                let cleanR2 = acceptSpaces(r2Input);
+                if (cleanR2 !== "" && !cleanR2.includes("Ω") && !cleanR2.toLowerCase().includes("ohm")) {
+                    cleanR2 += "Ω";
+                }
+                results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
             }
-            
-            if (isVoutVisible) {
-                var expectedVout = (window.currentAnswers && window.currentAnswers.vout) ? window.currentAnswers.vout : "err";
-                results.push(validateMatch(parseInput(voutInput.value), expectedVout, 'V'));
-            }
-
-            if (isGainVisible) {
-                var gainDisplay = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "";
-                var stepHtml = window.opAmpTargetConfig === "Inverting" ? 
-                    `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gainDisplay}</b>` :
-                    `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gainDisplay}</b>`;
-                const solDiv = document.getElementById('solutions');
-                if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
-            }
-        } 
+                
+        // 👇 OP-AMP GRADING LOGIC 👇
+            else if (currentMode === 'opamp') {
+                    
+            const gainInput = document.getElementById('opAmpGain');
+            const voutInput = document.getElementById('opAmpVout');
+            const designInput = document.getElementById('opAmpRf');
+    
+            // Check visibility
+            const isGainVisible = !!gainInput && gainInput.offsetParent !== null;
+            const isVoutVisible = !!voutInput && voutInput.offsetParent !== null;
+            const isDesignVisible = !!designInput && designInput.offsetParent !== null;
+    
+            const isCalcMode = isGainVisible || isVoutVisible;
+            const isDesignMode = isDesignVisible && !isCalcMode;
+    
+            // --- BRANCH A: CALCULATION MODE ---
+            if (isCalcMode) {
+                window.opAmpQuestionType = 'calc'; 
+    
+                if (isGainVisible) {
+                    // Legacy-safe check instead of ?.
+                    var expectedGain = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "err";
+                    // Pass raw value directly to parseInput
+                    results.push(validateMatch(parseInput(gainInput.value), expectedGain, 'none'));
+                }
+                
+                if (isVoutVisible) {
+                    var expectedVout = (window.currentAnswers && window.currentAnswers.vout) ? window.currentAnswers.vout : "err";
+                    results.push(validateMatch(parseInput(voutInput.value), expectedVout, 'V'));
+                }
+    
+                if (isGainVisible) {
+                    var gainDisplay = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "";
+                    var stepHtml = window.opAmpTargetConfig === "Inverting" ? 
+                        `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gainDisplay}</b>` :
+                        `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gainDisplay}</b>`;
+                    const solDiv = document.getElementById('solutions');
+                    if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+                }
+            } 
         
         // --- BRANCH B: DESIGN MODE ---
         else if (isDesignMode) {
@@ -12330,6 +12328,7 @@ else if (currentMode === 'opamp') {
             }
         }
     }
+}
 
 // **********************************************************************
 /**
