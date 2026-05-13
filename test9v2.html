@@ -10611,6 +10611,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     // 1. Core State Setup
     currentMode = 'grade9opamp'; 
     window.opAmpQuestionType = 'grade9'; 
+    window.opAmpInteractive = false; // 👈 NEW: Lock the hinges for math mode!
 
     // 2. Clear UI - Note: we don't call hideAllInputGroups here 
     // because HubController already did it.
@@ -10631,15 +10632,20 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.opAmpTargetConfig = config;
     const vcc = 15; // Rails
 
-    // Use the passed-in context to draw
-    if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (config === "Inverting") {
-            if (typeof drawInvertingAmp === 'function') drawInvertingAmp(ctx);
-        } else {
-            if (typeof drawNonInvertingAmp === 'function') drawNonInvertingAmp(ctx);
-        }
+    // 👇 NEW: Set the wires based on the configuration 👇
+    if (config === "Inverting") {
+        window.topWireState = 'horizontal'; // Top gets voltage
+        window.bottomWireState = 'vertical';  // Bottom grounded
+    } else {
+        window.topWireState = 'vertical';     // Top grounded
+        window.bottomWireState = 'horizontal'; // Bottom gets voltage
     }
+
+    // 👇 NEW: Call the master artist with the context and canvas 👇
+    if (ctx && typeof drawOpAmpCircuit === 'function') {
+        drawOpAmpCircuit(ctx, canvas);
+    }
+    // 👆 ---------------------------------------------------- 👆
 
     // --- MODE 0: VOLTAGE ANALYSIS (Saturation Focus) ---
     if (window.g9OpAmpMode === 0) {
@@ -10662,13 +10668,13 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         instructions.innerHTML = `
             <span style="color: #E64097; font-weight: bold;">ANALYSIS TASK</span><br>
             Supply Voltage: <b>±${vcc}V</b><br>
-            Components: <b>R<sub>F</sub> = ${rf}kΩ</b>, <b>R<sub>IN</sub> = ${rin}kΩ</b>.<br><br>
+            Components: <b>R<sub>F</sub> = ${rf}k&Omega;</b>, <b>R<sub>IN</sub> = ${rin}k&Omega;</b>.<br><br>
             Calculate <b>V<sub>OUT</sub></b> if <b>V<sub>IN</sub> = ${vin}V</b>.<br>
             <small><i>Warning: Check for amplifier saturation!</i></small>`;
 
         solText.innerHTML = `
             <b>1. Gain:</b> ${gain.toFixed(2)}<br>
-            <b>2. Ideal V<sub>out</sub>:</b> ${vin}V × ${gain.toFixed(2)} = ${idealVout.toFixed(2)}V<br>
+            <b>2. Ideal V<sub>out</sub>:</b> ${vin}V &times; ${gain.toFixed(2)} = ${idealVout.toFixed(2)}V<br>
             <b>3. Result:</b> ${saturated ? "Saturated at <b>" + finalVout.toFixed(1) + "V</b>" : "<b>" + finalVout.toFixed(1) + "V</b>"}`;
     }
 
@@ -10689,13 +10695,13 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
             <span style="color: #E64097; font-weight: bold;">DESIGN TASK</span><br>
             Build a <b>${config}</b> circuit.<br>
             <b>Goal:</b> V<sub>OUT</sub> = <b>${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
-            Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1kΩ).`;
+            Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1k&Omega;).`;
 
         let formulaText = config === "Inverting" ? "Gain = -R<sub>F</sub> / R<sub>IN</sub>" : "Gain = 1 + (R<sub>F</sub> / R<sub>IN</sub>)";
         solText.innerHTML = `
             <b>1. Target Gain:</b> ${targetVout}/${vin} = <b>${requiredGain}</b><br>
             <b>2. Formula:</b> ${formulaText}<br>
-            <b>3. Solution:</b> If R<sub>IN</sub> = 10kΩ, then R<sub>F</sub> = ${Math.abs(requiredGain * 10)}kΩ.`;
+            <b>3. Solution:</b> If R<sub>IN</sub> = 10k&Omega;, then R<sub>F</sub> = ${Math.abs(requiredGain * 10)}k&Omega;.`;
     }
 }
 //END OF CONTENT FUNCTIONS
