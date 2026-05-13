@@ -2065,17 +2065,15 @@ function handleGrade9Click() {
 
 
 
-    // 👇 NEW: OP-AMP ROUTING ADDED HERE 👇
+   // 👇 NEW: OP-AMP ROUTING ADDED HERE 👇
     else if (currentMode === 'opamp' || currentMode === 'grade9opamp') {
         currentMode = 'grade9opamp';
         
-        // Ensure the Grade 9 Op-Amp input group is shown
-        if (typeof hideAllInputGroups === "function") hideAllInputGroups();
-        const g9Group = document.getElementById('inputGroupGrade9OpAmp');
-        if (g9Group) g9Group.style.display = 'block';
-
-        if (typeof generateGrade9OpAmpProblem === "function") {
-            generateGrade9OpAmpProblem();
+        // Let the Hub handle the UI and the Rocket button!
+        if (typeof hubController === "function") {
+            hubController(ctx, canvas);
+        } else if (typeof generateGrade9OpAmpProblem === "function") {
+            generateGrade9OpAmpProblem(ctx, canvas); // Added ctx, canvas here!
         }
     }
             
