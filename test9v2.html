@@ -12310,30 +12310,44 @@ function checkAnswers() {
             }
         }
 
-        // --- BRANCH C: HINGE MODE ---
+       // --- BRANCH C: HINGE / WIRING MODE ---
         else {
             window.opAmpQuestionType = 'hinge';
             let isWiringCorrect = false;
             let customFeedback = "";
+            
+            // 1. Check the Formula Box
             const fBox = document.getElementById('boxFormula');
             const dId = fBox ? (fBox.dataset.current || "") : "";
+            
+            // 2. Safely get the Feedback Element
+            const fEl = document.getElementById('feedback');
 
-            if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') customFeedback = "❌ Both connected to signal!";
-            else if (window.topWireState === 'vertical' && window.bottomWireState === 'vertical') customFeedback = "❌ Both grounded!";
-            else if (window.opAmpTargetConfig === "Inverting") {
+            // 3. Logic Check
+            if (window.topWireState === 'horizontal' && window.bottomWireState === 'horizontal') {
+                customFeedback = "❌ Both inputs are connected to the signal!";
+            } else if (window.topWireState === 'vertical' && window.bottomWireState === 'vertical') {
+                customFeedback = "❌ Both inputs are grounded!";
+            } else if (window.opAmpTargetConfig === "Inverting") {
                 if (window.topWireState === 'horizontal' && window.bottomWireState === 'vertical') {
                     if (dId === "inv") isWiringCorrect = true;
                     else customFeedback = "❌ Wiring is correct, but formula is wrong.";
-                } else customFeedback = "❌ Signal must go to the (-) terminal.";
+                } else {
+                    customFeedback = "❌ Input must go to the (-) terminal for Inverting.";
+                }
             } else { 
                 if (window.topWireState === 'vertical' && window.bottomWireState === 'horizontal') {
                     if (dId === "non-inv") isWiringCorrect = true;
                     else customFeedback = "❌ Wiring is correct, but formula is wrong.";
-                } else customFeedback = "❌ Signal must go to the (+) terminal.";
+                } else {
+                    customFeedback = "❌ Input must go to the (+) terminal for Non-Inverting.";
+                }
             }
 
-            if (isWiringCorrect) results.push('correct');
-            else {
+            // 4. Update results array (Crucial for the "isPass" check at the bottom)
+            if (isWiringCorrect) {
+                results.push('correct');
+            } else {
                 results.push('wrongval');
                 if (fEl) fEl.innerHTML = `<span style='color: #dc3545; font-weight:bold;'>${customFeedback}</span>`;
             }
