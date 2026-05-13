@@ -12225,40 +12225,38 @@ function checkAnswers() {
                 
     // 👇 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'opamp') {
-        console.log("Op-Amp Logic Triggered");
+        console.log("Op-Amp Grading Started...");
+        
+        // --- 1. RESET STATE ---
+        // Ensure global state doesn't "leak" from the previous question
+        window.opAmpQuestionType = ''; 
 
-        // 1. SAFELY grab elements (Check if they exist before touching them)
         const gainIn = document.getElementById('opAmpGain');
         const voutIn = document.getElementById('opAmpVout');
         const rfIn = document.getElementById('opAmpRf');
-        const rinIn = document.getElementById('opAmpBW'); // This is the RIN box in design mode
+        const rinIn = document.getElementById('opAmpBW');
         const solDiv = document.getElementById('solutions');
 
-        // 2. Determine visibility (Double !! converts to boolean)
         const isGainVisible = !!(gainIn && gainIn.offsetParent);
         const isVoutVisible = !!(voutIn && voutIn.offsetParent);
         const isDesignVisible = !!(rfIn && rfIn.offsetParent);
 
-        const isCalcMode = isGainVisible || isVoutVisible;
-        const isDesignMode = isDesignVisible && !isCalcMode;
-
-        // --- BRANCH A: CALCULATION MODE ---
-        if (isCalcMode) {
+        // --- 2. BRANCH A: CALCULATION MODE ---
+        if (isGainVisible || isVoutVisible) {
             window.opAmpQuestionType = 'calc'; 
 
             if (isGainVisible) {
                 activeInputs.push('opAmpGain');
-                let targetG = (window.currentAnswers && window.currentAnswers.gain) || 0;
-                results.push(validateMatch(parseInput(gainIn.value), targetG, 'none'));
+                let target = (window.currentAnswers && window.currentAnswers.gain) || 0;
+                results.push(validateMatch(parseInput(gainIn.value), target, 'none'));
             }
             
             if (isVoutVisible) {
                 activeInputs.push('opAmpVout');
-                let targetV = (window.currentAnswers && window.currentAnswers.vout) || 0;
-                results.push(validateMatch(parseInput(voutIn.value), targetV, 'V'));
+                let target = (window.currentAnswers && window.currentAnswers.vout) || 0;
+                results.push(validateMatch(parseInput(voutIn.value), target, 'V'));
             }
 
-            // Step-by-Step UI
             if (isGainVisible && solDiv) {
                 let gDisp = (window.currentAnswers && window.currentAnswers.gain) || "";
                 let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
@@ -12268,15 +12266,14 @@ function checkAnswers() {
             }
         } 
         
-        // --- BRANCH B: DESIGN MODE ---
-        else if (isDesignMode) {
+        // --- 3. BRANCH B: DESIGN MODE ---
+        else if (isDesignVisible) {
             window.opAmpQuestionType = 'design';
             activeInputs.push('opAmpRf', 'opAmpBW');
 
             let pRf = parseInput(rfIn ? rfIn.value : "");
             let pRin = parseInput(rinIn ? rinIn.value : "");
             
-            // Convert to base units for the ratio check
             const getBase = (p) => {
                 if (!p || p.val === null) return 0;
                 let mult = (p.unit === 'kΩ') ? 1000 : (p.unit === 'MΩ' ? 1000000 : 1);
@@ -12285,18 +12282,16 @@ function checkAnswers() {
 
             let rfBase = getBase(pRf);
             let rinBase = getBase(pRin);
-
             let targetRatio = (window.opAmpTargetConfig === "Inverting") ? Math.abs(window.targetGain) : (window.targetGain - 1);
             let isCorrect = (rfBase > 0 && rinBase > 0 && Math.abs((rfBase / rinBase) - targetRatio) < 0.01);
-
-            console.log("Design Check:", { rfBase, rinBase, targetRatio, isCorrect });
 
             results.push(validateMatch(pRf, isCorrect ? (pRf.val || 0) : "err", pRf ? pRf.unit : 'Ω'));
             results.push(validateMatch(pRin, isCorrect ? (pRin.val || 0) : "err", pRin ? pRin.unit : 'Ω'));
         }
 
-        // --- BRANCH C: HINGE / WIRING MODE ---
-        else if (window.opAmpQuestionType === 'hinge' && (activeInputs.length === 0)) {
+        // --- 4. BRANCH C: HINGE / WIRING MODE ---
+        else {
+            window.opAmpQuestionType = 'hinge';
             let isWiringCorrect = false;
             let customFeedback = "";
             const fBox = document.getElementById('boxFormula');
@@ -12318,15 +12313,13 @@ function checkAnswers() {
                 } else customFeedback = "❌ Input must go to the (+) terminal.";
             }
 
-            if (isWiringCorrect) {
-                results.push('correct');
-            } else {
+            if (isWiringCorrect) results.push('correct');
+            else {
                 results.push('wrongval');
                 const feedEl = document.getElementById('feedback');
                 if (feedEl) feedEl.innerHTML = `<span style='color: #dc3545; font-weight: bold;'>${customFeedback}</span>`;
             }
         }
-        console.log("Current Results:", results);
     }
 } // Closing Bracket for Check Answers
 
