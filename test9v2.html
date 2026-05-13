@@ -12979,29 +12979,38 @@ function provideHint() {
 } else if (currentMode === 'opamp') {
     let specificHint = "";
     
-    // Safety check: if targetGain is missing, avoid showing 'undefined'
-    let displayGain = window.targetGain || "the required";
+    // --- DETECTION FALLBACK ---
+    // If the type hasn't been set by checkAnswers yet, detect it now
+    let currentType = window.opAmpQuestionType;
+    if (!currentType) {
+        if (document.getElementById('opAmpGain') || document.getElementById('opAmpVout')) {
+            currentType = 'calc';
+        } else if (document.getElementById('opAmpRf')) {
+            currentType = 'design';
+        } else {
+            currentType = 'hinge';
+        }
+    }
 
-    if (window.opAmpQuestionType === 'hinge') {
+    if (currentType === 'hinge') {
         specificHint = `
             <br><br><b>Wiring & Formulas</b><br>
-            • <b>Inverting:</b> The input signal connects to the negative (-) terminal through a resistor. The other terminal (+) goes to ground. Look for the <b>minus sign</b> in the Data Sheet formula!<br>
-            • <b>Non-Inverting:</b> The input signal connects directly to the positive (+) terminal. The other terminal (-) goes to ground through a resistor. The formula features a <b>1 +</b> calculation.`;
+            • <b>Inverting:</b> Signal into (-). Look for the <b>minus sign</b> in the formula!<br>
+            • <b>Non-Inverting:</b> Signal into (+). The formula features a <b>1 +</b> calculation.`;
     } 
-    // FIXED: Changed 'calcGain' to 'calc' to match your grading logic
-    else if (window.opAmpQuestionType === 'calc') {
+    else if (currentType === 'calc') {
         specificHint = `
             <br><br><b>Calculating Gain & V<sub>out</sub></b><br>
-            1. Identify the type: Signal into (-) is Inverting; Signal into (+) is Non-Inverting.<br>
-            2. Check your Exam Data Sheet for the correct Gain formula.`;
+            1. <b>Inverting:</b> Input signal goes to (-).<br>
+            2. <b>Non-Inverting:</b> Input signal goes to (+).<br>
+            3. Use the Data Sheet to find the matching formula for the resistor values shown.`;
     } 
-    else if (window.opAmpQuestionType === 'design') {
+    else if (currentType === 'design') {
         specificHint = `
             <br><br><b>Design Strategy</b><br>
             • <b>Inverting:</b> |Gain| = R<sub>F</sub> / R<sub>IN</sub>. <br>
             • <b>Non-Inverting:</b> Gain = 1 + (R<sub>F</sub> / R<sub>1</sub>).<br>
-            • <b>GCSE Rule:</b> Use resistor values of <b>1 k&Omega; or greater</b>.<br>
-            <em>Pro-Tip:</em> Pick a simple value for your bottom resistor (like 10 k&Omega;), then use your target gain of <b>${displayGain}</b> to calculate the required R<sub>F</sub>.`;
+            • <b>Pro-Tip:</b> Pick a simple 10 k&Omega; for your input resistor, then solve for R<sub>F</sub> to hit your target gain of <b>${window.targetGain || 'the required amount'}</b>.`;
     }
 
     helpText = `
