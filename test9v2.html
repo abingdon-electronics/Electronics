@@ -12223,83 +12223,83 @@ function checkAnswers() {
                 results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
             }
                 
-        // 👇 OP-AMP GRADING LOGIC 👇
-            else if (currentMode === 'opamp') {
-                    
-            const gainInput = document.getElementById('opAmpGain');
-            const voutInput = document.getElementById('opAmpVout');
-            const designInput = document.getElementById('opAmpRf');
-    
-            // Check visibility
-            const isGainVisible = !!gainInput && gainInput.offsetParent !== null;
-            const isVoutVisible = !!voutInput && voutInput.offsetParent !== null;
-            const isDesignVisible = !!designInput && designInput.offsetParent !== null;
-    
-            const isCalcMode = isGainVisible || isVoutVisible;
-            const isDesignMode = isDesignVisible && !isCalcMode;
-    
-            // --- BRANCH A: CALCULATION MODE ---
-            if (isCalcMode) {
-                window.opAmpQuestionType = 'calc'; 
-    
-                if (isGainVisible) {
-                    // Legacy-safe check instead of ?.
-                    var expectedGain = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "err";
-                    // Pass raw value directly to parseInput
-                    results.push(validateMatch(parseInput(gainInput.value), expectedGain, 'none'));
-                }
-                
-                if (isVoutVisible) {
-                    var expectedVout = (window.currentAnswers && window.currentAnswers.vout) ? window.currentAnswers.vout : "err";
-                    results.push(validateMatch(parseInput(voutInput.value), expectedVout, 'V'));
-                }
-    
-                if (isGainVisible) {
-                    var gainDisplay = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "";
-                    var stepHtml = window.opAmpTargetConfig === "Inverting" ? 
-                        `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gainDisplay}</b>` :
-                        `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gainDisplay}</b>`;
-                    const solDiv = document.getElementById('solutions');
-                    if (solDiv) solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
-                }
-            } 
+     // 👇 OP-AMP GRADING LOGIC 👇
+    else if (currentMode === 'opamp') {
+        // Define UI elements up front so they are safe to use anywhere in this block
+        const gainInput = document.getElementById('opAmpGain');
+        const voutInput = document.getElementById('opAmpVout');
+        const designInput = document.getElementById('opAmpRf');
+        const designInput2 = document.getElementById('opAmpBW');
+        const solDiv = document.getElementById('solutions');
+
+        // Visibility checks
+        const isGainVisible = !!gainInput && gainInput.offsetParent !== null;
+        const isVoutVisible = !!voutInput && voutInput.offsetParent !== null;
+        const isDesignVisible = !!designInput && designInput.offsetParent !== null;
+
+        const isCalcMode = isGainVisible || isVoutVisible;
+        const isDesignMode = isDesignVisible && !isCalcMode;
+
+        // --- BRANCH A: CALCULATION MODE ---
+        if (isCalcMode) {
+            window.opAmpQuestionType = 'calc'; 
+
+            if (isGainVisible) {
+                // Safely get expected value from your window object
+                let expectedGain = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "err";
+                // Your parseInput handles the cleaning, so we just pass the raw value
+                results.push(validateMatch(parseInput(gainInput.value), expectedGain, 'none'));
+            }
+            
+            if (isVoutVisible) {
+                let expectedVout = (window.currentAnswers && window.currentAnswers.vout) ? window.currentAnswers.vout : "err";
+                results.push(validateMatch(parseInput(voutInput.value), expectedVout, 'V'));
+            }
+
+            // Step-by-Step UI update
+            if (isGainVisible && solDiv) {
+                let gainDisplay = (window.currentAnswers && window.currentAnswers.gain) ? window.currentAnswers.gain : "";
+                let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
+                    `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gainDisplay}</b>` :
+                    `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gainDisplay}</b>`;
+                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+            }
+        } 
         
         // --- BRANCH B: DESIGN MODE ---
         else if (isDesignMode) {
             window.opAmpQuestionType = 'design';
 
-            // 1. Let parseInput handle all cleaning and unit extraction
             let parsedRf = parseInput(designInput.value);
-            let parsedRin = parseInput(document.getElementById('opAmpBW').value);
+            let parsedRin = parseInput(designInput2 ? designInput2.value : "");
             
-            // 2. Convert to base Ohms for the ratio math check
+            // Safety Check: Only calculate if both inputs actually returned a parsed object
             let rfBase = 0, rinBase = 0;
-            if (parsedRf && parsedRf.val) {
-                rfBase = parsedRf.val * (parsedRf.unit === 'kΩ' ? 1000 : (parsedRf.unit === 'MΩ' ? 1000000 : 1));
+            if (parsedRf && parsedRf.val !== null) {
+                let factor = (parsedRf.unit === 'kΩ') ? 1000 : (parsedRf.unit === 'MΩ' ? 1000000 : 1);
+                rfBase = parsedRf.val * factor;
             }
-            if (parsedRin && parsedRin.val) {
-                rinBase = parsedRin.val * (parsedRin.unit === 'kΩ' ? 1000 : (parsedRin.unit === 'MΩ' ? 1000000 : 1));
+            if (parsedRin && parsedRin.val !== null) {
+                let factor = (parsedRin.unit === 'kΩ') ? 1000 : (parsedRin.unit === 'MΩ' ? 1000000 : 1);
+                rinBase = parsedRin.val * factor;
             }
 
-            let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : window.targetGain - 1;
+            // Determine if the user's chosen resistors meet the design requirement
+            let expectedRatio = window.opAmpTargetConfig === "Inverting" ? Math.abs(window.targetGain) : (window.targetGain - 1);
             let isCorrectRatio = (rfBase > 0 && rinBase > 0 && Math.abs((rfBase / rinBase) - expectedRatio) < 0.01);
 
-            // 3. Set targets based on whether the ratio is correct
-            window.currentAnswers = { 
-                rf: isCorrectRatio ? rfBase : "err", 
-                bw: isCorrectRatio ? rinBase : "err" 
-            };
+            // Grade using the user's own numbers as the target if the ratio is correct
+            let targetRf = isCorrectRatio ? rfBase : "err";
+            let targetRin = isCorrectRatio ? rinBase : "err";
 
-            // 4. Grade using base Ohms; validateMatch handles conversion if they typed 'k'
-            results.push(validateMatch(parsedRf, window.currentAnswers.rf, 'Ω'));
-            results.push(validateMatch(parsedRin, window.currentAnswers.bw, 'Ω'));
+            results.push(validateMatch(parsedRf, targetRf, 'Ω'));
+            results.push(validateMatch(parsedRin, targetRin, 'Ω'));
         }
 
         // --- BRANCH C: HINGE / WIRING MODE ---
         else if (window.opAmpQuestionType === 'hinge' && activeInputs.length === 0) {
             let isWiringCorrect = false;
             let customFeedback = "";
-            
             const formulaBox = document.getElementById('boxFormula');
             const droppedId = formulaBox ? (formulaBox.dataset.current || "") : "";
 
