@@ -1639,7 +1639,8 @@
     </div>
 
 </div>--> 
-
+<!-- *************************************************************************************** -->   
+<!-- Input group OPAMP -->  
 <div id="inputGroupOpAmp" class="input-group" style="display: none; flex-direction: column; align-items: center; padding: 10px 0; gap: 15px; width: 100%;">
     
     <div id="opAmpInstructions" style="width: 100%; max-width: 500px; text-align: left; margin-bottom: 5px; padding: 15px; background: #fdfdfd; border-left: 4px solid #3498db; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-family: sans-serif; font-size: 14px; line-height: 1.5; display: none;">
@@ -1674,6 +1675,37 @@
             </div>
         </div>
 
+    </div>
+</div>
+                
+<!-- *************************************************************************************** -->   
+
+                
+<div id="inputGroupGrade9OpAmp" style="display: none; text-align: center; margin-top: 20px;">
+    
+    <div id="g9OpAmpInstructions" style="text-align: left; margin-bottom: 15px; font-weight: bold; font-size: 15px; color: #333; border-left: 4px solid #E64097; padding-left: 10px; line-height: 1.5;">
+        </div>
+
+    <div id="g9OpAmpModeA" style="display: none;">
+        <div style="display: inline-block; margin-right: 15px;">
+            <label for="g9OpAmpVin" style="font-weight: bold;">V<sub>IN</sub> = </label>
+            <input type="text" id="g9OpAmpVin" style="width: 80px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 1.2V">
+        </div>
+        <div style="display: inline-block;">
+            <label for="g9OpAmpVout" style="font-weight: bold;">V<sub>OUT</sub> = </label>
+            <input type="text" id="g9OpAmpVout" style="width: 80px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. -5V">
+        </div>
+    </div>
+
+    <div id="g9OpAmpModeB" style="display: none;">
+        <div style="display: inline-block; margin-right: 15px;">
+            <label for="g9OpAmpRf_G9" style="font-weight: bold;">R<sub>F</sub> = </label>
+            <input type="text" id="g9OpAmpRf_G9" style="width: 80px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 10k">
+        </div>
+        <div style="display: inline-block;">
+            <label for="g9OpAmpRin_G9" style="font-weight: bold;">R<sub>IN</sub> = </label>
+            <input type="text" id="g9OpAmpRin_G9" style="width: 80px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 1k">
+        </div>
     </div>
 </div>
                 
@@ -10557,7 +10589,87 @@ function setupOpAmpCanvasClick(ctx, canvas) {
     // The master Check Answers button will now safely rely on your 
     // main checkAnswers() function without being hijacked.
 }
-//End of Op AMP FUNCTIONS
+
+//End of standard Op AMP FUNCTIONS
+function generateGrade9OpAmpProblem() {
+    if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
+    
+    const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
+    const modeA = document.getElementById('g9OpAmpModeA');
+    const modeB = document.getElementById('g9OpAmpModeB');
+    const instructions = document.getElementById('g9OpAmpInstructions');
+    const solText = document.getElementById('solText');
+    const pinkColor = "#E64097";
+
+    if (mainGroup) mainGroup.style.display = 'block';
+    currentMode = 'opamp'; // Keep scoring under 'opamp' as requested
+    window.opAmpQuestionType = 'grade9'; // Special flag for checkAnswers
+
+    // Cycle Mode: 0 (Voltages) -> 1 (Design)
+    if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
+    else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
+
+    // Reset Canvas and pick Config
+    const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
+    window.opAmpTargetConfig = config;
+    const vcc = 15; // Supply Voltage for saturation check
+
+    // Draw the circuit (using your existing draw functions)
+    const ctx = document.getElementById('circuitCanvas').getContext('2d');
+    if (config === "Inverting") drawInvertingAmp(ctx);
+    else drawNonInvertingAmp(ctx);
+
+    // --- MODE 0: VOLTAGE ANALYSIS (Calculation) ---
+    if (window.g9OpAmpMode === 0) {
+        modeA.style.display = 'block';
+        modeB.style.display = 'none';
+
+        let rf = 10 * (Math.floor(Math.random() * 5) + 1); // 10k to 50k
+        let rin = 10; // 10k
+        let gain = (config === "Inverting") ? -(rf/rin) : (1 + (rf/rin));
+        let vin = (Math.random() * 2 + 1).toFixed(1); // 1.0 to 3.0V
+        
+        let idealVout = vin * gain;
+        let saturated = Math.abs(idealVout) > vcc;
+        let finalVout = saturated ? (idealVout > 0 ? vcc : -vcc) : idealVout;
+
+        window.currentAnswers = { vin: vin, vout: finalVout.toFixed(1) };
+        
+        instructions.innerHTML = `
+            <b>TECHNICAL BRIEF:</b><br>
+            The amplifier shown is powered by a <b>±${vcc}V</b> supply. <br>
+            Component values: <b>R<sub>F</sub> = ${rf}kΩ</b> and <b>R<sub>IN</sub> = ${rin}kΩ</b>.<br><br>
+            1. Determine the expected V<sub>OUT</sub> for an input of <b>${vin}V</b>.<br>
+            2. <i>Note:</i> Account for power supply saturation.`;
+
+        solText.innerHTML = `<b>Step 1:</b> Gain = ${gain.toFixed(1)}<br>
+                             <b>Step 2:</b> Ideal V<sub>OUT</sub> = ${vin}V × ${gain.toFixed(1)} = ${idealVout.toFixed(1)}V<br>
+                             <b>Step 3:</b> Since supply is ±15V, V<sub>OUT</sub> ${saturated ? "is saturated at <b>" + finalVout.toFixed(1) + "V</b>" : "is <b>" + finalVout.toFixed(1) + "V</b>"}.`;
+    }
+
+    // --- MODE 1: COMPONENT DESIGN (Synthesis) ---
+    else {
+        modeA.style.display = 'none';
+        modeB.style.display = 'block';
+
+        let targetVout = (config === "Inverting" ? -10 : 12);
+        let vin = 2;
+        let requiredGain = targetVout / vin;
+        
+        window.targetGain = requiredGain;
+        window.currentAnswers = { targetVout: targetVout, vin: vin };
+
+        instructions.innerHTML = `
+            <b>TECHNICAL BRIEF:</b><br>
+            Design a ${config} circuit to produce an output of <b>${targetVout}V</b> from a <b>${vin}V</b> input signal.<br><br>
+            1. Select R<sub>F</sub> and R<sub>IN</sub> to achieve the required gain.<br>
+            2. Use values of <b>1kΩ or greater</b>.`;
+
+        solText.innerHTML = `<b>Step 1:</b> Required Gain = ${targetVout}V / ${vin}V = <b>${requiredGain}</b><br>
+                             <b>Step 2:</b> Use Gain formula to find R ratio.<br>
+                             <b>Example:</b> R<sub>F</sub> = ${Math.abs(requiredGain * 10)}kΩ, R<sub>IN</sub> = 10kΩ.`;
+    }
+}
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
 //**************************************************************************************************************************************
