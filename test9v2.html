@@ -10707,12 +10707,19 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 <br><br><i style="color: #666; font-size: 0.9em;">Note: Check for amplifier saturation!</i>`;
         }
 
-        solutionStepText = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br><br>` +
-                           `<em>Step 1 (Gain):</em> ${gain}<br>` +
-                           `<em>Step 2 (Ideal):</em> ${vin}V &times; ${gain} = ${idealVout.toFixed(1)}V<br>` +
-                           (Math.abs(idealVout) > vcc 
-                            ? `<em>Step 3:</em> <b style="color:#d9534f;">Saturation!</b> Capped at &plusmn;${vcc}V.` 
-                            : `<em>Step 3:</em> Within &plusmn;${vcc}V supply limits.`);
+        solutionStepText = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
+                            `<strong>1. Find Gain (G):</strong><br>` +
+                            (config === "Inverting" 
+                                ? `Formula: $G = -(R_F / R_{IN})$ <br> Substitution: $G = -(${rf} / ${rin}) = ${gain.toFixed(2)}$` 
+                                : `Formula: $G = 1 + (R_F / R_1)$ <br> Substitution: $G = 1 + (${rf} / ${rin}) = ${gain.toFixed(2)}$`) + 
+                            `<br><br><strong>2. Calculate Ideal V<sub>OUT</sub>:</strong><br>` +
+                            `Formula: $V_{OUT} = V_{IN} \times G$ <br>` +
+                            `Substitution: $V_{OUT} = ${vin}V \times ${gain.toFixed(2)} = ${idealVout.toFixed(1)}V$<br><br>` +
+                            `<strong>3. Final Check:</strong><br>` +
+                            (Math.abs(idealVout) > vcc 
+                                ? `<b style="color:#d9534f;">Saturation!</b> The calculated ${idealVout.toFixed(1)}V exceeds the &plusmn;${vcc}V supply, so it is capped.` 
+                                : `The value ${idealVout.toFixed(1)}V is within the &plusmn;${vcc}V supply limits.`);
+        
     } else {
         // DESIGN TASK
         document.getElementById('g9OpAmpModeA').style.display = 'none';
@@ -10728,9 +10735,23 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 <b>Goal:</b> <b>V<sub>OUT</sub> = ${designTargetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
         }
 
-        solutionStepText = `<strong>🏆 Solution Logic:</strong><br>` +
-                           `Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${designTargetVout} / ${vin} = <b>${window.targetGain.toFixed(0)}</b><br>` +
-                           `<em>Requirement:</em> R<sub>F</sub> and R<sub>IN</sub> must both be <b>≥ 1kΩ</b>.`;
+        // Calculate an example pair where the lowest resistor is 2k
+let exampleRin = 2000;
+let exampleRf = (config === "Inverting") 
+    ? Math.abs(window.targetGain) * exampleRin 
+    : (Math.abs(window.targetGain) - 1) * exampleRin;
+
+solutionStepText = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
+                    `<strong>1. Required Gain (G):</strong><br>` +
+                    `Formula: $G = V_{OUT} / V_{IN}$ <br>` +
+                    `Substitution: $G = ${designTargetVout} / ${vin} = ${window.targetGain.toFixed(0)}$<br><br>` +
+                    `<strong>2. Resistor Selection Rule:</strong><br>` +
+                    `All resistors must be <b>&ge; 1k&Omega;</b>. Smaller values can draw too much current, causing the op-amp to overheat or the output to distort.<br><br>` +
+                    `<strong>3. Example Pair:</strong><br>` +
+                    (config === "Inverting"
+                        ? `For $G = -${Math.abs(window.targetGain)}$, we use $R_F = |G| \times R_{IN}$.<br>`
+                        : `For $G = ${window.targetGain}$, we use $R_F = (G - 1) \times R_1$.<br>`) +
+                    `If we choose $R_{IN} = 2,000&Omega;$, then $R_F = ${exampleRf.toLocaleString()}&Omega;$.`;
     }
 
     // --- 4. BACKUP & DRAW ---
