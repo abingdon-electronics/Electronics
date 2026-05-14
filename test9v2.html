@@ -10667,14 +10667,19 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     // This variable will hold our text, just like your scenario strings
     let solutionHTML = "";
 
-    // 5. Mode Logic
+// 5. Mode Logic
+    let solutionHTML = ""; // Ensure this is declared at the top of this section
+
     if (window.g9OpAmpMode === 0) {
+        // --- ANALYSIS MODE ---
         if (modeA) modeA.style.display = 'block';
         if (modeB) modeB.style.display = 'none';
 
-        let gain = (config === "Inverting") ? -(rf/rin) : (1 + (rf/rin));
+        let gain = (config === "Inverting") ? -(rf / rin) : (1 + (rf / rin));
         let vcc = 15;
         let idealVout = vin * gain;
+        
+        // Saturation Logic
         let finalVout = Math.abs(idealVout) > vcc ? (idealVout > 0 ? vcc : -vcc) : idealVout;
         
         window.currentAnswers = { vout: finalVout.toFixed(1) };
@@ -10687,17 +10692,25 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 <small style="color:#666;"><i>Note: Check for amplifier saturation!</i></small>`;
         }
 
-        solutionHTML = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br><br>` +
-                       `<em>Step 1:</em> Gain (A<sub>v</sub>) = ${gain}<br>` +
-                       `<em>Step 2:</em> V<sub>ideal</sub> = V<sub>in</sub> &times; A<sub>v</sub> = ${idealVout.toFixed(1)}V.<br>` +
-                       (Math.abs(idealVout) > vcc ? `<em>Step 3:</em> Saturated! Output is capped at the <b>&plusmn;${vcc}V</b> rail.` : `<em>Step 3:</em> Within rails. Output is <b>${finalVout.toFixed(1)}V</b>.`);
+        // Matching Transistor style injection
+        solutionHTML = `<strong>V<sub>OUT</sub> = ${finalVout.toFixed(1)} V | Gain = ${gain.toFixed(1)}</strong><br><br>` +
+                       `<em>Step 1:</em> Calculate Voltage Gain (A<sub>v</sub>):<br>` +
+                       (config === "Inverting" ? `A<sub>v</sub> = -(R<sub>f</sub> / R<sub>in</sub>) = -(${rf} / ${rin}) = <strong>${gain}</strong>` : `A<sub>v</sub> = 1 + (R<sub>f</sub> / R<sub>in</sub>) = 1 + (${rf} / ${rin}) = <strong>${gain}</strong>`) + `<br><br>` +
+                       `<em>Step 2:</em> Calculate Ideal Output (V<sub>out</sub> = V<sub>in</sub> &times; A<sub>v</sub>):<br>` +
+                       `V<sub>out</sub> = ${vin}V &times; ${gain} = <strong>${idealVout.toFixed(1)}V</strong><br><br>` +
+                       (Math.abs(idealVout) > vcc 
+                        ? `<em>Step 3:</em> Since ${Math.abs(idealVout).toFixed(1)}V is greater than the supply (&plusmn;${vcc}V), the Op-Amp <strong>saturates</strong>.<br>Result: <strong>${finalVout.toFixed(1)}V</strong>` 
+                        : `<em>Step 3:</em> Since ${Math.abs(idealVout).toFixed(1)}V is within the supply rails, the output is <strong>${finalVout.toFixed(1)}V</strong>.`);
 
     } else {
+        // --- DESIGN MODE ---
         if (modeA) modeA.style.display = 'none';
         if (modeB) modeB.style.display = 'block';
 
-        let targetVout = config === "Inverting" ? -12 : 12;
+        let targetVout = (config === "Inverting") ? -12 : 12;
         window.targetGain = targetVout / vin;
+        
+        // We store these so checkAnswers can compare ratios
         window.currentAnswers = { targetVout: targetVout, vin: vin };
 
         if (instructions) {
@@ -10708,16 +10721,20 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1k&Omega;).`;
         }
 
-        solutionHTML = `<strong>🏆 Solution Logic:</strong><br><br>` +
-                       `<em>Step 1:</em> Target Gain = V<sub>out</sub> / V<sub>in</sub> = ${window.targetGain.toFixed(2)}.<br>` +
-                       `<em>Step 2:</em> For ${config}, Gain = ` + (config === "Inverting" ? `- (R<sub>f</sub>/R<sub>in</sub>)` : `1 + (R<sub>f</sub>/R<sub>in</sub>)`) + `.<br>` +
-                       `<em>Step 3:</em> Any pair (e.g., R<sub>f</sub>=${(rf)}k, R<sub>in</sub>=${rin}k) matching this ratio is correct.`;
+        solutionHTML = `<strong>Target Gain = ${window.targetGain.toFixed(2)}</strong><br><br>` +
+                       `<em>Step 1:</em> Find the required gain (A<sub>v</sub> = V<sub>out</sub> / V<sub>in</sub>):<br>` +
+                       `A<sub>v</sub> = ${targetVout}V / ${vin}V = <strong>${window.targetGain.toFixed(2)}</strong><br><br>` +
+                       `<em>Step 2:</em> Use the ${config} gain formula to find a resistor ratio:<br>` +
+                       (config === "Inverting" ? `Gain = -(R<sub>f</sub> / R<sub>in</sub>)` : `Gain = 1 + (R<sub>f</sub> / R<sub>in</sub>)`) + `<br><br>` +
+                       `<em>Example Solution:</em> If R<sub>in</sub> = ${rin}k&Omega;, then R<sub>f</sub> = <strong>${rf}k&Omega;</strong>. (Any matching ratio is correct).`;
     }
 
-    // 6. Draw
-    if (ctx && typeof drawOpAmpCircuit === 'function') drawOpAmpCircuit(ctx, canvas);
+    // 6. Drawing the Circuit
+    if (ctx && typeof drawOpAmpCircuit === 'function') {
+        drawOpAmpCircuit(ctx, canvas);
+    }
 
-    // 7. FINAL INJECTION (The missing step!)
+    // 7. FINAL INJECTION (The "Transistor Style" fix)
     if (solText) {
         solText.innerHTML = solutionHTML;
     }
@@ -12495,7 +12512,7 @@ function checkAnswers() {
 // End of STANDARD OP-AMP grading 
     
 // 👇 GRADE 9 OP-AMP GRADING LOGIC 👇
-    else if (currentMode === 'grade9opamp') {
+else if (currentMode === 'grade9opamp') {
         // 1. FRESH START
         results.length = 0;
         activeInputs.length = 0;
@@ -12544,15 +12561,31 @@ function checkAnswers() {
             }
         }
 
-        // 2. UI FEEDBACK
+        // --- THE PATTERN MATCHING FIX: APPLY BORDERS ---
+        activeInputs.forEach((id, index) => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (results[index] === 'correct') {
+                    el.style.borderColor = "#28a745"; // Green
+                    el.style.borderWidth = "3px";
+                } else {
+                    el.style.borderColor = "#dc3545"; // Red
+                    el.style.borderWidth = "3px";
+                }
+            }
+        });
+
+        // 2. UI FEEDBACK & SOLUTIONS
         if (isCorrect) {
             if (feedback) feedback.innerHTML = "<span style='color: #28a745;'>✔️ Correct! Excellent circuit analysis.</span>";
-            isCurrentProblemSolved = true; // Stop them from checking again
+            isCurrentProblemSolved = true; 
+            // Hide solutions if they got it right
+            const solPanel = document.getElementById('solutions');
+            if (solPanel) solPanel.style.display = 'none';
         } else {
             if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>❌ Incorrect. See the logic below to help.</span>";
             
-            // --- THE FIX: REVEAL THE SOLUTIONS PANEL ---
-            // Without these lines, the 'solText' stays hidden even if it contains text!
+            // Show the solution panel
             const solPanel = document.getElementById('solutions');
             if (solPanel) {
                 solPanel.style.display = 'block'; 
