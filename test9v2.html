@@ -13265,7 +13265,7 @@ function provideHint() {
                 • <b>Missing Resistor:</b> Once you have V<sub>GS</sub>, plug it into the standard Potential Divider equation (<b>V<sub>out</sub> = V<sub>in</sub> &times; [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)]</b>). Because the numbers are simple, you can simplify the fraction to easily find the missing resistor!
             </div>`;
 
-    } else if (currentMode === 'grade9opamp') {
+} else if (currentMode === 'grade9opamp') {
         let specificHint = "";
         
         // Robust detection: Check the window variable OR which UI group is visible
@@ -13293,20 +13293,16 @@ function provideHint() {
                 ${specificHint}
             </div>`;
 
-} else if (currentMode === 'opamp') {
+    } else if (currentMode === 'opamp') {
         let specificHint = "";
         
         // --- DETECTION FALLBACK ---
         let currentType = window.opAmpQuestionType;
         if (!currentType) {
-            // Check if the math inputs are even visible
             const isMathVisible = document.getElementById('opAmpMathInputs') && 
                                  document.getElementById('opAmpMathInputs').style.display !== 'none';
 
             if (isMathVisible) {
-                // If both are visible, we look at the labels. 
-                // Since your screenshot shows BOTH Gain and Vout, 
-                // let's prioritize the GAIN hint if the gain box is empty.
                 const gainInput = document.getElementById('opAmpGain');
                 if (gainInput && gainInput.value === "") {
                     currentType = 'gain';
@@ -13355,10 +13351,14 @@ function provideHint() {
                 <strong>💡 Op-Amp Hint:</strong>
                 ${specificHint}
             </div>`;
-    
-    // Set the HTML to the feedback element
-    feedback.innerHTML = helpText;
-} //End of ProvideHint
+    }
+
+    // --- FINAL OUTPUT ---
+    // This line actually puts the hint onto the screen
+    if (helpText !== "") {
+        feedback.innerHTML = helpText;
+    }
+} // End of provideHint function
 // **********************************************************************   
 function toggleSolutions() {
     const sol = document.getElementById('solutions');
