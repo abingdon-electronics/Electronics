@@ -10611,23 +10611,31 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
-    // --- 1. GLOBAL SCOPE FOR TEXT ---
-    // Using var at the top level ensures this text is never lost/undefined
+    // --- 1. GLOBAL SCOPE & STATE ---
     var solutionStepText = ""; 
     const pinkColor = "#E64097";
     
-    // --- 2. STATE & UI RESET ---
-    window.opAmpInteractive = false; // Kills the red hinges/circles
+    // Kill the interactive hinges/red circles immediately
+    window.opAmpInteractive = false; 
+    
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
     
-    const solText = document.getElementById('solText');
     const solContainer = document.getElementById('solutions');
+    const solText = document.getElementById('solText');
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
+    const instructions = document.getElementById('g9OpAmpInstructions');
 
     if (mainGroup) mainGroup.style.display = 'block';
 
-    // IMPORTANT: Hide the solution box until an answer is actually checked!
-    if (solContainer) solContainer.style.display = "none";
+    // Reset UI: Hide the solution box and clear content for a fresh start
+    if (solContainer) {
+        solContainer.style.display = "none";
+        // Apply layout constraints to prevent panel shifting later
+        solContainer.style.width = "100%";
+        solContainer.style.minHeight = "100px";
+        solContainer.style.flexShrink = "0";
+        solContainer.style.overflowY = "auto";
+    }
     if (solText) solText.innerHTML = "";
 
     // Reset Input Fields
@@ -10636,12 +10644,13 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         if (el) {
             el.value = '';
             el.style.removeProperty('border-color');
+            el.style.borderWidth = "1px";
         }
     });
 
     currentMode = 'grade9opamp';
 
-    // --- 3. MATH & MODE LOGIC ---
+    // --- 2. MODE TOGGLE & MATH ---
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
 
@@ -10651,7 +10660,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     const vin = [1, 1.5, 2, 3, 5][Math.floor(Math.random() * 5)];
     const vcc = 15;
 
-    // Set drawing parameters
+    // Set drawing parameters for the canvas
     window.opAmpTargetConfig = config;
     window.opAmpRf = rf;
     window.opAmpVin = vin;
@@ -10660,8 +10669,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
     window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
 
-    const instructions = document.getElementById('g9OpAmpInstructions');
-
+    // --- 3. MODE CONTENT ---
     if (window.g9OpAmpMode === 0) {
         document.getElementById('g9OpAmpModeA').style.display = 'block';
         document.getElementById('g9OpAmpModeB').style.display = 'none';
@@ -10680,7 +10688,6 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 <br><br><i style="color: #666; font-size: 0.9em;">Note: Check for amplifier saturation!</i>`;
         }
 
-        // Build the solution text
         solutionStepText = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br><br>` +
                            `<em>Step 1 (Gain):</em> ${gain}<br>` +
                            `<em>Step 2 (Ideal):</em> ${vin}V &times; ${gain} = ${idealVout.toFixed(1)}V<br>` +
@@ -10705,15 +10712,17 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                            `Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${targetVout} / ${vin} = ${window.targetGain.toFixed(2)}`;
     }
 
-    // --- 4. FINAL INJECTION (BUT NO FORCE-DISPLAY) ---
+    // --- 4. DATA BACKUP & DRAW ---
+    // This is the "Safety Net" that checkAnswer will use to fill the box
+    window.g9OpAmpSolutionBackup = solutionStepText;
+
     drawOpAmpCircuit(ctx, canvas);
     
+    // We update the internal text now, but keep the container hidden 
+    // until checkAnswer() is called.
     if (solText) {
         solText.innerHTML = solutionStepText; 
     }
-
-    // Note: I have removed solContainer.style.display = "block" from here.
-    // The box will now stay hidden until your "checkAnswer" code calls it.
 }
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
