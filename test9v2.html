@@ -10611,7 +10611,7 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
-    // 1. Reset UI (Matching Transistor style)
+    // 1. Reset UI
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
 
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
@@ -10664,7 +10664,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     const modeA = document.getElementById('g9OpAmpModeA');
     const modeB = document.getElementById('g9OpAmpModeB');
 
-    // This variable holds our text (Declared ONCE)
+    // FIX: Declare this variable ONLY ONCE here.
     let solutionHTML = "";
 
     // 5. Mode Logic
@@ -10672,15 +10672,12 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         if (modeA) modeA.style.display = 'block';
         if (modeB) modeB.style.display = 'none';
 
-        // Calculation
         let gain = (config === "Inverting") ? -(rf / rin) : (1 + (rf / rin));
         let vcc = 15;
         let idealVout = vin * gain;
         let finalVout = Math.abs(idealVout) > vcc ? (idealVout > 0 ? vcc : -vcc) : idealVout;
         
-        window.currentAnswers = { 
-            vout: finalVout.toFixed(1) 
-        };
+        window.currentAnswers = { vout: finalVout.toFixed(1) };
 
         if (instructions) {
             instructions.innerHTML = `
@@ -10693,19 +10690,14 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                        `<em>Step 1:</em> Gain = ${gain}<br>` +
                        `<em>Step 2:</em> V<sub>ideal</sub> = ${vin}V &times; ${gain} = ${idealVout.toFixed(1)}V<br>` +
                        (Math.abs(idealVout) > vcc ? `<em>Step 3:</em> Saturation! Capped at <b>&plusmn;${vcc}V</b>.` : `<em>Step 3:</em> Within limits.`);
-
     } else {
-        // --- DESIGN MODE ---
         if (modeA) modeA.style.display = 'none';
         if (modeB) modeB.style.display = 'block';
 
         let targetVout = config === "Inverting" ? -12 : 12;
         window.targetGain = targetVout / vin;
         
-        window.currentAnswers = { 
-            targetVout: targetVout, 
-            vin: vin 
-        };
+        window.currentAnswers = { targetVout: targetVout, vin: vin };
 
         if (instructions) {
             instructions.innerHTML = `
@@ -10716,12 +10708,12 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         solutionHTML = `<strong>🏆 Solution Logic:</strong><br>Target Gain = ${window.targetGain.toFixed(2)}`;
     }
 
-    // 6. Draw the Circuit (This makes the blank canvas disappear)
-    if (ctx && typeof drawOpAmpCircuit === 'function') {
+    // 6. DRAWING (Redraws canvas cleanly to remove old artifacts like circles)
+    if (typeof drawOpAmpCircuit === 'function') {
         drawOpAmpCircuit(ctx, canvas);
     }
 
-    // 7. FINAL INJECTION
+    // 7. FINAL INJECTION (This will now work because there is no error above)
     if (solText) {
         solText.innerHTML = solutionHTML;
     }
