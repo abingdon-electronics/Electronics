@@ -10657,6 +10657,20 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
+//===================
+function updateG9DesignLabels() {
+    const rLabel = document.getElementById("g9OpAmpRinLabel_G9");
+    if (!rLabel) return;
+
+    const isNonInverting = (window.opAmpTargetConfig === 'Non-Inverting' || window.topWireState !== 'horizontal');
+
+    if (isNonInverting) {
+        rLabel.innerHTML = "R<sub>1</sub> = ";
+    } else {
+        rLabel.innerHTML = "R<sub>IN</sub> = ";
+    }
+}
+//======================
 function generateGrade9OpAmpProblem(ctx, canvas) {
     // --- 1. STATE & DATA PREP ---
     var solutionStepText = ""; 
@@ -10797,6 +10811,8 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     // --- 4. BACKUP & DRAW ---
     window.g9OpAmpSolutionBackup = solutionStepText;
     drawOpAmpCircuit(ctx, canvas);
+
+    updateG9DesignLabels();
 }
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
@@ -12593,24 +12609,7 @@ function checkAnswers() {
     }
 // End of STANDARD OP-AMP grading 
 
-// Function to update the R_IN / R_1 label dynamically
-function updateG9DesignLabels() {
-    const rLabel = document.getElementById("g9OpAmpRinLabel_G9");
-    if (!rLabel) return;
-
-    // Check if the current setup is Non-Inverting
-    // (Non-Inverting uses the bottom wire for input, making top wire the ground resistor R1)
-    const isNonInverting = (window.opAmpTargetConfig === 'Non-Inverting' || window.topWireState !== 'horizontal');
-
-    if (isNonInverting) {
-        rLabel.innerHTML = "R<sub>1</sub> = ";
-    } else {
-        rLabel.innerHTML = "R<sub>IN</sub> = ";
-    }
-}
-
-// Call this function whenever a new G9 question is generated!
-updateG9DesignLabels();
+//===============
     
 // 👇 GRADE 9 OP-AMP GRADING LOGIC 👇
 else if (currentMode === 'grade9opamp') {
