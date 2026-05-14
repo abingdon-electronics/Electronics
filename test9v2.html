@@ -13265,62 +13265,23 @@ function provideHint() {
                 • <b>Missing Resistor:</b> Once you have V<sub>GS</sub>, plug it into the standard Potential Divider equation (<b>V<sub>out</sub> = V<sub>in</sub> &times; [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)]</b>). Because the numbers are simple, you can simplify the fraction to easily find the missing resistor!
             </div>`;
 
-} else if (currentMode === 'opamp') {
-    let specificHint = "";
-    
-    // --- DETECTION FALLBACK ---
-    // If the type hasn't been set by checkAnswers yet, detect it now
-    let currentType = window.opAmpQuestionType;
-    if (!currentType) {
-        if (document.getElementById('opAmpGain') || document.getElementById('opAmpVout')) {
-            currentType = 'calc';
-        } else if (document.getElementById('opAmpRf')) {
-            currentType = 'design';
-        } else {
-            currentType = 'hinge';
-        }
-    }
-
-    if (currentType === 'hinge') {
-        specificHint = `
-            <br><br><b>Wiring & Formulas</b><br>
-            • <b>Inverting:</b> Signal into (-). Look for the <b>minus sign</b> in the formula!<br>
-            • <b>Non-Inverting:</b> Signal into (+). The formula features a <b>1 +</b> calculation.`;
-    } 
-    else if (currentType === 'calc') {
-        specificHint = `
-            <br><br><b>Calculating Gain & V<sub>out</sub></b><br>
-            1. <b>Inverting:</b> Input signal goes to (-).<br>
-            2. <b>Non-Inverting:</b> Input signal goes to (+).<br>
-            3. Use the Data Sheet to find the matching formula for the resistor values shown.`;
-    } 
-    else if (currentType === 'design') {
-        specificHint = `
-            <br><br><b>Design Strategy</b><br>
-            • <b>Inverting:</b> |Gain| = R<sub>F</sub> / R<sub>IN</sub>. <br>
-            • <b>Non-Inverting:</b> Gain = 1 + (R<sub>F</sub> / R<sub>1</sub>).<br>
-            • <b>Pro-Tip:</b> Pick a simple 10 k&Omega; for your input resistor, then solve for R<sub>F</sub> to hit your target gain of <b>${window.targetGain || 'the required amount'}</b>.`;
-    }
-
-    helpText = `
-        <div style="${blueBox}">
-            <strong>💡 Op-Amp Hint:</strong>
-            ${specificHint}
-        </div>`;
-    } else if (currentMode === 'grade9opamp') {
+} else if (currentMode === 'grade9opamp') {
         let specificHint = "";
         
-        if (window.g9OpAmpMode === 0) {
+        // Robust detection: Check the window variable OR which UI group is visible
+        const isAnalysis = (window.g9OpAmpMode === 0 || (document.getElementById('g9OpAmpModeA') && document.getElementById('g9OpAmpModeA').style.display === 'block'));
+
+        if (isAnalysis) {
             // ANALYSIS TASK HINT
             specificHint = `
-                <br><br><b>Analysis: Gain & Saturation</b><br>
+                <br><b>Analysis: Gain & Saturation</b><br>
                 1. Identify if the circuit is <b>Inverting</b> (signal to -) or <b>Non-Inverting</b> (signal to +).<br>
                 2. Apply the matching gain formula from your data sheet.<br>
-                3. Calculate the ideal V<sub>OUT</sub>, then check the <b>±${vcc || 15}V supply</b>. If your answer is higher than the supply, the amplifier "flatlines" at the maximum voltage.`;
+                3. Calculate the ideal V<sub>OUT</sub>, then check the <b>±15V supply</b>. If your answer is higher than the supply, the amplifier "flatlines" at the maximum voltage.`;
         } else {
             // DESIGN TASK HINT
             specificHint = `
-                <br><br><b>Design: Resistor Pairs</b><br>
+                <br><b>Design: Resistor Pairs</b><br>
                 1. Calculate your target gain first: <b>Gain = V<sub>OUT</sub> / V<sub>IN</sub></b>.<br>
                 2. Rearrange the formula for your circuit type to find the ratio of R<sub>F</sub> to R<sub>IN</sub>.<br>
                 3. <b>The 1kΩ Rule:</b> You can choose any resistors that create that ratio, but both MUST be 1,000Ω or larger to prevent the circuit from drawing too much current.`;
@@ -13331,17 +13292,48 @@ function provideHint() {
                 <strong>💡 Grade 9 Op-Amp Hint:</strong>
                 ${specificHint}
             </div>`;
+
+    } else if (currentMode === 'opamp') {
+        let specificHint = "";
         
-    } else {
-        // Potential Divider & General fallback
+        // --- DETECTION FALLBACK ---
+        let currentType = window.opAmpQuestionType;
+        if (!currentType) {
+            if (document.getElementById('opAmpGain') || document.getElementById('opAmpVout')) {
+                currentType = 'calc';
+            } else if (document.getElementById('opAmpRf')) {
+                currentType = 'design';
+            } else {
+                currentType = 'hinge';
+            }
+        }
+
+        if (currentType === 'hinge') {
+            specificHint = `
+                <br><br><b>Wiring & Formulas</b><br>
+                • <b>Inverting:</b> Signal into (-). Look for the <b>minus sign</b> in the formula!<br>
+                • <b>Non-Inverting:</b> Signal into (+). The formula features a <b>1 +</b> calculation.`;
+        } 
+        else if (currentType === 'calc') {
+            specificHint = `
+                <br><br><b>Calculating Gain & V<sub>out</sub></b><br>
+                1. <b>Inverting:</b> Input signal goes to (-).<br>
+                2. <b>Non-Inverting:</b> Input signal goes to (+).<br>
+                3. Use the Data Sheet to find the matching formula for the resistor values shown.`;
+        } 
+        else if (currentType === 'design') {
+            specificHint = `
+                <br><br><b>Design Strategy</b><br>
+                • <b>Inverting:</b> |Gain| = R<sub>F</sub> / R<sub>IN</sub>. <br>
+                • <b>Non-Inverting:</b> Gain = 1 + (R<sub>F</sub> / R<sub>1</sub>).<br>
+                • <b>Pro-Tip:</b> Pick a simple 10 kΩ for your input resistor, then solve for R<sub>F</sub> to hit your target gain.`;
+        }
+
         helpText = `
             <div style="${blueBox}">
-                <strong>💡 Hint:</strong> Use the <b>Potential Divider equation</b> from the Data Sheet.
+                <strong>💡 Op-Amp Hint:</strong>
+                ${specificHint}
             </div>`;
-    }
-
-    feedback.innerHTML = helpText;
-}
 // **********************************************************************   
 function toggleSolutions() {
     const sol = document.getElementById('solutions');
