@@ -13299,11 +13299,14 @@ function provideHint() {
         // --- DETECTION FALLBACK ---
         let currentType = window.opAmpQuestionType;
         if (!currentType) {
+            // Check if the math input group (Gain/Vout) is currently visible
             const isMathVisible = document.getElementById('opAmpMathInputs') && 
                                  document.getElementById('opAmpMathInputs').style.display !== 'none';
 
             if (isMathVisible) {
                 const gainInput = document.getElementById('opAmpGain');
+                // If the Gain box is empty, show the Gain hint. 
+                // If the user already filled it, show the Vout (calc) hint.
                 if (gainInput && gainInput.value === "") {
                     currentType = 'gain';
                 } else {
@@ -13351,14 +13354,14 @@ function provideHint() {
                 <strong>💡 Op-Amp Hint:</strong>
                 ${specificHint}
             </div>`;
-    }
+
+    } // This brace closes the currentMode === 'opamp' block
 
     // --- FINAL OUTPUT ---
-    // This line actually puts the hint onto the screen
+    // This part must be at the very end of your provideHint function
     if (helpText !== "") {
         feedback.innerHTML = helpText;
-    }
-} // End of provideHint function
+    }// End of provideHint function
 // **********************************************************************   
 function toggleSolutions() {
     const sol = document.getElementById('solutions');
