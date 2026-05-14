@@ -12464,6 +12464,7 @@ function checkAnswers() {
 
             let pRf = parseInput(rfIn ? rfIn.value : "");
             let pRin = parseInput(rinIn ? rinIn.value : "");
+            let specificFeedback = ""; // Track engineering practice errors
             
             const getBase = (p) => {
                 if (!p || p.val === null) return 0;
@@ -12476,21 +12477,34 @@ function checkAnswers() {
             let targetGain = window.targetGain || 0;
             let targetRatio = (window.opAmpTargetConfig === "Inverting") ? Math.abs(targetGain) : (Math.abs(targetGain) - 1);
             
-            let isCorrect = (rfBase > 0 && rinBase > 0 && Math.abs((rfBase / rinBase) - targetRatio) < 0.05);
+            // 1. Check the Math (Ratio)
+            let ratioCorrect = (rfBase > 0 && rinBase > 0 && Math.abs((rfBase / rinBase) - targetRatio) < 0.05);
+            
+            // 2. Check Engineering Practice (The 1k Rule)
+            let meetsMinResistance = (rfBase >= 1000 && rinBase >= 1000);
 
-            // BORDER FIX: We manually push 'correct' or 'wrongval' based on the ratio check
-            if (isCorrect) {
+            // BORDER & RESULT LOGIC
+            if (ratioCorrect && meetsMinResistance) {
                 results.push('correct', 'correct');
+            } else if (ratioCorrect && !meetsMinResistance) {
+                results.push('wrongval', 'wrongval');
+                specificFeedback = "Math is correct, but for good practice, resistors should be ≥ 1kΩ.";
             } else {
                 results.push('wrongval', 'wrongval');
             }
 
-            // DESIGN SOLUTION FIX: Show the walkthrough
+            // FEEDBACK & SOLUTION UI
+            const fEl = document.getElementById('feedback');
+            if (specificFeedback && fEl) {
+                fEl.innerHTML = `<span style='color: #dc3545; font-weight:bold;'>❌ ${specificFeedback}</span>`;
+            }
+
             if (solDiv) {
                 let formula = (window.opAmpTargetConfig === "Inverting") ? "|G| = R<sub>F</sub> / R<sub>IN</sub>" : "(G - 1) = R<sub>F</sub> / R<sub>1</sub>";
                 let stepHtml = `<b>Step 1:</b> Configuration is ${window.opAmpTargetConfig}.<br>
                                 <b>Step 2:</b> Required Ratio: ${formula} = <b>${targetRatio}</b>.<br>
-                                <b>Step 3:</b> Your Ratio: (${pRf.val}${pRf.unit} / ${pRin.val}${pRin.unit}) = <b>${(rfBase/rinBase).toFixed(2)}</b>.`;
+                                <b>Step 3:</b> Your Ratio: (${pRf.val}${pRf.unit || ""} / ${pRin.val}${pRin.unit || ""}) = <b>${(rfBase/rinBase).toFixed(2)}</b>.<br>
+                                <span style="font-size:0.9em; color:#666;">Note: Resistors should be ≥ 1kΩ to prevent output loading.</span>`;
                 solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
             }
         }
