@@ -13299,20 +13299,23 @@ function provideHint() {
         // --- DETECTION FALLBACK ---
         let currentType = window.opAmpQuestionType;
         if (!currentType) {
-            // 1. Check for GAIN first (specific to your screenshot)
-            if (document.getElementById('opAmpGain')) {
-                currentType = 'gain';
-            } 
-            // 2. Check for VOUT second
-            else if (document.getElementById('opAmpVout')) {
-                currentType = 'calc';
-            } 
-            // 3. Check for RESISTOR design third
-            else if (document.getElementById('opAmpRf')) {
+            // Check if the math inputs are even visible
+            const isMathVisible = document.getElementById('opAmpMathInputs') && 
+                                 document.getElementById('opAmpMathInputs').style.display !== 'none';
+
+            if (isMathVisible) {
+                // If both are visible, we look at the labels. 
+                // Since your screenshot shows BOTH Gain and Vout, 
+                // let's prioritize the GAIN hint if the gain box is empty.
+                const gainInput = document.getElementById('opAmpGain');
+                if (gainInput && gainInput.value === "") {
+                    currentType = 'gain';
+                } else {
+                    currentType = 'calc';
+                }
+            } else if (document.getElementById('opAmpRf')) {
                 currentType = 'design';
-            } 
-            // 4. Default to wiring/hinge
-            else {
+            } else {
                 currentType = 'hinge';
             }
         }
