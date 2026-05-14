@@ -12591,6 +12591,7 @@ function checkAnswers() {
                 solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px;">${window.opAmpSolutionBackup}</div>`;
             }
         }
+    }
 
        // --- BRANCH C: HINGE / WIRING MODE ---
         else {
@@ -12803,7 +12804,7 @@ else if (currentMode === 'grade9opamp') {
         const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
         let isCurrentlyHinge = (currentMode === 'opamp' && window.opAmpQuestionType === 'hinge' && activeInputs.length === 0);
 
-        if (!isCurrentlyHinge && fEl) {
+    if (!isCurrentlyHinge && fEl && !window.customFeedbackTriggered) {
             if (results.includes('wrongunit')) {
                 if (typeof unitErrorMade !== 'undefined') unitErrorMade = true;
                 fEl.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost).</span>";
