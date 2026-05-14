@@ -10621,17 +10621,21 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
+    // 1. Core State Setup
     currentMode = 'grade9opamp'; 
     window.opAmpQuestionType = 'grade9'; 
     window.opAmpInteractive = false; 
 
-    // 1. Scrub UI and borders
+    // 2. SAFETY DEFAULTS (Prevents Blank Canvas)
+    window.topWireState = window.topWireState || 'horizontal';
+    window.bottomWireState = window.bottomWireState || 'vertical';
+    window.opAmpTargetConfig = window.opAmpTargetConfig || 'Inverting';
+
+    // 3. Clear UI & Inputs
     ['g9OpAmpVout', 'g9OpAmpRf_G9', 'g9OpAmpRin_G9', 'g9OpAmpRf', 'g9OpAmpRin'].forEach(id => {
         let el = document.getElementById(id);
         if (el) {
             el.style.removeProperty('border-color');
-            el.style.removeProperty('border-width');
-            el.style.removeProperty('box-shadow');
             el.value = '';
         }
     });
@@ -10639,74 +10643,88 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
     const instructions = document.getElementById('g9OpAmpInstructions');
     const solText = document.getElementById('solText');
+    
     if (mainGroup) mainGroup.style.display = 'block';
 
-    // 2. Cycle Mode: 0 (Analysis) -> 1 (Design)
+    // 4. Cycle Mode
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
 
+    // 5. Configuration & Logic
     const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     window.opAmpTargetConfig = config;
-    const vcc = 15; 
+    
+    // Set Wires FIRST
+    if (config === "Inverting") {
+        window.topWireState = 'horizontal'; 
+        window.bottomWireState = 'vertical';  
+    } else {
+        window.topWireState = 'vertical';     
+        window.bottomWireState = 'horizontal'; 
+    }
 
-    // 3. Simple Math Generation (Whole Number Ratios)
+    // 6. Generate Math Values
     const rin = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
-    const multiplier = Math.floor(Math.random() * 5) + 2; // Simple ratios (2x to 6x)
+    const multiplier = Math.floor(Math.random() * 5) + 2; 
     const rf = rin * multiplier; 
     const vin = [1, 1.5, 2, 3, 5][Math.floor(Math.random() * 5)];
 
-    // Sync values for the Drawer
+    // Sync globals for the Drawer
     window.opAmpRf = rf;
     window.opAmpRin = (config === "Inverting") ? rin : 0;
     window.opAmpR1 = (config === "Non-Inverting") ? rin : 0;
     window.opAmpVin = vin;
 
-    // 4. Set Wires
-    if (config === "Inverting") {
-        window.topWireState = 'horizontal'; window.bottomWireState = 'vertical';  
-    } else {
-        window.topWireState = 'vertical'; window.bottomWireState = 'horizontal'; 
-    }
-
-    // 5. Analysis Mode Logic
+    // 7. Update Text Panels (WITH CRASH PROTECTION)
     if (window.g9OpAmpMode === 0) {
-        document.getElementById('g9OpAmpModeA').style.display = 'block';
-        document.getElementById('g9OpAmpModeB').style.display = 'none';
+        let modeA = document.getElementById('g9OpAmpModeA');
+        let modeB = document.getElementById('g9OpAmpModeB');
+        if (modeA) modeA.style.display = 'block';
+        if (modeB) modeB.style.display = 'none';
 
         let gain = (config === "Inverting") ? -(rf/rin) : (1 + (rf/rin));
+        let vcc = 15;
         let idealVout = vin * gain;
-        let saturated = Math.abs(idealVout) > vcc;
-        let finalVout = saturated ? (idealVout > 0 ? vcc : -vcc) : idealVout;
+        let finalVout = Math.abs(idealVout) > vcc ? (idealVout > 0 ? vcc : -vcc) : idealVout;
 
         window.currentAnswers = { vout: finalVout.toFixed(1) };
         
-        instructions.innerHTML = `
-            <h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
+        // Only set innerHTML if the instruction element exists!
+        if (instructions) {
+            instructions.innerHTML = `<h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
             Supply Voltage: <b>±${vcc}V</b><br><br>
             Calculate <span style="color: #d65093; font-weight: bold;">V<sub>OUT</sub></span> for the circuit shown.<br><br>
             <small><i>Note: Component values are on the diagram.</i></small>`;
-
-        solText.innerHTML = `<b>1. Gain:</b> ${gain}<br><b>2. Ideal Vout:</b> ${vin}V x ${gain} = ${idealVout}V<br><b>3. Result:</b> ${saturated ? "Saturated at " + finalVout + "V" : finalVout + "V"}`;
+        }
+        if (solText) {
+            solText.innerHTML = `<b>Gain:</b> ${gain} | <b>Vout:</b> ${finalVout}V`;
+        }
 
     } else {
-        // Design Mode Logic
-        document.getElementById('g9OpAmpModeA').style.display = 'none';
-        document.getElementById('g9OpAmpModeB').style.display = 'block';
+        let modeA = document.getElementById('g9OpAmpModeA');
+        let modeB = document.getElementById('g9OpAmpModeB');
+        if (modeA) modeA.style.display = 'none';
+        if (modeB) modeB.style.display = 'block';
 
         let targetVout = config === "Inverting" ? -12 : 12;
         window.targetGain = targetVout / vin;
         window.currentAnswers = { targetVout: targetVout, vin: vin };
 
-        instructions.innerHTML = `
-            <h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
+        if (instructions) {
+            instructions.innerHTML = `<h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
             Build an <b>${config}</b> circuit.<br>
             <b>Goal:</b> <span style="color: #d65093; font-weight: bold;">V<sub>OUT</sub></span> = <b>${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
             Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b>.`;
-
-        solText.innerHTML = `<b>1. Target Gain:</b> ${targetVout}/${vin} = ${window.targetGain}<br><b>2. Solution:</b> If Rin=10k, Rf=${Math.abs(window.targetGain * 10)}k`;
+        }
+        if (solText) {
+            solText.innerHTML = `<b>Target Gain:</b> ${window.targetGain}`;
+        }
     }
 
-    drawOpAmpCircuit(ctx, canvas);
+    // 8. FINAL STEP: Draw Circuit
+    if (ctx && typeof drawOpAmpCircuit === 'function') {
+        drawOpAmpCircuit(ctx, canvas);
+    }
 }
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
