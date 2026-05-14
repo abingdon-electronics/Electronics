@@ -12532,12 +12532,9 @@ function checkAnswers() {
             }
 
             // Step-by-Step UI
-            if (isGainVisible && solDiv) {
-                let gDisp = (window.currentAnswers && window.currentAnswers.gain) || "";
-                let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
-                    `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gDisp}</b>` :
-                    `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gDisp}</b>`;
-                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+            if (isGainVisible && solDiv && window.opAmpSolutionBackup) {
+                // Uses the new detailed backup string!
+                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${window.opAmpSolutionBackup}</div>`;
             }
         } 
         
@@ -12575,7 +12572,7 @@ function checkAnswers() {
                 results.push('correct', 'correct');
             } else if (ratioCorrect && !meetsMinResistance) {
                 results.push('wrongval', 'wrongval');
-                specificFeedback = "Math is correct, but for good practice, resistors should be ≥ 1kΩ.";
+                specificFeedback = "The resistor ratio is correct! But values must be ≥ 1kΩ (1000Ω) to avoid overheating.";
             } else {
                 results.push('wrongval', 'wrongval');
             }
@@ -12589,16 +12586,9 @@ function checkAnswers() {
                 window.customFeedbackTriggered = true; 
             }
 
-            if (solDiv) {
-                // DYNAMIC LABEL FIX: Uses R_IN for Inverting, R_1 for Non-Inverting
-                let inputLabel = (window.opAmpTargetConfig === "Inverting") ? "R<sub>IN</sub>" : "R<sub>1</sub>";
-                let formula = (window.opAmpTargetConfig === "Inverting") ? `|G| = R<sub>F</sub> / ${inputLabel}` : `(G - 1) = R<sub>F</sub> / ${inputLabel}`;
-                
-                let stepHtml = `<b>Step 1:</b> Configuration is ${window.opAmpTargetConfig}.<br>
-                                <b>Step 2:</b> Required Ratio: ${formula} = <b>${targetRatio}</b>.<br>
-                                <b>Step 3:</b> Your Ratio: (${pRf.val}${pRf.unit || ""} / ${pRin.val}${pRin.unit || ""}) = <b>${(rfBase/rinBase).toFixed(2)}</b>.<br>
-                                <span style="font-size:0.9em; color:#666;">Note: Resistors should be ≥ 1kΩ to prevent output loading.</span>`;
-                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+            if (solDiv && window.opAmpSolutionBackup) {
+                 // Uses the new detailed backup string!
+                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${window.opAmpSolutionBackup}</div>`;
             }
         }
 
