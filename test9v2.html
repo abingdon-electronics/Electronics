@@ -13297,27 +13297,28 @@ function provideHint() {
         let specificHint = "";
         
         // --- DETECTION FALLBACK ---
-        // We look for specific elements on the screen to decide which hint to show
         let currentType = window.opAmpQuestionType;
         if (!currentType) {
+            // 1. Check for GAIN first (specific to your screenshot)
             if (document.getElementById('opAmpGain')) {
-                currentType = 'gain'; // New: Detects the Voltage Gain task
-            } else if (document.getElementById('opAmpVout')) {
+                currentType = 'gain';
+            } 
+            // 2. Check for VOUT second
+            else if (document.getElementById('opAmpVout')) {
                 currentType = 'calc';
-            } else if (document.getElementById('opAmpRf')) {
+            } 
+            // 3. Check for RESISTOR design third
+            else if (document.getElementById('opAmpRf')) {
                 currentType = 'design';
-            } else {
+            } 
+            // 4. Default to wiring/hinge
+            else {
                 currentType = 'hinge';
             }
         }
 
-        if (currentType === 'hinge') {
-            specificHint = `
-                <br><br><b>Wiring & Formulas</b><br>
-                • <b>Inverting:</b> Signal into (-). Look for the <b>minus sign</b> in the formula!<br>
-                • <b>Non-Inverting:</b> Signal into (+). The formula features a <b>1 +</b> calculation.`;
-        } 
-        else if (currentType === 'gain') {
+        // --- HINT SELECTION ---
+        if (currentType === 'gain') {
             specificHint = `
                 <br><br><b>Voltage Gain (G)</b><br>
                 Gain is simply a ratio of how much the amplifier "boosts" the signal.<br>
@@ -13325,9 +13326,15 @@ function provideHint() {
                 2. Use the formula: <span style="color:#E64097;"><b>Gain = V<sub>OUT</sub> / V<sub>IN</sub></b></span>.<br>
                 3. <b>Check the Sign:</b> If the output is inverted (upside down compared to the input), your gain must be a <b>negative</b> number!`;
         }
+        else if (currentType === 'hinge') {
+            specificHint = `
+                <br><br><b>Wiring & Formulas</b><br>
+                • <b>Inverting:</b> Signal into (-). Look for the <b>minus sign</b> in the formula!<br>
+                • <b>Non-Inverting:</b> Signal into (+). The formula features a <b>1 +</b> calculation.`;
+        } 
         else if (currentType === 'calc') {
             specificHint = `
-                <br><br><b>Calculating Gain & V<sub>out</sub></b><br>
+                <br><br><b>Calculating V<sub>out</sub></b><br>
                 1. <b>Inverting:</b> Input signal goes to (-).<br>
                 2. <b>Non-Inverting:</b> Input signal goes to (+).<br>
                 3. Use the Data Sheet to find the matching formula for the resistor values shown.`;
