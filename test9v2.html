@@ -10620,7 +10620,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     // --- 1. STATE & DATA PREP ---
     var solutionStepText = ""; 
     const pinkColor = "#E64097";
-    window.opAmpInteractive = false; // Kill interactive circles
+    window.opAmpInteractive = false; // Ensures static circuit (no red circles)
     
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
     
@@ -10641,9 +10641,9 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         const el = document.getElementById(id);
         if (el) {
             el.value = '';
-            // Reset border to original gray and standard thickness
+            // Match the 2px gray border from your new HTML
             el.style.border = "2px solid #ced4da"; 
-            // Kill the red/green glowing ghosting effect
+            // CRITICAL: Kill the red/green glowing shadows
             el.style.boxShadow = "none";
             el.style.outline = "none";
         }
@@ -10661,6 +10661,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     const vin = [1, 1.5, 2, 3, 5][Math.floor(Math.random() * 5)];
     const vcc = 15;
 
+    // Drawing variables
     window.opAmpTargetConfig = config;
     window.opAmpRf = rf;
     window.opAmpVin = vin;
@@ -10669,7 +10670,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
     window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
 
-    // --- 3. BUILD SOLUTION TEXT ---
+    // --- 3. BUILD CONTENT ---
     if (window.g9OpAmpMode === 0) {
         document.getElementById('g9OpAmpModeA').style.display = 'block';
         document.getElementById('g9OpAmpModeB').style.display = 'none';
@@ -10712,7 +10713,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                            `Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${targetVout} / ${vin} = ${window.targetGain.toFixed(2)}`;
     }
 
-    // --- 4. THE BACKUP ---
+    // --- 4. BACKUP & DRAW ---
     window.g9OpAmpSolutionBackup = solutionStepText;
     drawOpAmpCircuit(ctx, canvas);
 }
