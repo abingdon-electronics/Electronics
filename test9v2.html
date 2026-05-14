@@ -10695,7 +10695,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         outputHTML = `<strong>🏆 Solution Logic:</strong><br>Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${targetVout} / ${vin} = ${window.targetGain.toFixed(2)}`;
     }
 
-    // 5. --- FINAL INJECTION & TARGETED REVEAL ---
+   // --- FINAL INJECTION & POSITION FIX ---
     drawOpAmpCircuit(ctx, canvas);
     
     if (solText) {
@@ -10703,17 +10703,28 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     }
 
     if (solContainer) {
-        // 1. Force visibility ONLY for this box
+        // 1. Force the box to show
         solContainer.style.setProperty('display', 'block', 'important');
         
-        // 2. Ensure it stays within your fixed panel 
-        // This prevents the box from growing too large and breaking your 520px height
-        solContainer.style.maxHeight = "150px"; 
-        solContainer.style.overflowY = "auto";
-        solContainer.style.width = "100%";
+        // 2. Prevent the layout from 'crushing' the box to 0px height
+        solContainer.style.minHeight = "100px"; 
+        solContainer.style.flexShrink = "0";
         
-        console.log("🔓 DEBUG: Op-Amp Solution box revealed safely.");
+        // 3. Ensure it stays inside your 520px panel
+        solContainer.style.marginTop = "15px";
+        solContainer.style.overflowY = "auto";
+
+        console.log("🔓 DEBUG: Solution revealed with height constraints applied.");
     }
+
+    // 4. Tighten the input area so there is room for the solution
+    const inputArea = document.querySelector('.input-area');
+    if (inputArea) {
+        inputArea.style.flexGrow = "0"; 
+    }
+    
+    console.log("🏁 DEBUG: generateGrade9OpAmpProblem finished successfully");
+}
 }
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
