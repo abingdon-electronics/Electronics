@@ -10621,6 +10621,8 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     const pinkColor = "#E64097";
     const solText = document.getElementById('solText');
     const solContainer = document.getElementById('solutions');
+    
+    // Reset solutions UI: hide the box and clear old text
     if (solContainer) solContainer.style.display = "none"; 
     if (solText) solText.innerHTML = ""; 
 
@@ -10657,7 +10659,6 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
     window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
 
-    // IMPORTANT: Single declaration for the solution string
     let solutionHTML = "";
     const instructions = document.getElementById('g9OpAmpInstructions');
     const modeA = document.getElementById('g9OpAmpModeA');
@@ -10705,7 +10706,15 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
 
     // 5. Final Draw and Inject
     drawOpAmpCircuit(ctx, canvas);
-    if (solText) solText.innerHTML = solutionHTML;
+    
+    if (solText) {
+        solText.innerHTML = solutionHTML;
+    }
+
+    // CRITICAL FIX: Make the container visible so the text above is actually shown
+    if (solContainer) {
+        solContainer.style.display = "block";
+    }
 }
 
 //END OF CONTENT FUNCTIONS
