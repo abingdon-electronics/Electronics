@@ -13307,6 +13307,30 @@ function provideHint() {
             <strong>💡 Op-Amp Hint:</strong>
             ${specificHint}
         </div>`;
+    } else if (currentMode === 'grade9opamp') {
+        let specificHint = "";
+        
+        if (window.g9OpAmpMode === 0) {
+            // ANALYSIS TASK HINT
+            specificHint = `
+                <br><br><b>Analysis: Gain & Saturation</b><br>
+                1. Identify if the circuit is <b>Inverting</b> (signal to -) or <b>Non-Inverting</b> (signal to +).<br>
+                2. Apply the matching gain formula from your data sheet.<br>
+                3. Calculate the ideal V<sub>OUT</sub>, then check the <b>±${vcc || 15}V supply</b>. If your answer is higher than the supply, the amplifier "flatlines" at the maximum voltage.`;
+        } else {
+            // DESIGN TASK HINT
+            specificHint = `
+                <br><br><b>Design: Resistor Pairs</b><br>
+                1. Calculate your target gain first: <b>Gain = V<sub>OUT</sub> / V<sub>IN</sub></b>.<br>
+                2. Rearrange the formula for your circuit type to find the ratio of R<sub>F</sub> to R<sub>IN</sub>.<br>
+                3. <b>The 1kΩ Rule:</b> You can choose any resistors that create that ratio, but both MUST be 1,000Ω or larger to prevent the circuit from drawing too much current.`;
+        }
+
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Grade 9 Op-Amp Hint:</strong>
+                ${specificHint}
+            </div>`;
         
     } else {
         // Potential Divider & General fallback
