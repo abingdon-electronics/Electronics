@@ -10611,12 +10611,16 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
-    // 1. Reset UI & Core State
-    window.currentMode = 'grade9opamp'; 
-    window.opAmpQuestionType = 'grade9'; 
-    window.opAmpInteractive = false; 
+    // 1. Reset UI (Matching Transistor style)
+    if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
 
-    // --- SOLUTIONS UI RESET (Matching your MOSFET logic) ---
+    const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
+    if (mainGroup) mainGroup.style.display = 'block';
+
+    const pinkColor = "#E64097";
+    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+
+    // --- SOLUTIONS UI RESET (Exact same as your Transistor code) ---
     const solText = document.getElementById('solText');
     const solContainer = document.getElementById('solutions');
     if (solContainer) solContainer.style.display = "none"; 
@@ -10624,26 +10628,28 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
 
     // Clear and color inputs
     ['g9OpAmpVout', 'g9OpAmpRf_G9', 'g9OpAmpRin_G9'].forEach(id => {
-        let el = document.getElementById(id);
-        if (el) { 
-            el.value = ''; 
-            el.style.removeProperty('border-color'); 
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            el.style.removeProperty('border-color');
+            const label = document.querySelector(`label[for="${id}"]`);
+            if (label) label.style.color = pinkColor;
         }
     });
 
-    const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
-    if (mainGroup) mainGroup.style.display = 'block';
+    currentMode = 'grade9opamp';
 
-    // 2. Toggle Mode & Configure Circuit
+    // 2. Toggle Logic
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
 
+    // 3. Circuit Configuration
     const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     window.opAmpTargetConfig = config;
     window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
     window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
 
-    // 3. Math Values
+    // 4. Math Setup
     const rin = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
     const multiplier = Math.floor(Math.random() * 5) + 2; 
     const rf = rin * multiplier; 
@@ -10658,9 +10664,10 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     const modeA = document.getElementById('g9OpAmpModeA');
     const modeB = document.getElementById('g9OpAmpModeB');
 
-    let finalLogicHTML = ""; // Variable to hold the text until the end
+    // This variable will hold our text, just like your scenario strings
+    let solutionHTML = "";
 
-    // 4. Mode Specific Text & Calculations
+    // 5. Mode Logic
     if (window.g9OpAmpMode === 0) {
         if (modeA) modeA.style.display = 'block';
         if (modeB) modeB.style.display = 'none';
@@ -10674,15 +10681,16 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
 
         if (instructions) {
             instructions.innerHTML = `
-                <h3 style="color:#E64097; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
+                <h3 style="color:${pinkColor}; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
                 Supply Voltage: <b>&plusmn;${vcc}V</b> | Input Voltage: <b>V<sub>IN</sub> = ${vin}V</b><br><br>
-                Calculate <span style="color: #E64097; font-weight: bold;">V<sub>OUT</sub></span> for this ${config} circuit.<br><br>
-                <small id="satWarning" style="color:#666;"><i>Note: Check for amplifier saturation!</i></small>`;
+                Calculate <span style="color: ${pinkColor}; font-weight: bold;">V<sub>OUT</sub></span> for this ${config} circuit.<br><br>
+                <small style="color:#666;"><i>Note: Check for amplifier saturation!</i></small>`;
         }
 
-        // Prepare the solution string
-        finalLogicHTML = `<strong>🏆 Solution Logic:</strong><br>Gain (A<sub>v</sub>) = ${gain}<br>V<sub>ideal</sub> = V<sub>in</sub> &times; A<sub>v</sub> = ${idealVout.toFixed(1)}V.<br>`;
-        finalLogicHTML += Math.abs(idealVout) > vcc ? `<b>Result:</b> Saturated at the &plusmn;${vcc}V rails. Output is <b>${finalVout.toFixed(1)}V</b>.` : `<b>Result:</b> Within rails. Output is <b>${finalVout.toFixed(1)}V</b>.`;
+        solutionHTML = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br><br>` +
+                       `<em>Step 1:</em> Gain (A<sub>v</sub>) = ${gain}<br>` +
+                       `<em>Step 2:</em> V<sub>ideal</sub> = V<sub>in</sub> &times; A<sub>v</sub> = ${idealVout.toFixed(1)}V.<br>` +
+                       (Math.abs(idealVout) > vcc ? `<em>Step 3:</em> Saturated! Output is capped at the <b>&plusmn;${vcc}V</b> rail.` : `<em>Step 3:</em> Within rails. Output is <b>${finalVout.toFixed(1)}V</b>.`);
 
     } else {
         if (modeA) modeA.style.display = 'none';
@@ -10694,22 +10702,24 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
 
         if (instructions) {
             instructions.innerHTML = `
-                <h3 style="color:#E64097; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
+                <h3 style="color:${pinkColor}; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
                 Build an <b>${config}</b> circuit.<br>
                 <b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
                 Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1k&Omega;).`;
         }
 
-        // Prepare the solution string
-        finalLogicHTML = `<strong>🏆 Solution Logic:</strong><br>Target Gain (A<sub>v</sub>) = V<sub>out</sub> / V<sub>in</sub> = ${window.targetGain.toFixed(2)}.<br>Select any R<sub>F</sub> and R<sub>IN</sub> combo that creates a gain of ${window.targetGain.toFixed(2)}.`;
+        solutionHTML = `<strong>🏆 Solution Logic:</strong><br><br>` +
+                       `<em>Step 1:</em> Target Gain = V<sub>out</sub> / V<sub>in</sub> = ${window.targetGain.toFixed(2)}.<br>` +
+                       `<em>Step 2:</em> For ${config}, Gain = ` + (config === "Inverting" ? `- (R<sub>f</sub>/R<sub>in</sub>)` : `1 + (R<sub>f</sub>/R<sub>in</sub>)`) + `.<br>` +
+                       `<em>Step 3:</em> Any pair (e.g., R<sub>f</sub>=${(rf)}k, R<sub>in</sub>=${rin}k) matching this ratio is correct.`;
     }
 
-    // 5. Drawing Circuit
+    // 6. Draw
     if (ctx && typeof drawOpAmpCircuit === 'function') drawOpAmpCircuit(ctx, canvas);
 
-    // 6. INJECT SOLUTION TEXT (Just like MOSFET)
+    // 7. FINAL INJECTION (The missing step!)
     if (solText) {
-        solText.innerHTML = finalLogicHTML;
+        solText.innerHTML = solutionHTML;
     }
 }
 //END OF CONTENT FUNCTIONS
