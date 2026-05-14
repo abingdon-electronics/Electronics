@@ -10611,10 +10611,12 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
-    console.log("🚀 DEBUG: Generator Started");
-    
-    // 1. Reset UI
+    // 1. Reset UI and Logic State
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
+    
+    // CRITICAL: This turns off the red hinges/circles for Grade 9
+    window.opAmpInteractive = false; 
+
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
     if (mainGroup) mainGroup.style.display = 'block';
 
@@ -10626,12 +10628,11 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
 
     currentMode = 'grade9opamp';
 
-    // 2. Toggle Logic
+    // 2. Toggle Mode
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
-    console.log("📍 DEBUG: Mode is " + (window.g9OpAmpMode === 0 ? "Analysis" : "Design"));
 
-    // 3. Configuration & Math
+    // 3. Math & Config
     const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     const rin = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
     const multiplier = Math.floor(Math.random() * 5) + 2; 
@@ -10642,18 +10643,17 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.opAmpTargetConfig = config;
     window.opAmpRf = rf;
     window.opAmpVin = vin;
-    // Set variables based on config
     window.opAmpRin = (config === "Inverting") ? rin : 0;
     window.opAmpR1 = (config === "Non-Inverting") ? rin : 0;
+    window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
+    window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
 
+    let solutionHTML = ""; // DECLARED ONLY ONCE
     const instructions = document.getElementById('g9OpAmpInstructions');
     const modeA = document.getElementById('g9OpAmpModeA');
     const modeB = document.getElementById('g9OpAmpModeB');
 
-    // ONLY ONE DECLARATION
-    let solutionHTML = "";
-
-    // 5. Logic Branching
+    // 4. Mode Logic
     if (window.g9OpAmpMode === 0) {
         if (modeA) modeA.style.display = 'block';
         if (modeB) modeB.style.display = 'none';
@@ -10663,14 +10663,12 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         let finalVout = Math.abs(idealVout) > vcc ? (idealVout > 0 ? vcc : -vcc) : idealVout;
         
         window.currentAnswers = { vout: finalVout.toFixed(1) };
-        console.log("✅ DEBUG Analysis: Target Vout is " + window.currentAnswers.vout);
 
         if (instructions) {
-            instructions.innerHTML = `Supply: <b>&plusmn;${vcc}V</b> | Input: <b>V<sub>IN</sub> = ${vin}V</b><br>Calculate <b>V<sub>OUT</sub></b> for this ${config} circuit.`;
+            instructions.innerHTML = `Supply: <b>&plusmn;${vcc}V</b> | Input: <b>V<sub>IN</sub> = ${vin}V</b><br>Calculate <b>V<sub>OUT</sub></b>.`;
         }
 
-        solutionHTML = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br>Gain: ${gain}`;
-
+        solutionHTML = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br>Gain = ${gain}`;
     } else {
         if (modeA) modeA.style.display = 'none';
         if (modeB) modeB.style.display = 'block';
@@ -10678,7 +10676,6 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         let targetVout = config === "Inverting" ? -12 : 12;
         window.targetGain = targetVout / vin;
         window.currentAnswers = { targetVout: targetVout, vin: vin };
-        console.log("✅ DEBUG Design: Target Gain is " + window.targetGain);
 
         if (instructions) {
             instructions.innerHTML = `<b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
@@ -10687,19 +10684,11 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         solutionHTML = `<strong>🏆 Solution Logic:</strong><br>Required Gain = ${window.targetGain.toFixed(2)}`;
     }
 
-    // 6. Drawing (Check if this is causing the orange circles)
-    console.log("🎨 DEBUG: Calling Draw Function");
-    if (typeof drawOpAmpCircuit === 'function') {
-        // We pass 'false' as a third argument if your draw function supports turning off markers
-        drawOpAmpCircuit(ctx, canvas); 
-    }
+    // 5. Redraw the Circuit (This will now respect the interactive=false setting)
+    drawOpAmpCircuit(ctx, canvas);
 
-    // 7. Final Injection
-    if (solText) {
-        console.log("📥 DEBUG: Injecting Solution HTML");
-        solText.innerHTML = solutionHTML;
-    }
-    console.log("🏁 DEBUG: Generator Finished Successfully");
+    // 6. Final UI Injection
+    if (solText) solText.innerHTML = solutionHTML;
 }
 
 //END OF CONTENT FUNCTIONS
