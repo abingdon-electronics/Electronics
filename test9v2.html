@@ -12482,7 +12482,8 @@ function checkAnswers() {
             }
         }
     }
-
+// End of STANDARD OP-AMP grading 
+    
 // 👇 GRADE 9 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'grade9opamp') {
         // 1. FRESH START
@@ -12533,16 +12534,16 @@ function checkAnswers() {
             }
         }
 
-        // 2. UI FEEDBACK & SOLUTION REVEAL
-        const feedback = document.getElementById('feedback');
-        const solPanel = document.getElementById('solutions');
-
+        // 2. UI FEEDBACK
         if (isCorrect) {
             if (feedback) feedback.innerHTML = "<span style='color: #28a745;'>✔️ Correct! Excellent circuit analysis.</span>";
+            isCurrentProblemSolved = true; // Stop them from checking again
         } else {
             if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>❌ Incorrect. See the logic below to help.</span>";
             
-            // REVEAL THE SOLUTIONS PANEL
+            // --- THE FIX: REVEAL THE SOLUTIONS PANEL ---
+            // Without these lines, the 'solText' stays hidden even if it contains text!
+            const solPanel = document.getElementById('solutions');
             if (solPanel) {
                 solPanel.style.display = 'block'; 
             }
