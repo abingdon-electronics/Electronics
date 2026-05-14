@@ -12460,7 +12460,10 @@ function checkAnswers() {
 // --- BRANCH B: DESIGN MODE ---
         else if (isDesignVisible) {
             window.opAmpQuestionType = 'design';
-            activeInputs.push(rfIn.id, rinIn.id);
+            
+            // Safely push IDs to activeInputs for border highlighting
+            if (rfIn) activeInputs.push(rfIn.id);
+            if (rinIn) activeInputs.push(rinIn.id);
 
             let pRf = parseInput(rfIn ? rfIn.value : "");
             let pRin = parseInput(rinIn ? rinIn.value : "");
@@ -12496,11 +12499,17 @@ function checkAnswers() {
             // FEEDBACK & SOLUTION UI
             const fEl = document.getElementById('feedback');
             if (specificFeedback && fEl) {
+                // If they got the math right but failed the 1k rule, show this specific warning!
                 fEl.innerHTML = `<span style='color: #dc3545; font-weight:bold;'>❌ ${specificFeedback}</span>`;
+                // Set a flag so the master checkAnns logic at the bottom doesn't overwrite this custom message
+                window.customFeedbackTriggered = true; 
             }
 
             if (solDiv) {
-                let formula = (window.opAmpTargetConfig === "Inverting") ? "|G| = R<sub>F</sub> / R<sub>IN</sub>" : "(G - 1) = R<sub>F</sub> / R<sub>1</sub>";
+                // DYNAMIC LABEL FIX: Uses R_IN for Inverting, R_1 for Non-Inverting
+                let inputLabel = (window.opAmpTargetConfig === "Inverting") ? "R<sub>IN</sub>" : "R<sub>1</sub>";
+                let formula = (window.opAmpTargetConfig === "Inverting") ? `|G| = R<sub>F</sub> / ${inputLabel}` : `(G - 1) = R<sub>F</sub> / ${inputLabel}`;
+                
                 let stepHtml = `<b>Step 1:</b> Configuration is ${window.opAmpTargetConfig}.<br>
                                 <b>Step 2:</b> Required Ratio: ${formula} = <b>${targetRatio}</b>.<br>
                                 <b>Step 3:</b> Your Ratio: (${pRf.val}${pRf.unit || ""} / ${pRin.val}${pRin.unit || ""}) = <b>${(rfBase/rinBase).toFixed(2)}</b>.<br>
