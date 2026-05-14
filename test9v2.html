@@ -1925,13 +1925,12 @@ function handleNewQuestionClick() {
     else if (currentMode === 'grade9nand') { currentMode = 'logic_nand'; escapedGrade9 = true; }
     else if (currentMode === 'grade9transistor') { currentMode = 'transistor'; escapedGrade9 = true; }
     else if (currentMode === 'grade9mosfet') { currentMode = 'mosfet'; escapedGrade9 = true; } 
-    // 👇 NEW: Comparator Escape Added Here 👇
     else if (currentMode === 'grade9comparator') { currentMode = 'comparator'; escapedGrade9 = true; }
     else if (currentMode === 'grade9opamp') { 
         currentMode = 'opamp'; 
         escapedGrade9 = true; 
-        // FIX: Ensure numeric values are drawn instead of generic labels when returning to standard
-        window.opAmpInteractive = true; 
+        // Removed the hardcoded opAmpInteractive = true here.
+        // It is now handled properly in the Ghost Buster purge below.
     }
 
     if (escapedGrade9 && (typeof problemsAttempted !== 'undefined' && problemsAttempted > 0)) {
@@ -1969,6 +1968,14 @@ function handleNewQuestionClick() {
     if (window.logicWires) window.logicWires = [];
     if (window.gateList) window.gateList = [];
 
+    // 👇 OP-AMP STATE PURGE 👇
+    // Wipes all specific Grade 9 numbers and locks so standard mode generates perfectly fresh!
+    window.opAmpInteractive = undefined;
+    window.opAmpRf = undefined;
+    window.opAmpRin = undefined;
+    window.opAmpR1 = undefined;
+    window.opAmpGain = undefined;
+
     // 3. ROUTING
     if (currentMode === 'colorcode') {
         if (typeof generateColorCodeProblem === "function") generateColorCodeProblem(ctx, canvas);
@@ -1983,7 +1990,7 @@ function handleNewQuestionClick() {
     } else if (currentMode === 'block_diagram') {
         if (typeof generateBlockBuilderProblem === "function") generateBlockBuilderProblem(ctx, canvas);
     } else {
-        // This calls hubController which handles 'transistor', 'grade9transistor', 'mosfet', and 'opamp'
+        // This calls hubController which handles 'transistor', 'mosfet', 'comparator', and 'opamp'
         if (typeof hubController === "function") hubController(ctx, canvas);
     }
 }
