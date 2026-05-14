@@ -10667,75 +10667,61 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     // This variable will hold our text, just like your scenario strings
     let solutionHTML = "";
 
-// 5. Mode Logic
-    if (window.g9OpAmpMode === 0) {
-        // --- ANALYSIS MODE ---
-        if (modeA) modeA.style.display = 'block';
-        if (modeB) modeB.style.display = 'none';
+// --- 5. Mode Logic (Generator) ---
+if (window.g9OpAmpMode === 0) {
+    if (modeA) modeA.style.display = 'block';
+    if (modeB) modeB.style.display = 'none';
 
-        let gain = (config === "Inverting") ? -(rf / rin) : (1 + (rf / rin));
-        let vcc = 15;
-        let idealVout = vin * gain;
-        
-        // Saturation Logic
-        let finalVout = Math.abs(idealVout) > vcc ? (idealVout > 0 ? vcc : -vcc) : idealVout;
-        
-        window.currentAnswers = { vout: finalVout.toFixed(1) };
+    // Calculation
+    let gain = (config === "Inverting") ? -(rf / rin) : (1 + (rf / rin));
+    let vcc = 15;
+    let idealVout = vin * gain;
+    let finalVout = Math.abs(idealVout) > vcc ? (idealVout > 0 ? vcc : -vcc) : idealVout;
+    
+    // CRITICAL: This is what the grader reads!
+    window.currentAnswers = { 
+        vout: finalVout.toFixed(1) 
+    };
 
-        if (instructions) {
-            instructions.innerHTML = `
-                <h3 style="color:${pinkColor}; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
-                Supply Voltage: <b>&plusmn;${vcc}V</b> | Input Voltage: <b>V<sub>IN</sub> = ${vin}V</b><br><br>
-                Calculate <span style="color: ${pinkColor}; font-weight: bold;">V<sub>OUT</sub></span> for this ${config} circuit.<br><br>
-                <small style="color:#666;"><i>Note: Check for amplifier saturation!</i></small>`;
-        }
-
-        // Matching Transistor style injection
-        solutionHTML = `<strong>V<sub>OUT</sub> = ${finalVout.toFixed(1)} V | Gain = ${gain.toFixed(1)}</strong><br><br>` +
-                       `<em>Step 1:</em> Calculate Voltage Gain (A<sub>v</sub>):<br>` +
-                       (config === "Inverting" ? `A<sub>v</sub> = -(R<sub>f</sub> / R<sub>in</sub>) = -(${rf} / ${rin}) = <strong>${gain}</strong>` : `A<sub>v</sub> = 1 + (R<sub>f</sub> / R<sub>in</sub>) = 1 + (${rf} / ${rin}) = <strong>${gain}</strong>`) + `<br><br>` +
-                       `<em>Step 2:</em> Calculate Ideal Output (V<sub>out</sub> = V<sub>in</sub> &times; A<sub>v</sub>):<br>` +
-                       `V<sub>out</sub> = ${vin}V &times; ${gain} = <strong>${idealVout.toFixed(1)}V</strong><br><br>` +
-                       (Math.abs(idealVout) > vcc 
-                        ? `<em>Step 3:</em> Since ${Math.abs(idealVout).toFixed(1)}V is greater than the supply (&plusmn;${vcc}V), the Op-Amp <strong>saturates</strong>.<br>Result: <strong>${finalVout.toFixed(1)}V</strong>` 
-                        : `<em>Step 3:</em> Since ${Math.abs(idealVout).toFixed(1)}V is within the supply rails, the output is <strong>${finalVout.toFixed(1)}V</strong>.`);
-
-    } else {
-        // --- DESIGN MODE ---
-        if (modeA) modeA.style.display = 'none';
-        if (modeB) modeB.style.display = 'block';
-
-        let targetVout = (config === "Inverting") ? -12 : 12;
-        window.targetGain = targetVout / vin;
-        
-        // We store these so checkAnswers can compare ratios
-        window.currentAnswers = { targetVout: targetVout, vin: vin };
-
-        if (instructions) {
-            instructions.innerHTML = `
-                <h3 style="color:${pinkColor}; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
-                Build an <b>${config}</b> circuit.<br>
-                <b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
-                Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1k&Omega;).`;
-        }
-
-        solutionHTML = `<strong>Target Gain = ${window.targetGain.toFixed(2)}</strong><br><br>` +
-                       `<em>Step 1:</em> Find the required gain (A<sub>v</sub> = V<sub>out</sub> / V<sub>in</sub>):<br>` +
-                       `A<sub>v</sub> = ${targetVout}V / ${vin}V = <strong>${window.targetGain.toFixed(2)}</strong><br><br>` +
-                       `<em>Step 2:</em> Use the ${config} gain formula to find a resistor ratio:<br>` +
-                       (config === "Inverting" ? `Gain = -(R<sub>f</sub> / R<sub>in</sub>)` : `Gain = 1 + (R<sub>f</sub> / R<sub>in</sub>)`) + `<br><br>` +
-                       `<em>Example Solution:</em> If R<sub>in</sub> = ${rin}k&Omega;, then R<sub>f</sub> = <strong>${rf}k&Omega;</strong>. (Any matching ratio is correct).`;
+    if (instructions) {
+        instructions.innerHTML = `
+            <h3 style="color:${pinkColor}; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
+            Supply: <b>&plusmn;${vcc}V</b> | Input: <b>V<sub>IN</sub> = ${vin}V</b><br>
+            Calculate <span style="color: ${pinkColor}; font-weight: bold;">V<sub>OUT</sub></span> for this ${config} circuit.`;
     }
 
-    // 6. Drawing the Circuit
-    if (ctx && typeof drawOpAmpCircuit === 'function') {
-        drawOpAmpCircuit(ctx, canvas);
+    solutionHTML = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br><br>` +
+                   `<em>Step 1:</em> Gain = ${gain}<br>` +
+                   `<em>Step 2:</em> V<sub>ideal</sub> = ${vin}V &times; ${gain} = ${idealVout.toFixed(1)}V<br>` +
+                   (Math.abs(idealVout) > vcc ? `<em>Step 3:</em> Saturation! Capped at <b>&plusmn;${vcc}V</b>.` : `<em>Step 3:</em> Within limits.`);
+
+} else {
+    // --- DESIGN MODE ---
+    if (modeA) modeA.style.display = 'none';
+    if (modeB) modeB.style.display = 'block';
+
+    let targetVout = config === "Inverting" ? -12 : 12;
+    window.targetGain = targetVout / vin;
+    
+    // CRITICAL: This is what the grader reads!
+    window.currentAnswers = { 
+        targetVout: targetVout, 
+        vin: vin 
+    };
+
+    if (instructions) {
+        instructions.innerHTML = `
+            <h3 style="color:${pinkColor}; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
+            <b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
     }
 
-    // 7. FINAL INJECTION (The "Transistor Style" fix)
-    if (solText) {
-        solText.innerHTML = solutionHTML;
-    }
+    solutionHTML = `<strong>🏆 Solution Logic:</strong><br>Target Gain = ${window.targetGain.toFixed(2)}`;
+}
+
+// 7. FINAL INJECTION
+if (solText) {
+    solText.innerHTML = solutionHTML;
+}
 }
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
