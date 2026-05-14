@@ -13293,65 +13293,71 @@ function provideHint() {
                 ${specificHint}
             </div>`;
 
-    } else if (currentMode === 'opamp') {
+} else if (currentMode === 'opamp') {
         let specificHint = "";
         
-        // --- DETECTION FALLBACK ---
-        let currentType = window.opAmpQuestionType;
-        if (!currentType) {
-            // Check if the math input group (Gain/Vout) is currently visible
-            const isMathVisible = document.getElementById('opAmpMathInputs') && 
-                                 document.getElementById('opAmpMathInputs').style.display !== 'none';
+        // --- IMPROVED DETECTION ---
+        // We check which specific input is actually visible to the user right now
+        const gainInp = document.getElementById('opAmpGain');
+        const voutInp = document.getElementById('opAmpVout');
+        const rfInp = document.getElementById('opAmpRf');
 
-            if (isMathVisible) {
-                const gainInput = document.getElementById('opAmpGain');
-                // If the Gain box is empty, show the Gain hint. 
-                // If the user already filled it, show the Vout (calc) hint.
-                if (gainInput && gainInput.value === "") {
-                    currentType = 'gain';
-                } else {
-                    currentType = 'calc';
-                }
-            } else if (document.getElementById('opAmpRf')) {
+        let currentType = window.opAmpQuestionType;
+
+        if (!currentType) {
+            // offsetParent !== null is the most reliable way to check if an element is visible
+            if (gainInp && gainInp.offsetParent !== null) {
+                currentType = 'gain';
+            } else if (voutInp && voutInp.offsetParent !== null) {
+                currentType = 'calc';
+            } else if (rfInp && rfInp.offsetParent !== null) {
                 currentType = 'design';
             } else {
                 currentType = 'hinge';
             }
         }
 
-        // --- HINT SELECTION ---
+        // --- HINT SELECTION (Matching your Step-by-Step style) ---
         if (currentType === 'gain') {
             specificHint = `
-                <br><br><b>Voltage Gain (G)</b><br>
-                Gain is simply a ratio of how much the amplifier "boosts" the signal.<br>
-                1. Identify your <b>V<sub>IN</sub></b> and your <b>V<sub>OUT</sub></b> from the diagram.<br>
-                2. Use the formula: <span style="color:#E64097;"><b>Gain = V<sub>OUT</sub> / V<sub>IN</sub></b></span>.<br>
-                3. <b>Check the Sign:</b> If the output is inverted (upside down compared to the input), your gain must be a <b>negative</b> number!`;
+                <span style="color:#E64097; font-weight:bold;">Step-by-Step Solution:</span><br>
+                <div style="margin-top:8px;">
+                    <b>1. Required Gain (G):</b><br>
+                    Formula: <span style="color:#E64097;"><b>G = V<sub>OUT</sub> / V<sub>IN</sub></b></span><br>
+                    <b>2. Substitution:</b><br>
+                    Identify your input and output voltages from the diagram. For example, if V<sub>OUT</sub> is -12V and V<sub>IN</sub> is 3V, then: <b>G = -12 / 3 = -4</b><br>
+                    <b>3. Sign Check:</b><br>
+                    If the output wave is upside down (inverted), your gain <b>must</b> be a negative number!
+                </div>`;
         }
         else if (currentType === 'hinge') {
             specificHint = `
-                <br><br><b>Wiring & Formulas</b><br>
-                • <b>Inverting:</b> Signal into (-). Look for the <b>minus sign</b> in the formula!<br>
-                • <b>Non-Inverting:</b> Signal into (+). The formula features a <b>1 +</b> calculation.`;
+                <b>Wiring & Formulas</b><br>
+                • <b>Inverting:</b> Signal into (-). Use the formula with the <b>minus sign</b>.<br>
+                • <b>Non-Inverting:</b> Signal into (+). Use the <b>1 +</b> formula.`;
         } 
         else if (currentType === 'calc') {
             specificHint = `
-                <br><br><b>Calculating V<sub>out</sub></b><br>
-                1. <b>Inverting:</b> Input signal goes to (-).<br>
-                2. <b>Non-Inverting:</b> Input signal goes to (+).<br>
-                3. Use the Data Sheet to find the matching formula for the resistor values shown.`;
+                <span style="color:#E64097; font-weight:bold;">Step-by-Step Solution:</span><br>
+                <div style="margin-top:8px;">
+                    <b>1. Identify Circuit:</b> Signal to (-) is Inverting; Signal to (+) is Non-Inverting.<br>
+                    <b>2. Apply Formula:</b> Use the matching Gain formula from the Data Sheet.<br>
+                    <b>3. Result:</b> Calculate V<sub>OUT</sub> using <span style="color:#E64097;"><b>V<sub>OUT</sub> = Gain × V<sub>IN</sub></b></span>.
+                </div>`;
         } 
         else if (currentType === 'design') {
             specificHint = `
-                <br><br><b>Design Strategy</b><br>
-                • <b>Inverting:</b> |Gain| = R<sub>F</sub> / R<sub>IN</sub>. <br>
-                • <b>Non-Inverting:</b> Gain = 1 + (R<sub>F</sub> / R<sub>1</sub>).<br>
-                • <b>Pro-Tip:</b> Pick a simple 10 kΩ for your input resistor, then solve for R<sub>F</sub> to hit your target gain.`;
+                <span style="color:#E64097; font-weight:bold;">Step-by-Step Solution:</span><br>
+                <div style="margin-top:8px;">
+                    <b>1. Required Gain:</b> Calculate target G first using V<sub>OUT</sub> / V<sub>IN</sub>.<br>
+                    <b>2. Resistor Rule:</b> All resistors must be <b>≥ 1kΩ</b> to prevent overheating.<br>
+                    <b>3. Example Pair:</b> If G = -4, then R<sub>F</sub> = 4 × R<sub>IN</sub>. (e.g., R<sub>IN</sub> = 2kΩ, R<sub>F</sub> = 8kΩ).
+                </div>`;
         }
 
         helpText = `
             <div style="${blueBox}">
-                <strong>💡 Op-Amp Hint:</strong>
+                <strong>💡 Op-Amp Hint:</strong><br>
                 ${specificHint}
             </div>`;
 
