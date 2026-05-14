@@ -10611,46 +10611,37 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
-    // --- 1. GLOBAL SCOPE & STATE ---
+    // --- 1. STATE & DATA PREP ---
     var solutionStepText = ""; 
     const pinkColor = "#E64097";
-    
-    // Kill the interactive hinges/red circles immediately
-    window.opAmpInteractive = false; 
+    window.opAmpInteractive = false; // Kill interactive circles
     
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
     
     const solContainer = document.getElementById('solutions');
-    const solText = document.getElementById('solText');
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
     const instructions = document.getElementById('g9OpAmpInstructions');
 
     if (mainGroup) mainGroup.style.display = 'block';
 
-    // Reset UI: Hide the solution box and clear content for a fresh start
+    // RESET: Hide and empty the box so old solutions don't "ghost"
     if (solContainer) {
         solContainer.style.display = "none";
-        // Apply layout constraints to prevent panel shifting later
-        solContainer.style.width = "100%";
-        solContainer.style.minHeight = "100px";
-        solContainer.style.flexShrink = "0";
-        solContainer.style.overflowY = "auto";
+        solContainer.innerHTML = ""; 
     }
-    if (solText) solText.innerHTML = "";
 
-    // Reset Input Fields
+    // Reset Inputs
     ['g9OpAmpVout', 'g9OpAmpRf_G9', 'g9OpAmpRin_G9'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.value = '';
             el.style.removeProperty('border-color');
-            el.style.borderWidth = "1px";
         }
     });
 
     currentMode = 'grade9opamp';
 
-    // --- 2. MODE TOGGLE & MATH ---
+    // --- 2. MATH LOGIC ---
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
 
@@ -10660,7 +10651,6 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     const vin = [1, 1.5, 2, 3, 5][Math.floor(Math.random() * 5)];
     const vcc = 15;
 
-    // Set drawing parameters for the canvas
     window.opAmpTargetConfig = config;
     window.opAmpRf = rf;
     window.opAmpVin = vin;
@@ -10669,7 +10659,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
     window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
 
-    // --- 3. MODE CONTENT ---
+    // --- 3. BUILD SOLUTION TEXT ---
     if (window.g9OpAmpMode === 0) {
         document.getElementById('g9OpAmpModeA').style.display = 'block';
         document.getElementById('g9OpAmpModeB').style.display = 'none';
@@ -10712,17 +10702,9 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                            `Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${targetVout} / ${vin} = ${window.targetGain.toFixed(2)}`;
     }
 
-    // --- 4. DATA BACKUP & DRAW ---
-    // This is the "Safety Net" that checkAnswer will use to fill the box
+    // --- 4. THE BACKUP ---
     window.g9OpAmpSolutionBackup = solutionStepText;
-
     drawOpAmpCircuit(ctx, canvas);
-    
-    // We update the internal text now, but keep the container hidden 
-    // until checkAnswer() is called.
-    if (solText) {
-        solText.innerHTML = solutionStepText; 
-    }
 }
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
@@ -12567,18 +12549,19 @@ else if (currentMode === 'grade9opamp') {
             // Hide solutions if they got it right
             const solPanel = document.getElementById('solutions');
             if (solPanel) solPanel.style.display = 'none';
-        } else {
-            if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>❌ Incorrect. See the logic below to help.</span>";
+    } else {
+            if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>❌ Incorrect. See the solution below.</span>";
             
-            // Show the solution panel
             const solPanel = document.getElementById('solutions');
-            const solText = document.getElementById('solText'); // Target the text container
-
-            if (solPanel) {
-                // Inject the text we saved during generation before showing the panel
-                if (solText && window.lastGeneratedSolution) {
-                    solText.innerHTML = window.lastGeneratedSolution;
-                }
+            if (solPanel && window.g9OpAmpSolutionBackup) {
+                // WE MANUALLY RE-INJECT THE HEADER AND TEXT
+                // This fixes the issue where other modes deleted your 'solText' element.
+                solPanel.innerHTML = `
+                    <h4 style="margin-top: 0; color: #E64097; margin-bottom: 5px; font-size: 0.9em;">Step-by-Step Logic:</h4>
+                    <p style="margin: 0; color: #333; line-height: 1.4; font-size: 0.85em;">
+                        ${window.g9OpAmpSolutionBackup}
+                    </p>`;
+                
                 solPanel.style.display = 'block'; 
             }
         }
