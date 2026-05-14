@@ -10113,7 +10113,7 @@ function drawOpAmpCircuit(ctx, canvas) {
     
     let canvasTitle = (window.opAmpTargetConfig || "") + " Op-Amp";
     if (window.opAmpInteractive === false) {
-        if (window.opAmpQuestionType === 'calcGain') canvasTitle = "Voltage Gain";
+        if (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') canvasTitle = "Analysis Challenge";
         if (window.opAmpQuestionType === 'design') canvasTitle = "Design Challenge";
     }
     ctx.fillText(canvasTitle, cx, 40);
@@ -10131,7 +10131,7 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.lineTo(cx + 120, cy); 
     ctx.stroke();
     if (typeof drawNode === "function") drawNode(ctx, cx + 80, cy);
-    if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "OUT", "", cx + 125, cy, 16, "black");
+    if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "OUT", "", cx + 125, cy, 16, "#d65093");
     
     ctx.beginPath();
     ctx.moveTo(cx + 80, cy);
@@ -10143,10 +10143,10 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.fillRect(cx - 30, cy - 105, 60, 30); 
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
     
-    // Logic Fix: Use opAmpRf instead of the non-existent opAmpValues.rf
+    // LABEL RF: Show Value if Grade 9 or Analysis mode, otherwise show Label
     if (window.opAmpInteractive !== false) {
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
-    } else if (window.opAmpQuestionType === 'calcGain' && window.opAmpRf) {
+    } else if ((window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') && window.opAmpRf) {
         ctx.fillStyle = "black";
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "center";
@@ -10186,7 +10186,7 @@ function drawOpAmpCircuit(ctx, canvas) {
         
         if (window.opAmpInteractive !== false) {
             if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black");
-        } else if (window.opAmpQuestionType === 'calcGain' && window.opAmpRin) {
+        } else if ((window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') && window.opAmpRin) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
@@ -10197,7 +10197,16 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.moveTo(cx - 190, cy - 20);
         ctx.lineTo(cx - 230, cy - 20);
         ctx.stroke();
+        
+        // Add Vin value if Grade 9
+        if (window.opAmpQuestionType === 'grade9' && window.opAmpVin) {
+             ctx.fillStyle = "#333";
+             ctx.font = "bold 14px Arial";
+             ctx.textAlign = "center";
+             ctx.fillText(window.opAmpVin + "V", cx - 270, cy + 5);
+        }
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy - 20, 16, "black");
+        
     } else {
         ctx.lineTo(cx - 100, cy + 50);
         ctx.stroke();
@@ -10207,7 +10216,7 @@ function drawOpAmpCircuit(ctx, canvas) {
         
         if (window.opAmpInteractive !== false) {
             if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black");
-        } else if (window.opAmpQuestionType === 'calcGain' && window.opAmpR1) {
+        } else if ((window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') && window.opAmpR1) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
@@ -10227,6 +10236,14 @@ function drawOpAmpCircuit(ctx, canvas) {
     if (window.bottomWireState === 'horizontal') {
         ctx.lineTo(cx - 230, cy + 20);
         ctx.stroke();
+        
+        // Add Vin value if Grade 9
+        if (window.opAmpQuestionType === 'grade9' && window.opAmpVin) {
+             ctx.fillStyle = "#333";
+             ctx.font = "bold 14px Arial";
+             ctx.textAlign = "center";
+             ctx.fillText(window.opAmpVin + "V", cx - 270, cy + 45);
+        }
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy + 20, 16, "black");
     } else {
         ctx.lineTo(cx - 60, cy + 80);
@@ -10604,128 +10621,92 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
-    // 1. Core State Setup
     currentMode = 'grade9opamp'; 
     window.opAmpQuestionType = 'grade9'; 
     window.opAmpInteractive = false; 
 
-    // 2. Scrub old borders/ghosting off the input boxes
+    // 1. Scrub UI and borders
     ['g9OpAmpVout', 'g9OpAmpRf_G9', 'g9OpAmpRin_G9', 'g9OpAmpRf', 'g9OpAmpRin'].forEach(id => {
         let el = document.getElementById(id);
         if (el) {
             el.style.removeProperty('border-color');
             el.style.removeProperty('border-width');
-            el.style.removeProperty('border-style');
             el.style.removeProperty('box-shadow');
-            el.value = ''; // Clear old answers
+            el.value = '';
         }
     });
 
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
-    const modeA = document.getElementById('g9OpAmpModeA');
-    const modeB = document.getElementById('g9OpAmpModeB');
     const instructions = document.getElementById('g9OpAmpInstructions');
     const solText = document.getElementById('solText');
-
     if (mainGroup) mainGroup.style.display = 'block';
 
-    // 3. Cycle Mode: 0 (Analysis) -> 1 (Design)
+    // 2. Cycle Mode: 0 (Analysis) -> 1 (Design)
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
 
-    // 4. Clean Math Generation (Integer Ratios)
     const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     window.opAmpTargetConfig = config;
     const vcc = 15; 
 
-    // Ensure Gain is a clean whole number
-    const rinOptions = [1, 2, 5, 10];
-    const rin = rinOptions[Math.floor(Math.random() * rinOptions.length)];
-    const multiplier = Math.floor(Math.random() * 8) + 1; // Gain multiplier
+    // 3. Simple Math Generation (Whole Number Ratios)
+    const rin = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
+    const multiplier = Math.floor(Math.random() * 5) + 2; // Simple ratios (2x to 6x)
     const rf = rin * multiplier; 
-    
-    const vinOptions = [0.5, 1.0, 1.5, 2.0, 2.5];
-    const vin = vinOptions[Math.floor(Math.random() * vinOptions.length)];
+    const vin = [1, 1.5, 2, 3, 5][Math.floor(Math.random() * 5)];
 
-    // 5. Config Setup for Master Artist
+    // Sync values for the Drawer
+    window.opAmpRf = rf;
+    window.opAmpRin = (config === "Inverting") ? rin : 0;
+    window.opAmpR1 = (config === "Non-Inverting") ? rin : 0;
+    window.opAmpVin = vin;
+
+    // 4. Set Wires
     if (config === "Inverting") {
-        window.topWireState = 'horizontal'; 
-        window.bottomWireState = 'vertical';  
+        window.topWireState = 'horizontal'; window.bottomWireState = 'vertical';  
     } else {
-        window.topWireState = 'vertical';     
-        window.bottomWireState = 'horizontal'; 
+        window.topWireState = 'vertical'; window.bottomWireState = 'horizontal'; 
     }
 
-    // 6. Draw Circuit + Add Values to Canvas
-    if (ctx && typeof drawOpAmpCircuit === 'function') {
-        drawOpAmpCircuit(ctx, canvas);
-        
-        // --- 🎨 NEW: Draw Values directly onto the Canvas ---
-        ctx.font = "bold 14px Arial";
-        ctx.fillStyle = "#333"; 
-
-        // Label Vin (Adjust X/Y to fit your drawing's left terminal)
-        ctx.fillText(`Vin = ${vin}V`, 25, 210);
-
-        // Label Rin (Adjust X/Y to fit your input resistor)
-        ctx.fillText(`${rin}kΩ`, 110, 185);
-
-        // Label Rf (Adjust X/Y to fit your feedback resistor)
-        ctx.fillText(`${rf}kΩ`, 220, 85);
-
-        // Label Vout in PINK
-        ctx.fillStyle = "#d65093";
-        ctx.fillText("VOUT", 360, 210);
-    }
-
-    // --- MODE 0: ANALYSIS TASK (Values removed from text) ---
+    // 5. Analysis Mode Logic
     if (window.g9OpAmpMode === 0) {
-        if (modeA) modeA.style.display = 'block';
-        if (modeB) modeB.style.display = 'none';
+        document.getElementById('g9OpAmpModeA').style.display = 'block';
+        document.getElementById('g9OpAmpModeB').style.display = 'none';
 
         let gain = (config === "Inverting") ? -(rf/rin) : (1 + (rf/rin));
         let idealVout = vin * gain;
         let saturated = Math.abs(idealVout) > vcc;
         let finalVout = saturated ? (idealVout > 0 ? vcc : -vcc) : idealVout;
 
-        window.currentAnswers = { vin: vin, vout: finalVout.toFixed(1) };
+        window.currentAnswers = { vout: finalVout.toFixed(1) };
         
         instructions.innerHTML = `
             <h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
             Supply Voltage: <b>±${vcc}V</b><br><br>
             Calculate <span style="color: #d65093; font-weight: bold;">V<sub>OUT</sub></span> for the circuit shown.<br><br>
-            <small><i>Note: Input and resistor values are on the diagram.</i></small><br>
-            <small><i>Warning: Check for amplifier saturation!</i></small>`;
+            <small><i>Note: Component values are on the diagram.</i></small>`;
 
-        solText.innerHTML = `
-            <b>1. Gain:</b> ${gain.toFixed(0)}<br>
-            <b>2. Ideal V<sub>out</sub>:</b> ${vin}V &times; ${gain.toFixed(0)} = ${idealVout.toFixed(1)}V<br>
-            <b>3. Result:</b> ${saturated ? "Saturated at <b>" + finalVout.toFixed(1) + "V</b>" : "<b>" + finalVout.toFixed(1) + "V</b>"}`;
-    }
+        solText.innerHTML = `<b>1. Gain:</b> ${gain}<br><b>2. Ideal Vout:</b> ${vin}V x ${gain} = ${idealVout}V<br><b>3. Result:</b> ${saturated ? "Saturated at " + finalVout + "V" : finalVout + "V"}`;
 
-    // --- MODE 1: DESIGN TASK ---
-    else {
-        if (modeA) modeA.style.display = 'none';
-        if (modeB) modeB.style.display = 'block';
+    } else {
+        // Design Mode Logic
+        document.getElementById('g9OpAmpModeA').style.display = 'none';
+        document.getElementById('g9OpAmpModeB').style.display = 'block';
 
         let targetVout = config === "Inverting" ? -12 : 12;
-        let requiredGain = targetVout / vin;
-        
-        window.targetGain = requiredGain;
+        window.targetGain = targetVout / vin;
         window.currentAnswers = { targetVout: targetVout, vin: vin };
 
         instructions.innerHTML = `
             <h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
             Build an <b>${config}</b> circuit.<br>
             <b>Goal:</b> <span style="color: #d65093; font-weight: bold;">V<sub>OUT</sub></span> = <b>${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
-            Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1k&Omega;).`;
+            Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b>.`;
 
-        let formulaText = config === "Inverting" ? "Gain = -R<sub>F</sub> / R<sub>IN</sub>" : "Gain = 1 + (R<sub>F</sub> / R<sub>IN</sub>)";
-        solText.innerHTML = `
-            <b>1. Target Gain:</b> ${targetVout}/${vin} = <b>${requiredGain.toFixed(1)}</b><br>
-            <b>2. Formula:</b> ${formulaText}<br>
-            <b>3. Solution:</b> If R<sub>IN</sub> = 10k&Omega;, then R<sub>F</sub> = ${Math.abs(requiredGain * 10).toFixed(0)}k&Omega;.`;
+        solText.innerHTML = `<b>1. Target Gain:</b> ${targetVout}/${vin} = ${window.targetGain}<br><b>2. Solution:</b> If Rin=10k, Rf=${Math.abs(window.targetGain * 10)}k`;
     }
+
+    drawOpAmpCircuit(ctx, canvas);
 }
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
