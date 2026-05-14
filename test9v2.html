@@ -10134,8 +10134,7 @@ function drawOpAmpCircuit(ctx, canvas) {
     
     let canvasTitle = (window.opAmpTargetConfig || "") + " Op-Amp";
     if (window.opAmpInteractive === false) {
-        if (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') canvasTitle = "Analysis Challenge";
-        // Catch both standard design and G9 design states
+        if (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9' || window.opAmpQuestionType === 'grade9analysis') canvasTitle = "Analysis Challenge";
         if (window.opAmpQuestionType === 'design' || window.opAmpQuestionType === 'grade9design') canvasTitle = "Design Challenge";
     }
     ctx.fillText(canvasTitle, cx, 40);
@@ -10150,11 +10149,12 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.lineWidth = 2;
 
     // --- NEW LOGIC FLAGS ---
-    // Safely check if we are in the Grade 9 Design task (handles both variable styles you've used)
-    const isG9Design = (window.opAmpQuestionType === 'grade9design') || (window.opAmpQuestionType === 'grade9' && window.g9OpAmpMode === 1);
+    // Identify exactly which mode we are in based on your variable names
+    const isG9Design = (window.opAmpQuestionType === 'grade9design');
+    const isG9Analysis = (window.opAmpQuestionType === 'grade9' || window.opAmpQuestionType === 'grade9analysis');
     
     // Check if we should show numbers (Analysis modes)
-    const showNumbers = (window.opAmpQuestionType === 'calcGain' || (window.opAmpQuestionType === 'grade9' && window.g9OpAmpMode === 0)) && window.opAmpInteractive === false;
+    const showNumbers = (window.opAmpQuestionType === 'calcGain' || isG9Analysis) && window.opAmpInteractive === false;
 
 
     // --- 2. FEEDBACK PATH (RF) ---
@@ -10165,12 +10165,11 @@ function drawOpAmpCircuit(ctx, canvas) {
     if (typeof drawNode === "function") drawNode(ctx, cx + 80, cy);
     
     // --- DYNAMIC VOUT COLOR FIX ---
-    // Default to black (Standard Design & Standard Gain Calc)
-    let voutColor = "black"; 
-    if (isG9Design) {
-        voutColor = "#d65093"; // Pink for G9 Design
-    } else if (window.opAmpQuestionType === 'grade9' && window.g9OpAmpMode === 0) {
-        voutColor = "#d65093"; // Keeping pink for G9 Analysis so students know what to calculate
+    let voutColor = "black"; // Default to black for Standard modes AND G9 Design
+    
+    // Force pink ONLY if it's the Grade 9 Analysis task
+    if (isG9Analysis) {
+        voutColor = "#d65093"; 
     }
     
     if (typeof drawCanvasSubscript === "function") {
