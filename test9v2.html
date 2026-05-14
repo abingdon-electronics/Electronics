@@ -12495,6 +12495,7 @@ else if (currentMode === 'grade9opamp') {
         results.length = 0;
         activeInputs.length = 0;
         let isCorrect = false;
+        let specificFeedback = ""; // For the 1k limit warning
 
         if (window.g9OpAmpMode === 0) {
             // --- MODE 0: ANALYSIS ---
@@ -12518,17 +12519,32 @@ else if (currentMode === 'grade9opamp') {
             const rinIn = document.getElementById('g9OpAmpRin_G9');
             activeInputs.push('g9OpAmpRf_G9', 'g9OpAmpRin_G9'); 
             
-            let userRf = parseFloat(rfIn ? rfIn.value.replace(/k/gi, '').trim() : "NaN");
-            let userRin = parseFloat(rinIn ? rinIn.value.replace(/k/gi, '').trim() : "NaN");
+            // Helper to handle "k" in inputs (e.g., "1.5k" -> 1500)
+            function parseResistorValue(val) {
+                let clean = val.toLowerCase().replace(/ω|ohm| /g, '');
+                if (clean.includes('k')) return parseFloat(clean.replace('k', '')) * 1000;
+                return parseFloat(clean);
+            }
+
+            let userRf = parseResistorValue(rfIn ? rfIn.value : "0");
+            let userRin = parseResistorValue(rinIn ? rinIn.value : "0");
             
-            if (!isNaN(userRf) && !isNaN(userRin)) {
+            if (!isNaN(userRf) && !isNaN(userRin) && userRin !== 0) {
                 let userGain = (window.opAmpTargetConfig === "Inverting") 
                     ? -(userRf / userRin) 
                     : (1 + (userRf / userRin));
-                    
-                if (Math.abs(userGain - window.targetGain) <= 0.1) {
+                
+                let gainMatches = Math.abs(userGain - window.targetGain) <= 0.1;
+                let meetsMinResistance = (userRf >= 1000 && userRin >= 1000);
+
+                if (gainMatches && meetsMinResistance) {
                     results.push('correct', 'correct');
                     isCorrect = true;
+                } else if (gainMatches && !meetsMinResistance) {
+                    // Correct math, but bad engineering practice
+                    results.push('wrongval', 'wrongval');
+                    isCorrect = false;
+                    specificFeedback = "Gain is correct, but resistors must be ≥ 1kΩ.";
                 } else {
                     results.push('wrongval', 'wrongval');
                     isCorrect = false;
@@ -12539,40 +12555,39 @@ else if (currentMode === 'grade9opamp') {
             }
         }
 
-        // --- THE PATTERN MATCHING FIX: APPLY BORDERS ---
+        // --- APPLY BORDERS & GHOSTING FIX ---
         activeInputs.forEach((id, index) => {
             const el = document.getElementById(id);
             if (el) {
                 if (results[index] === 'correct') {
                     el.style.borderColor = "#28a745"; // Green
                     el.style.borderWidth = "3px";
+                    el.style.boxShadow = "0 0 5px rgba(40, 167, 69, 0.5)";
                 } else {
                     el.style.borderColor = "#dc3545"; // Red
                     el.style.borderWidth = "3px";
+                    el.style.boxShadow = "0 0 5px rgba(220, 53, 69, 0.5)";
                 }
             }
         });
 
         // 2. UI FEEDBACK & SOLUTIONS
-    if (isCorrect) {
+        if (isCorrect) {
             if (feedback) feedback.innerHTML = "<span style='color: #28a745;'>✔️ Correct! Excellent circuit analysis.</span>";
             isCurrentProblemSolved = true; 
-            // Hide solutions if they got it right
             const solPanel = document.getElementById('solutions');
             if (solPanel) solPanel.style.display = 'none';
-    } else {
-            if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>❌ Incorrect. See the solution below.</span>";
+        } else {
+            let errorMsg = specificFeedback || "Incorrect. See the solution below.";
+            if (feedback) feedback.innerHTML = `<span style='color: #dc3545;'>❌ ${errorMsg}</span>`;
             
             const solPanel = document.getElementById('solutions');
             if (solPanel && window.g9OpAmpSolutionBackup) {
-                // WE MANUALLY RE-INJECT THE HEADER AND TEXT
-                // This fixes the issue where other modes deleted your 'solText' element.
                 solPanel.innerHTML = `
                     <h4 style="margin-top: 0; color: #E64097; margin-bottom: 5px; font-size: 0.9em;">Step-by-Step Logic:</h4>
                     <p style="margin: 0; color: #333; line-height: 1.4; font-size: 0.85em;">
                         ${window.g9OpAmpSolutionBackup}
                     </p>`;
-                
                 solPanel.style.display = 'block'; 
             }
         }
