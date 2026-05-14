@@ -10179,7 +10179,7 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.lineTo(cx - 60, cy + 20);
     ctx.stroke();
     
-    // --- 3. TOP INPUT WIRE (RIN) ---
+// --- 3. TOP INPUT WIRE (RIN) ---
     ctx.beginPath();
     ctx.moveTo(cx - 100, cy - 20);
     if (window.topWireState === 'horizontal') {
@@ -10204,14 +10204,7 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.lineTo(cx - 230, cy - 20);
         ctx.stroke();
         
-        // DRAW VIN VALUE
-        if (window.opAmpVin && window.opAmpQuestionType === 'grade9') {
-            ctx.fillStyle = "#333";
-            ctx.font = "bold 14px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(window.opAmpVin + "V", cx - 270, cy + 5);
-            ctx.textAlign = "left";
-        }
+        // Cleaned up: Only draw the VIN label, no numbers!
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy - 20, 16, "black");
         
     } else {
@@ -10242,13 +10235,8 @@ function drawOpAmpCircuit(ctx, canvas) {
     if (window.bottomWireState === 'horizontal') {
         ctx.lineTo(cx - 230, cy + 20);
         ctx.stroke();
-        if (window.opAmpVin && window.opAmpQuestionType === 'grade9') {
-            ctx.fillStyle = "#333";
-            ctx.font = "bold 14px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(window.opAmpVin + "V", cx - 270, cy + 45);
-            ctx.textAlign = "left";
-        }
+        
+        // Cleaned up: Only draw the VIN label, no numbers!
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy + 20, 16, "black");
     } else {
         ctx.lineTo(cx - 60, cy + 80); ctx.stroke();
@@ -10689,12 +10677,13 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
 
         window.currentAnswers = { vout: finalVout.toFixed(1) };
         
-        // Only set innerHTML if the instruction element exists!
+        // --- UPDATED INSTRUCTIONS ---
         if (instructions) {
             instructions.innerHTML = `<h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
-            Supply Voltage: <b>±${vcc}V</b><br><br>
+            Supply Voltage: <b>±${vcc}V</b><br>
+            Input Voltage: <b>V<sub>IN</sub> = ${vin}V</b><br><br>
             Calculate <span style="color: #d65093; font-weight: bold;">V<sub>OUT</sub></span> for the circuit shown.<br><br>
-            <small><i>Note: Component values are on the diagram.</i></small>`;
+            <small><i>Warning: Check for amplifier saturation!</i></small>`;
         }
         if (solText) {
             solText.innerHTML = `<b>Gain:</b> ${gain} | <b>Vout:</b> ${finalVout}V`;
