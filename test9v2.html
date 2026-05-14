@@ -10789,23 +10789,30 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 <b>Goal:</b> <b>V<sub>OUT</sub> = ${designTargetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
         }
 
-        let exampleRin = 2000;
-        let exampleRf = (config === "Inverting") 
-            ? Math.abs(window.targetGain) * exampleRin 
-            : (window.targetGain - 1) * exampleRin;
+// Calculate the required ratio
+        let ratioValue = (config === "Inverting") 
+            ? Math.abs(window.targetGain) 
+            : (window.targetGain - 1);
+            
+        // Determine correct sub-label (RIN or R1)
+        let rLabel = (config === "Inverting") ? "IN" : "1";
 
         // STEP-BY-STEP SOLUTION (DESIGN)
         solutionStepText = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
+            
             `<strong>1. Required Gain (G):</strong><br>` +
             `Formula: G = V<sub>OUT</sub> / V<sub>IN</sub><br>` +
-            `Substitution: G = ${designTargetVout} / ${vin} = <b>${window.targetGain.toFixed(0)}</b><br><br>` +
-            `<strong>2. Resistor Selection Rule:</strong><br>` +
-            `All resistors must be <b>≥ 1kΩ</b>. Smaller values draw too much current, which can overheat the op-amp and cause output distortion.<br><br>` +
-            `<strong>3. Example Pair (using 2kΩ minimum):</strong><br>` +
-            (config === "Inverting"
-                ? `For G = ${window.targetGain.toFixed(0)}, we use R<sub>F</sub> = |G| × R<sub>IN</sub>.<br>`
-                : `For G = ${window.targetGain.toFixed(0)}, we use R<sub>F</sub> = (G - 1) × R<sub>1</sub>.<br>`) +
-            `If we choose <b>R<sub>IN</sub> = 2,000Ω</b>, then <b>R<sub>F</sub> = ${exampleRf.toLocaleString()}Ω</b>.`;
+            `G = ${designTargetVout} / ${vin} = <b>${window.targetGain.toFixed(0)}</b><br><br>` +
+            
+            `<strong>2. Find the Resistor Ratio:</strong><br>` +
+            (config === "Inverting" 
+                ? `Formula: |G| = R<sub>F</sub> / R<sub>IN</sub><br>Rearranged: R<sub>F</sub> / R<sub>IN</sub> = <b>${ratioValue}</b><br>`
+                : `Formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>Rearranged: R<sub>F</sub> / R<sub>1</sub> = G - 1 = <b>${ratioValue}</b><br>`) +
+            `<em style="color:#d65093;">(Meaning: R<sub>F</sub> must be ${ratioValue} times larger than R<sub>${rLabel}</sub>)</em><br><br>` +
+            
+            `<strong>3. Select Safe Resistor Values:</strong><br>` +
+            `Rule: Resistors must be <b>≥ 1kΩ (1000Ω)</b>. Smaller values draw too much current and cause distortion.<br>` +
+            `Example: If we pick a safe minimum like <b>R<sub>${rLabel}</sub> = 1,000Ω</b>, then <b>R<sub>F</sub> = ${(ratioValue * 1000).toLocaleString()}Ω</b>.`;
     }
 
     // --- 4. BACKUP & DRAW ---
@@ -12666,7 +12673,7 @@ else if (currentMode === 'grade9opamp') {
                     // Correct math, but bad engineering practice
                     results.push('wrongval', 'wrongval');
                     isCorrect = false;
-                    specificFeedback = "Gain is correct, but resistors must be ≥ 1kΩ.";
+                    specificFeedback = "The resistor ratio is correct! But values must be ≥ 1kΩ (1000Ω) to avoid overheating.";
                 } else {
                     results.push('wrongval', 'wrongval');
                     isCorrect = false;
