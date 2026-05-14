@@ -1686,11 +1686,7 @@
     <div id="g9OpAmpInstructions" style="text-align: left; margin-bottom: 15px; font-weight: bold; font-size: 15px; color: #333; border-left: 4px solid #E64097; padding-left: 10px; line-height: 1.5;">
         </div>
 
-    <div id="g9OpAmpModeA" style="display: none;">
-        <div style="display: inline-block; margin-right: 15px;">
-            <label for="g9OpAmpVin" style="font-weight: bold;">V<sub>IN</sub> = </label>
-            <input type="text" id="g9OpAmpVin" style="width: 80px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 1.2V">
-        </div>
+    <div id="g9OpAmpModeA" style="display: none; text-align: center; margin-top: 10px;">
         <div style="display: inline-block;">
             <label for="g9OpAmpVout" style="font-weight: bold;">V<sub>OUT</sub> = </label>
             <input type="text" id="g9OpAmpVout" style="width: 80px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. -5V">
@@ -10613,8 +10609,20 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.opAmpQuestionType = 'grade9'; 
     window.opAmpInteractive = false; // 👈 NEW: Lock the hinges for math mode!
 
-    // 2. Clear UI - Note: we don't call hideAllInputGroups here 
-    // because HubController already did it.
+    // 2. Clear UI - Note: we don't call hideAllInputGroups here because HubController already did it.
+    
+    // --- 🧹 NEW: Scrub old borders off the input boxes 🧹 ---
+    ['g9OpAmpVout', 'g9OpAmpRf_G9', 'g9OpAmpRin_G9', 'g9OpAmpRf', 'g9OpAmpRin'].forEach(id => {
+        let el = document.getElementById(id);
+        if (el) {
+            el.style.removeProperty('border-color');
+            el.style.removeProperty('border-width');
+            el.style.removeProperty('border-style');
+            el.style.removeProperty('box-shadow');
+        }
+    });
+    // ---------------------------------------------------------
+    
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
     const modeA = document.getElementById('g9OpAmpModeA');
     const modeB = document.getElementById('g9OpAmpModeB');
