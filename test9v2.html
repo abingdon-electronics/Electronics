@@ -10135,7 +10135,8 @@ function drawOpAmpCircuit(ctx, canvas) {
     let canvasTitle = (window.opAmpTargetConfig || "") + " Op-Amp";
     if (window.opAmpInteractive === false) {
         if (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') canvasTitle = "Analysis Challenge";
-        if (window.opAmpQuestionType === 'design') canvasTitle = "Design Challenge";
+        // Catch both standard design and G9 design states
+        if (window.opAmpQuestionType === 'design' || window.opAmpQuestionType === 'grade9design') canvasTitle = "Design Challenge";
     }
     ctx.fillText(canvasTitle, cx, 40);
     
@@ -10148,6 +10149,14 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.strokeStyle = "#333";
     ctx.lineWidth = 2;
 
+    // --- NEW LOGIC FLAGS ---
+    // Safely check if we are in the Grade 9 Design task (handles both variable styles you've used)
+    const isG9Design = (window.opAmpQuestionType === 'grade9design') || (window.opAmpQuestionType === 'grade9' && window.g9OpAmpMode === 1);
+    
+    // Check if we should show numbers (Analysis modes)
+    const showNumbers = (window.opAmpQuestionType === 'calcGain' || (window.opAmpQuestionType === 'grade9' && window.g9OpAmpMode === 0)) && window.opAmpInteractive === false;
+
+
     // --- 2. FEEDBACK PATH (RF) ---
     ctx.beginPath();
     ctx.moveTo(cx + 30, cy);
@@ -10155,8 +10164,15 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.stroke();
     if (typeof drawNode === "function") drawNode(ctx, cx + 80, cy);
     
-    // DYNAMIC VOUT Label (Pink for Analysis, Black for Design)
-    let voutColor = (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') ? "#d65093" : "black";
+    // --- DYNAMIC VOUT COLOR FIX ---
+    // Default to black (Standard Design & Standard Gain Calc)
+    let voutColor = "black"; 
+    if (isG9Design) {
+        voutColor = "#d65093"; // Pink for G9 Design
+    } else if (window.opAmpQuestionType === 'grade9' && window.g9OpAmpMode === 0) {
+        voutColor = "#d65093"; // Keeping pink for G9 Analysis so students know what to calculate
+    }
+    
     if (typeof drawCanvasSubscript === "function") {
         drawCanvasSubscript(ctx, "V", "OUT", "", cx + 125, cy, 16, voutColor);
     }
@@ -10167,21 +10183,22 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.lineTo(cx + 30, cy - 90); 
     ctx.stroke();
     
+    // Draw empty resistor box
     ctx.fillStyle = "#fff";
     ctx.fillRect(cx - 30, cy - 105, 60, 30); 
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
     
-    // RF Logic: FIXED to use opAmpQuestionType
-    const showNumbers = (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') && window.opAmpInteractive === false;
-
-    if (showNumbers && window.opAmpRf) {
-        ctx.fillStyle = "black";
-        ctx.font = "bold 14px Arial";
-        ctx.textAlign = "center"; 
-        ctx.fillText(window.opAmpRf + " kΩ", cx, cy - 115);
-        ctx.textAlign = "left";   
-    } else {
-        if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
+    // RF Logic: Hide labels for G9 Design, show numbers for Analysis, show labels for standard Design
+    if (!isG9Design) {
+        if (showNumbers && window.opAmpRf) {
+            ctx.fillStyle = "black";
+            ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center"; 
+            ctx.fillText(window.opAmpRf + " kΩ", cx, cy - 115);
+            ctx.textAlign = "left";   
+        } else {
+            if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
+        }
     }
     
     // Common Wires
@@ -10206,19 +10223,23 @@ function drawOpAmpCircuit(ctx, canvas) {
     if (window.topWireState === 'horizontal') {
         ctx.lineTo(cx - 130, cy - 20);
         ctx.stroke();
+        
+        // Draw empty resistor box
         ctx.fillStyle = "#fff";
         ctx.fillRect(cx - 190, cy - 35, 60, 30); 
         ctx.strokeRect(cx - 190, cy - 35, 60, 30);
         
-        // RIN Logic: FIXED to use opAmpQuestionType
-        if (showNumbers && window.opAmpRin) {
-            ctx.fillStyle = "black";
-            ctx.font = "bold 14px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(window.opAmpRin + " kΩ", cx - 160, cy - 45);
-            ctx.textAlign = "left";
-        } else {
-            if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black");
+        // RIN Logic
+        if (!isG9Design) {
+            if (showNumbers && window.opAmpRin) {
+                ctx.fillStyle = "black";
+                ctx.font = "bold 14px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(window.opAmpRin + " kΩ", cx - 160, cy - 45);
+                ctx.textAlign = "left";
+            } else {
+                if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black");
+            }
         }
 
         ctx.beginPath();
@@ -10232,20 +10253,25 @@ function drawOpAmpCircuit(ctx, canvas) {
         // Grounded path
         ctx.lineTo(cx - 100, cy + 50);
         ctx.stroke();
+        
+        // Draw empty resistor box
         ctx.fillStyle = "#fff";
         ctx.fillRect(cx - 115, cy + 50, 30, 50); 
         ctx.strokeRect(cx - 115, cy + 50, 30, 50);
         
-        // R1 Logic: FIXED to use opAmpQuestionType
-        if (showNumbers && window.opAmpR1) {
-            ctx.fillStyle = "black";
-            ctx.font = "bold 14px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(window.opAmpR1 + " kΩ", cx - 145, cy + 80);
-            ctx.textAlign = "left";
-        } else {
-            if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black");
+        // R1 Logic
+        if (!isG9Design) {
+            if (showNumbers && window.opAmpR1) {
+                ctx.fillStyle = "black";
+                ctx.font = "bold 14px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(window.opAmpR1 + " kΩ", cx - 145, cy + 80);
+                ctx.textAlign = "left";
+            } else {
+                if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black");
+            }
         }
+        
         ctx.beginPath();
         ctx.moveTo(cx - 100, cy + 100); ctx.lineTo(cx - 100, cy + 120); ctx.stroke();
         if (typeof drawGround === "function") drawGround(ctx, cx - 100, cy + 120);
