@@ -10674,7 +10674,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         window.currentAnswers = { vin: vin, vout: finalVout.toFixed(1) };
         
         instructions.innerHTML = `
-            <span style="color: #E64097; font-weight: bold;">ANALYSIS TASK</span><br>
+            <h3 style="color:#d65093;">Analysis Task</h3>
             Supply Voltage: <b>±${vcc}V</b><br>
             Components: <b>R<sub>F</sub> = ${rf}k&Omega;</b>, <b>R<sub>IN</sub> = ${rin}k&Omega;</b>.<br><br>
             Calculate <b>V<sub>OUT</sub></b> if <b>V<sub>IN</sub> = ${vin}V</b>.<br>
@@ -10700,7 +10700,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         window.currentAnswers = { targetVout: targetVout, vin: vin };
 
         instructions.innerHTML = `
-            <h3 style="color:#d65093;">DESIGN TASK</h3>
+            <h3 style="color:#d65093;">Design Task</h3>
             Build a <b>${config}</b> circuit.<br>
             <b>Goal:</b> V<sub>OUT</sub> = <b>${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
             Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1k&Omega;).`;
