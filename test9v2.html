@@ -12552,7 +12552,7 @@ else if (currentMode === 'grade9opamp') {
         });
 
         // 2. UI FEEDBACK & SOLUTIONS
-        if (isCorrect) {
+    if (isCorrect) {
             if (feedback) feedback.innerHTML = "<span style='color: #28a745;'>✔️ Correct! Excellent circuit analysis.</span>";
             isCurrentProblemSolved = true; 
             // Hide solutions if they got it right
@@ -12563,12 +12563,17 @@ else if (currentMode === 'grade9opamp') {
             
             // Show the solution panel
             const solPanel = document.getElementById('solutions');
+            const solText = document.getElementById('solText'); // Target the text container
+
             if (solPanel) {
+                // Inject the text we saved during generation before showing the panel
+                if (solText && window.lastGeneratedSolution) {
+                    solText.innerHTML = window.lastGeneratedSolution;
+                }
                 solPanel.style.display = 'block'; 
             }
         }
-    }
-    // 👆 END GRADE 9 OP-AMP LOGIC 👆
+    } // 👆 End GRADE 9 OP-AMP 👆
 
 
 
