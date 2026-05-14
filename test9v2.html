@@ -10641,9 +10641,8 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         const el = document.getElementById(id);
         if (el) {
             el.value = '';
-            // Match the 2px gray border from your new HTML
+            // Reset to neutral gray and clear the red/green glowing shadows
             el.style.border = "2px solid #ced4da"; 
-            // CRITICAL: Kill the red/green glowing shadows
             el.style.boxShadow = "none";
             el.style.outline = "none";
         }
@@ -10651,27 +10650,46 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
 
     currentMode = 'grade9opamp';
 
-    // --- 2. MATH LOGIC ---
+    // --- 2. MATH LOGIC (Integer Gain & 1kΩ Min Fix) ---
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
 
     const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
-    const rin = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
-    const rf = rin * (Math.floor(Math.random() * 5) + 2); 
-    const vin = [1, 1.5, 2, 3, 5][Math.floor(Math.random() * 5)];
+    
+    // 1. Pick a clean VIN and an Integer Multiplier (Gain)
+    const vin = [1, 2, 3, 5][Math.floor(Math.random() * 4)];
+    const integerMultiplier = Math.floor(Math.random() * 8) + 2; // Gain between 2 and 9
+    
+    // 2. Set VCC
     const vcc = 15;
 
-    // Drawing variables
+    // 3. Resistor Selection (Ensuring ≥ 1kΩ)
+    const rin = [1000, 2000, 5000, 10000][Math.floor(Math.random() * 4)];
+    let rf;
+    if (config === "Inverting") {
+        rf = rin * integerMultiplier;
+    } else {
+        rf = rin * (integerMultiplier - 1);
+    }
+
+    // 4. Drawing & Global Variables
     window.opAmpTargetConfig = config;
-    window.opAmpRf = rf;
+    window.opAmpRf = rf / 1000; // Convert to 'k' for labels
     window.opAmpVin = vin;
-    window.opAmpRin = (config === "Inverting") ? rin : 0;
-    window.opAmpR1 = (config === "Non-Inverting") ? rin : 0;
+    window.opAmpRin = (config === "Inverting") ? (rin / 1000) : 0;
+    window.opAmpR1 = (config === "Non-Inverting") ? (rin / 1000) : 0;
     window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
     window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
 
+    // 5. Setup Design Target (ensures clean division for the student)
+    let designTargetVout = (config === "Inverting") ? -12 : 12;
+    if (Math.abs(designTargetVout) % vin !== 0) {
+        designTargetVout = (config === "Inverting") ? -10 : 10;
+    }
+
     // --- 3. BUILD CONTENT ---
     if (window.g9OpAmpMode === 0) {
+        // ANALYSIS TASK
         document.getElementById('g9OpAmpModeA').style.display = 'block';
         document.getElementById('g9OpAmpModeB').style.display = 'none';
 
@@ -10696,21 +10714,23 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                             ? `<em>Step 3:</em> <b style="color:#d9534f;">Saturation!</b> Capped at &plusmn;${vcc}V.` 
                             : `<em>Step 3:</em> Within &plusmn;${vcc}V supply limits.`);
     } else {
+        // DESIGN TASK
         document.getElementById('g9OpAmpModeA').style.display = 'none';
         document.getElementById('g9OpAmpModeB').style.display = 'block';
 
-        let targetVout = config === "Inverting" ? -12 : 12;
-        window.targetGain = targetVout / vin;
-        window.currentAnswers = { targetVout: targetVout, vin: vin };
+        // Use the calculated designTargetVout to ensure integer gain
+        window.targetGain = designTargetVout / vin;
+        window.currentAnswers = { targetVout: designTargetVout, vin: vin };
 
         if (instructions) {
             instructions.innerHTML = `
                 <h3 style="color:${pinkColor}; margin-top: 0;">Design Task</h3>
-                <b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
+                <b>Goal:</b> <b>V<sub>OUT</sub> = ${designTargetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
         }
 
         solutionStepText = `<strong>🏆 Solution Logic:</strong><br>` +
-                           `Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${targetVout} / ${vin} = ${window.targetGain.toFixed(2)}`;
+                           `Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${designTargetVout} / ${vin} = <b>${window.targetGain.toFixed(0)}</b><br>` +
+                           `<em>Requirement:</em> R<sub>F</sub> and R<sub>IN</sub> must both be <b>≥ 1kΩ</b>.`;
     }
 
     // --- 4. BACKUP & DRAW ---
