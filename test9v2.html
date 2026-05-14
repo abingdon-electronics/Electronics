@@ -10611,112 +10611,95 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
+    console.log("🚀 DEBUG: Generator Started");
+    
     // 1. Reset UI
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
-
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
     if (mainGroup) mainGroup.style.display = 'block';
 
     const pinkColor = "#E64097";
-    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
-
-    // --- SOLUTIONS UI RESET ---
     const solText = document.getElementById('solText');
     const solContainer = document.getElementById('solutions');
     if (solContainer) solContainer.style.display = "none"; 
     if (solText) solText.innerHTML = ""; 
-
-    // Clear and color inputs
-    ['g9OpAmpVout', 'g9OpAmpRf_G9', 'g9OpAmpRin_G9'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.value = '';
-            el.style.removeProperty('border-color');
-            const label = document.querySelector(`label[for="${id}"]`);
-            if (label) label.style.color = pinkColor;
-        }
-    });
 
     currentMode = 'grade9opamp';
 
     // 2. Toggle Logic
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
+    console.log("📍 DEBUG: Mode is " + (window.g9OpAmpMode === 0 ? "Analysis" : "Design"));
 
-    // 3. Circuit Configuration
+    // 3. Configuration & Math
     const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
-    window.opAmpTargetConfig = config;
-    window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
-    window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
-
-    // 4. Math Setup
     const rin = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
     const multiplier = Math.floor(Math.random() * 5) + 2; 
     const rf = rin * multiplier; 
     const vin = [1, 1.5, 2, 3, 5][Math.floor(Math.random() * 5)];
+    const vcc = 15;
 
+    window.opAmpTargetConfig = config;
     window.opAmpRf = rf;
+    window.opAmpVin = vin;
+    // Set variables based on config
     window.opAmpRin = (config === "Inverting") ? rin : 0;
     window.opAmpR1 = (config === "Non-Inverting") ? rin : 0;
-    window.opAmpVin = vin;
 
     const instructions = document.getElementById('g9OpAmpInstructions');
     const modeA = document.getElementById('g9OpAmpModeA');
     const modeB = document.getElementById('g9OpAmpModeB');
 
-    // FIX: Declare this variable ONLY ONCE here.
+    // ONLY ONE DECLARATION
     let solutionHTML = "";
 
-    // 5. Mode Logic
+    // 5. Logic Branching
     if (window.g9OpAmpMode === 0) {
         if (modeA) modeA.style.display = 'block';
         if (modeB) modeB.style.display = 'none';
 
         let gain = (config === "Inverting") ? -(rf / rin) : (1 + (rf / rin));
-        let vcc = 15;
         let idealVout = vin * gain;
         let finalVout = Math.abs(idealVout) > vcc ? (idealVout > 0 ? vcc : -vcc) : idealVout;
         
         window.currentAnswers = { vout: finalVout.toFixed(1) };
+        console.log("✅ DEBUG Analysis: Target Vout is " + window.currentAnswers.vout);
 
         if (instructions) {
-            instructions.innerHTML = `
-                <h3 style="color:${pinkColor}; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
-                Supply: <b>&plusmn;${vcc}V</b> | Input: <b>V<sub>IN</sub> = ${vin}V</b><br>
-                Calculate <span style="color: ${pinkColor}; font-weight: bold;">V<sub>OUT</sub></span> for this ${config} circuit.`;
+            instructions.innerHTML = `Supply: <b>&plusmn;${vcc}V</b> | Input: <b>V<sub>IN</sub> = ${vin}V</b><br>Calculate <b>V<sub>OUT</sub></b> for this ${config} circuit.`;
         }
 
-        solutionHTML = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br><br>` +
-                       `<em>Step 1:</em> Gain = ${gain}<br>` +
-                       `<em>Step 2:</em> V<sub>ideal</sub> = ${vin}V &times; ${gain} = ${idealVout.toFixed(1)}V<br>` +
-                       (Math.abs(idealVout) > vcc ? `<em>Step 3:</em> Saturation! Capped at <b>&plusmn;${vcc}V</b>.` : `<em>Step 3:</em> Within limits.`);
+        solutionHTML = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br>Gain: ${gain}`;
+
     } else {
         if (modeA) modeA.style.display = 'none';
         if (modeB) modeB.style.display = 'block';
 
         let targetVout = config === "Inverting" ? -12 : 12;
         window.targetGain = targetVout / vin;
-        
         window.currentAnswers = { targetVout: targetVout, vin: vin };
+        console.log("✅ DEBUG Design: Target Gain is " + window.targetGain);
 
         if (instructions) {
-            instructions.innerHTML = `
-                <h3 style="color:${pinkColor}; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
-                <b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
+            instructions.innerHTML = `<b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
         }
 
-        solutionHTML = `<strong>🏆 Solution Logic:</strong><br>Target Gain = ${window.targetGain.toFixed(2)}`;
+        solutionHTML = `<strong>🏆 Solution Logic:</strong><br>Required Gain = ${window.targetGain.toFixed(2)}`;
     }
 
-    // 6. DRAWING (Redraws canvas cleanly to remove old artifacts like circles)
+    // 6. Drawing (Check if this is causing the orange circles)
+    console.log("🎨 DEBUG: Calling Draw Function");
     if (typeof drawOpAmpCircuit === 'function') {
-        drawOpAmpCircuit(ctx, canvas);
+        // We pass 'false' as a third argument if your draw function supports turning off markers
+        drawOpAmpCircuit(ctx, canvas); 
     }
 
-    // 7. FINAL INJECTION (This will now work because there is no error above)
+    // 7. Final Injection
     if (solText) {
+        console.log("📥 DEBUG: Injecting Solution HTML");
         solText.innerHTML = solutionHTML;
     }
+    console.log("🏁 DEBUG: Generator Finished Successfully");
 }
 
 //END OF CONTENT FUNCTIONS
