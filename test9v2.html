@@ -10641,7 +10641,6 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         const el = document.getElementById(id);
         if (el) {
             el.value = '';
-            // Reset to neutral gray and clear the red/green glowing shadows
             el.style.border = "2px solid #ced4da"; 
             el.style.boxShadow = "none";
             el.style.outline = "none";
@@ -10702,30 +10701,30 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         if (instructions) {
             instructions.innerHTML = `
                 <h3 style="color:${pinkColor}; margin-top: 0;">Analysis Task</h3>
-                Supply: <b>&plusmn;${vcc}V</b> | Input: <b>V<sub>IN</sub> = ${vin}V</b><br>
+                Supply: <b>±${vcc}V</b> | Input: <b>V<sub>IN</sub> = ${vin}V</b><br>
                 Calculate <span style="color: ${pinkColor}; font-weight: bold;">V<sub>OUT</sub></span> for this ${config} circuit.
                 <br><br><i style="color: #666; font-size: 0.9em;">Note: Check for amplifier saturation!</i>`;
         }
 
+        // STEP-BY-STEP SOLUTION (ANALYSIS)
         solutionStepText = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
-                            `<strong>1. Find Gain (G):</strong><br>` +
-                            (config === "Inverting" 
-                                ? `Formula: $G = -(R_F / R_{IN})$ <br> Substitution: $G = -(${rf} / ${rin}) = ${gain.toFixed(2)}$` 
-                                : `Formula: $G = 1 + (R_F / R_1)$ <br> Substitution: $G = 1 + (${rf} / ${rin}) = ${gain.toFixed(2)}$`) + 
-                            `<br><br><strong>2. Calculate Ideal V<sub>OUT</sub>:</strong><br>` +
-                            `Formula: $V_{OUT} = V_{IN} \times G$ <br>` +
-                            `Substitution: $V_{OUT} = ${vin}V \times ${gain.toFixed(2)} = ${idealVout.toFixed(1)}V$<br><br>` +
-                            `<strong>3. Final Check:</strong><br>` +
-                            (Math.abs(idealVout) > vcc 
-                                ? `<b style="color:#d9534f;">Saturation!</b> The calculated ${idealVout.toFixed(1)}V exceeds the &plusmn;${vcc}V supply, so it is capped.` 
-                                : `The value ${idealVout.toFixed(1)}V is within the &plusmn;${vcc}V supply limits.`);
-        
+            `<strong>1. Find Gain (G):</strong><br>` +
+            (config === "Inverting" 
+                ? `Formula: G = -(R<sub>F</sub> / R<sub>IN</sub>)<br>Substitution: G = -(${rf} / ${rin}) = <b>${gain.toFixed(2)}</b>` 
+                : `Formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>Substitution: G = 1 + (${rf} / ${rin}) = <b>${gain.toFixed(2)}</b>`) + 
+            `<br><br><strong>2. Calculate Ideal V<sub>OUT</sub>:</strong><br>` +
+            `Formula: V<sub>OUT</sub> = V<sub>IN</sub> × G<br>` +
+            `Substitution: V<sub>OUT</sub> = ${vin}V × ${gain.toFixed(2)} = <b>${idealVout.toFixed(1)}V</b><br><br>` +
+            `<strong>3. Final Check:</strong><br>` +
+            (Math.abs(idealVout) > vcc 
+                ? `<b style="color:#d9534f;">Saturation!</b> The calculated ${idealVout.toFixed(1)}V exceeds the ±${vcc}V supply, so it is capped at <b>±${vcc}V</b>.` 
+                : `The value ${idealVout.toFixed(1)}V is within the ±${vcc}V supply limits.`);
+
     } else {
         // DESIGN TASK
         document.getElementById('g9OpAmpModeA').style.display = 'none';
         document.getElementById('g9OpAmpModeB').style.display = 'block';
 
-        // Use the calculated designTargetVout to ensure integer gain
         window.targetGain = designTargetVout / vin;
         window.currentAnswers = { targetVout: designTargetVout, vin: vin };
 
@@ -10735,23 +10734,23 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 <b>Goal:</b> <b>V<sub>OUT</sub> = ${designTargetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
         }
 
-        // Calculate an example pair where the lowest resistor is 2k
-let exampleRin = 2000;
-let exampleRf = (config === "Inverting") 
-    ? Math.abs(window.targetGain) * exampleRin 
-    : (Math.abs(window.targetGain) - 1) * exampleRin;
+        let exampleRin = 2000;
+        let exampleRf = (config === "Inverting") 
+            ? Math.abs(window.targetGain) * exampleRin 
+            : (window.targetGain - 1) * exampleRin;
 
-solutionStepText = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
-                    `<strong>1. Required Gain (G):</strong><br>` +
-                    `Formula: $G = V_{OUT} / V_{IN}$ <br>` +
-                    `Substitution: $G = ${designTargetVout} / ${vin} = ${window.targetGain.toFixed(0)}$<br><br>` +
-                    `<strong>2. Resistor Selection Rule:</strong><br>` +
-                    `All resistors must be <b>&ge; 1k&Omega;</b>. Smaller values can draw too much current, causing the op-amp to overheat or the output to distort.<br><br>` +
-                    `<strong>3. Example Pair:</strong><br>` +
-                    (config === "Inverting"
-                        ? `For $G = -${Math.abs(window.targetGain)}$, we use $R_F = |G| \times R_{IN}$.<br>`
-                        : `For $G = ${window.targetGain}$, we use $R_F = (G - 1) \times R_1$.<br>`) +
-                    `If we choose $R_{IN} = 2,000&Omega;$, then $R_F = ${exampleRf.toLocaleString()}&Omega;$.`;
+        // STEP-BY-STEP SOLUTION (DESIGN)
+        solutionStepText = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
+            `<strong>1. Required Gain (G):</strong><br>` +
+            `Formula: G = V<sub>OUT</sub> / V<sub>IN</sub><br>` +
+            `Substitution: G = ${designTargetVout} / ${vin} = <b>${window.targetGain.toFixed(0)}</b><br><br>` +
+            `<strong>2. Resistor Selection Rule:</strong><br>` +
+            `All resistors must be <b>≥ 1kΩ</b>. Smaller values draw too much current, which can overheat the op-amp and cause output distortion.<br><br>` +
+            `<strong>3. Example Pair (using 2kΩ minimum):</strong><br>` +
+            (config === "Inverting"
+                ? `For G = ${window.targetGain.toFixed(0)}, we use R<sub>F</sub> = |G| × R<sub>IN</sub>.<br>`
+                : `For G = ${window.targetGain.toFixed(0)}, we use R<sub>F</sub> = (G - 1) × R<sub>1</sub>.<br>`) +
+            `If we choose <b>R<sub>IN</sub> = 2,000Ω</b>, then <b>R<sub>F</sub> = ${exampleRf.toLocaleString()}Ω</b>.`;
     }
 
     // --- 4. BACKUP & DRAW ---
