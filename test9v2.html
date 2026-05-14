@@ -10607,11 +10607,9 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     // 1. Core State Setup
     currentMode = 'grade9opamp'; 
     window.opAmpQuestionType = 'grade9'; 
-    window.opAmpInteractive = false; // 👈 NEW: Lock the hinges for math mode!
+    window.opAmpInteractive = false; 
 
-    // 2. Clear UI - Note: we don't call hideAllInputGroups here because HubController already did it.
-    
-    // --- 🧹 NEW: Scrub old borders off the input boxes 🧹 ---
+    // 2. Scrub old borders/ghosting off the input boxes
     ['g9OpAmpVout', 'g9OpAmpRf_G9', 'g9OpAmpRin_G9', 'g9OpAmpRf', 'g9OpAmpRin'].forEach(id => {
         let el = document.getElementById(id);
         if (el) {
@@ -10619,10 +10617,10 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
             el.style.removeProperty('border-width');
             el.style.removeProperty('border-style');
             el.style.removeProperty('box-shadow');
+            el.value = ''; // Clear old answers
         }
     });
-    // ---------------------------------------------------------
-    
+
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
     const modeA = document.getElementById('g9OpAmpModeA');
     const modeB = document.getElementById('g9OpAmpModeB');
@@ -10631,42 +10629,61 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
 
     if (mainGroup) mainGroup.style.display = 'block';
 
-    // 3. Cycle Mode: 0 (Voltages) -> 1 (Design)
+    // 3. Cycle Mode: 0 (Analysis) -> 1 (Design)
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
 
-    // 4. Config & Circuit Drawing
+    // 4. Clean Math Generation (Integer Ratios)
     const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
     window.opAmpTargetConfig = config;
-    const vcc = 15; // Rails
+    const vcc = 15; 
 
-    // 👇 NEW: Set the wires based on the configuration 👇
+    // Ensure Gain is a clean whole number
+    const rinOptions = [1, 2, 5, 10];
+    const rin = rinOptions[Math.floor(Math.random() * rinOptions.length)];
+    const multiplier = Math.floor(Math.random() * 8) + 1; // Gain multiplier
+    const rf = rin * multiplier; 
+    
+    const vinOptions = [0.5, 1.0, 1.5, 2.0, 2.5];
+    const vin = vinOptions[Math.floor(Math.random() * vinOptions.length)];
+
+    // 5. Config Setup for Master Artist
     if (config === "Inverting") {
-        window.topWireState = 'horizontal'; // Top gets voltage
-        window.bottomWireState = 'vertical';  // Bottom grounded
+        window.topWireState = 'horizontal'; 
+        window.bottomWireState = 'vertical';  
     } else {
-        window.topWireState = 'vertical';     // Top grounded
-        window.bottomWireState = 'horizontal'; // Bottom gets voltage
+        window.topWireState = 'vertical';     
+        window.bottomWireState = 'horizontal'; 
     }
 
-    // 👇 NEW: Call the master artist with the context and canvas 👇
+    // 6. Draw Circuit + Add Values to Canvas
     if (ctx && typeof drawOpAmpCircuit === 'function') {
         drawOpAmpCircuit(ctx, canvas);
-    }
-    // 👆 ---------------------------------------------------- 👆
+        
+        // --- 🎨 NEW: Draw Values directly onto the Canvas ---
+        ctx.font = "bold 14px Arial";
+        ctx.fillStyle = "#333"; 
 
-    // --- MODE 0: VOLTAGE ANALYSIS (Saturation Focus) ---
+        // Label Vin (Adjust X/Y to fit your drawing's left terminal)
+        ctx.fillText(`Vin = ${vin}V`, 25, 210);
+
+        // Label Rin (Adjust X/Y to fit your input resistor)
+        ctx.fillText(`${rin}kΩ`, 110, 185);
+
+        // Label Rf (Adjust X/Y to fit your feedback resistor)
+        ctx.fillText(`${rf}kΩ`, 220, 85);
+
+        // Label Vout in PINK
+        ctx.fillStyle = "#d65093";
+        ctx.fillText("VOUT", 360, 210);
+    }
+
+    // --- MODE 0: ANALYSIS TASK (Values removed from text) ---
     if (window.g9OpAmpMode === 0) {
         if (modeA) modeA.style.display = 'block';
         if (modeB) modeB.style.display = 'none';
 
-        // Diversify Resistors: RF (10k-100k), RIN (2k-20k)
-        let rf = 10 * (Math.floor(Math.random() * 9) + 1); 
-        let rin = 2 * (Math.floor(Math.random() * 5) + 1);
-        
         let gain = (config === "Inverting") ? -(rf/rin) : (1 + (rf/rin));
-        let vin = (Math.random() * 3 + 1).toFixed(1); // 1.0V to 4.0V
-        
         let idealVout = vin * gain;
         let saturated = Math.abs(idealVout) > vcc;
         let finalVout = saturated ? (idealVout > 0 ? vcc : -vcc) : idealVout;
@@ -10674,42 +10691,40 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         window.currentAnswers = { vin: vin, vout: finalVout.toFixed(1) };
         
         instructions.innerHTML = `
-            <h3 style="color:#d65093;">Analysis Task</h3>
-            Supply Voltage: <b>±${vcc}V</b><br>
-            Components: <b>R<sub>F</sub> = ${rf}k&Omega;</b>, <b>R<sub>IN</sub> = ${rin}k&Omega;</b>.<br><br>
-            Calculate <b>V<sub>OUT</sub></b> if <b>V<sub>IN</sub> = ${vin}V</b>.<br>
+            <h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
+            Supply Voltage: <b>±${vcc}V</b><br><br>
+            Calculate <span style="color: #d65093; font-weight: bold;">V<sub>OUT</sub></span> for the circuit shown.<br><br>
+            <small><i>Note: Input and resistor values are on the diagram.</i></small><br>
             <small><i>Warning: Check for amplifier saturation!</i></small>`;
 
         solText.innerHTML = `
-            <b>1. Gain:</b> ${gain.toFixed(2)}<br>
-            <b>2. Ideal V<sub>out</sub>:</b> ${vin}V &times; ${gain.toFixed(2)} = ${idealVout.toFixed(2)}V<br>
+            <b>1. Gain:</b> ${gain.toFixed(0)}<br>
+            <b>2. Ideal V<sub>out</sub>:</b> ${vin}V &times; ${gain.toFixed(0)} = ${idealVout.toFixed(1)}V<br>
             <b>3. Result:</b> ${saturated ? "Saturated at <b>" + finalVout.toFixed(1) + "V</b>" : "<b>" + finalVout.toFixed(1) + "V</b>"}`;
     }
 
-    // --- MODE 1: COMPONENT DESIGN (Synthesis Focus) ---
+    // --- MODE 1: DESIGN TASK ---
     else {
         if (modeA) modeA.style.display = 'none';
         if (modeB) modeB.style.display = 'block';
 
-        // Pick a Target Vout that is physically possible (<15V)
-        let targetVout = config === "Inverting" ? -12 : 10;
-        let vin = (Math.random() > 0.5) ? 2 : 5;
+        let targetVout = config === "Inverting" ? -12 : 12;
         let requiredGain = targetVout / vin;
         
         window.targetGain = requiredGain;
         window.currentAnswers = { targetVout: targetVout, vin: vin };
 
         instructions.innerHTML = `
-            <h3 style="color:#d65093;">Design Task</h3>
-            Build a <b>${config}</b> circuit.<br>
-            <b>Goal:</b> V<sub>OUT</sub> = <b>${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
+            <h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
+            Build an <b>${config}</b> circuit.<br>
+            <b>Goal:</b> <span style="color: #d65093; font-weight: bold;">V<sub>OUT</sub></span> = <b>${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
             Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1k&Omega;).`;
 
         let formulaText = config === "Inverting" ? "Gain = -R<sub>F</sub> / R<sub>IN</sub>" : "Gain = 1 + (R<sub>F</sub> / R<sub>IN</sub>)";
         solText.innerHTML = `
-            <b>1. Target Gain:</b> ${targetVout}/${vin} = <b>${requiredGain}</b><br>
+            <b>1. Target Gain:</b> ${targetVout}/${vin} = <b>${requiredGain.toFixed(1)}</b><br>
             <b>2. Formula:</b> ${formulaText}<br>
-            <b>3. Solution:</b> If R<sub>IN</sub> = 10k&Omega;, then R<sub>F</sub> = ${Math.abs(requiredGain * 10)}k&Omega;.`;
+            <b>3. Solution:</b> If R<sub>IN</sub> = 10k&Omega;, then R<sub>F</sub> = ${Math.abs(requiredGain * 10).toFixed(0)}k&Omega;.`;
     }
 }
 //END OF CONTENT FUNCTIONS
