@@ -10100,7 +10100,9 @@ function generateGrade9MosfetProblem() {
     
 // The main dynamic drawing engine for the Op-Amp circuit using the global drawCanvasSubscript helper
 function drawOpAmpCircuit(ctx, canvas) {
-    if (!ctx) return;
+    // SAFETY FIX 1: Prevent fatal crash if the canvas object is missing
+    if (!ctx || !canvas) return; 
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     const cx = 300;
@@ -10113,13 +10115,15 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.textBaseline = "middle";
     
     let canvasTitle = (window.opAmpTargetConfig || "") + " Op-Amp";
-    // Check for Grade 9 or Analysis modes
     if (window.opAmpInteractive === false) {
         if (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') canvasTitle = "Analysis Challenge";
         if (window.opAmpQuestionType === 'design') canvasTitle = "Design Challenge";
     }
     ctx.fillText(canvasTitle, cx, 40);
+    
+    // SAFETY FIX 2: Reset text alignments so external functions don't draw off-screen
     ctx.textBaseline = "alphabetic"; 
+    ctx.textAlign = "left"; 
     
     if (typeof drawOpAmp === "function") drawOpAmp(ctx, cx, cy, 1);
     
@@ -10149,11 +10153,12 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
     
     // RF Logic: Show value if it exists, otherwise show label
-    ctx.textAlign = "center";
     if (window.opAmpRf && window.opAmpInteractive === false) {
         ctx.fillStyle = "black";
         ctx.font = "bold 14px Arial";
+        ctx.textAlign = "center"; // Center for numbers inside boxes
         ctx.fillText(window.opAmpRf + " kΩ", cx, cy - 115);
+        ctx.textAlign = "left";   // Reset for other functions
     } else {
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
     }
@@ -10187,7 +10192,9 @@ function drawOpAmpCircuit(ctx, canvas) {
         if (window.opAmpRin && window.opAmpInteractive === false) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
             ctx.fillText(window.opAmpRin + " kΩ", cx - 160, cy - 45);
+            ctx.textAlign = "left";
         } else {
             if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black");
         }
@@ -10201,7 +10208,9 @@ function drawOpAmpCircuit(ctx, canvas) {
         if (window.opAmpVin && window.opAmpQuestionType === 'grade9') {
             ctx.fillStyle = "#333";
             ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
             ctx.fillText(window.opAmpVin + "V", cx - 270, cy + 5);
+            ctx.textAlign = "left";
         }
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy - 20, 16, "black");
         
@@ -10216,7 +10225,9 @@ function drawOpAmpCircuit(ctx, canvas) {
         if (window.opAmpR1 && window.opAmpInteractive === false) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
             ctx.fillText(window.opAmpR1 + " kΩ", cx - 145, cy + 80);
+            ctx.textAlign = "left";
         } else {
             if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black");
         }
@@ -10234,7 +10245,9 @@ function drawOpAmpCircuit(ctx, canvas) {
         if (window.opAmpVin && window.opAmpQuestionType === 'grade9') {
             ctx.fillStyle = "#333";
             ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
             ctx.fillText(window.opAmpVin + "V", cx - 270, cy + 45);
+            ctx.textAlign = "left";
         }
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy + 20, 16, "black");
     } else {
