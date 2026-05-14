@@ -1703,7 +1703,7 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px;">
-                <label for="g9OpAmpRin_G9" style="font-weight: bold; color: #d65093; width: 60px; text-align: right; white-space: nowrap;">R<sub>IN</sub> = </label>
+                <label id="g9OpAmpRinLabel_G9" for="g9OpAmpRin_G9" style="font-weight: bold; color: #d65093; width: 60px; text-align: right; white-space: nowrap;">R<sub>IN</sub> = </label>
                 <input type="text" id="g9OpAmpRin_G9" style="width: 100px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 1k">
                 <span style="font-weight: bold; color: #333; width: 20px;">Ω</span>
             </div>
@@ -12592,6 +12592,25 @@ function checkAnswers() {
         }
     }
 // End of STANDARD OP-AMP grading 
+
+// Function to update the R_IN / R_1 label dynamically
+function updateG9DesignLabels() {
+    const rLabel = document.getElementById("g9OpAmpRinLabel_G9");
+    if (!rLabel) return;
+
+    // Check if the current setup is Non-Inverting
+    // (Non-Inverting uses the bottom wire for input, making top wire the ground resistor R1)
+    const isNonInverting = (window.opAmpTargetConfig === 'Non-Inverting' || window.topWireState !== 'horizontal');
+
+    if (isNonInverting) {
+        rLabel.innerHTML = "R<sub>1</sub> = ";
+    } else {
+        rLabel.innerHTML = "R<sub>IN</sub> = ";
+    }
+}
+
+// Call this function whenever a new G9 question is generated!
+updateG9DesignLabels();
     
 // 👇 GRADE 9 OP-AMP GRADING LOGIC 👇
 else if (currentMode === 'grade9opamp') {
