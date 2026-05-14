@@ -10611,9 +10611,11 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
+    console.log("🚀 DEBUG: generateGrade9OpAmpProblem started");
+
     // 1. Reset UI & Logic State
     if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
-    window.opAmpInteractive = false; // Turns off red hinges
+    window.opAmpInteractive = false; 
 
     const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
     if (mainGroup) mainGroup.style.display = 'block';
@@ -10622,26 +10624,14 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     const solText = document.getElementById('solText');
     const solContainer = document.getElementById('solutions');
     
-    // Reset solutions UI: hide the box and clear old text
+    // Clear and Hide at start
     if (solContainer) solContainer.style.display = "none"; 
     if (solText) solText.innerHTML = ""; 
-
-    // Clear and color inputs
-    ['g9OpAmpVout', 'g9OpAmpRf_G9', 'g9OpAmpRin_G9'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.value = '';
-            el.style.removeProperty('border-color');
-            const label = document.querySelector(`label[for="${id}"]`);
-            if (label) label.style.color = pinkColor;
-        }
-    });
-
-    currentMode = 'grade9opamp';
 
     // 2. Toggle Mode
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
+    console.log("🛠️ DEBUG: Mode toggled to:", window.g9OpAmpMode);
 
     // 3. Math & Configuration
     const config = Math.random() > 0.5 ? "Inverting" : "Non-Inverting";
@@ -10659,7 +10649,8 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
     window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
 
-    let solutionHTML = "";
+    // FIX: Using 'var' or checking existence to prevent "Identifier already declared" error
+    var outputHTML = ""; 
     const instructions = document.getElementById('g9OpAmpInstructions');
     const modeA = document.getElementById('g9OpAmpModeA');
     const modeB = document.getElementById('g9OpAmpModeB');
@@ -10683,7 +10674,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 <br><br><i style="color: #666; font-size: 0.9em;">Note: Check for amplifier saturation!</i>`;
         }
 
-        solutionHTML = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br><br>` +
+        outputHTML = `<strong>🏆 Solution: V<sub>OUT</sub> = ${finalVout.toFixed(1)}V</strong><br><br>` +
                        `<em>Step 1:</em> Gain = ${gain}<br>` +
                        `<em>Step 2:</em> V<sub>ideal</sub> = ${vin}V &times; ${gain} = ${idealVout.toFixed(1)}V<br>` +
                        (Math.abs(idealVout) > vcc ? `<em>Step 3:</em> Saturation! Capped at <b>&plusmn;${vcc}V</b>.` : `<em>Step 3:</em> Within limits.`);
@@ -10701,22 +10692,25 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 <b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
         }
 
-        solutionHTML = `<strong>🏆 Solution Logic:</strong><br>Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${targetVout} / ${vin} = ${window.targetGain.toFixed(2)}`;
+        outputHTML = `<strong>🏆 Solution Logic:</strong><br>Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${targetVout} / ${vin} = ${window.targetGain.toFixed(2)}`;
     }
 
     // 5. Final Draw and Inject
+    console.log("🎨 DEBUG: Calling drawOpAmpCircuit");
     drawOpAmpCircuit(ctx, canvas);
     
     if (solText) {
-        solText.innerHTML = solutionHTML;
+        solText.innerHTML = outputHTML;
+        console.log("✅ DEBUG: Solution text injected");
     }
 
-    // CRITICAL FIX: Make the container visible so the text above is actually shown
     if (solContainer) {
         solContainer.style.display = "block";
+        console.log("🔓 DEBUG: Solution container displayed");
     }
+    
+    console.log("🏁 DEBUG: generateGrade9OpAmpProblem finished successfully");
 }
-
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
 //**************************************************************************************************************************************
