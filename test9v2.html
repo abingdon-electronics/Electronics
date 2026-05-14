@@ -13293,13 +13293,16 @@ function provideHint() {
                 ${specificHint}
             </div>`;
 
-    } else if (currentMode === 'opamp') {
+} else if (currentMode === 'opamp') {
         let specificHint = "";
         
         // --- DETECTION FALLBACK ---
+        // We look for specific elements on the screen to decide which hint to show
         let currentType = window.opAmpQuestionType;
         if (!currentType) {
-            if (document.getElementById('opAmpGain') || document.getElementById('opAmpVout')) {
+            if (document.getElementById('opAmpGain')) {
+                currentType = 'gain'; // New: Detects the Voltage Gain task
+            } else if (document.getElementById('opAmpVout')) {
                 currentType = 'calc';
             } else if (document.getElementById('opAmpRf')) {
                 currentType = 'design';
@@ -13314,6 +13317,14 @@ function provideHint() {
                 • <b>Inverting:</b> Signal into (-). Look for the <b>minus sign</b> in the formula!<br>
                 • <b>Non-Inverting:</b> Signal into (+). The formula features a <b>1 +</b> calculation.`;
         } 
+        else if (currentType === 'gain') {
+            specificHint = `
+                <br><br><b>Voltage Gain (G)</b><br>
+                Gain is simply a ratio of how much the amplifier "boosts" the signal.<br>
+                1. Identify your <b>V<sub>IN</sub></b> and your <b>V<sub>OUT</sub></b> from the diagram.<br>
+                2. Use the formula: <span style="color:#E64097;"><b>Gain = V<sub>OUT</sub> / V<sub>IN</sub></b></span>.<br>
+                3. <b>Check the Sign:</b> If the output is inverted (upside down compared to the input), your gain must be a <b>negative</b> number!`;
+        }
         else if (currentType === 'calc') {
             specificHint = `
                 <br><br><b>Calculating Gain & V<sub>out</sub></b><br>
