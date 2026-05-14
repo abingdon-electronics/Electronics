@@ -10132,10 +10132,13 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
+    // Convert question type to string safely to avoid errors
+    const qType = String(window.opAmpQuestionType || "");
+    
     let canvasTitle = (window.opAmpTargetConfig || "") + " Op-Amp";
     if (window.opAmpInteractive === false) {
-        if (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9' || window.opAmpQuestionType === 'grade9analysis') canvasTitle = "Analysis Challenge";
-        if (window.opAmpQuestionType === 'design' || window.opAmpQuestionType === 'grade9design') canvasTitle = "Design Challenge";
+        if (qType === 'calcGain' || qType === 'grade9' || qType === 'grade9analysis') canvasTitle = "Analysis Challenge";
+        if (qType === 'design' || qType === 'grade9design') canvasTitle = "Design Challenge";
     }
     ctx.fillText(canvasTitle, cx, 40);
     
@@ -10148,13 +10151,15 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.strokeStyle = "#333";
     ctx.lineWidth = 2;
 
-    // --- NEW LOGIC FLAGS ---
-    // Identify exactly which mode we are in based on your variable names
-    const isG9Design = (window.opAmpQuestionType === 'grade9design');
-    const isG9Analysis = (window.opAmpQuestionType === 'grade9' || window.opAmpQuestionType === 'grade9analysis');
+    // --- ENHANCED LOGIC FLAGS ---
+    // 1. Check if we are in Grade 9 Design (Checking multiple possible variable names just in case)
+    const isG9Design = (qType === 'grade9design' || qType.includes('design') && qType.includes('grade9') || window.g9OpAmpMode === 1);
     
-    // Check if we should show numbers (Analysis modes)
-    const showNumbers = (window.opAmpQuestionType === 'calcGain' || isG9Analysis) && window.opAmpInteractive === false;
+    // 2. Check if we are in Grade 9 Analysis (If it's Grade 9 but NOT design, it's analysis)
+    const isG9Analysis = !isG9Design && (qType === 'grade9' || qType === 'grade9analysis' || window.g9OpAmpMode === 0 || window.isGrade9 === true || qType.toLowerCase().includes('vout'));
+    
+    // 3. Check if we should show numbers (Analysis modes)
+    const showNumbers = (qType === 'calcGain' || isG9Analysis) && window.opAmpInteractive === false;
 
 
     // --- 2. FEEDBACK PATH (RF) ---
