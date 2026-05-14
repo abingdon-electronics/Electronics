@@ -1695,11 +1695,11 @@
 
     <div id="g9OpAmpModeB" style="display: none;">
         <div style="display: inline-block; margin-right: 15px;">
-            <label for="g9OpAmpRf_G9" style="font-weight: bold;">R<sub>F</sub> = </label>
+            <label for="g9OpAmpRf_G9" style="font-weight: bold; color: #d65093;">R<sub>F</sub> = </label>
             <input type="text" id="g9OpAmpRf_G9" style="width: 80px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 10k">
         </div>
         <div style="display: inline-block;">
-            <label for="g9OpAmpRin_G9" style="font-weight: bold;">R<sub>IN</sub> = </label>
+            <label for="g9OpAmpRin_G9" style="font-weight: bold; color: #d65093;">R<sub>IN</sub> = </label>
             <input type="text" id="g9OpAmpRin_G9" style="width: 80px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 1k">
         </div>
     </div>
@@ -10137,9 +10137,10 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.stroke();
     if (typeof drawNode === "function") drawNode(ctx, cx + 80, cy);
     
-    // PINK VOUT Label
+    // DYNAMIC VOUT Label (Pink for Analysis, Black for Design)
+    let voutColor = (window.g9OpAmpMode === 0) ? "#d65093" : "black";
     if (typeof drawCanvasSubscript === "function") {
-        drawCanvasSubscript(ctx, "V", "OUT", "", cx + 125, cy, 16, "#d65093");
+        drawCanvasSubscript(ctx, "V", "OUT", "", cx + 125, cy, 16, voutColor);
     }
     
     ctx.beginPath();
@@ -10152,13 +10153,13 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.fillRect(cx - 30, cy - 105, 60, 30); 
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
     
-    // RF Logic: Show value if it exists, otherwise show label
-    if (window.opAmpRf && window.opAmpInteractive === false) {
+    // RF Logic: Show value if Analysis Mode AND exists, otherwise show label
+    if (window.g9OpAmpMode === 0 && window.opAmpRf && window.opAmpInteractive === false) {
         ctx.fillStyle = "black";
         ctx.font = "bold 14px Arial";
-        ctx.textAlign = "center"; // Center for numbers inside boxes
+        ctx.textAlign = "center"; 
         ctx.fillText(window.opAmpRf + " kΩ", cx, cy - 115);
-        ctx.textAlign = "left";   // Reset for other functions
+        ctx.textAlign = "left";   
     } else {
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
     }
@@ -10179,7 +10180,7 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.lineTo(cx - 60, cy + 20);
     ctx.stroke();
     
-// --- 3. TOP INPUT WIRE (RIN) ---
+    // --- 3. TOP INPUT WIRE (RIN) ---
     ctx.beginPath();
     ctx.moveTo(cx - 100, cy - 20);
     if (window.topWireState === 'horizontal') {
@@ -10189,7 +10190,8 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.fillRect(cx - 190, cy - 35, 60, 30); 
         ctx.strokeRect(cx - 190, cy - 35, 60, 30);
         
-        if (window.opAmpRin && window.opAmpInteractive === false) {
+        // RIN Logic: Analysis mode gets values, Design gets labels
+        if (window.g9OpAmpMode === 0 && window.opAmpRin && window.opAmpInteractive === false) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
@@ -10215,7 +10217,8 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.fillRect(cx - 115, cy + 50, 30, 50); 
         ctx.strokeRect(cx - 115, cy + 50, 30, 50);
         
-        if (window.opAmpR1 && window.opAmpInteractive === false) {
+        // R1 Logic: Analysis mode gets values, Design gets labels
+        if (window.g9OpAmpMode === 0 && window.opAmpR1 && window.opAmpInteractive === false) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
@@ -10252,7 +10255,6 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.setLineDash([]);
     }
 }
-
 //*********************************************************
     
 function generateOpAmpProblem(ctx, canvas) {
@@ -10700,10 +10702,11 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         window.currentAnswers = { targetVout: targetVout, vin: vin };
 
         if (instructions) {
+            // Removed the pink <span> tag from Vout
             instructions.innerHTML = `<h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
             Build an <b>${config}</b> circuit.<br>
-            <b>Goal:</b> <span style="color: #d65093; font-weight: bold;">V<sub>OUT</sub></span> = <b>${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
-            Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b>.`;
+            <b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
+            Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1kΩ).`;
         }
         if (solText) {
             solText.innerHTML = `<b>Target Gain:</b> ${window.targetGain}`;
