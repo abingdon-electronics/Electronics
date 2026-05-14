@@ -1925,9 +1925,13 @@ function handleNewQuestionClick() {
     else if (currentMode === 'grade9nand') { currentMode = 'logic_nand'; escapedGrade9 = true; }
     else if (currentMode === 'grade9transistor') { currentMode = 'transistor'; escapedGrade9 = true; }
     else if (currentMode === 'grade9mosfet') { currentMode = 'mosfet'; escapedGrade9 = true; } 
-    // 👇 NEW: Comparator Escape Added Here 👇
     else if (currentMode === 'grade9comparator') { currentMode = 'comparator'; escapedGrade9 = true; }
-    else if (currentMode === 'grade9opamp') { currentMode = 'opamp'; escapedGrade9 = true; }
+    else if (currentMode === 'grade9opamp') { 
+        currentMode = 'opamp'; 
+        escapedGrade9 = true; 
+        // Removed the hardcoded opAmpInteractive = true here.
+        // It is now handled properly in the Ghost Buster purge below.
+    }
 
     if (escapedGrade9 && (typeof problemsAttempted !== 'undefined' && problemsAttempted > 0)) {
         const wantsToProceed = confirm("Warning: Returning to standard mode will reset your Grade 9 score to 0. Do you want to continue?");
@@ -1964,6 +1968,14 @@ function handleNewQuestionClick() {
     if (window.logicWires) window.logicWires = [];
     if (window.gateList) window.gateList = [];
 
+    // 👇 OP-AMP STATE PURGE 👇
+    // Wipes all specific Grade 9 numbers and locks so standard mode generates perfectly fresh!
+    window.opAmpInteractive = undefined;
+    window.opAmpRf = undefined;
+    window.opAmpRin = undefined;
+    window.opAmpR1 = undefined;
+    window.opAmpGain = undefined;
+
     // 3. ROUTING
     if (currentMode === 'colorcode') {
         if (typeof generateColorCodeProblem === "function") generateColorCodeProblem(ctx, canvas);
@@ -1978,7 +1990,7 @@ function handleNewQuestionClick() {
     } else if (currentMode === 'block_diagram') {
         if (typeof generateBlockBuilderProblem === "function") generateBlockBuilderProblem(ctx, canvas);
     } else {
-        // This calls hubController which handles 'transistor', 'grade9transistor', 'mosfet', and soon 'grade9comparator'!
+        // This calls hubController which handles 'transistor', 'mosfet', 'comparator', and 'opamp'
         if (typeof hubController === "function") hubController(ctx, canvas);
     }
 }
@@ -10144,7 +10156,7 @@ function drawOpAmpCircuit(ctx, canvas) {
     if (typeof drawNode === "function") drawNode(ctx, cx + 80, cy);
     
     // DYNAMIC VOUT Label (Pink for Analysis, Black for Design)
-    let voutColor = (window.g9OpAmpMode === 0) ? "#d65093" : "black";
+    let voutColor = (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') ? "#d65093" : "black";
     if (typeof drawCanvasSubscript === "function") {
         drawCanvasSubscript(ctx, "V", "OUT", "", cx + 125, cy, 16, voutColor);
     }
@@ -10159,8 +10171,10 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.fillRect(cx - 30, cy - 105, 60, 30); 
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
     
-    // RF Logic: Show value if Analysis Mode AND exists, otherwise show label
-    if (window.g9OpAmpMode === 0 && window.opAmpRf && window.opAmpInteractive === false) {
+    // RF Logic: FIXED to use opAmpQuestionType
+    const showNumbers = (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') && window.opAmpInteractive === false;
+
+    if (showNumbers && window.opAmpRf) {
         ctx.fillStyle = "black";
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "center"; 
@@ -10196,8 +10210,8 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.fillRect(cx - 190, cy - 35, 60, 30); 
         ctx.strokeRect(cx - 190, cy - 35, 60, 30);
         
-        // RIN Logic: Analysis mode gets values, Design gets labels
-        if (window.g9OpAmpMode === 0 && window.opAmpRin && window.opAmpInteractive === false) {
+        // RIN Logic: FIXED to use opAmpQuestionType
+        if (showNumbers && window.opAmpRin) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
@@ -10212,7 +10226,6 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.lineTo(cx - 230, cy - 20);
         ctx.stroke();
         
-        // Cleaned up: Only draw the VIN label, no numbers!
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy - 20, 16, "black");
         
     } else {
@@ -10223,8 +10236,8 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.fillRect(cx - 115, cy + 50, 30, 50); 
         ctx.strokeRect(cx - 115, cy + 50, 30, 50);
         
-        // R1 Logic: Analysis mode gets values, Design gets labels
-        if (window.g9OpAmpMode === 0 && window.opAmpR1 && window.opAmpInteractive === false) {
+        // R1 Logic: FIXED to use opAmpQuestionType
+        if (showNumbers && window.opAmpR1) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
@@ -10244,8 +10257,6 @@ function drawOpAmpCircuit(ctx, canvas) {
     if (window.bottomWireState === 'horizontal') {
         ctx.lineTo(cx - 230, cy + 20);
         ctx.stroke();
-        
-        // Cleaned up: Only draw the VIN label, no numbers!
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy + 20, 16, "black");
     } else {
         ctx.lineTo(cx - 60, cy + 80); ctx.stroke();
@@ -13265,26 +13276,25 @@ function provideHint() {
                 • <b>Missing Resistor:</b> Once you have V<sub>GS</sub>, plug it into the standard Potential Divider equation (<b>V<sub>out</sub> = V<sub>in</sub> &times; [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)]</b>). Because the numbers are simple, you can simplify the fraction to easily find the missing resistor!
             </div>`;
 
-    } else if (currentMode === 'grade9opamp') {
+} else if (currentMode === 'grade9opamp') {
         let specificHint = "";
         
-        // Robust detection: Check the window variable OR which UI group is visible
-        const isAnalysis = (window.g9OpAmpMode === 0 || (document.getElementById('g9OpAmpModeA') && document.getElementById('g9OpAmpModeA').style.display === 'block'));
+        // Checks if the Analysis UI block is actively displayed
+        const isAnalysis = (window.g9OpAmpMode === 0 || (document.getElementById('g9OpAmpModeA') && document.getElementById('g9OpAmpModeA').style.display !== 'none'));
 
         if (isAnalysis) {
-            // ANALYSIS TASK HINT
             specificHint = `
                 <br><b>Analysis: Gain & Saturation</b><br>
                 1. Identify if the circuit is <b>Inverting</b> (signal to -) or <b>Non-Inverting</b> (signal to +).<br>
                 2. Apply the matching gain formula from your data sheet.<br>
-                3. Calculate the ideal V<sub>OUT</sub>, then check the <b>±15V supply</b>. If your answer is higher than the supply, the amplifier "flatlines" at the maximum voltage.`;
+                3. If using an inverting op-amp the <b>gain must be a negative number!</b>`;
         } else {
-            // DESIGN TASK HINT
             specificHint = `
-                <br><b>Design: Resistor Pairs</b><br>
-                1. Calculate your target gain first: <b>Gain = V<sub>OUT</sub> / V<sub>IN</sub></b>.<br>
-                2. Rearrange the formula for your circuit type to find the ratio of R<sub>F</sub> to R<sub>IN</sub>.<br>
-                3. <b>The 1kΩ Rule:</b> You can choose any resistors that create that ratio, but both MUST be 1,000Ω or larger to prevent the circuit from drawing too much current.`;
+                <br><b>Design Strategy</b><br>
+                1. Identify if the circuit is <b>Inverting</b> (signal to -) or <b>Non-Inverting</b> (signal to +).<br>
+                2. Apply the matching gain formula from your data sheet.<br>
+                3. <b>Resistor Rule:</b> All resistors must be <b>≥ 1kΩ</b> to prevent overheating. Keep the R<sub>IN</sub> value low to make the maths easy.<br>
+                4. <b>Example Pair:</b> If G = -4, then R<sub>F</sub> = 4 × R<sub>IN</sub>. (e.g., R<sub>IN</sub> = 2kΩ, R<sub>F</sub> = 8kΩ).`;
         }
 
         helpText = `
@@ -13293,74 +13303,62 @@ function provideHint() {
                 ${specificHint}
             </div>`;
 
-} else if (currentMode === 'opamp') {
+    } else if (currentMode === 'opamp') {
         let specificHint = "";
         
-        // --- DETECTION FALLBACK ---
-        let currentType = window.opAmpQuestionType;
-        if (!currentType) {
-            // Check if the math inputs are even visible
-            const isMathVisible = document.getElementById('opAmpMathInputs') && 
-                                 document.getElementById('opAmpMathInputs').style.display !== 'none';
+        const gainInp = document.getElementById('opAmpGain');
+        const voutInp = document.getElementById('opAmpVout');
+        const rfInp = document.getElementById('opAmpRf');
 
-            if (isMathVisible) {
-                // If both are visible, we look at the labels. 
-                // Since your screenshot shows BOTH Gain and Vout, 
-                // let's prioritize the GAIN hint if the gain box is empty.
-                const gainInput = document.getElementById('opAmpGain');
-                if (gainInput && gainInput.value === "") {
-                    currentType = 'gain';
-                } else {
-                    currentType = 'calc';
-                }
-            } else if (document.getElementById('opAmpRf')) {
-                currentType = 'design';
-            } else {
-                currentType = 'hinge';
-            }
-        }
+        const isVisibleAndEmpty = (el) => el && el.offsetParent !== null && el.value.trim() === "";
 
-        // --- HINT SELECTION ---
-        if (currentType === 'gain') {
+        if (isVisibleAndEmpty(gainInp)) {
+            // Updated to match your pedagogy: Focus on Data Sheet/Circuit Type
             specificHint = `
-                <br><br><b>Voltage Gain (G)</b><br>
-                Gain is simply a ratio of how much the amplifier "boosts" the signal.<br>
-                1. Identify your <b>V<sub>IN</sub></b> and your <b>V<sub>OUT</sub></b> from the diagram.<br>
-                2. Use the formula: <span style="color:#E64097;"><b>Gain = V<sub>OUT</sub> / V<sub>IN</sub></b></span>.<br>
-                3. <b>Check the Sign:</b> If the output is inverted (upside down compared to the input), your gain must be a <b>negative</b> number!`;
-        }
-        else if (currentType === 'hinge') {
-            specificHint = `
-                <br><br><b>Wiring & Formulas</b><br>
-                • <b>Inverting:</b> Signal into (-). Look for the <b>minus sign</b> in the formula!<br>
-                • <b>Non-Inverting:</b> Signal into (+). The formula features a <b>1 +</b> calculation.`;
+                <span style="color:#E64097; font-weight:bold;">Finding Gain (G)</span><br>
+                1. Identify if the circuit is <b>Inverting</b> (signal to -) or <b>Non-Inverting</b> (signal to +).<br>
+                2. Apply the matching gain formula from your data sheet.<br>
+                3. If using an inverting op-amp the <b>gain must be a negative number!</b>`;
         } 
-        else if (currentType === 'calc') {
+        else if (isVisibleAndEmpty(voutInp)) {
             specificHint = `
-                <br><br><b>Calculating V<sub>out</sub></b><br>
-                1. <b>Inverting:</b> Input signal goes to (-).<br>
-                2. <b>Non-Inverting:</b> Input signal goes to (+).<br>
-                3. Use the Data Sheet to find the matching formula for the resistor values shown.`;
+                <span style="color:#E64097; font-weight:bold;">Step 2: Calculate V<sub>out</sub></span><br>
+                <div style="margin-top:8px;">
+                    1. Use the Gain (G) you just calculated.<br>
+                    2. Formula: <span style="color:#E64097;"><b>V<sub>OUT</sub> = Gain × V<sub>IN</sub></b></span>.<br>
+                    3. <b>Saturation:</b> If V<sub>OUT</sub> is higher than the supply (15V), it "flatlines" at the maximum voltage.
+                </div>`;
         } 
-        else if (currentType === 'design') {
+        else if (isVisibleAndEmpty(rfInp)) {
+            // Standard Design Challenge Hint
             specificHint = `
-                <br><br><b>Design Strategy</b><br>
-                • <b>Inverting:</b> |Gain| = R<sub>F</sub> / R<sub>IN</sub>. <br>
-                • <b>Non-Inverting:</b> Gain = 1 + (R<sub>F</sub> / R<sub>1</sub>).<br>
-                • <b>Pro-Tip:</b> Pick a simple 10 kΩ for your input resistor, then solve for R<sub>F</sub> to hit your target gain.`;
+                <span style="color:#E64097; font-weight:bold;">Design Strategy</span><br>
+                1. Identify if the circuit is <b>Inverting</b> (signal to -) or <b>Non-Inverting</b> (signal to +).<br>
+                2. Apply the matching gain formula from your data sheet.<br>
+                3. <b>Resistor Rule:</b> All resistors must be <b>≥ 1kΩ</b> to prevent overheating. Keep the R<sub>IN</sub> value low to make the maths easy.<br>
+                4. <b>Example Pair:</b> If G = -4, then R<sub>F</sub> = 4 × R<sub>IN</sub>. (e.g., R<sub>IN</sub> = 2kΩ, R<sub>F</sub> = 8kΩ).`;
+        } 
+        else {
+            specificHint = `
+                <b>Wiring & Formulas</b><br>
+                • <b>Inverting:</b> Signal into (-). Use the formula with the <b>minus sign</b>.<br>
+                • <b>Non-Inverting:</b> Signal into (+). Use the <b>1 +</b> formula.`;
         }
 
         helpText = `
             <div style="${blueBox}">
-                <strong>💡 Op-Amp Hint:</strong>
+                <strong>💡 Op-Amp Hint:</strong><br>
                 ${specificHint}
             </div>`;
-  
+
+    } // Closes opamp block
+
+    // --- FINAL OUTPUT ---
+    if (helpText !== "") {
+        feedback.innerHTML = helpText;
     }
     
-    // Set the HTML to the feedback element
-    feedback.innerHTML = helpText;
-} //End of ProvideHint
+    }// End of provideHint function
 // **********************************************************************   
 function toggleSolutions() {
     const sol = document.getElementById('solutions');
