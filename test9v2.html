@@ -10695,22 +10695,25 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
         outputHTML = `<strong>🏆 Solution Logic:</strong><br>Target Gain = V<sub>OUT</sub> / V<sub>IN</sub> = ${targetVout} / ${vin} = ${window.targetGain.toFixed(2)}`;
     }
 
-    // 5. Final Draw and Inject
-    console.log("🎨 DEBUG: Calling drawOpAmpCircuit");
+    // 5. --- FINAL INJECTION & TARGETED REVEAL ---
     drawOpAmpCircuit(ctx, canvas);
     
     if (solText) {
         solText.innerHTML = outputHTML;
-        console.log("✅ DEBUG: Solution text injected");
     }
 
     if (solContainer) {
-        solContainer.style.display = "block";
-        console.log("🔓 DEBUG: Solution container displayed");
+        // 1. Force visibility ONLY for this box
+        solContainer.style.setProperty('display', 'block', 'important');
+        
+        // 2. Ensure it stays within your fixed panel 
+        // This prevents the box from growing too large and breaking your 520px height
+        solContainer.style.maxHeight = "150px"; 
+        solContainer.style.overflowY = "auto";
+        solContainer.style.width = "100%";
+        
+        console.log("🔓 DEBUG: Op-Amp Solution box revealed safely.");
     }
-    
-    console.log("🏁 DEBUG: generateGrade9OpAmpProblem finished successfully");
-}
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
 //**************************************************************************************************************************************
