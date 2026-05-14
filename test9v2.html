@@ -10611,33 +10611,30 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
 function generateGrade9OpAmpProblem(ctx, canvas) {
-    // 1. Core State
+    // 1. Reset UI & Core State
     window.currentMode = 'grade9opamp'; 
     window.opAmpQuestionType = 'grade9'; 
     window.opAmpInteractive = false; 
 
-    // 2. Safety Get: Elements
-    const elements = {
-        mainGroup: document.getElementById('inputGroupGrade9OpAmp'),
-        instructions: document.getElementById('g9OpAmpInstructions'),
-        solPanel: document.getElementById('solutions'),
-        solText: document.getElementById('solText'),
-        modeA: document.getElementById('g9OpAmpModeA'),
-        modeB: document.getElementById('g9OpAmpModeB'),
-        feedback: document.getElementById('feedback')
-    };
+    // --- SOLUTIONS UI RESET (Matching your MOSFET logic) ---
+    const solText = document.getElementById('solText');
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none"; 
+    if (solText) solText.innerHTML = ""; 
 
-    // 3. Reset UI
-    if (elements.mainGroup) elements.mainGroup.style.display = 'block';
-    if (elements.solPanel) elements.solPanel.style.display = 'none'; // Hide until checked
-    if (elements.feedback) elements.feedback.innerHTML = '';
-    
+    // Clear and color inputs
     ['g9OpAmpVout', 'g9OpAmpRf_G9', 'g9OpAmpRin_G9'].forEach(id => {
         let el = document.getElementById(id);
-        if (el) { el.value = ''; el.style.borderColor = '#ced4da'; }
+        if (el) { 
+            el.value = ''; 
+            el.style.removeProperty('border-color'); 
+        }
     });
 
-    // 4. Toggle & Config
+    const mainGroup = document.getElementById('inputGroupGrade9OpAmp');
+    if (mainGroup) mainGroup.style.display = 'block';
+
+    // 2. Toggle Mode & Configure Circuit
     if (typeof window.g9OpAmpMode === 'undefined') window.g9OpAmpMode = 0;
     else window.g9OpAmpMode = (window.g9OpAmpMode + 1) % 2;
 
@@ -10646,7 +10643,7 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.topWireState = (config === "Inverting") ? 'horizontal' : 'vertical';
     window.bottomWireState = (config === "Inverting") ? 'vertical' : 'horizontal';
 
-    // 5. Math Values
+    // 3. Math Values
     const rin = [1, 2, 5, 10][Math.floor(Math.random() * 4)];
     const multiplier = Math.floor(Math.random() * 5) + 2; 
     const rf = rin * multiplier; 
@@ -10657,52 +10654,63 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
     window.opAmpR1 = (config === "Non-Inverting") ? rin : 0;
     window.opAmpVin = vin;
 
-    let logicHTML = "";
+    const instructions = document.getElementById('g9OpAmpInstructions');
+    const modeA = document.getElementById('g9OpAmpModeA');
+    const modeB = document.getElementById('g9OpAmpModeB');
 
-    // 6. Mode Specific Content
+    let finalLogicHTML = ""; // Variable to hold the text until the end
+
+    // 4. Mode Specific Text & Calculations
     if (window.g9OpAmpMode === 0) {
-        if (elements.modeA) elements.modeA.style.display = 'block';
-        if (elements.modeB) elements.modeB.style.display = 'none';
+        if (modeA) modeA.style.display = 'block';
+        if (modeB) modeB.style.display = 'none';
 
         let gain = (config === "Inverting") ? -(rf/rin) : (1 + (rf/rin));
         let vcc = 15;
         let idealVout = vin * gain;
         let finalVout = Math.abs(idealVout) > vcc ? (idealVout > 0 ? vcc : -vcc) : idealVout;
+        
         window.currentAnswers = { vout: finalVout.toFixed(1) };
 
-        // RESTORED: Instructions + Saturation Warning
-        if (elements.instructions) {
-            elements.instructions.innerHTML = `
-                <h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
-                Supply Voltage: <b>&plusmn;${vcc}V</b><br>
-                Input Voltage: <b>V<sub>IN</sub> = ${vin}V</b><br><br>
-                Calculate <span style="color: #d65093; font-weight: bold;">V<sub>OUT</sub></span> for this ${config} circuit.<br><br>
-                <small id="satWarning"><i>Note: Check for amplifier saturation!</i></small>`;
+        if (instructions) {
+            instructions.innerHTML = `
+                <h3 style="color:#E64097; margin-top: 0; margin-bottom: 10px;">Analysis Task</h3>
+                Supply Voltage: <b>&plusmn;${vcc}V</b> | Input Voltage: <b>V<sub>IN</sub> = ${vin}V</b><br><br>
+                Calculate <span style="color: #E64097; font-weight: bold;">V<sub>OUT</sub></span> for this ${config} circuit.<br><br>
+                <small id="satWarning" style="color:#666;"><i>Note: Check for amplifier saturation!</i></small>`;
         }
 
-        logicHTML = `<strong>Solution Logic:</strong><br>Gain = ${gain} | V<sub>ideal</sub> = ${idealVout.toFixed(1)}V.<br>`;
-        logicHTML += Math.abs(idealVout) > vcc ? `<b>Result:</b> Saturated at &plusmn;${vcc}V.` : `<b>Result:</b> Within rails.`;
+        // Prepare the solution string
+        finalLogicHTML = `<strong>🏆 Solution Logic:</strong><br>Gain (A<sub>v</sub>) = ${gain}<br>V<sub>ideal</sub> = V<sub>in</sub> &times; A<sub>v</sub> = ${idealVout.toFixed(1)}V.<br>`;
+        finalLogicHTML += Math.abs(idealVout) > vcc ? `<b>Result:</b> Saturated at the &plusmn;${vcc}V rails. Output is <b>${finalVout.toFixed(1)}V</b>.` : `<b>Result:</b> Within rails. Output is <b>${finalVout.toFixed(1)}V</b>.`;
 
     } else {
-        if (elements.modeA) elements.modeA.style.display = 'none';
-        if (elements.modeB) elements.modeB.style.display = 'block';
+        if (modeA) modeA.style.display = 'none';
+        if (modeB) modeB.style.display = 'block';
 
         let targetVout = config === "Inverting" ? -12 : 12;
         window.targetGain = targetVout / vin;
         window.currentAnswers = { targetVout: targetVout, vin: vin };
 
-        if (elements.instructions) {
-            elements.instructions.innerHTML = `
-                <h3 style="color:#d65093; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
+        if (instructions) {
+            instructions.innerHTML = `
+                <h3 style="color:#E64097; margin-top: 0; margin-bottom: 10px;">Design Task</h3>
                 Build an <b>${config}</b> circuit.<br>
                 <b>Goal:</b> <b>V<sub>OUT</sub> = ${targetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.<br><br>
                 Select <b>R<sub>F</sub></b> and <b>R<sub>IN</sub></b> (Min value 1k&Omega;).`;
         }
-        logicHTML = `<strong>Solution Logic:</strong><br>Target Gain = ${window.targetGain.toFixed(2)}. Choose R<sub>F</sub>/R<sub>IN</sub> ratio to match.`;
+
+        // Prepare the solution string
+        finalLogicHTML = `<strong>🏆 Solution Logic:</strong><br>Target Gain (A<sub>v</sub>) = V<sub>out</sub> / V<sub>in</sub> = ${window.targetGain.toFixed(2)}.<br>Select any R<sub>F</sub> and R<sub>IN</sub> combo that creates a gain of ${window.targetGain.toFixed(2)}.`;
     }
 
-    if (elements.solText) elements.solText.innerHTML = logicHTML;
-    if (ctx) drawOpAmpCircuit(ctx, canvas);
+    // 5. Drawing Circuit
+    if (ctx && typeof drawOpAmpCircuit === 'function') drawOpAmpCircuit(ctx, canvas);
+
+    // 6. INJECT SOLUTION TEXT (Just like MOSFET)
+    if (solText) {
+        solText.innerHTML = finalLogicHTML;
+    }
 }
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
@@ -12477,23 +12485,20 @@ function checkAnswers() {
 
 // 👇 GRADE 9 OP-AMP GRADING LOGIC 👇
     else if (currentMode === 'grade9opamp') {
-        // 1. FRESH START: Clear arrays to prevent "Red Borders on Green Text"
+        // 1. FRESH START
         results.length = 0;
         activeInputs.length = 0;
-        
-        let isCorrect = false; // Helper for UI feedback
+        let isCorrect = false;
 
         if (window.g9OpAmpMode === 0) {
             // --- MODE 0: ANALYSIS ---
             const voutIn = document.getElementById('g9OpAmpVout');
             activeInputs.push('g9OpAmpVout'); 
             
-            // Strip out 'v' or 'V' and convert to a number
             let userVoutStr = voutIn ? voutIn.value.replace(/v/gi, '').trim() : "";
             let userVout = parseFloat(userVoutStr);
             let targetVout = parseFloat(window.currentAnswers.vout);
             
-            // Grade it (allow 0.2V tolerance for rounding/saturation)
             if (!isNaN(userVout) && Math.abs(userVout - targetVout) <= 0.2) {
                 results.push('correct');
                 isCorrect = true;
@@ -12505,21 +12510,16 @@ function checkAnswers() {
             // --- MODE 1: DESIGN ---
             const rfIn = document.getElementById('g9OpAmpRf_G9');
             const rinIn = document.getElementById('g9OpAmpRin_G9');
-            
-            // Tell Section 5 to color both resistor boxes
             activeInputs.push('g9OpAmpRf_G9', 'g9OpAmpRin_G9'); 
             
-            // Strip out 'k' or 'K' and convert to numbers
             let userRf = parseFloat(rfIn ? rfIn.value.replace(/k/gi, '').trim() : "NaN");
             let userRin = parseFloat(rinIn ? rinIn.value.replace(/k/gi, '').trim() : "NaN");
             
             if (!isNaN(userRf) && !isNaN(userRin)) {
-                // Calculate what gain the student's resistors ACTUALLY produce
                 let userGain = (window.opAmpTargetConfig === "Inverting") 
                     ? -(userRf / userRin) 
                     : (1 + (userRf / userRin));
                     
-                // Check if their gain matches the target gain (0.1 tolerance)
                 if (Math.abs(userGain - window.targetGain) <= 0.1) {
                     results.push('correct', 'correct');
                     isCorrect = true;
@@ -12528,7 +12528,6 @@ function checkAnswers() {
                     isCorrect = false;
                 }
             } else {
-                // If they left boxes blank or typed gibberish
                 results.push('wrongval', 'wrongval'); 
                 isCorrect = false;
             }
@@ -12539,19 +12538,14 @@ function checkAnswers() {
         const solPanel = document.getElementById('solutions');
 
         if (isCorrect) {
-            if (feedback) {
-                feedback.innerHTML = "<span style='color: #28a745;'>✔️ Correct! Excellent circuit analysis.</span>";
-            }
+            if (feedback) feedback.innerHTML = "<span style='color: #28a745;'>✔️ Correct! Excellent circuit analysis.</span>";
         } else {
-            if (feedback) {
-                feedback.innerHTML = "<span style='color: #dc3545;'>❌ Incorrect. See the logic below to help.</span>";
+            if (feedback) feedback.innerHTML = "<span style='color: #dc3545;'>❌ Incorrect. See the logic below to help.</span>";
+            
+            // REVEAL THE SOLUTIONS PANEL
+            if (solPanel) {
+                solPanel.style.display = 'block'; 
             }
-        }
-
-        // Final Step: Reveal the hidden solutions box!
-        // This ensures that the div containing 'solText' actually appears on the page.
-        if (solPanel) {
-            solPanel.style.display = 'block';
         }
     }
     // 👆 END GRADE 9 OP-AMP LOGIC 👆
