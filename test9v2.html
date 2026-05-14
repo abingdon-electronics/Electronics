@@ -10156,7 +10156,7 @@ function drawOpAmpCircuit(ctx, canvas) {
     if (typeof drawNode === "function") drawNode(ctx, cx + 80, cy);
     
     // DYNAMIC VOUT Label (Pink for Analysis, Black for Design)
-    let voutColor = (window.g9OpAmpMode === 0) ? "#d65093" : "black";
+    let voutColor = (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') ? "#d65093" : "black";
     if (typeof drawCanvasSubscript === "function") {
         drawCanvasSubscript(ctx, "V", "OUT", "", cx + 125, cy, 16, voutColor);
     }
@@ -10171,8 +10171,10 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.fillRect(cx - 30, cy - 105, 60, 30); 
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
     
-    // RF Logic: Show value if Analysis Mode AND exists, otherwise show label
-    if (window.g9OpAmpMode === 0 && window.opAmpRf && window.opAmpInteractive === false) {
+    // RF Logic: FIXED to use opAmpQuestionType
+    const showNumbers = (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') && window.opAmpInteractive === false;
+
+    if (showNumbers && window.opAmpRf) {
         ctx.fillStyle = "black";
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "center"; 
@@ -10208,8 +10210,8 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.fillRect(cx - 190, cy - 35, 60, 30); 
         ctx.strokeRect(cx - 190, cy - 35, 60, 30);
         
-        // RIN Logic: Analysis mode gets values, Design gets labels
-        if (window.g9OpAmpMode === 0 && window.opAmpRin && window.opAmpInteractive === false) {
+        // RIN Logic: FIXED to use opAmpQuestionType
+        if (showNumbers && window.opAmpRin) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
@@ -10224,7 +10226,6 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.lineTo(cx - 230, cy - 20);
         ctx.stroke();
         
-        // Cleaned up: Only draw the VIN label, no numbers!
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy - 20, 16, "black");
         
     } else {
@@ -10235,8 +10236,8 @@ function drawOpAmpCircuit(ctx, canvas) {
         ctx.fillRect(cx - 115, cy + 50, 30, 50); 
         ctx.strokeRect(cx - 115, cy + 50, 30, 50);
         
-        // R1 Logic: Analysis mode gets values, Design gets labels
-        if (window.g9OpAmpMode === 0 && window.opAmpR1 && window.opAmpInteractive === false) {
+        // R1 Logic: FIXED to use opAmpQuestionType
+        if (showNumbers && window.opAmpR1) {
             ctx.fillStyle = "black";
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "center";
@@ -10256,8 +10257,6 @@ function drawOpAmpCircuit(ctx, canvas) {
     if (window.bottomWireState === 'horizontal') {
         ctx.lineTo(cx - 230, cy + 20);
         ctx.stroke();
-        
-        // Cleaned up: Only draw the VIN label, no numbers!
         if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "V", "IN", "", cx - 270, cy + 20, 16, "black");
     } else {
         ctx.lineTo(cx - 60, cy + 80); ctx.stroke();
