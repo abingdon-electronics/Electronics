@@ -1703,7 +1703,7 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px;">
-                <label for="g9OpAmpRin_G9" style="font-weight: bold; color: #d65093; width: 60px; text-align: right; white-space: nowrap;">R<sub>IN</sub> = </label>
+                <label id="g9OpAmpRinLabel_G9" for="g9OpAmpRin_G9" style="font-weight: bold; color: #d65093; width: 60px; text-align: right; white-space: nowrap;">R<sub>IN</sub> = </label>
                 <input type="text" id="g9OpAmpRin_G9" style="width: 100px; text-align: center; border: 2px solid #ced4da; border-radius: 5px; padding: 5px;" placeholder="e.g. 1k">
                 <span style="font-weight: bold; color: #333; width: 20px;">Ω</span>
             </div>
@@ -10132,10 +10132,13 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
+    // Convert question type to string safely to avoid errors
+    const qType = String(window.opAmpQuestionType || "");
+    
     let canvasTitle = (window.opAmpTargetConfig || "") + " Op-Amp";
     if (window.opAmpInteractive === false) {
-        if (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') canvasTitle = "Analysis Challenge";
-        if (window.opAmpQuestionType === 'design') canvasTitle = "Design Challenge";
+        if (qType === 'calcGain' || qType === 'grade9' || qType === 'grade9analysis') canvasTitle = "Analysis Challenge";
+        if (qType === 'design' || qType === 'grade9design') canvasTitle = "Design Challenge";
     }
     ctx.fillText(canvasTitle, cx, 40);
     
@@ -10148,6 +10151,17 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.strokeStyle = "#333";
     ctx.lineWidth = 2;
 
+    // --- ENHANCED LOGIC FLAGS ---
+    // 1. Check if we are in Grade 9 Design (Checking multiple possible variable names just in case)
+    const isG9Design = (qType === 'grade9design' || qType.includes('design') && qType.includes('grade9') || window.g9OpAmpMode === 1);
+    
+    // 2. Check if we are in Grade 9 Analysis (If it's Grade 9 but NOT design, it's analysis)
+    const isG9Analysis = !isG9Design && (qType === 'grade9' || qType === 'grade9analysis' || window.g9OpAmpMode === 0 || window.isGrade9 === true || qType.toLowerCase().includes('vout'));
+    
+    // 3. Check if we should show numbers (Analysis modes)
+    const showNumbers = (qType === 'calcGain' || isG9Analysis) && window.opAmpInteractive === false;
+
+
     // --- 2. FEEDBACK PATH (RF) ---
     ctx.beginPath();
     ctx.moveTo(cx + 30, cy);
@@ -10155,8 +10169,14 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.stroke();
     if (typeof drawNode === "function") drawNode(ctx, cx + 80, cy);
     
-    // DYNAMIC VOUT Label (Pink for Analysis, Black for Design)
-    let voutColor = (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') ? "#d65093" : "black";
+    // --- DYNAMIC VOUT COLOR FIX ---
+    let voutColor = "black"; // Default to black for Standard modes AND G9 Design
+    
+    // Force pink ONLY if it's the Grade 9 Analysis task
+    if (isG9Analysis) {
+        voutColor = "#d65093"; 
+    }
+    
     if (typeof drawCanvasSubscript === "function") {
         drawCanvasSubscript(ctx, "V", "OUT", "", cx + 125, cy, 16, voutColor);
     }
@@ -10167,21 +10187,22 @@ function drawOpAmpCircuit(ctx, canvas) {
     ctx.lineTo(cx + 30, cy - 90); 
     ctx.stroke();
     
+    // Draw empty resistor box
     ctx.fillStyle = "#fff";
     ctx.fillRect(cx - 30, cy - 105, 60, 30); 
     ctx.strokeRect(cx - 30, cy - 105, 60, 30);
     
-    // RF Logic: FIXED to use opAmpQuestionType
-    const showNumbers = (window.opAmpQuestionType === 'calcGain' || window.opAmpQuestionType === 'grade9') && window.opAmpInteractive === false;
-
-    if (showNumbers && window.opAmpRf) {
-        ctx.fillStyle = "black";
-        ctx.font = "bold 14px Arial";
-        ctx.textAlign = "center"; 
-        ctx.fillText(window.opAmpRf + " kΩ", cx, cy - 115);
-        ctx.textAlign = "left";   
-    } else {
-        if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
+    // RF Logic: Hide labels for G9 Design, show numbers for Analysis, show labels for standard Design
+    if (!isG9Design) {
+        if (showNumbers && window.opAmpRf) {
+            ctx.fillStyle = "black";
+            ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center"; 
+            ctx.fillText(window.opAmpRf + " kΩ", cx, cy - 115);
+            ctx.textAlign = "left";   
+        } else {
+            if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "F", "", cx - 10, cy - 90, 16, "black");
+        }
     }
     
     // Common Wires
@@ -10206,19 +10227,23 @@ function drawOpAmpCircuit(ctx, canvas) {
     if (window.topWireState === 'horizontal') {
         ctx.lineTo(cx - 130, cy - 20);
         ctx.stroke();
+        
+        // Draw empty resistor box
         ctx.fillStyle = "#fff";
         ctx.fillRect(cx - 190, cy - 35, 60, 30); 
         ctx.strokeRect(cx - 190, cy - 35, 60, 30);
         
-        // RIN Logic: FIXED to use opAmpQuestionType
-        if (showNumbers && window.opAmpRin) {
-            ctx.fillStyle = "black";
-            ctx.font = "bold 14px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(window.opAmpRin + " kΩ", cx - 160, cy - 45);
-            ctx.textAlign = "left";
-        } else {
-            if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black");
+        // RIN Logic
+        if (!isG9Design) {
+            if (showNumbers && window.opAmpRin) {
+                ctx.fillStyle = "black";
+                ctx.font = "bold 14px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(window.opAmpRin + " kΩ", cx - 160, cy - 45);
+                ctx.textAlign = "left";
+            } else {
+                if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "IN", "", cx - 170, cy - 20, 16, "black");
+            }
         }
 
         ctx.beginPath();
@@ -10232,20 +10257,25 @@ function drawOpAmpCircuit(ctx, canvas) {
         // Grounded path
         ctx.lineTo(cx - 100, cy + 50);
         ctx.stroke();
+        
+        // Draw empty resistor box
         ctx.fillStyle = "#fff";
         ctx.fillRect(cx - 115, cy + 50, 30, 50); 
         ctx.strokeRect(cx - 115, cy + 50, 30, 50);
         
-        // R1 Logic: FIXED to use opAmpQuestionType
-        if (showNumbers && window.opAmpR1) {
-            ctx.fillStyle = "black";
-            ctx.font = "bold 14px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(window.opAmpR1 + " kΩ", cx - 145, cy + 80);
-            ctx.textAlign = "left";
-        } else {
-            if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black");
+        // R1 Logic
+        if (!isG9Design) {
+            if (showNumbers && window.opAmpR1) {
+                ctx.fillStyle = "black";
+                ctx.font = "bold 14px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(window.opAmpR1 + " kΩ", cx - 145, cy + 80);
+                ctx.textAlign = "left";
+            } else {
+                if (typeof drawCanvasSubscript === "function") drawCanvasSubscript(ctx, "R", "1", "", cx - 108, cy + 75, 16, "black");
+            }
         }
+        
         ctx.beginPath();
         ctx.moveTo(cx - 100, cy + 100); ctx.lineTo(cx - 100, cy + 120); ctx.stroke();
         if (typeof drawGround === "function") drawGround(ctx, cx - 100, cy + 120);
@@ -10485,6 +10515,19 @@ function setupForwardMathProblem(ctx, canvas) {
             <p> Calculate the Voltage Gain, <b>G</b>.</p>`; 
     }
 
+    // --- BUILD STEP-BY-STEP SOLUTION (FORWARD MATH) ---
+    let rLabel = (targetConfig === 'Inverting') ? "IN" : "1";
+    let formula = (targetConfig === 'Inverting') ? "G = -(R<sub>F</sub> / R<sub>IN</sub>)" : "G = 1 + (R<sub>F</sub> / R<sub>1</sub>)";
+    let substitution = (targetConfig === 'Inverting') ? `G = -(${rfValue}k / ${rinValue}k)` : `G = 1 + (${rfValue}k / ${rinValue}k)`;
+
+    window.opAmpSolutionBackup = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
+        `<strong>1. Identify Configuration:</strong><br>` +
+        `This is an <b>${targetConfig}</b> Amplifier.<br><br>` +
+        `<strong>2. Choose Formula:</strong><br>` +
+        `Formula: ${formula}<br><br>` +
+        `<strong>3. Calculate Gain (G):</strong><br>` +
+        `Substitution: ${substitution} = <b>${actualGain}</b>`;
+
     drawOpAmpCircuit(ctx, canvas); 
 }
 
@@ -10582,7 +10625,25 @@ function setupDesignResistorProblem(ctx, canvas) {
             <h3 style="color:#d65093;">Design Challenge</h3>
             <p>Suggest suitable values for the feedback resistor (<b>R<sub ${subStyle}>F</sub></b>) and the ${resistorText} to achieve a Voltage Gain of <b>${targetG}</b>.</p>`;
     }
-
+    
+    // --- BUILD STEP-BY-STEP SOLUTION (DESIGN) ---
+        let ratioValue = (targetConfig === "Inverting") ? Math.abs(targetG) : (targetG - 1);
+        let rLabel = (targetConfig === "Inverting") ? "IN" : "1";
+    
+        window.opAmpSolutionBackup = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
+            `<strong>1. Target Gain:</strong><br>` +
+            `The required Voltage Gain is <b>${targetG}</b> for an <b>${targetConfig}</b> Amplifier.<br><br>` +
+            
+            `<strong>2. Find the Resistor Ratio:</strong><br>` +
+            (targetConfig === "Inverting" 
+                ? `Formula: |G| = R<sub>F</sub> / R<sub>IN</sub><br>Rearranged: R<sub>F</sub> / R<sub>IN</sub> = <b>${ratioValue}</b><br>`
+                : `Formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>Rearranged: R<sub>F</sub> / R<sub>1</sub> = G - 1 = <b>${ratioValue}</b><br>`) +
+            `<em style="color:#d65093;">(Meaning: R<sub>F</sub> must be ${ratioValue} times larger than R<sub>${rLabel}</sub>)</em><br><br>` +
+            
+            `<strong>3. Select Safe Resistor Values:</strong><br>` +
+            `Rule: Resistors must be <b>≥ 1kΩ (1000Ω)</b>.<br>` +
+            `Example: If we pick <b>R<sub>${rLabel}</sub> = 1kΩ</b>, then <b>R<sub>F</sub> = ${ratioValue}kΩ</b>.`;
+   
     drawOpAmpCircuit(ctx, canvas);
 }
 //***********************************************************************************************************
@@ -10627,6 +10688,20 @@ function setupOpAmpCanvasClick(ctx, canvas) {
 
 //End of standard Op AMP FUNCTIONS
 //GRADE 9 OPAMP   
+//===================
+function updateG9DesignLabels() {
+    const rLabel = document.getElementById("g9OpAmpRinLabel_G9");
+    if (!rLabel) return;
+
+    const isNonInverting = (window.opAmpTargetConfig === 'Non-Inverting' || window.topWireState !== 'horizontal');
+
+    if (isNonInverting) {
+        rLabel.innerHTML = "R<sub>1</sub> = ";
+    } else {
+        rLabel.innerHTML = "R<sub>IN</sub> = ";
+    }
+}
+//======================
 function generateGrade9OpAmpProblem(ctx, canvas) {
     // --- 1. STATE & DATA PREP ---
     var solutionStepText = ""; 
@@ -10745,28 +10820,37 @@ function generateGrade9OpAmpProblem(ctx, canvas) {
                 <b>Goal:</b> <b>V<sub>OUT</sub> = ${designTargetVout}V</b> when V<sub>IN</sub> = <b>${vin}V</b>.`;
         }
 
-        let exampleRin = 2000;
-        let exampleRf = (config === "Inverting") 
-            ? Math.abs(window.targetGain) * exampleRin 
-            : (window.targetGain - 1) * exampleRin;
+// Calculate the required ratio
+        let ratioValue = (config === "Inverting") 
+            ? Math.abs(window.targetGain) 
+            : (window.targetGain - 1);
+            
+        // Determine correct sub-label (RIN or R1)
+        let rLabel = (config === "Inverting") ? "IN" : "1";
 
         // STEP-BY-STEP SOLUTION (DESIGN)
         solutionStepText = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
+            
             `<strong>1. Required Gain (G):</strong><br>` +
             `Formula: G = V<sub>OUT</sub> / V<sub>IN</sub><br>` +
-            `Substitution: G = ${designTargetVout} / ${vin} = <b>${window.targetGain.toFixed(0)}</b><br><br>` +
-            `<strong>2. Resistor Selection Rule:</strong><br>` +
-            `All resistors must be <b>≥ 1kΩ</b>. Smaller values draw too much current, which can overheat the op-amp and cause output distortion.<br><br>` +
-            `<strong>3. Example Pair (using 2kΩ minimum):</strong><br>` +
-            (config === "Inverting"
-                ? `For G = ${window.targetGain.toFixed(0)}, we use R<sub>F</sub> = |G| × R<sub>IN</sub>.<br>`
-                : `For G = ${window.targetGain.toFixed(0)}, we use R<sub>F</sub> = (G - 1) × R<sub>1</sub>.<br>`) +
-            `If we choose <b>R<sub>IN</sub> = 2,000Ω</b>, then <b>R<sub>F</sub> = ${exampleRf.toLocaleString()}Ω</b>.`;
+            `G = ${designTargetVout} / ${vin} = <b>${window.targetGain.toFixed(0)}</b><br><br>` +
+            
+            `<strong>2. Find the Resistor Ratio:</strong><br>` +
+            (config === "Inverting" 
+                ? `Formula: |G| = R<sub>F</sub> / R<sub>IN</sub><br>Rearranged: R<sub>F</sub> / R<sub>IN</sub> = <b>${ratioValue}</b><br>`
+                : `Formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>Rearranged: R<sub>F</sub> / R<sub>1</sub> = G - 1 = <b>${ratioValue}</b><br>`) +
+            `<em style="color:#d65093;">(Meaning: R<sub>F</sub> must be ${ratioValue} times larger than R<sub>${rLabel}</sub>)</em><br><br>` +
+            
+            `<strong>3. Select Safe Resistor Values:</strong><br>` +
+            `Rule: Resistors must be <b>≥ 1kΩ (1000Ω)</b>. Smaller values draw too much current and cause distortion.<br>` +
+            `Example: If we pick a safe minimum like <b>R<sub>${rLabel}</sub> = 1,000Ω</b>, then <b>R<sub>F</sub> = ${(ratioValue * 1000).toLocaleString()}Ω</b>.`;
     }
 
     // --- 4. BACKUP & DRAW ---
     window.g9OpAmpSolutionBackup = solutionStepText;
     drawOpAmpCircuit(ctx, canvas);
+
+    updateG9DesignLabels();
 }
 //END OF CONTENT FUNCTIONS
 //**************************************************************************************************************************************
@@ -12448,19 +12532,19 @@ function checkAnswers() {
             }
 
             // Step-by-Step UI
-            if (isGainVisible && solDiv) {
-                let gDisp = (window.currentAnswers && window.currentAnswers.gain) || "";
-                let stepHtml = window.opAmpTargetConfig === "Inverting" ? 
-                    `<b>Step 1:</b> Inverting Amp.<br><b>Step 2:</b> G = -(R<sub>F</sub> / R<sub>IN</sub>)<br><b>Step 3:</b> G = -(${window.opAmpRf}k / ${window.opAmpRin}k) = <b>${gDisp}</b>` :
-                    `<b>Step 1:</b> Non-Inverting Amp.<br><b>Step 2:</b> G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br><b>Step 3:</b> G = 1 + (${window.opAmpRf}k / ${window.opAmpR1}k) = <b>${gDisp}</b>`;
-                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+            if (isGainVisible && solDiv && window.opAmpSolutionBackup) {
+                // Removed the extra border-left to prevent double lines!
+                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px;">${window.opAmpSolutionBackup}</div>`;
             }
         } 
         
-        // --- BRANCH B: DESIGN MODE ---
+// --- BRANCH B: DESIGN MODE ---
         else if (isDesignVisible) {
             window.opAmpQuestionType = 'design';
-            activeInputs.push(rfIn.id, rinIn.id);
+            
+            // Safely push IDs to activeInputs for border highlighting
+            if (rfIn) activeInputs.push(rfIn.id);
+            if (rinIn) activeInputs.push(rinIn.id);
 
             let pRf = parseInput(rfIn ? rfIn.value : "");
             let pRin = parseInput(rinIn ? rinIn.value : "");
@@ -12488,7 +12572,7 @@ function checkAnswers() {
                 results.push('correct', 'correct');
             } else if (ratioCorrect && !meetsMinResistance) {
                 results.push('wrongval', 'wrongval');
-                specificFeedback = "Math is correct, but for good practice, resistors should be ≥ 1kΩ.";
+                specificFeedback = "The resistor ratio is correct! But values must be ≥ 1kΩ (1000Ω) to avoid overheating.";
             } else {
                 results.push('wrongval', 'wrongval');
             }
@@ -12496,16 +12580,15 @@ function checkAnswers() {
             // FEEDBACK & SOLUTION UI
             const fEl = document.getElementById('feedback');
             if (specificFeedback && fEl) {
+                // If they got the math right but failed the 1k rule, show this specific warning!
                 fEl.innerHTML = `<span style='color: #dc3545; font-weight:bold;'>❌ ${specificFeedback}</span>`;
+                // Set a flag so the master checkAnns logic at the bottom doesn't overwrite this custom message
+                window.customFeedbackTriggered = true; 
             }
 
-            if (solDiv) {
-                let formula = (window.opAmpTargetConfig === "Inverting") ? "|G| = R<sub>F</sub> / R<sub>IN</sub>" : "(G - 1) = R<sub>F</sub> / R<sub>1</sub>";
-                let stepHtml = `<b>Step 1:</b> Configuration is ${window.opAmpTargetConfig}.<br>
-                                <b>Step 2:</b> Required Ratio: ${formula} = <b>${targetRatio}</b>.<br>
-                                <b>Step 3:</b> Your Ratio: (${pRf.val}${pRf.unit || ""} / ${pRin.val}${pRin.unit || ""}) = <b>${(rfBase/rinBase).toFixed(2)}</b>.<br>
-                                <span style="font-size:0.9em; color:#666;">Note: Resistors should be ≥ 1kΩ to prevent output loading.</span>`;
-                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px; border-left:4px solid #d65093;">${stepHtml}</div>`;
+            if (solDiv && window.opAmpSolutionBackup) {
+                 // Removed the extra border-left to prevent double lines!
+                solDiv.innerHTML = `<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:5px;">${window.opAmpSolutionBackup}</div>`;
             }
         }
 
@@ -12553,9 +12636,11 @@ function checkAnswers() {
         }
     }
 // End of STANDARD OP-AMP grading 
+
+//===============
     
 // 👇 GRADE 9 OP-AMP GRADING LOGIC 👇
-else if (currentMode === 'grade9opamp') {
+    else if (currentMode === 'grade9opamp') {
         // 1. FRESH START
         results.length = 0;
         activeInputs.length = 0;
@@ -12609,7 +12694,7 @@ else if (currentMode === 'grade9opamp') {
                     // Correct math, but bad engineering practice
                     results.push('wrongval', 'wrongval');
                     isCorrect = false;
-                    specificFeedback = "Gain is correct, but resistors must be ≥ 1kΩ.";
+                    specificFeedback = "The resistor ratio is correct! But values must be ≥ 1kΩ (1000Ω) to avoid overheating.";
                 } else {
                     results.push('wrongval', 'wrongval');
                     isCorrect = false;
@@ -12718,7 +12803,7 @@ else if (currentMode === 'grade9opamp') {
         const correctCount = results.filter(r => r === 'correct' || r === 'manydecimals').length;
         let isCurrentlyHinge = (currentMode === 'opamp' && window.opAmpQuestionType === 'hinge' && activeInputs.length === 0);
 
-        if (!isCurrentlyHinge && fEl) {
+    if (!isCurrentlyHinge && fEl && !window.customFeedbackTriggered) {
             if (results.includes('wrongunit')) {
                 if (typeof unitErrorMade !== 'undefined') unitErrorMade = true;
                 fEl.innerHTML = "<span style='color: #fd7e14;'>Number is right, units are wrong! (Mark lost).</span>";
