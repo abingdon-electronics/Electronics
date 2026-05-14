@@ -12474,7 +12474,70 @@ function checkAnswers() {
             }
         }
     }
-    // --- 5. FINAL FEEDBACK AND SCORING (RE-INTEGRATED FROM HISTORY) ---
+
+// 👇 GRADE 9 OP-AMP GRADING LOGIC 👇
+    else if (currentMode === 'grade9opamp') {
+        // 1. FRESH START: Clear arrays to prevent "Red Borders on Green Text"
+        results.length = 0;
+        activeInputs.length = 0;
+        
+        if (window.g9OpAmpMode === 0) {
+            // --- MODE 0: ANALYSIS ---
+            const voutIn = document.getElementById('g9OpAmpVout');
+            activeInputs.push('g9OpAmpVout'); // Tell Section 5 which box to color
+            
+            // Strip out 'v' or 'V' and convert to a number
+            let userVoutStr = voutIn ? voutIn.value.replace(/v/gi, '').trim() : "";
+            let userVout = parseFloat(userVoutStr);
+            let targetVout = parseFloat(window.currentAnswers.vout);
+            
+            // Grade it (allow 0.2V tolerance for rounding)
+            if (!isNaN(userVout) && Math.abs(userVout - targetVout) <= 0.2) {
+                results.push('correct');
+            } else {
+                results.push('wrongval');
+            }
+        } else {
+            // --- MODE 1: DESIGN ---
+            const rfIn = document.getElementById('g9OpAmpRf_G9');
+            const rinIn = document.getElementById('g9OpAmpRin_G9');
+            
+            // Tell Section 5 to color both resistor boxes
+            activeInputs.push('g9OpAmpRf_G9', 'g9OpAmpRin_G9'); 
+            
+            // Strip out 'k' or 'K' and convert to numbers
+            let userRf = parseFloat(rfIn ? rfIn.value.replace(/k/gi, '').trim() : "NaN");
+            let userRin = parseFloat(rinIn ? rinIn.value.replace(/k/gi, '').trim() : "NaN");
+            
+            if (!isNaN(userRf) && !isNaN(userRin)) {
+                // Calculate what gain the student's resistors ACTUALLY produce
+                let userGain = (window.opAmpTargetConfig === "Inverting") 
+                    ? -(userRf / userRin) 
+                    : (1 + (userRf / userRin));
+                    
+                // Check if their gain matches the target gain (0.1 tolerance)
+                if (Math.abs(userGain - window.targetGain) <= 0.1) {
+                    results.push('correct', 'correct');
+                } else {
+                    results.push('wrongval', 'wrongval');
+                }
+            } else {
+                // If they left boxes blank or typed gibberish
+                results.push('wrongval', 'wrongval'); 
+            }
+        }
+    }
+    // 👆 END GRADE 9 OP-AMP LOGIC 👆
+
+
+
+
+
+
+
+
+    //*******************************************************************************************************
+    // --- 5. FINAL FEEDBACK AND SCORING ---
     activeInputs.forEach((id, index) => {
         const el = document.getElementById(id);
         if (el) {
