@@ -10515,6 +10515,19 @@ function setupForwardMathProblem(ctx, canvas) {
             <p> Calculate the Voltage Gain, <b>G</b>.</p>`; 
     }
 
+    // --- BUILD STEP-BY-STEP SOLUTION (FORWARD MATH) ---
+    let rLabel = (targetConfig === 'Inverting') ? "IN" : "1";
+    let formula = (targetConfig === 'Inverting') ? "G = -(R<sub>F</sub> / R<sub>IN</sub>)" : "G = 1 + (R<sub>F</sub> / R<sub>1</sub>)";
+    let substitution = (targetConfig === 'Inverting') ? `G = -(${rfValue}k / ${rinValue}k)` : `G = 1 + (${rfValue}k / ${rinValue}k)`;
+
+    window.opAmpSolutionBackup = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
+        `<strong>1. Identify Configuration:</strong><br>` +
+        `This is an <b>${targetConfig}</b> Amplifier.<br><br>` +
+        `<strong>2. Choose Formula:</strong><br>` +
+        `Formula: ${formula}<br><br>` +
+        `<strong>3. Calculate Gain (G):</strong><br>` +
+        `Substitution: ${substitution} = <b>${actualGain}</b>`;
+
     drawOpAmpCircuit(ctx, canvas); 
 }
 
@@ -10612,7 +10625,25 @@ function setupDesignResistorProblem(ctx, canvas) {
             <h3 style="color:#d65093;">Design Challenge</h3>
             <p>Suggest suitable values for the feedback resistor (<b>R<sub ${subStyle}>F</sub></b>) and the ${resistorText} to achieve a Voltage Gain of <b>${targetG}</b>.</p>`;
     }
-
+    
+    // --- BUILD STEP-BY-STEP SOLUTION (DESIGN) ---
+        let ratioValue = (targetConfig === "Inverting") ? Math.abs(targetG) : (targetG - 1);
+        let rLabel = (targetConfig === "Inverting") ? "IN" : "1";
+    
+        window.opAmpSolutionBackup = `<strong>🏆 Step-by-Step Solution:</strong><br><br>` +
+            `<strong>1. Target Gain:</strong><br>` +
+            `The required Voltage Gain is <b>${targetG}</b> for an <b>${targetConfig}</b> Amplifier.<br><br>` +
+            
+            `<strong>2. Find the Resistor Ratio:</strong><br>` +
+            (targetConfig === "Inverting" 
+                ? `Formula: |G| = R<sub>F</sub> / R<sub>IN</sub><br>Rearranged: R<sub>F</sub> / R<sub>IN</sub> = <b>${ratioValue}</b><br>`
+                : `Formula: G = 1 + (R<sub>F</sub> / R<sub>1</sub>)<br>Rearranged: R<sub>F</sub> / R<sub>1</sub> = G - 1 = <b>${ratioValue}</b><br>`) +
+            `<em style="color:#d65093;">(Meaning: R<sub>F</sub> must be ${ratioValue} times larger than R<sub>${rLabel}</sub>)</em><br><br>` +
+            
+            `<strong>3. Select Safe Resistor Values:</strong><br>` +
+            `Rule: Resistors must be <b>≥ 1kΩ (1000Ω)</b>.<br>` +
+            `Example: If we pick <b>R<sub>${rLabel}</sub> = 1kΩ</b>, then <b>R<sub>F</sub> = ${ratioValue}kΩ</b>.`;
+   
     drawOpAmpCircuit(ctx, canvas);
 }
 //***********************************************************************************************************
