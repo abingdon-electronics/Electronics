@@ -13161,16 +13161,16 @@ function provideHint() {
                     • Build each gate using standard NAND equivalents.<br>
                     • Only use a straight <b>Wire</b> in the final box if no further logic inversion is needed!
                 </div>`;
-    } else {
-        // --- REDUNDANCY HUNTER (Symbols Removed) ---
-        helpText = `
-            <div style="${blueBox}">
-                <strong>💡 Hint: Redundancy Hunter:</strong><br>
-                • A <b>double inversion</b> (a NOT gate followed immediately by another NOT gate) is a waste of hardware.<br>
-                • Look for two NOT-configured NAND gates (gates with joined inputs) sitting side-by-side on the exact same wire path!
-            </div>`;
-    } 
-} else if (currentMode === 'transistor') {
+        } else {
+            // --- REDUNDANCY HUNTER (Symbols Removed) ---
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint: Redundancy Hunter:</strong><br>
+                    • A <b>double inversion</b> (a NOT gate followed immediately by another NOT gate) is a waste of hardware.<br>
+                    • Look for two NOT-configured NAND gates (gates with joined inputs) sitting side-by-side on the exact same wire path!
+                </div>`;
+        } 
+    } else if (currentMode === 'transistor') {
         let specificHint = "";
         
         // Matching the integer modes from generateTransistorProblem
@@ -13257,7 +13257,7 @@ function provideHint() {
                 ${specificHint}
             </div>`;
             
-} else if (currentMode === 'grade9mosfet') {
+    } else if (currentMode === 'grade9mosfet') {
         helpText = `
             <div style="${blueBox}">
                 <strong>💡 Grade 9 MOSFET Hint:</strong><br>
@@ -13265,7 +13265,7 @@ function provideHint() {
                 • <b>Missing Resistor:</b> Once you have V<sub>GS</sub>, plug it into the standard Potential Divider equation (<b>V<sub>out</sub> = V<sub>in</sub> &times; [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)]</b>). Because the numbers are simple, you can simplify the fraction to easily find the missing resistor!
             </div>`;
 
-} else if (currentMode === 'grade9opamp') {
+    } else if (currentMode === 'grade9opamp') {
         let specificHint = "";
         
         // Robust detection: Check the window variable OR which UI group is visible
@@ -13334,9 +13334,12 @@ function provideHint() {
                 <strong>💡 Op-Amp Hint:</strong>
                 ${specificHint}
             </div>`;
+  
+    }
     
-    } 
-    }//End of ProvideHint 
+    // Set the HTML to the feedback element
+    feedback.innerHTML = helpText;
+} //End of ProvideHint
 // **********************************************************************   
 function toggleSolutions() {
     const sol = document.getElementById('solutions');
