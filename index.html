@@ -788,6 +788,44 @@
             min-height: 400px; 
             padding-bottom: 25px; 
         }
+        #siPrefixGrid {
+            max-width: 100% !important;
+        }
+        .si-prefix-card {
+            font-size: 0.85em !important;
+            padding: 10px 4px !important;
+        }
+    }
+
+    /* ===== SI PREFIX GAME ===== */
+    .si-prefix-card {
+        background-color: #fff;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 18px 6px;
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
+        user-select: none;
+    }
+    .si-prefix-card:hover {
+        border-color: #E64097;
+        transform: translateY(-2px);
+    }
+    .si-prefix-card.si-correct {
+        background-color: #d4edda;
+        border-color: #28a745;
+        color: #155724;
+        cursor: default;
+        transform: none;
+    }
+    .si-prefix-card.si-incorrect {
+        background-color: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
     }
 </style>
 </head>
@@ -815,6 +853,7 @@
     <button class="tab" id="tab-resistance" onclick="safeSwitchTab('resistance')">Total Resistance</button>
     <button class="tab" id="tab-colorcode" onclick="safeSwitchTab('colorcode')">Colour Codes</button>
     <button class="tab" id="tab-power" onclick="safeSwitchTab('power')">Power</button>
+    <button class="tab" id="tab-siprefix" onclick="safeSwitchTab('siprefix')">SI Prefix</button>
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
@@ -909,6 +948,26 @@
                     </div>
                     
                 </div>
+            </div>
+
+            <!--==========================================
+                SI PREFIX GAME (Module 1: Circuit Basics)
+                Lives in the same left-panel slot as the
+                circuit canvas / IPO workstation.
+                ========================================== -->
+            <div id="siPrefixGameContainer" class="circuit-container" style="display:none; width: 100%; box-sizing: border-box;">
+
+                <div id="siPrefixTimerDisplay" style="font-size: 1.3em; font-weight: bold; color: #E64097; text-align:center; margin-bottom: 10px;">Time: 0.0s</div>
+
+                <div id="siPrefixToast" style="display:none; text-align:center; background-color: #fff3cd; color: #664d03; border: 1px solid #ffe69c; border-radius: 6px; padding: 8px 12px; font-size: 0.9em; margin-bottom: 12px;"></div>
+
+                <div id="siPrefixPromptBox" style="text-align:center; margin-bottom: 18px;">
+                    <div style="font-size: 0.95em; color: #666; margin-bottom: 4px;">Find all 3 matching cards for:</div>
+                    <div id="siPrefixPrompt" style="font-size: 2em; font-weight: bold; color: #333;">--</div>
+                </div>
+
+                <div id="siPrefixGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; max-width: 480px; margin: 0 auto;"></div>
+
             </div>
 
         </div>
@@ -1745,9 +1804,32 @@
             </div>
         </div>
     </div>
+
+    <!-- SI PREFIX GAME: controls panel (mirrors quiz-section above, shown instead of it while in siprefix mode) -->
+    <div id="siPrefixControls" style="display:none; flex-direction: column; height: auto; box-sizing: border-box; padding: 15px;">
+
+        <div style="flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; border-bottom: 2px solid #f2c7db; padding-bottom: 12px; margin-bottom: 15px;">
+            <div id="siPrefixMasteredDisplay" style="margin: 0; flex: 1; text-align: center; font-size: 1em;">Mastered: 0 / 24</div>
+            <button class="btn-reset" onclick="siPrefixRestart()">🔄 Restart</button>
+        </div>
+
+        <div id="siPrefixBestDisplay" style="text-align:center; font-size: 1em; color: #555; margin-bottom: 15px;">Best: --</div>
+
+        <div id="siPrefixResultBox" style="display:none; text-align:center; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #E64097; border-radius: 6px;">
+            <h3 style="margin: 0 0 8px 0; color: #E64097;">🎉 All 24 Questions Mastered!</h3>
+            <p id="siPrefixResultText" style="margin: 0 0 15px 0; font-size: 1.05em; color: #333;"></p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn-submit" onclick="openSubmissionModal()">⬇️ Submit Time</button>
+                <button class="btn-reset" onclick="siPrefixRestart()">▶️ Play Again</button>
+            </div>
+        </div>
+
+        <div id="siPrefixInProgressNote" style="text-align:center; color:#888; font-size:0.9em;">Complete all 24 questions to unlock time submission.</div>
+
+    </div>
 </div>
 
-                
+
 <!-- ********************************************************************************************************************* -->    
 <!-- ********************************************************************************************************************* -->    
                 
@@ -11007,7 +11089,7 @@ function switchTab(mode) {
     const subtitle = document.getElementById('moduleSubtitle');
     if (subtitle) {
         if (mode === 'home') subtitle.innerText = "Welcome to Electronics";
-        else if (['analysis', 'divider', 'resistance', 'colorcode', 'power'].includes(mode)) subtitle.innerText = "Module 1: Circuit Basics";
+        else if (['analysis', 'divider', 'resistance', 'colorcode', 'power', 'siprefix'].includes(mode)) subtitle.innerText = "Module 1: Circuit Basics";
         else if (['iposort', 'blockbuilder'].includes(mode)) subtitle.innerText = "Module 4: Systems"; 
         else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) subtitle.innerText = "Module 3: Timing Circuits";
         else if (['silicon', 'zener', 'grade9zener', 'grade9silicon'].includes(mode)) subtitle.innerText = "Module 8: Diodes"; 
@@ -11071,7 +11153,12 @@ function closeDataSheet() {
 }
 
 function openSubmissionModal() {
-    if (problemsAttempted === 0) {
+    if (currentMode === 'siprefix') {
+        if (!siPrefixState.finished) {
+            alert("Please complete all 8 prefixes before submitting your time!");
+            return;
+        }
+    } else if (problemsAttempted === 0) {
         alert("Please attempt at least one question before downloading your score!");
         return;
     }
@@ -11132,6 +11219,14 @@ function hubController(ctx, canvas) {
     // Reset the workspaces
     if (document.getElementById("circuitContainer")) document.getElementById("circuitContainer").style.display = "block";
     if (document.getElementById("canvasIPOWorkstation")) document.getElementById("canvasIPOWorkstation").style.display = "none";
+
+    // 👇 SI PREFIX GAME: default to hidden. The right panel stays visible, but shows
+    // the normal quiz-section (not the SI Prefix controls) unless we're in siprefix mode.
+    const quizSectionEl = document.querySelector('.right-panel .quiz-section');
+    if (quizSectionEl) quizSectionEl.style.display = "flex";
+    if (document.getElementById("siPrefixControls")) document.getElementById("siPrefixControls").style.display = "none";
+    if (document.getElementById("siPrefixGameContainer")) document.getElementById("siPrefixGameContainer").style.display = "none";
+    if (window.siPrefixTimerInterval) { clearInterval(window.siPrefixTimerInterval); window.siPrefixTimerInterval = null; }
 
     // Reset grading flags
     hasCheckedCurrentProblem = false;
@@ -11205,7 +11300,16 @@ function hubController(ctx, canvas) {
     } else if (currentMode === 'iposort') {
         if (document.getElementById('inputGroupIPOSort')) document.getElementById('inputGroupIPOSort').style.display = 'block';
         if (typeof generateIPOProblem === "function") generateIPOProblem(ctx, canvas);
-        
+
+    } else if (currentMode === 'siprefix') {
+        // The SI Prefix game replaces the canvas (left panel) and the quiz
+        // controls (right panel) with its own dedicated UI in each spot.
+        if (document.getElementById("circuitContainer")) document.getElementById("circuitContainer").style.display = "none";
+        if (quizSectionEl) quizSectionEl.style.display = "none";
+        if (document.getElementById("siPrefixGameContainer")) document.getElementById("siPrefixGameContainer").style.display = "block";
+        if (document.getElementById("siPrefixControls")) document.getElementById("siPrefixControls").style.display = "flex";
+        if (typeof initSIPrefixGame === "function") initSIPrefixGame();
+
     } else if (currentMode === 'power') {
         if (document.getElementById('inputGroupP')) document.getElementById('inputGroupP').style.display = 'inline-block';
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
@@ -13600,17 +13704,29 @@ async function processSubmission() {
     const formData = new URLSearchParams();
     formData.append('name', studentName);
     formData.append('teacher', teacherName);
-    formData.append('topic', currentTopic);
-    formData.append('correct', problemsCorrect);
-    formData.append('attempted', problemsAttempted);
+
+    const isSIPrefixSubmission = (currentMode === 'siprefix');
+    if (isSIPrefixSubmission) {
+        // Time-based submission: no "correct/attempted" score, just the completed time.
+        formData.append('topic', 'SI Prefix Game');
+        formData.append('time', siPrefixState.finalTime.toFixed(2));
+    } else {
+        formData.append('topic', currentTopic);
+        formData.append('correct', problemsCorrect);
+        formData.append('attempted', problemsAttempted);
+    }
 
     try {
         await fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' });
-        console.log('Score submitted successfully.');
-        alert("Success! Your score of " + problemsCorrect + "/" + problemsAttempted + " has been submitted to " + teacherName + ".");
+        console.log('Submitted successfully.');
+        if (isSIPrefixSubmission) {
+            alert("Success! Your SI Prefix time of " + siPrefixState.finalTime.toFixed(1) + "s has been submitted to " + teacherName + ".");
+        } else {
+            alert("Success! Your score of " + problemsCorrect + "/" + problemsAttempted + " has been submitted to " + teacherName + ".");
+        }
     } catch (error) {
-        console.error('Error submitting score!', error.message);
-        alert("Hmm, there was an issue sending your score to Google Sheets. Please let your teacher know.");
+        console.error('Error submitting!', error.message);
+        alert("Hmm, there was an issue sending your result to Google Sheets. Please let your teacher know.");
     } finally {
         // 4. Reset Everything
         if (submitBtn) {
@@ -13625,7 +13741,10 @@ async function processSubmission() {
         if (typeof updateScoreboard === 'function') updateScoreboard();
         
         // Trigger a new problem based on current mode
-        if (currentMode === 'logic_boolean' || currentMode === 'grade9boolean') {
+        if (isSIPrefixSubmission) {
+            // Don't auto-restart the game - let the student see their completed result
+            // and press "Play Again" themselves if they want another go.
+        } else if (currentMode === 'logic_boolean' || currentMode === 'grade9boolean') {
             // Boolean logic needs the canvas context passed to it!
             const canvas = document.getElementById('circuitCanvas'); 
             const ctx = canvas.getContext('2d');
@@ -13826,6 +13945,278 @@ function hideAllInputGroups() {
     document.querySelectorAll('.draggable-block, .drag-item, .block-drop-zone').forEach(el => {
         el.style.display = 'none';
     });
+}
+
+//*****************************************************************************************
+// SI PREFIX GAME (Module 1: Circuit Basics)
+//*****************************************************************************************
+// Data: each SI prefix has 3 "representations" - name, symbol, and power of ten.
+// The game runs 24 questions total: one for each (prefix x representation) combo,
+// shuffled. Each question shows ONE representation as the prompt; the player must
+// find and click all 3 matching cards among the 16 shown (the other 13 are
+// distractors from the other 7 prefixes).
+//
+// If the player misclicks during a question, that question isn't lost - it gets
+// requeued to reappear later in the game (at most once), so every prefix still
+// gets mastered by the end, just with a bit of spaced repetition for the tricky ones.
+const SI_PREFIX_LIST = [
+    { name: "tera",  symbol: "T", power: "10¹²" },
+    { name: "giga",  symbol: "G", power: "10⁹" },
+    { name: "mega",  symbol: "M", power: "10⁶" },
+    { name: "kilo",  symbol: "k", power: "10³" },
+    { name: "milli", symbol: "m", power: "10⁻³" },
+    { name: "micro", symbol: "μ", power: "10⁻⁶" },
+    { name: "nano",  symbol: "n", power: "10⁻⁹" },
+    { name: "pico",  symbol: "p", power: "10⁻¹²" }
+];
+
+const SI_PREFIX_TYPES = ['name', 'symbol', 'power'];
+const SI_PREFIX_BEST_KEY = "abingdonElectronics_siPrefixBestTime";
+const SI_PREFIX_GRID_SIZE = 16;
+const SI_PREFIX_CARDS_PER_PREFIX = 3;
+const SI_PREFIX_TOTAL_UNIQUE = SI_PREFIX_LIST.length * SI_PREFIX_TYPES.length; // 24
+const SI_PREFIX_MAX_RECYCLES = 1; // a question can be requeued at most once
+
+let siPrefixState = {
+    queue: [],              // Array of {prefixIndex, promptType} still to be played
+    currentItem: null,      // The {prefixIndex, promptType} currently on screen
+    foundCount: 0,          // How many of the 3 correct cards found this question
+    hadMistake: false,      // Did the player misclick during the current question?
+    recycledKeys: new Set(),// Keys ("prefixIndex-promptType") already requeued once
+    masteredKeys: new Set(),// Keys fully finished (won't reappear again)
+    startTime: null,        // Timestamp (ms) the game started
+    finalTime: null,        // Set once the game is finished, used for submission
+    finished: false
+};
+
+// Fisher-Yates shuffle - doesn't mutate the original array
+function siPrefixShuffle(arr) {
+    const copy = arr.slice();
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+}
+
+function siPrefixKey(item) {
+    return `${item.prefixIndex}-${item.promptType}`;
+}
+
+// Called every time the player opens/returns to the SI Prefix tab
+function initSIPrefixGame() {
+    siPrefixShowBestTime();
+    siPrefixStartNewGame();
+}
+
+function siPrefixShowBestTime() {
+    const bestDisplay = document.getElementById('siPrefixBestDisplay');
+    if (!bestDisplay) return;
+    const best = localStorage.getItem(SI_PREFIX_BEST_KEY);
+    bestDisplay.innerText = best ? `Best: ${parseFloat(best).toFixed(1)}s` : "Best: --";
+}
+
+function siPrefixUpdateMasteredDisplay() {
+    const masteredDisplay = document.getElementById('siPrefixMasteredDisplay');
+    if (masteredDisplay) {
+        masteredDisplay.innerText = `Mastered: ${siPrefixState.masteredKeys.size} / ${SI_PREFIX_TOTAL_UNIQUE}`;
+    }
+}
+
+function siPrefixStartNewGame() {
+    // Build the full set of 24 (prefix x representation) questions and shuffle it
+    const allQuestions = [];
+    SI_PREFIX_LIST.forEach((prefix, prefixIndex) => {
+        SI_PREFIX_TYPES.forEach(promptType => {
+            allQuestions.push({ prefixIndex, promptType });
+        });
+    });
+
+    siPrefixState.queue = siPrefixShuffle(allQuestions);
+    siPrefixState.currentItem = null;
+    siPrefixState.foundCount = 0;
+    siPrefixState.hadMistake = false;
+    siPrefixState.recycledKeys = new Set();
+    siPrefixState.masteredKeys = new Set();
+    siPrefixState.finalTime = null;
+    siPrefixState.finished = false;
+    siPrefixState.startTime = Date.now();
+
+    const resultBox = document.getElementById('siPrefixResultBox');
+    if (resultBox) resultBox.style.display = 'none';
+
+    const inProgressNote = document.getElementById('siPrefixInProgressNote');
+    if (inProgressNote) inProgressNote.style.display = 'block';
+
+    siPrefixHideToast();
+    siPrefixUpdateMasteredDisplay();
+
+    // Start the stopwatch (ticks every 100ms)
+    if (window.siPrefixTimerInterval) clearInterval(window.siPrefixTimerInterval);
+    window.siPrefixTimerInterval = setInterval(siPrefixTick, 100);
+
+    siPrefixTick(); // Show 0.0s immediately rather than waiting for the first tick
+    siPrefixLoadRound();
+}
+
+function siPrefixRestart() {
+    siPrefixStartNewGame();
+}
+
+function siPrefixTick() {
+    const timerDisplay = document.getElementById('siPrefixTimerDisplay');
+    if (!timerDisplay || !siPrefixState.startTime) return;
+    const elapsed = (Date.now() - siPrefixState.startTime) / 1000;
+    timerDisplay.innerText = `Time: ${elapsed.toFixed(1)}s`;
+}
+
+function siPrefixShowToast(message) {
+    const toast = document.getElementById('siPrefixToast');
+    if (!toast) return;
+    toast.innerText = message;
+    toast.style.display = 'block';
+    if (window.siPrefixToastTimeout) clearTimeout(window.siPrefixToastTimeout);
+    window.siPrefixToastTimeout = setTimeout(siPrefixHideToast, 2000);
+}
+
+function siPrefixHideToast() {
+    const toast = document.getElementById('siPrefixToast');
+    if (toast) toast.style.display = 'none';
+    if (window.siPrefixToastTimeout) {
+        clearTimeout(window.siPrefixToastTimeout);
+        window.siPrefixToastTimeout = null;
+    }
+}
+
+// Builds and renders the 16-button grid for the current question
+function siPrefixLoadRound() {
+    const grid = document.getElementById('siPrefixGrid');
+    const promptEl = document.getElementById('siPrefixPrompt');
+    if (!grid || !promptEl) return;
+
+    // Pull the next question off the queue
+    const item = siPrefixState.queue.shift();
+    siPrefixState.currentItem = item;
+    siPrefixState.foundCount = 0;
+    siPrefixState.hadMistake = false;
+
+    const targetIndex = item.prefixIndex;
+    const target = SI_PREFIX_LIST[targetIndex];
+    promptEl.innerText = target[item.promptType];
+
+    // Build the pool of cards: the 3 correct ones, plus distractors from other prefixes
+    const correctCards = SI_PREFIX_TYPES.map(type => ({
+        text: target[type],
+        prefixIndex: targetIndex
+    }));
+
+    const distractorPool = [];
+    SI_PREFIX_LIST.forEach((prefix, idx) => {
+        if (idx === targetIndex) return;
+        SI_PREFIX_TYPES.forEach(type => {
+            distractorPool.push({ text: prefix[type], prefixIndex: idx });
+        });
+    });
+
+    const shuffledDistractors = siPrefixShuffle(distractorPool);
+    const distractorsNeeded = SI_PREFIX_GRID_SIZE - SI_PREFIX_CARDS_PER_PREFIX;
+    const chosenDistractors = shuffledDistractors.slice(0, distractorsNeeded);
+
+    const allCards = siPrefixShuffle(correctCards.concat(chosenDistractors));
+
+    // Render
+    grid.innerHTML = '';
+    allCards.forEach(card => {
+        const btn = document.createElement('button');
+        btn.className = 'si-prefix-card';
+        btn.innerText = card.text;
+        btn.dataset.prefixIndex = card.prefixIndex;
+        btn.onclick = () => siPrefixHandleClick(btn, card.prefixIndex === targetIndex);
+        grid.appendChild(btn);
+    });
+}
+
+function siPrefixHandleClick(btn, isCorrect) {
+    if (siPrefixState.finished) return;
+    if (btn.classList.contains('si-correct')) return; // Already found, ignore
+
+    if (isCorrect) {
+        btn.classList.add('si-correct');
+        siPrefixState.foundCount++;
+
+        if (siPrefixState.foundCount >= SI_PREFIX_CARDS_PER_PREFIX) {
+            siPrefixFinishRound();
+        }
+    } else {
+        // Wrong click: quick red flash, and flag this question to come back later
+        btn.classList.add('si-incorrect');
+        setTimeout(() => btn.classList.remove('si-incorrect'), 350);
+
+        if (!siPrefixState.hadMistake) {
+            siPrefixState.hadMistake = true;
+            siPrefixShowToast("📌 No worries — we'll bring this one back later!");
+        }
+    }
+}
+
+// Called once all 3 correct cards for the current question have been found
+function siPrefixFinishRound() {
+    const item = siPrefixState.currentItem;
+    const key = siPrefixKey(item);
+
+    const shouldRecycle = siPrefixState.hadMistake && !siPrefixState.recycledKeys.has(key);
+
+    if (shouldRecycle) {
+        // Requeue this question at a random point later in the remaining queue
+        siPrefixState.recycledKeys.add(key);
+        const insertAt = Math.floor(Math.random() * (siPrefixState.queue.length + 1));
+        siPrefixState.queue.splice(insertAt, 0, item);
+    } else {
+        // Either got it right first try, or this was already a second (recycled) attempt
+        siPrefixState.masteredKeys.add(key);
+        siPrefixUpdateMasteredDisplay();
+    }
+
+    if (siPrefixState.queue.length === 0) {
+        siPrefixFinishGame();
+    } else {
+        setTimeout(siPrefixLoadRound, 400); // Brief pause so the last card's green flash is visible
+    }
+}
+
+function siPrefixFinishGame() {
+    siPrefixState.finished = true;
+    if (window.siPrefixTimerInterval) {
+        clearInterval(window.siPrefixTimerInterval);
+        window.siPrefixTimerInterval = null;
+    }
+    siPrefixHideToast();
+
+    const finalTime = (Date.now() - siPrefixState.startTime) / 1000;
+    siPrefixState.finalTime = finalTime;
+
+    const timerDisplay = document.getElementById('siPrefixTimerDisplay');
+    if (timerDisplay) timerDisplay.innerText = `Time: ${finalTime.toFixed(1)}s`;
+
+    // Check and store best time
+    const previousBest = parseFloat(localStorage.getItem(SI_PREFIX_BEST_KEY));
+    const isNewBest = isNaN(previousBest) || finalTime < previousBest;
+    if (isNewBest) {
+        localStorage.setItem(SI_PREFIX_BEST_KEY, finalTime.toFixed(2));
+    }
+    siPrefixShowBestTime();
+
+    const inProgressNote = document.getElementById('siPrefixInProgressNote');
+    if (inProgressNote) inProgressNote.style.display = 'none';
+
+    const resultBox = document.getElementById('siPrefixResultBox');
+    const resultText = document.getElementById('siPrefixResultText');
+    if (resultText) {
+        resultText.innerText = isNewBest
+            ? `New best time: ${finalTime.toFixed(1)}s! 🏆`
+            : `Your time: ${finalTime.toFixed(1)}s (Best: ${previousBest.toFixed(1)}s)`;
+    }
+    if (resultBox) resultBox.style.display = 'block';
 }
 
 // Master Switch on Load
