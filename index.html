@@ -864,6 +864,11 @@
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
+<div id="menuFlipFlops" class="tabs" style="display:none;">
+    <button class="tab" id="tab-flipflop_wave" onclick="safeSwitchTab('flipflop_wave')">Waveforms</button>
+    <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
+</div>
+
 <div id="menuSystems" class="tabs" style="display:none;">
     <button class="tab" id="tab-iposort" onclick="safeSwitchTab('iposort')">IPO Sort</button>
     <button class="tab" id="tab-blockbuilder" onclick="safeSwitchTab('blockbuilder')">Block Builder</button>
@@ -2228,7 +2233,8 @@ const scenarioTracker = {
     analysis: 0,
     zener: 0,
     grade9zener: 0,
-    power: 0
+    power: 0,
+    flipflop_wave: 0
     // add any others you need here!
 };
 //**********************************************************************
@@ -10976,7 +10982,7 @@ function openModule(module) {
     document.getElementById('mainMenu').style.display = 'none';
     
     // Hide all sub-menus first (👇 NEW: Added 'menuOpAmps' to this list)
-    const menus = ['menuBasics', 'menuTiming', 'menuDiodes', 'menuSystems', 'menuLogic', 'menuTransistors', 'menuOpAmps', 'menuPlaceholder'];
+    const menus = ['menuBasics', 'menuTiming', 'menuDiodes', 'menuSystems', 'menuLogic', 'menuTransistors', 'menuOpAmps', 'menuFlipFlops', 'menuPlaceholder'];
     menus.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
@@ -11008,6 +11014,9 @@ function openModule(module) {
         // 👇 NEW: Handle the Op-Amps module opening
         if (document.getElementById('menuOpAmps')) document.getElementById('menuOpAmps').style.display = 'flex';
         switchTab('opamp'); 
+    } else if (module === 'flipflops') {
+        if (document.getElementById('menuFlipFlops')) document.getElementById('menuFlipFlops').style.display = 'flex';
+        switchTab('flipflop_wave');
     } else {
         document.getElementById('menuPlaceholder').style.display = 'flex';
         document.getElementById('contentArea').style.display = 'none';
@@ -11098,6 +11107,7 @@ function switchTab(mode) {
         
         // 👇 UPDATED: OP-AMP & COMPARATOR
         else if (['opamp', 'comparator', 'grade9opamp'].includes(mode)) subtitle.innerText = "Module 7: Op Amps"; 
+        else if (['flipflop_wave'].includes(mode)) subtitle.innerText = "Module 5: Flip Flops & Counters";
     }
 
     // 5. Global Cleanup
@@ -11379,6 +11389,10 @@ function hubController(ctx, canvas) {
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateOpAmpProblem === "function") generateOpAmpProblem(ctx, canvas);
 
+    } else if (currentMode === 'flipflop_wave') {
+        if (typeof generateFlipflopWaveProblem === "function") generateFlipflopWaveProblem(ctx, canvas);
+        if (typeof setupFlipflopWaveClick === "function") setupFlipflopWaveClick(ctx, canvas);
+
 } else if (currentMode === 'grade9opamp') {
         // 1. Show the group FIRST
         const g9Group = document.getElementById('inputGroupGrade9OpAmp');
@@ -11453,6 +11467,12 @@ function checkAnswers() {
 
     const feedback = document.getElementById('feedback');
     const showsolutionsBtn = document.getElementById('showsolutionsBtn');
+
+    // FLIP-FLOP WAVEFORM GRADING INTERCEPTOR
+    if (currentMode === 'flipflop_wave') {
+        if (typeof checkFlipflopWaveAnswer === "function") checkFlipflopWaveAnswer(feedback, showsolutionsBtn);
+        return;
+    }
 
     // IPO SORT GRADING INTERCEPTOR
     if (currentMode === 'iposort') {
@@ -13556,6 +13576,21 @@ function provideHint() {
 
     } // Closes opamp block
 
+    else if (currentMode === 'flipflop_wave' && window.ffWaveState) {
+        if (window.ffWaveState.scenario === 'divide2') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> Because <b>Q̄</b> is wired back to <b>D</b>, every rising edge of the clock copies the <i>opposite</i> of the current Q onto Q &mdash; so <b>Q toggles (flips) on every rising edge</b>, and stays exactly the same in between.<br>
+                    <b>Q̄</b> is always just the inverse of Q.
+                </div>`;
+        } else {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> This is a rising-edge triggered D-type: <b>on the rising edge of the clock, whatever value Data has at that moment is copied to the Output</b> &mdash; and the Output then holds that value steady until the next rising edge, no matter what Data does in between.
+                </div>`;
+        }
+    }
+
     // --- FINAL OUTPUT ---
     if (helpText !== "") {
         feedback.innerHTML = helpText;
@@ -13599,6 +13634,9 @@ const topicMap = {
     'oscilloscope': 'Oscilloscopes',
     'astable': 'Astable', 
     'monostable': 'Monostable',
+
+    // --- Flip-Flops & Counters ---
+    'flipflop_wave': 'Waveforms',
     
     // --- Diodes ---
     'silicon': 'Silicon Diodes',
@@ -14217,6 +14255,336 @@ function siPrefixFinishGame() {
             : `Your time: ${finalTime.toFixed(1)}s (Best: ${previousBest.toFixed(1)}s)`;
     }
     if (resultBox) resultBox.style.display = 'block';
+}
+
+//*****************************************************************************************
+// FLIP-FLOP WAVEFORM COMPLETION (Module 5: Flip Flops & Counters)
+//*****************************************************************************************
+// Two scenarios, alternated via scenarioTracker.flipflop_wave:
+//   'divide2'   - D-type wired as a divide-by-two circuit (Q̄ -> D). Student completes
+//                 both Q and Q̄ against a given clock/pulse-generator signal.
+//   'datalatch' - Rising-edge D-type data transfer latch. Student completes the Output
+//                 against a given Data signal + Clock.
+// Waveforms are modelled as a fixed number of equal-width time "segments", each flat
+// at logic 0 or 1 - matching how these graphs are always drawn in the exam papers.
+const FFWAVE_SEGMENTS = 12;
+const FFWAVE_PLOT_X = 115;
+const FFWAVE_PLOT_WIDTH = 460;
+const FFWAVE_SEG_WIDTH = FFWAVE_PLOT_WIDTH / FFWAVE_SEGMENTS;
+const FFWAVE_ROW_Y = [90, 210, 330];
+const FFWAVE_ROW_HEIGHT = 100; // band height used for click hit-testing + background tint
+const FFWAVE_AMPLITUDE = 30;
+
+window.ffWaveState = null;
+
+function ffwaveShuffleStartValue() {
+    return Math.random() < 0.5 ? 0 : 1;
+}
+
+// Regular square wave: starts low for `leadIn` segments, then alternates
+// low/high every `pulseWidth` segments (mark:space ratio always 1:1, matching papers).
+function ffwaveBuildRegularClock(segments, pulseWidth, leadIn) {
+    const vals = [];
+    for (let i = 0; i < segments; i++) {
+        if (i < leadIn) { vals.push(0); continue; }
+        const cyclePos = (i - leadIn) % (2 * pulseWidth);
+        vals.push(cyclePos < pulseWidth ? 0 : 1);
+    }
+    return vals;
+}
+
+// Irregular signal (for the "Data signal" scenario): random run-lengths of
+// 1-3 segments per level, always starting low.
+function ffwaveBuildRandomSignal(segments) {
+    const vals = [];
+    let level = 0;
+    let i = 0;
+    while (i < segments) {
+        const runLen = 1 + Math.floor(Math.random() * 3);
+        for (let k = 0; k < runLen && i < segments; k++, i++) vals.push(level);
+        level = 1 - level;
+    }
+    return vals;
+}
+
+// Divide-by-two: Q toggles on every rising edge of the clock.
+function ffwaveSimulateDivideByTwo(clockVals, initialQ) {
+    const Q = new Array(clockVals.length);
+    let q = initialQ;
+    Q[0] = q;
+    for (let i = 1; i < clockVals.length; i++) {
+        const risingEdge = clockVals[i] === 1 && clockVals[i - 1] === 0;
+        if (risingEdge) q = 1 - q;
+        Q[i] = q;
+    }
+    return Q;
+}
+
+// Data latch: Output samples Data at every rising edge of the clock, holds otherwise.
+function ffwaveSimulateDataLatch(dataVals, clockVals, initialOut) {
+    const OUT = new Array(clockVals.length);
+    let out = initialOut;
+    OUT[0] = out;
+    for (let i = 1; i < clockVals.length; i++) {
+        const risingEdge = clockVals[i] === 1 && clockVals[i - 1] === 0;
+        if (risingEdge) out = dataVals[i];
+        OUT[i] = out;
+    }
+    return OUT;
+}
+
+function generateFlipflopWaveProblem(ctx, canvas) {
+    if (!canvas || !ctx) return;
+
+    // Alternate scenario type so students see both formats across attempts
+    const qType = scenarioTracker.flipflop_wave;
+    scenarioTracker.flipflop_wave = (scenarioTracker.flipflop_wave + 1) % 2;
+    const scenario = qType === 0 ? 'divide2' : 'datalatch';
+
+    const pulseWidth = 1 + Math.floor(Math.random() * 2); // 1 or 2 segments per half-cycle
+    const leadIn = Math.random() < 0.5 ? 0 : pulseWidth;
+
+    let rows = [];
+    let questionHtml = "";
+
+    if (scenario === 'divide2') {
+        const clockVals = ffwaveBuildRegularClock(FFWAVE_SEGMENTS, pulseWidth, leadIn);
+        const initialQ = ffwaveShuffleStartValue();
+        const correctQ = ffwaveSimulateDivideByTwo(clockVals, initialQ);
+        const correctQBar = correctQ.map(v => 1 - v);
+        const clockLabel = Math.random() < 0.5 ? "Pulse Gen." : "Clock";
+
+        rows = [
+            { label: clockLabel, values: clockVals, editable: false },
+            { label: "Q", values: correctQ, editable: true, student: new Array(FFWAVE_SEGMENTS).fill(initialQ) },
+            { label: "Q̄", values: correctQBar, editable: true, student: new Array(FFWAVE_SEGMENTS).fill(1 - initialQ) }
+        ];
+
+        questionHtml = `
+            <h3 style="color:#d65093;">D-Type Flip-Flop: Divide-by-Two Circuit</h3>
+            <p>A D-type flip-flop is connected as a divide-by-two circuit: the clock input comes from the signal shown below, and <b>Q̄</b> is fed back to the <b>D</b> input.
+            The <b>Q</b> output is initially at logic <b>${initialQ}</b>.</p>
+            <p>Complete the <b>Q</b> and <b>Q̄</b> graphs below. <em>(Click a cell to toggle it between 0 and 1.)</em></p>`;
+
+    } else {
+        const dataVals = ffwaveBuildRandomSignal(FFWAVE_SEGMENTS);
+        const clockVals = ffwaveBuildRegularClock(FFWAVE_SEGMENTS, pulseWidth, leadIn);
+        const initialOut = 0; // Papers consistently state "the output is initially low"
+        const correctOut = ffwaveSimulateDataLatch(dataVals, clockVals, initialOut);
+
+        rows = [
+            { label: "Data", values: dataVals, editable: false },
+            { label: "Clock", values: clockVals, editable: false },
+            { label: "Output", values: correctOut, editable: true, student: new Array(FFWAVE_SEGMENTS).fill(initialOut) }
+        ];
+
+        questionHtml = `
+            <h3 style="color:#d65093;">D-Type Flip-Flop: Data Transfer</h3>
+            <p>The diagram shows a rising-edge triggered D-type flip-flop connected to a <b>Data signal</b> and a <b>Clock</b>.
+            The <b>Output</b> is initially low.</p>
+            <p>Complete the <b>Output</b> graph below. <em>(Click a cell to toggle it between 0 and 1.)</em></p>`;
+    }
+
+    window.ffWaveState = { scenario: scenario, rows: rows, checked: false };
+
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = questionHtml;
+    }
+
+    drawFlipflopWave(ctx, canvas);
+}
+
+function ffwaveDrawStepLine(ctx, values, centerY, color) {
+    const highY = centerY - FFWAVE_AMPLITUDE;
+    const lowY = centerY + FFWAVE_AMPLITUDE;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let i = 0; i < values.length; i++) {
+        const x1 = FFWAVE_PLOT_X + i * FFWAVE_SEG_WIDTH;
+        const x2 = FFWAVE_PLOT_X + (i + 1) * FFWAVE_SEG_WIDTH;
+        const y = values[i] === 1 ? highY : lowY;
+        if (i === 0) ctx.moveTo(x1, y); else ctx.lineTo(x1, y);
+        ctx.lineTo(x2, y);
+        if (i < values.length - 1) {
+            const nextY = values[i + 1] === 1 ? highY : lowY;
+            if (nextY !== y) ctx.lineTo(x2, nextY);
+        }
+    }
+    ctx.stroke();
+}
+
+function ffwaveDrawColoredStepLine(ctx, values, centerY, segmentColors) {
+    const highY = centerY - FFWAVE_AMPLITUDE;
+    const lowY = centerY + FFWAVE_AMPLITUDE;
+    for (let i = 0; i < values.length; i++) {
+        const x1 = FFWAVE_PLOT_X + i * FFWAVE_SEG_WIDTH;
+        const x2 = FFWAVE_PLOT_X + (i + 1) * FFWAVE_SEG_WIDTH;
+        const y = values[i] === 1 ? highY : lowY;
+        ctx.strokeStyle = segmentColors[i];
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x1, y);
+        ctx.lineTo(x2, y);
+        ctx.stroke();
+        if (i < values.length - 1) {
+            const nextY = values[i + 1] === 1 ? highY : lowY;
+            if (nextY !== y) {
+                ctx.beginPath();
+                ctx.moveTo(x2, y);
+                ctx.lineTo(x2, nextY);
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+function drawFlipflopWave(ctx, canvas) {
+    if (!window.ffWaveState) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const rows = window.ffWaveState.rows;
+
+    rows.forEach((row, idx) => {
+        const centerY = FFWAVE_ROW_Y[idx];
+        const highY = centerY - FFWAVE_AMPLITUDE;
+        const lowY = centerY + FFWAVE_AMPLITUDE;
+
+        if (row.editable) {
+            ctx.fillStyle = "#eef6ff";
+            ctx.fillRect(FFWAVE_PLOT_X, centerY - FFWAVE_ROW_HEIGHT / 2, FFWAVE_PLOT_WIDTH, FFWAVE_ROW_HEIGHT);
+        }
+
+        ctx.strokeStyle = "#ddd";
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= FFWAVE_SEGMENTS; i++) {
+            const x = FFWAVE_PLOT_X + i * FFWAVE_SEG_WIDTH;
+            ctx.beginPath();
+            ctx.moveTo(x, centerY - FFWAVE_ROW_HEIGHT / 2);
+            ctx.lineTo(x, centerY + FFWAVE_ROW_HEIGHT / 2);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = "#666";
+        ctx.font = "12px Arial";
+        ctx.textAlign = "right";
+        ctx.fillText("1", FFWAVE_PLOT_X - 8, highY + 4);
+        ctx.fillText("0", FFWAVE_PLOT_X - 8, lowY + 4);
+
+        ctx.fillStyle = "#333";
+        ctx.font = "bold 12px Arial";
+        ctx.textAlign = "left";
+        ctx.fillText(row.label, 6, centerY + 5);
+
+        if (row.editable) {
+            if (window.ffWaveState.checked && row.segmentColors) {
+                ffwaveDrawColoredStepLine(ctx, row.student, centerY, row.segmentColors);
+            } else {
+                ffwaveDrawStepLine(ctx, row.student, centerY, "#0d6efd");
+            }
+        } else {
+            ffwaveDrawStepLine(ctx, row.values, centerY, "#000");
+        }
+    });
+
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 1.5;
+    const axisY = FFWAVE_ROW_Y[rows.length - 1] + FFWAVE_ROW_HEIGHT / 2 + 15;
+    ctx.beginPath();
+    ctx.moveTo(FFWAVE_PLOT_X - 15, axisY);
+    ctx.lineTo(FFWAVE_PLOT_X + FFWAVE_PLOT_WIDTH + 5, axisY);
+    ctx.stroke();
+    ctx.fillStyle = "#000";
+    ctx.font = "12px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText("Time", FFWAVE_PLOT_X + FFWAVE_PLOT_WIDTH + 8, axisY + 4);
+}
+
+function setupFlipflopWaveClick(ctx, canvas) {
+    if (window.ffwaveClickHandler) {
+        canvas.removeEventListener('click', window.ffwaveClickHandler);
+    }
+
+    window.ffwaveClickHandler = function (e) {
+        if (currentMode !== 'flipflop_wave') return;
+        if (!window.ffWaveState || isCurrentProblemSolved) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        const rows = window.ffWaveState.rows;
+        rows.forEach((row, idx) => {
+            if (!row.editable) return;
+            const centerY = FFWAVE_ROW_Y[idx];
+            if (mouseY < centerY - FFWAVE_ROW_HEIGHT / 2 || mouseY > centerY + FFWAVE_ROW_HEIGHT / 2) return;
+            if (mouseX < FFWAVE_PLOT_X || mouseX > FFWAVE_PLOT_X + FFWAVE_PLOT_WIDTH) return;
+
+            const segIndex = Math.floor((mouseX - FFWAVE_PLOT_X) / FFWAVE_SEG_WIDTH);
+            if (segIndex <= 0 || segIndex >= FFWAVE_SEGMENTS) return; // segment 0 is given, not editable
+
+            row.student[segIndex] = 1 - row.student[segIndex];
+            window.ffWaveState.checked = false; // Editing after a check clears the red/green coloring
+        });
+
+        drawFlipflopWave(ctx, canvas);
+    };
+
+    canvas.addEventListener('click', window.ffwaveClickHandler);
+}
+
+function checkFlipflopWaveAnswer(feedback, showsolutionsBtn) {
+    if (!window.ffWaveState) return;
+
+    if (!hasCheckedCurrentProblem) {
+        problemsAttempted++;
+        hasCheckedCurrentProblem = true;
+    }
+
+    const rows = window.ffWaveState.rows;
+    let totalSegments = 0;
+    let correctSegments = 0;
+    const summaryParts = [];
+
+    rows.forEach(row => {
+        if (!row.editable) return;
+        let rowCorrect = 0;
+        const colors = [];
+        for (let i = 0; i < row.student.length; i++) {
+            const isRight = row.student[i] === row.values[i];
+            colors.push(isRight ? "#28a745" : "#dc3545");
+            if (isRight) rowCorrect++;
+        }
+        row.segmentColors = colors;
+        totalSegments += row.student.length;
+        correctSegments += rowCorrect;
+        summaryParts.push(`${row.label}: ${rowCorrect}/${row.student.length}`);
+    });
+
+    window.ffWaveState.checked = true;
+
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    if (ctx && canvas) drawFlipflopWave(ctx, canvas);
+
+    const allCorrect = correctSegments === totalSegments;
+
+    if (allCorrect) {
+        isCurrentProblemSolved = true;
+        if (canEarnPoints) { problemsCorrect++; }
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #198754;'>Perfect! ${summaryParts.join(' | ')}. Click 'New Question' to continue.</span>`;
+        const checkansBtn = document.getElementById('checkansBtn');
+        if (checkansBtn) checkansBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+    } else {
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #dc3545;'>Not quite: ${summaryParts.join(' | ')}. Red segments are wrong &mdash; click them to fix, then check again.</span>`;
+    }
+
+    if (typeof updateScoreboard === "function") updateScoreboard();
 }
 
 // Master Switch on Load
