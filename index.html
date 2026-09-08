@@ -866,6 +866,11 @@
 
 <div id="menuFlipFlops" class="tabs" style="display:none;">
     <button class="tab" id="tab-flipflop_wave" onclick="safeSwitchTab('flipflop_wave')">Waveforms</button>
+    <button class="tab" id="tab-flipflop_freq" onclick="safeSwitchTab('flipflop_freq')">Frequency Calc</button>
+    <button class="tab" id="tab-flipflop_table" onclick="safeSwitchTab('flipflop_table')">State Table</button>
+    <button class="tab" id="tab-flipflop_wiring" onclick="safeSwitchTab('flipflop_wiring')">Wiring</button>
+    <button class="tab" id="tab-flipflop_circuit" onclick="safeSwitchTab('flipflop_circuit')">Circuit Builder</button>
+    <button class="tab" id="tab-flipflop_decade" onclick="safeSwitchTab('flipflop_decade')">Decade Counter</button>
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
@@ -1120,6 +1125,38 @@
 
         <div id="ratioInstruction" class="instruction-text" style="color: #6c757d; font-size: 0.85em; text-align: center; width: 100%; margin-top: 10px;"></div>
     </div>
+
+</div>
+<!-- Input group FLIP-FLOP FREQUENCY CALC -->
+<div id="inputGroupFlipflopFreq" style="display:none; flex-direction: column; gap: 15px; align-items: center; margin-top: 15px; margin-bottom: 15px;">
+
+    <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
+        <label id="ffFreqLabel1" for="inputFFFreq1" style="font-weight: bold; width: 220px !important; text-align: right; margin-right: 10px; margin-bottom: 0;">Frequency of Q̄ output:</label>
+        <input type="text" id="inputFFFreq1" placeholder="e.g. 50 Hz" style="width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
+        <label id="ffFreqLabel2" for="inputFFFreq2" style="font-weight: bold; width: 220px !important; text-align: right; margin-right: 10px; margin-bottom: 0;">Frequency of the pulse generator:</label>
+        <input type="text" id="inputFFFreq2" placeholder="e.g. 50 Hz" style="width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+    </div>
+
+</div>
+<!-- Input group FLIP-FLOP STATE TABLE -->
+<div id="inputGroupFlipflopTable" style="display:none; flex-direction: column; align-items: center; width: 100%; margin-top: 2px; margin-bottom: 15px;">
+    <div style="font-size: 0.85em; color: #6c757d; text-align: center; margin-bottom: 6px;">Tap a cell to toggle it between Off and On.</div>
+    <table id="ffTableGrid" style="border-collapse: collapse; width: 100%; max-width: 400px;"></table>
+</div>
+<!-- Input group FLIP-FLOP CIRCUIT BUILDER (click-to-wire) -->
+<div id="inputGroupFlipflopCircuit" style="display:none; flex-direction: column; align-items: center; width: 100%; margin-top: 10px; margin-bottom: 15px; gap: 10px;">
+    <div style="font-size: 0.85em; color: #6c757d; text-align: center;">Click a node, then click another node to wire them together. Click a wire's two ends again to remove it.</div>
+    <div style="display:flex; gap:10px;">
+        <button class="btn-reset" onclick="ffCircuitClearWires()">🗑️ Clear Wires</button>
+    </div>
+</div>
+<!-- Input group DECADE COUNTER (reset wiring + waveforms) -->
+<div id="inputGroupFlipflopDecade" style="display:none; flex-direction: column; align-items: center; width: 100%; margin-top: 2px; margin-bottom: 15px; gap: 8px;">
+    <div style="font-size: 0.85em; color: #6c757d; text-align: center;">Click one output node, then click the reset node to connect them (click a connected pair again to remove it).<br>Tap a segment on the waveform rows opposite to toggle it between High and Low.</div>
+    <button class="btn-reset" onclick="ffDecadeClearAll()">🔄 Reset Attempt</button>
 </div>
 <!-- Input group OSCILLOSCOPE -->             
 <div id="oscilloscopeInputs" style="display:none; width: 100%;">
@@ -2234,7 +2271,11 @@ const scenarioTracker = {
     zener: 0,
     grade9zener: 0,
     power: 0,
-    flipflop_wave: 0
+    flipflop_wave: 0,
+    flipflop_freq: 0,
+    flipflop_table: 0,
+    flipflop_wiring: 0,
+    flipflop_circuit: 0
     // add any others you need here!
 };
 //**********************************************************************
@@ -10959,6 +11000,7 @@ function goHome() {
     
     // 👇 NEW: Hide the Op-Amps submenu when returning home
     if (document.getElementById('menuOpAmps')) document.getElementById('menuOpAmps').style.display = 'none'; 
+    if (document.getElementById('menuFlipFlops')) document.getElementById('menuFlipFlops').style.display = 'none';
     
     document.getElementById('menuPlaceholder').style.display = 'none';
 
@@ -11086,7 +11128,11 @@ function switchTab(mode) {
         'inputGroupGrade9Mosfet',
         'inputGroupComparator',
         'inputGroupOpAmp',
-        'inputGroupGrade9OpAmp' // 👇 ADDED THIS
+        'inputGroupGrade9OpAmp', // 👇 ADDED THIS
+        'inputGroupFlipflopFreq',
+        'inputGroupFlipflopTable',
+        'inputGroupFlipflopCircuit',
+        'inputGroupFlipflopDecade'
     ];
 
     elementsToHide.forEach(id => {
@@ -11107,7 +11153,7 @@ function switchTab(mode) {
         
         // 👇 UPDATED: OP-AMP & COMPARATOR
         else if (['opamp', 'comparator', 'grade9opamp'].includes(mode)) subtitle.innerText = "Module 7: Op Amps"; 
-        else if (['flipflop_wave'].includes(mode)) subtitle.innerText = "Module 5: Flip Flops & Counters";
+        else if (['flipflop_wave', 'flipflop_freq', 'flipflop_table', 'flipflop_wiring', 'flipflop_circuit', 'flipflop_decade'].includes(mode)) subtitle.innerText = "Module 5: Flip Flops & Counters";
     }
 
     // 5. Global Cleanup
@@ -11393,6 +11439,24 @@ function hubController(ctx, canvas) {
         if (typeof generateFlipflopWaveProblem === "function") generateFlipflopWaveProblem(ctx, canvas);
         if (typeof setupFlipflopWaveClick === "function") setupFlipflopWaveClick(ctx, canvas);
 
+    } else if (currentMode === 'flipflop_freq') {
+        if (typeof generateFlipflopFreqProblem === "function") generateFlipflopFreqProblem(ctx, canvas);
+
+    } else if (currentMode === 'flipflop_table') {
+        if (typeof generateFlipflopTableProblem === "function") generateFlipflopTableProblem(ctx, canvas);
+
+    } else if (currentMode === 'flipflop_wiring') {
+        if (typeof generateFlipflopWiringProblem === "function") generateFlipflopWiringProblem(ctx, canvas);
+
+    } else if (currentMode === 'flipflop_circuit') {
+        if (typeof generateFlipflopCircuitProblem === "function") generateFlipflopCircuitProblem(ctx, canvas);
+        if (typeof setupFlipflopCircuitClick === "function") setupFlipflopCircuitClick(ctx, canvas);
+
+    } else if (currentMode === 'flipflop_decade') {
+        canvas.height = 560; // taller than the generic default - 11 waveform rows need more room
+        if (typeof generateFlipflopDecadeProblem === "function") generateFlipflopDecadeProblem(ctx, canvas);
+        if (typeof setupFlipflopDecadeClick === "function") setupFlipflopDecadeClick(ctx, canvas);
+
 } else if (currentMode === 'grade9opamp') {
         // 1. Show the group FIRST
         const g9Group = document.getElementById('inputGroupGrade9OpAmp');
@@ -11471,6 +11535,30 @@ function checkAnswers() {
     // FLIP-FLOP WAVEFORM GRADING INTERCEPTOR
     if (currentMode === 'flipflop_wave') {
         if (typeof checkFlipflopWaveAnswer === "function") checkFlipflopWaveAnswer(feedback, showsolutionsBtn);
+        return;
+    }
+
+    // FLIP-FLOP STATE TABLE GRADING INTERCEPTOR
+    if (currentMode === 'flipflop_table') {
+        if (typeof checkFlipflopTableAnswer === "function") checkFlipflopTableAnswer(feedback, showsolutionsBtn);
+        return;
+    }
+
+    // FLIP-FLOP WIRING (DRAG & DROP) GRADING INTERCEPTOR
+    if (currentMode === 'flipflop_wiring') {
+        if (typeof checkFlipflopWiringAnswer === "function") checkFlipflopWiringAnswer(feedback, showsolutionsBtn);
+        return;
+    }
+
+    // FLIP-FLOP CIRCUIT BUILDER (CLICK-TO-WIRE) GRADING INTERCEPTOR
+    if (currentMode === 'flipflop_circuit') {
+        if (typeof checkFlipflopCircuitAnswer === "function") checkFlipflopCircuitAnswer(feedback, showsolutionsBtn);
+        return;
+    }
+
+    // DECADE COUNTER (RESET WIRING + WAVEFORMS) GRADING INTERCEPTOR
+    if (currentMode === 'flipflop_decade') {
+        if (typeof checkFlipflopDecadeAnswer === "function") checkFlipflopDecadeAnswer(feedback, showsolutionsBtn);
         return;
     }
 
@@ -12224,6 +12312,7 @@ function checkAnswers() {
         activeInputs = (currentAnswers.astableQType === 0) ? ['inputAstable', 'inputAstableT'] : ['inputMarkSpace'];
     }
     else if (currentMode === 'monostable') activeInputs = ['inputMonostable'];
+    else if (currentMode === 'flipflop_freq') activeInputs = ['inputFFFreq1', 'inputFFFreq2'];
     else if (currentMode === 'zener') {
         activeInputs = (currentZenerState === "closed") ? ['zenerQ_IL', 'zenerQ_VL'] : ['zenerQ_IZ', 'zenerQ_PZ'];
     }
@@ -12398,6 +12487,10 @@ function checkAnswers() {
 
     } else if (currentMode === 'monostable') {
         results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputMonostable').value)), currentAnswers.expectedT, currentAnswers.expectedUnit));
+
+    } else if (currentMode === 'flipflop_freq') {
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputFFFreq1').value)), currentAnswers.ffFreqAnswer1, currentAnswers.ffFreqUnit || 'Hz'));
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('inputFFFreq2').value)), currentAnswers.ffFreqAnswer2, currentAnswers.ffFreqUnit || 'Hz'));
 
     } else if (currentMode === 'colorcode') {
         if (window.colorCodeSubMode === 'colorToValue') {
@@ -13591,6 +13684,85 @@ function provideHint() {
         }
     }
 
+    else if (currentMode === 'flipflop_freq' && currentAnswers.ffFreqScenario) {
+        if (currentAnswers.ffFreqScenario === 'single') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> Q̄ toggles at exactly the <i>same moments</i> as Q &mdash; it's just the opposite logic level, so it has the <b>same frequency</b> as Q, not a different one.<br>
+                    Since this is a divide-by-<b>two</b> circuit, Q only toggles on every <i>other</i> clock edge &mdash; so the pulse generator must be running at <b>twice</b> Q's frequency.
+                </div>`;
+        } else {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> Each D-type flip-flop in the chain is a divide-by-two stage, so its output frequency is always <b>half</b> of whatever is driving its clock input.<br>
+                    Apply that rule once to get from the pulse generator to Q<sub>A</sub>, then apply it again to Q<sub>A</sub> to get Q<sub>B</sub>.
+                </div>`;
+        }
+    }
+
+    else if (currentMode === 'flipflop_table' && window.ffTableState) {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint:</strong> This is a binary counter &mdash; LED1 is the <b>least significant bit</b> and toggles on <i>every</i> clock pulse. Each next LED only toggles when the LED before it goes from On back to Off (just like counting: 0, 1, 2, 3, 0, 1...).<br>
+                Try writing each row as a binary number (LED1 = right-most digit) and count upwards, wrapping back to 0 when you run out of digits.
+            </div>`;
+    }
+
+    else if (currentMode === 'flipflop_wiring' && window.ffWiringState) {
+        const scenarioId = window.ffWiringState.scenario.id;
+        if (scenarioId === 'onebit') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> The clock input just needs a repeating signal to trigger it &mdash; that's the pulse generator. For the one-bit counter action, the <b>D</b> input needs to be fed the <i>opposite</i> of the current output, so that it flips every time the clock ticks.
+                </div>`;
+        } else if (scenarioId === 'twobit') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> Each flip-flop on its own is just a one-bit counter &mdash; its own D input needs its own Q̄ fed back to make it toggle every time its clock ticks.<br>
+                    The second flip-flop only needs to toggle half as often as the first, so what should drive its clock input?
+                </div>`;
+        } else if (scenarioId === 'datatransfer') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> This flip-flop simply copies whatever is on its <b>D</b> input straight through to <b>Q</b>, but only at the exact moment the clock ticks &mdash; so <b>D</b> should come from the signal you want to copy, and <b>CK</b> from whatever should trigger the copy.
+                </div>`;
+        } else {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> To make Q go high and stay high when a switch is pressed, that switch needs to trigger the <b>clock</b> while <b>D</b> is permanently tied to a logic 1 (the supply voltage). A separate switch triggering <b>Reset</b> is what clears Q back to 0.
+                </div>`;
+        }
+    }
+
+    else if (currentMode === 'flipflop_circuit' && window.ffCircuitState) {
+        const circuitScenarioId = window.ffCircuitState.scenario.id;
+        if (circuitScenarioId === 'latch') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> Tie <b>D</b> permanently to <b>+12V</b> so it's always logic 1. Then whichever switch you connect to <b>CK</b> will "Set" Q to 1 when pressed (copying that permanent 1 across on the rising edge), and the other switch connected to <b>R</b> will force Q back to 0 whenever it's pressed. Don't forget to also connect <b>Q</b> to the resistor feeding the LED, or it'll never light up.
+                </div>`;
+        } else if (circuitScenarioId === 'onebit') {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> Connect the <b>Pulse Generator</b> to <b>CK</b> so the flip-flop has something to trigger on. Then connect <b>Q̄</b> back to <b>D</b> &mdash; feeding the opposite of the output back into the input is what makes Q toggle on every single clock pulse.
+                </div>`;
+        } else {
+            helpText = `
+                <div style="${blueBox}">
+                    <strong>💡 Hint:</strong> Build each flip-flop as its own one-bit counter first (Q̄ back to its own D). Then connect the <b>Pulse Generator</b> to <b>CK1</b>, and use <b>Q̄1</b> to drive <b>CK2</b> &mdash; so the second counter only ticks once for every two ticks of the first.
+                </div>`;
+        }
+    }
+
+    else if (currentMode === 'flipflop_decade' && window.ffDecadeState) {
+        const N = window.ffDecadeState.N;
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint:</strong> Feeding <b>Q${N}</b> back into <b>R</b> means the counter resets the instant it would reach Q${N} - so it only ever visibly cycles through Q0 to Q${N - 1}.<br>
+                For the waveforms: only one output is high at a time. Q0 starts high; on each clock pulse, the "high" moves to the next output in order (Q0 &rarr; Q1 &rarr; Q2 &hellip;), wrapping back to Q0 after Q${N - 1}.
+            </div>`;
+    }
+
     // --- FINAL OUTPUT ---
     if (helpText !== "") {
         feedback.innerHTML = helpText;
@@ -13637,6 +13809,11 @@ const topicMap = {
 
     // --- Flip-Flops & Counters ---
     'flipflop_wave': 'Waveforms',
+    'flipflop_freq': 'Frequency Calc',
+    'flipflop_table': 'State Table',
+    'flipflop_wiring': 'Wiring',
+    'flipflop_circuit': 'Circuit Builder',
+    'flipflop_decade': 'Decade Counter',
     
     // --- Diodes ---
     'silicon': 'Silicon Diodes',
@@ -13882,7 +14059,11 @@ function hideAllInputGroups() {
         'inputGroupGrade9Mosfet',           // NEW: Grade 9 Mosfet inputs
         'inputGroupComparator',             // 👇 NEW: Comparator inputs added here
         'inputGroupOpAmp',                  // Add this
-        'inputGroupGrade9OpAmp'             // Add this
+        'inputGroupGrade9OpAmp',             // Add this
+        'inputGroupFlipflopFreq',           // Flip-Flop Frequency Calc
+        'inputGroupFlipflopTable',          // Flip-Flop State Table
+        'inputGroupFlipflopCircuit',        // Flip-Flop Circuit Builder
+        'inputGroupFlipflopDecade'          // Decade Counter (reset wiring + waveforms)
     ];
 
     ghostGroups.forEach(id => {
@@ -14361,8 +14542,8 @@ function generateFlipflopWaveProblem(ctx, canvas) {
         ];
 
         questionHtml = `
-            <h3 style="color:#d65093;">D-Type Flip-Flop: Divide-by-Two Circuit</h3>
-            <p>A D-type flip-flop is connected as a divide-by-two circuit: the clock input comes from the signal shown below, and <b>Q̄</b> is fed back to the <b>D</b> input.
+            <h3 style="color:#d65093;">D-Type Flip-Flop: One-Bit Counter</h3>
+            <p>A D-type flip-flop is connected as a one-bit counter: the clock input comes from the signal shown below, and <b>Q̄</b> is fed back to the <b>D</b> input.
             The <b>Q</b> output is initially at logic <b>${initialQ}</b>.</p>
             <p>Complete the <b>Q</b> and <b>Q̄</b> graphs below. <em>(Click a cell to toggle it between 0 and 1.)</em></p>`;
 
@@ -14394,6 +14575,107 @@ function generateFlipflopWaveProblem(ctx, canvas) {
     }
 
     drawFlipflopWave(ctx, canvas);
+}
+
+// Canvas text doesn't reliably render the combining-overline character used for "Q̄"
+// across all browsers/fonts - this draws a plain "Q" with a manually-drawn line above
+// it instead, wherever "Q̄" appears in the given string. Requires ctx.textAlign = "left".
+function ffDrawTextWithQBar(ctx, text, x, y) {
+    const parts = text.split("Q̄");
+    let curX = x;
+    for (let i = 0; i < parts.length; i++) {
+        if (parts[i]) {
+            ctx.fillText(parts[i], curX, y);
+            curX += ctx.measureText(parts[i]).width;
+        }
+        if (i < parts.length - 1) {
+            ctx.fillText("Q", curX, y);
+            const qWidth = ctx.measureText("Q").width;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(curX, y - 11);
+            ctx.lineTo(curX + qWidth, y - 11);
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = ctx.fillStyle;
+            ctx.stroke();
+            ctx.restore();
+            curX += qWidth;
+        }
+    }
+}
+
+// Draws "letter" + a smaller dropped subscript (e.g. "Q" + "A"), left-aligned starting at x.
+// Follows the same technique as the existing drawCanvasSubscript() helper used elsewhere.
+function ffDrawLetterSubscriptLeft(ctx, letter, subscript, x, y, size) {
+    ctx.textAlign = "left";
+    ctx.font = `bold ${size}px Arial`;
+    ctx.fillText(letter, x, y);
+    let curX = x + ctx.measureText(letter).width;
+    if (subscript) {
+        const subSize = Math.floor(size * 0.75);
+        ctx.font = `bold ${subSize}px Arial`;
+        ctx.fillText(subscript, curX + 1, y + (size * 0.25));
+        curX += ctx.measureText(subscript).width + 2;
+    }
+    ctx.font = `bold ${size}px Arial`;
+    return curX;
+}
+
+// Same as above, but right-aligned so the whole "letter+subscript" cluster's RIGHT edge
+// lands exactly on rightEdgeX - used so Q/Q̄ pin labels share the same right edge.
+function ffDrawLetterSubscriptRight(ctx, letter, subscript, rightEdgeX, y, size) {
+    ctx.font = `bold ${size}px Arial`;
+    const letterWidth = ctx.measureText(letter).width;
+    const subSize = Math.floor(size * 0.75);
+    let subWidth = 0;
+    if (subscript) {
+        ctx.font = `bold ${subSize}px Arial`;
+        subWidth = ctx.measureText(subscript).width + 2;
+    }
+    const startX = rightEdgeX - (letterWidth + subWidth);
+
+    ctx.textAlign = "left";
+    ctx.font = `bold ${size}px Arial`;
+    ctx.fillText(letter, startX, y);
+    if (subscript) {
+        ctx.font = `bold ${subSize}px Arial`;
+        ctx.fillText(subscript, startX + letterWidth + 1, y + (size * 0.25));
+    }
+    ctx.font = `bold ${size}px Arial`;
+    return startX;
+}
+
+// Draws "Q̄" (manual overline, since combining diacritics render unreliably in canvas)
+// plus an optional smaller subscript, right-aligned so it lines up exactly under Q.
+function ffDrawQBarSubscriptRight(ctx, rightEdgeX, y, subscript, size) {
+    ctx.font = `bold ${size}px Arial`;
+    const qWidth = ctx.measureText("Q").width;
+    const subSize = Math.floor(size * 0.75);
+    let subWidth = 0;
+    if (subscript) {
+        ctx.font = `bold ${subSize}px Arial`;
+        subWidth = ctx.measureText(subscript).width + 2;
+    }
+    const startX = rightEdgeX - (qWidth + subWidth);
+
+    ctx.textAlign = "left";
+    ctx.font = `bold ${size}px Arial`;
+    ctx.fillStyle = "#000";
+    ctx.fillText("Q", startX, y);
+
+    ctx.beginPath();
+    ctx.moveTo(startX, y - (size + 1));
+    ctx.lineTo(startX + qWidth, y - (size + 1));
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "#000";
+    ctx.stroke();
+
+    if (subscript) {
+        ctx.font = `bold ${subSize}px Arial`;
+        ctx.fillText(subscript, startX + qWidth + 1, y + (size * 0.25));
+    }
+    ctx.font = `bold ${size}px Arial`;
+    return startX;
 }
 
 function ffwaveDrawStepLine(ctx, values, centerY, color) {
@@ -14476,7 +14758,7 @@ function drawFlipflopWave(ctx, canvas) {
         ctx.fillStyle = "#333";
         ctx.font = "bold 12px Arial";
         ctx.textAlign = "left";
-        ctx.fillText(row.label, 6, centerY + 5);
+        ffDrawTextWithQBar(ctx, row.label, 6, centerY + 5);
 
         if (row.editable) {
             if (window.ffWaveState.checked && row.segmentColors) {
@@ -14488,18 +14770,6 @@ function drawFlipflopWave(ctx, canvas) {
             ffwaveDrawStepLine(ctx, row.values, centerY, "#000");
         }
     });
-
-    ctx.strokeStyle = "#000";
-    ctx.lineWidth = 1.5;
-    const axisY = FFWAVE_ROW_Y[rows.length - 1] + FFWAVE_ROW_HEIGHT / 2 + 15;
-    ctx.beginPath();
-    ctx.moveTo(FFWAVE_PLOT_X - 15, axisY);
-    ctx.lineTo(FFWAVE_PLOT_X + FFWAVE_PLOT_WIDTH + 5, axisY);
-    ctx.stroke();
-    ctx.fillStyle = "#000";
-    ctx.font = "12px Arial";
-    ctx.textAlign = "left";
-    ctx.fillText("Time", FFWAVE_PLOT_X + FFWAVE_PLOT_WIDTH + 8, axisY + 4);
 }
 
 function setupFlipflopWaveClick(ctx, canvas) {
@@ -14582,6 +14852,2213 @@ function checkFlipflopWaveAnswer(feedback, showsolutionsBtn) {
     } else {
         canEarnPoints = false;
         feedback.innerHTML = `<span style='color: #dc3545;'>Not quite: ${summaryParts.join(' | ')}. Red segments are wrong &mdash; click them to fix, then check again.</span>`;
+    }
+
+    if (typeof updateScoreboard === "function") updateScoreboard();
+}
+
+//*****************************************************************************************
+// FLIP-FLOP FREQUENCY CALCULATIONS (Module 5: Flip Flops & Counters)
+//*****************************************************************************************
+// Two scenarios, alternated via scenarioTracker.flipflop_freq:
+//   'single' - one divide-by-two flip-flop. Given Q's frequency, find Q̄'s frequency
+//              (same as Q - a common misconception check) and the pulse generator's
+//              frequency (double Q's, since Q is a divide-by-two of the clock).
+//   'chain'  - two divide-by-two flip-flops in series (2-bit counter). Given the pulse
+//              generator frequency, find each stage's output frequency (halves each stage).
+function ffFreqDrawBox(ctx, x, y, w, h, title) {
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 13px Arial";
+    ctx.textAlign = "center";
+    const lines = title.split("\n");
+    const lineHeight = 16;
+    const startY = y + h / 2 - ((lines.length - 1) * lineHeight) / 2 + 5;
+    lines.forEach((line, i) => ctx.fillText(line, x + w / 2, startY + i * lineHeight));
+}
+
+function ffFreqDrawArrow(ctx, x1, y, x2) {
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y);
+    ctx.lineTo(x2, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2, y);
+    ctx.lineTo(x2 - 8, y - 5);
+    ctx.lineTo(x2 - 8, y + 5);
+    ctx.closePath();
+    ctx.fillStyle = "#333";
+    ctx.fill();
+}
+
+// Draws the authentic D-type flip-flop symbol used throughout the exam papers:
+// a box with D/Q on the top pin row, a clock arrow + Q̄ on the bottom pin row.
+// An optional subscript (e.g. "A") labels the pins D_A, Q_A, Q̄_A for multi-stage diagrams.
+function ffFreqDrawFlipFlopBox(ctx, x, y, w, h, subscript) {
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+
+    const topY = y + h * 0.3;
+    const botY = y + h * 0.7;
+    const pinFontSize = 13;
+
+    ctx.fillStyle = "#000";
+
+    // D (top-left) and Q (top-right) - Q is right-aligned so Q̄ below can match its edge exactly
+    ffDrawLetterSubscriptLeft(ctx, "D", subscript, x + 6, topY + 5, pinFontSize);
+    const qRightEdge = x + w - 6;
+    ffDrawLetterSubscriptRight(ctx, "Q", subscript, qRightEdge, topY + 5, pinFontSize);
+
+    // Clock arrow (bottom-left, pointing into the box)
+    ctx.strokeStyle = "#333";
+    ctx.beginPath();
+    ctx.moveTo(x, botY - 7);
+    ctx.lineTo(x + 11, botY);
+    ctx.lineTo(x, botY + 7);
+    ctx.stroke();
+
+    // Q̄ (bottom-right) - right-aligned to the SAME edge as Q, directly underneath it
+    ffDrawQBarSubscriptRight(ctx, qRightEdge, botY + 5, subscript, pinFontSize);
+
+    return { topY, botY };
+}
+
+function ffFreqDrawJunctionDot(ctx, x, y) {
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#333";
+    ctx.fill();
+}
+
+function ffFreqDrawSingleStage(ctx, canvas, qFreqVal) {
+    const boxX = 260, boxY = 160, boxW = 140, boxH = 100;
+    const { topY: dY, botY: ckY } = ffFreqDrawFlipFlopBox(ctx, boxX, boxY, boxW, boxH);
+
+    const pulseW = 140, pulseH = 70;
+    const pulseX = 40, pulseY = ckY - pulseH / 2;
+    ffFreqDrawBox(ctx, pulseX, pulseY, pulseW, pulseH, "Pulse\nGenerator");
+
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+
+    // Pulse generator -> CK
+    ctx.beginPath();
+    ctx.moveTo(pulseX + pulseW, ckY);
+    ctx.lineTo(boxX, ckY);
+    ctx.stroke();
+
+    // Q̄ -> D feedback loop, routed up and over the top of the box (matches the papers)
+    const loopTopY = boxY - 30;
+    const loopRightX = boxX + boxW + 30;
+    const loopLeftX = boxX - 30;
+    const branchX = loopRightX;
+
+    ctx.beginPath();
+    ctx.moveTo(boxX + boxW, ckY);
+    ctx.lineTo(loopRightX, ckY);
+    ctx.lineTo(loopRightX, loopTopY);
+    ctx.lineTo(loopLeftX, loopTopY);
+    ctx.lineTo(loopLeftX, dY);
+    ctx.lineTo(boxX, dY);
+    ctx.stroke();
+
+    // Q output (given)
+    ctx.beginPath();
+    ctx.moveTo(boxX + boxW, dY);
+    ctx.lineTo(boxX + boxW + 70, dY);
+    ctx.stroke();
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 14px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText(`Q = ${qFreqVal} Hz`, boxX + boxW + 76, dY + 5);
+
+    // Q̄ output (unknown) - branches off the feedback loop
+    ffFreqDrawJunctionDot(ctx, branchX, ckY);
+    ctx.beginPath();
+    ctx.moveTo(branchX, ckY);
+    ctx.lineTo(branchX + 20, ckY);
+    ctx.stroke();
+    ffDrawTextWithQBar(ctx, "Q̄ = ?", branchX + 26, ckY + 5);
+}
+
+function ffFreqDrawTwoStage(ctx, canvas, genFreqVal) {
+    const boxY = 160, boxH = 100, boxW = 90;
+    const pulseW = 90, pulseH = 70;
+
+    const boxAX = 140, boxBX = 370;
+    const pulseX = 10;
+
+    const { topY: dY, botY: ckY } = ffFreqDrawFlipFlopBox(ctx, boxAX, boxY, boxW, boxH, "A");
+    ffFreqDrawFlipFlopBox(ctx, boxBX, boxY, boxW, boxH, "B");
+
+    const pulseY = ckY - pulseH / 2;
+    ffFreqDrawBox(ctx, pulseX, pulseY, pulseW, pulseH, "Pulse\nGenerator");
+
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+
+    // Pulse generator -> CK_A
+    ctx.beginPath();
+    ctx.moveTo(pulseX + pulseW, ckY);
+    ctx.lineTo(boxAX, ckY);
+    ctx.stroke();
+
+    // Q̄A -> CK_B (direct, since both are on the same pin row)
+    ctx.beginPath();
+    ctx.moveTo(boxAX + boxW, ckY);
+    ctx.lineTo(boxBX, ckY);
+    ctx.stroke();
+
+    // Q̄A -> D_A feedback loop (branches off the Q̄A -> CK_B line)
+    const branchAX = boxAX + boxW + 30;
+    const loopTopYA = boxY - 30;
+    const loopLeftXA = boxAX - 25;
+    ffFreqDrawJunctionDot(ctx, branchAX, ckY);
+    ctx.beginPath();
+    ctx.moveTo(branchAX, ckY);
+    ctx.lineTo(branchAX, loopTopYA);
+    ctx.lineTo(loopLeftXA, loopTopYA);
+    ctx.lineTo(loopLeftXA, dY);
+    ctx.lineTo(boxAX, dY);
+    ctx.stroke();
+
+    // Q̄B -> D_B feedback loop (its own loop, since B is the last stage)
+    const loopRightXB = boxBX + boxW + 30;
+    const loopTopYB = boxY - 30;
+    ctx.beginPath();
+    ctx.moveTo(boxBX + boxW, ckY);
+    ctx.lineTo(loopRightXB, ckY);
+    ctx.lineTo(loopRightXB, loopTopYB);
+    ctx.lineTo(boxBX - 25, loopTopYB);
+    ctx.lineTo(boxBX - 25, dY);
+    ctx.lineTo(boxBX, dY);
+    ctx.stroke();
+
+    // Q_A output (unknown)
+    ctx.strokeStyle = "#333";
+    ctx.beginPath();
+    ctx.moveTo(boxAX + boxW, dY);
+    ctx.lineTo(boxAX + boxW + 50, dY);
+    ctx.stroke();
+    ctx.fillStyle = "#000";
+    let curX = ffDrawLetterSubscriptLeft(ctx, "Q", "A", boxAX + boxW + 56, dY + 5, 13);
+    ctx.font = "bold 13px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText(" = ?", curX, dY + 5);
+
+    // Q_B output (unknown)
+    ctx.beginPath();
+    ctx.moveTo(boxBX + boxW, dY);
+    ctx.lineTo(boxBX + boxW + 40, dY);
+    ctx.stroke();
+    curX = ffDrawLetterSubscriptLeft(ctx, "Q", "B", boxBX + boxW + 46, dY + 5, 13);
+    ctx.font = "bold 13px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText(" = ?", curX, dY + 5);
+
+    // Pulse generator frequency label (given)
+    ctx.font = "bold 12px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(`${genFreqVal} Hz`, pulseX + pulseW / 2, pulseY - 10);
+}
+
+function generateFlipflopFreqProblem(ctx, canvas) {
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const qType = scenarioTracker.flipflop_freq;
+    scenarioTracker.flipflop_freq = (scenarioTracker.flipflop_freq + 1) % 2;
+    const scenario = qType === 0 ? 'single' : 'chain';
+
+    let questionHtml = "";
+    let label1 = "", label2 = "";
+    let solHtml = "";
+
+    if (scenario === 'single') {
+        const qFreqVal = 5 + Math.floor(Math.random() * 496); // 5 - 500 Hz
+        currentAnswers.ffFreqAnswer1 = qFreqVal;       // Q̄ frequency = same as Q
+        currentAnswers.ffFreqAnswer2 = qFreqVal * 2;   // pulse generator frequency = double
+        currentAnswers.ffFreqUnit = 'Hz';
+
+        label1 = "Frequency of Q̄ output:";
+        label2 = "Frequency of the pulse generator:";
+
+        questionHtml = `
+            <h3 style="color:#d65093;">D-Type Flip-Flop: Frequency Relationships</h3>
+            <p>A D-type flip-flop is configured as a one bit counter. The frequency of the <b>Q</b> output is <b>${qFreqVal} Hz</b>.</p>
+            <p>Calculate the following:</p>`;
+
+        solHtml = `<strong>Rule:</strong> Q̄ always has the same frequency as Q (it just toggles at the same moments, with the opposite logic level). The pulse generator drives a divide-by-2 circuit, so its frequency is <u>double</u> Q's.<br>`;
+        solHtml += `<strong>Working:</strong> Q̄ = ${qFreqVal} Hz (same as Q). Pulse generator = ${qFreqVal} × 2 = ${qFreqVal * 2} Hz<br>`;
+        solHtml += `<strong>Results:</strong> Q̄ = <strong>${qFreqVal} Hz</strong>, Pulse generator = <strong>${qFreqVal * 2} Hz</strong>`;
+
+        ffFreqDrawSingleStage(ctx, canvas, qFreqVal);
+
+    } else {
+        const genFreqVal = 4 * (1 + Math.floor(Math.random() * 50)); // multiple of 4, 4 - 200 Hz
+        currentAnswers.ffFreqAnswer1 = genFreqVal / 2;
+        currentAnswers.ffFreqAnswer2 = genFreqVal / 4;
+        currentAnswers.ffFreqUnit = 'Hz';
+
+        label1 = "Frequency of Q<sub>A</sub> (1st flip-flop output):";
+        label2 = "Frequency of Q<sub>B</sub> (2nd flip-flop output):";
+
+        questionHtml = `
+            <h3 style="color:#d65093;">D-Type Flip-Flops: 2-Bit Counter Frequencies</h3>
+            <p>Two D-type flip-flops are connected in series as a 2-bit counter. The pulse generator (clock) has a frequency of <b>${genFreqVal} Hz</b>.</p>
+            <p>Calculate the following:</p>`;
+
+        solHtml = `<strong>Rule:</strong> Each D-type flip-flop divides the frequency at its clock input by 2.<br>`;
+        solHtml += `<strong>Working:</strong> Q<sub>A</sub> = ${genFreqVal} ÷ 2 = ${genFreqVal / 2} Hz. Q<sub>B</sub> = ${genFreqVal / 2} ÷ 2 = ${genFreqVal / 4} Hz<br>`;
+        solHtml += `<strong>Results:</strong> Q<sub>A</sub> = <strong>${genFreqVal / 2} Hz</strong>, Q<sub>B</sub> = <strong>${genFreqVal / 4} Hz</strong>`;
+
+        ffFreqDrawTwoStage(ctx, canvas, genFreqVal);
+    }
+
+    currentAnswers.ffFreqScenario = scenario;
+
+    const solText = document.getElementById('solText');
+    if (solText) solText.innerHTML = solHtml;
+
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = questionHtml;
+    }
+
+    const lbl1El = document.getElementById('ffFreqLabel1');
+    const lbl2El = document.getElementById('ffFreqLabel2');
+    if (lbl1El) lbl1El.innerHTML = label1;
+    if (lbl2El) lbl2El.innerHTML = label2;
+
+    const groupEl = document.getElementById('inputGroupFlipflopFreq');
+    if (groupEl) groupEl.style.display = 'flex';
+
+    ['inputFFFreq1', 'inputFFFreq2'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            el.style.removeProperty('border-color');
+            el.style.removeProperty('border-width');
+            el.style.removeProperty('box-shadow');
+            el.style.removeProperty('background-color');
+        }
+    });
+}
+
+//*****************************************************************************************
+// FLIP-FLOP STATE TABLE (Module 5: Flip Flops & Counters)
+//*****************************************************************************************
+// N D-type flip-flops chained as an N-bit ripple counter (LED1 = LSB, toggles every
+// clock pulse; each subsequent LED only toggles when the one before it falls from 1->0).
+// This is just binary counting: state after pulse p = p mod 2^numBits.
+// Alternates 2-bit (2/3 of the time) and 3-bit (1/3 of the time) via scenarioTracker.
+
+function ffFreqDrawArrowVertical(ctx, x, y1, y2) {
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x, y1);
+    ctx.lineTo(x, y2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y2);
+    ctx.lineTo(x - 5, y2 - 8);
+    ctx.lineTo(x + 5, y2 - 8);
+    ctx.closePath();
+    ctx.fillStyle = "#333";
+    ctx.fill();
+}
+
+// Wraps plain text across multiple canvas lines within maxWidth, starting at (x,y).
+// Returns the y-coordinate of the last line drawn, so callers can stack more content below.
+function ffWrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let curY = y;
+    for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' ';
+        const testWidth = ctx.measureText(testLine).width;
+        if (testWidth > maxWidth && line !== '') {
+            ctx.fillText(line.trim(), x, curY);
+            line = words[i] + ' ';
+            curY += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    ctx.fillText(line.trim(), x, curY);
+    return curY;
+}
+
+function ffTableDrawDiagram(ctx, canvas, numBits) {
+    const boxY = 140, boxH = 60, boxW = 110, gap = 45;
+    const startX = 20;
+    const ledW = 70, ledH = 36, arrowGap = 30;
+
+    // Descriptive text, above the diagram (moved here from the right panel to save
+    // vertical space there)
+    const description = `${numBits} D-type flip-flops (each configured as a one-bit counter) are connected in series, each driving an LED. All LEDs are initially Off.`;
+    ctx.fillStyle = "#333";
+    ctx.font = "bold 16px Arial";
+    ctx.textAlign = "left";
+    ffWrapText(ctx, description, 20, 30, 560, 22);
+
+    ffFreqDrawBox(ctx, startX, boxY, boxW, boxH, "Pulse\nGenerator");
+    let prevRight = startX + boxW;
+
+    for (let i = 0; i < numBits; i++) {
+        const bx = prevRight + gap;
+        ffFreqDrawArrow(ctx, prevRight, boxY + boxH / 2, bx);
+        ffFreqDrawBox(ctx, bx, boxY, boxW, boxH, `Counter ${i + 1}`);
+
+        const ledCenterX = bx + boxW / 2;
+        const arrowStartY = boxY + boxH;
+        const ledY = arrowStartY + arrowGap;
+        ffFreqDrawArrowVertical(ctx, ledCenterX, arrowStartY, ledY);
+        ffFreqDrawBox(ctx, ledCenterX - ledW / 2, ledY, ledW, ledH, `LED${i + 1}`);
+
+        prevRight = bx + boxW;
+    }
+}
+
+function generateFlipflopTableProblem(ctx, canvas) {
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Alternate scenarios: 2-bit twice as often as 3-bit
+    const qType = scenarioTracker.flipflop_table;
+    scenarioTracker.flipflop_table = (scenarioTracker.flipflop_table + 1) % 3;
+    const numBits = qType === 2 ? 3 : 2;
+
+    const numPulses = 4 + Math.floor(Math.random() * 3); // 4, 5, or 6
+
+    // correctGrid[0] is the "Start" row (always all-zero); rows 1..numPulses follow
+    const correctGrid = [];
+    for (let p = 0; p <= numPulses; p++) {
+        const state = p % Math.pow(2, numBits);
+        const row = [];
+        for (let b = 0; b < numBits; b++) row.push((state >> b) & 1);
+        correctGrid.push(row);
+    }
+
+    window.ffTableState = {
+        numBits: numBits,
+        numPulses: numPulses,
+        correctGrid: correctGrid,
+        studentGrid: correctGrid.map((row, r) => (r === 0 ? row.slice() : row.map(() => 0))),
+        checked: false
+    };
+
+    // Build the table
+    let theadHtml = "<tr><th style='padding:5px 8px; border:1px solid #ccc; background:#f8f9fa;'>Clock Pulse</th>";
+    for (let b = 0; b < numBits; b++) {
+        theadHtml += `<th style='padding:5px 8px; border:1px solid #ccc; background:#f8f9fa;'>LED${b + 1}</th>`;
+    }
+    theadHtml += "</tr>";
+
+    let tbodyHtml = "";
+    for (let r = 0; r <= numPulses; r++) {
+        const rowLabel = r === 0 ? "Start" : r;
+        tbodyHtml += `<tr><td style="padding:5px 8px; border:1px solid #ccc; font-weight:bold; text-align:center;">${rowLabel}</td>`;
+        for (let b = 0; b < numBits; b++) {
+            if (r === 0) {
+                tbodyHtml += `<td style="padding:5px 8px; border:1px solid #ccc; text-align:center; color:#666; background:#f1f1f1;">Off</td>`;
+            } else {
+                tbodyHtml += `<td id="ffTableCell_${r}_${b}" onclick="ffTableToggleCell(${r}, ${b})" style="padding:5px 8px; border:1px solid #ccc; text-align:center; cursor:pointer; background:#eef6ff; color:#666; font-weight:bold;">Off</td>`;
+            }
+        }
+        tbodyHtml += "</tr>";
+    }
+
+    const gridEl = document.getElementById('ffTableGrid');
+    if (gridEl) gridEl.innerHTML = theadHtml + tbodyHtml;
+
+    const groupEl = document.getElementById('inputGroupFlipflopTable');
+    if (groupEl) groupEl.style.display = 'flex';
+
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = `
+            <h3 style="color:#d65093;">D-Type Flip-Flops: ${numBits}-Bit Counter</h3>
+            <p style="margin-bottom: 0;">Complete the table below to show the state of each LED after each of the next ${numPulses} clock pulses.</p>`;
+    }
+
+    const solText = document.getElementById('solText');
+    if (solText) {
+        const rowsStr = correctGrid.slice(1).map((row, idx) => {
+            const p = idx + 1;
+            const ledsStr = row.map((v, b) => `LED${b + 1}=${v ? 'On' : 'Off'}`).join(', ');
+            return `Pulse ${p}: ${ledsStr}`;
+        }).join('<br>');
+        solText.innerHTML = `<strong>Rule:</strong> This is a binary counter. LED1 toggles on every pulse; each next LED only toggles when the one before it falls from On back to Off.<br><strong>Counting in binary:</strong><br>${rowsStr}`;
+    }
+
+    ffTableDrawDiagram(ctx, canvas, numBits);
+}
+
+function ffTableToggleCell(r, b) {
+    if (!window.ffTableState || isCurrentProblemSolved) return;
+    const cell = document.getElementById(`ffTableCell_${r}_${b}`);
+    if (!cell) return;
+
+    const newVal = 1 - window.ffTableState.studentGrid[r][b];
+    window.ffTableState.studentGrid[r][b] = newVal;
+    cell.innerText = newVal ? "On" : "Off";
+    cell.style.backgroundColor = "#eef6ff";
+    cell.style.color = "#666";
+    window.ffTableState.checked = false;
+}
+
+function checkFlipflopTableAnswer(feedback, showsolutionsBtn) {
+    if (!window.ffTableState) return;
+
+    if (!hasCheckedCurrentProblem) {
+        problemsAttempted++;
+        hasCheckedCurrentProblem = true;
+    }
+
+    const state = window.ffTableState;
+    let totalCells = 0;
+    let correctCells = 0;
+
+    for (let r = 1; r <= state.numPulses; r++) {
+        for (let b = 0; b < state.numBits; b++) {
+            const cell = document.getElementById(`ffTableCell_${r}_${b}`);
+            const isRight = state.studentGrid[r][b] === state.correctGrid[r][b];
+            totalCells++;
+            if (isRight) correctCells++;
+            if (cell) {
+                cell.style.backgroundColor = isRight ? "#d4edda" : "#f8d7da";
+                cell.style.color = isRight ? "#155724" : "#721c24";
+            }
+        }
+    }
+
+    state.checked = true;
+    const allCorrect = correctCells === totalCells;
+
+    if (allCorrect) {
+        isCurrentProblemSolved = true;
+        if (canEarnPoints) { problemsCorrect++; }
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #198754;'>Perfect! All ${totalCells} cells correct. Click 'New Question' to continue.</span>`;
+        const checkansBtn = document.getElementById('checkansBtn');
+        if (checkansBtn) checkansBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+    } else {
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #dc3545;'>Not quite: ${correctCells}/${totalCells} cells correct. Red cells are wrong &mdash; click them to fix, then check again.</span>`;
+    }
+
+    if (typeof updateScoreboard === "function") updateScoreboard();
+}
+
+//*****************************************************************************************
+// FLIP-FLOP WIRING - DRAG & DROP (Module 5: Flip Flops & Counters)
+//*****************************************************************************************
+// Reuses the same overlay/dropzone/tray architecture as the existing Block Builder
+// system (class="gcse-block-ui dropzone", id="canvasOverlay") so it plugs straight into
+// the site's existing cleanup logic in hideAllInputGroups().
+// "Pulse Generator", "Clock", "Oscillator" and "Astable" all name essentially the same
+// thing (whatever drives CK) from slightly different angles - pairing any two of them
+// as correct-answer + distractor in the same tray is confusing rather than testing
+// understanding. Only one of these four ever appears per question; distractors for
+// that slot come from elsewhere (the scenario's own non-clock distractor list).
+const CLOCK_LABEL_POOL = ['Pulse Generator', 'Clock', 'Oscillator', 'Astable'];
+const VOLTAGE_LABEL_POOL = ['+V', '5V', '9V', '12V'];
+const GROUND_LABEL_POOL = ['0V', 'Ground'];
+const SWITCH_LABEL_POOL = ['Switch A', 'Switch B', 'Switch C', 'Switch D'];
+
+function ffWiringPickOne(pool) {
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function ffWiringPickTwoDistinct(pool) {
+    const shuffled = pool.slice().sort(() => Math.random() - 0.5);
+    return [shuffled[0], shuffled[1]];
+}
+
+// Each scenario's build() is called fresh every time a new question is generated,
+// so labels like the clock source or supply voltage vary question to question
+// rather than being fixed - and interchangeable pairs (like the two latch switches)
+// are picked as a genuinely distinct pair each time.
+const flipflopWiringScenarios = [
+    {
+        id: 'onebit',
+        title: 'One-Bit Counter',
+        description: 'This D-type flip-flop is wired as a <b>one-bit counter</b>. Drag the correct connections into the empty boxes.',
+        build() {
+            const clockLabel = ffWiringPickOne(CLOCK_LABEL_POOL);
+            return {
+                boxes: [{
+                    x: 280,
+                    pins: [
+                        { key: 'D', answer: 'Q̄' },
+                        { key: 'CK', answer: clockLabel }
+                    ],
+                    outputs: [
+                        { key: 'Q', fixedLabel: 'Output' },
+                        { key: 'Q̄', fixedLabel: 'Q̄' }
+                    ]
+                }],
+                distractors: ['Q', '0V', '9V', 'Reset']
+            };
+        }
+    },
+    {
+        id: 'twobit',
+        title: 'Two-Bit Counter',
+        description: 'Two D-type flip-flops are connected in series to form a <b>two-bit counter</b>. Drag the correct connections into the empty boxes.',
+        boxW: 90,
+        dropZoneW: 95,
+        outputGap: 55,
+        build() {
+            const clockLabel = ffWiringPickOne(CLOCK_LABEL_POOL);
+            return {
+                boxes: [
+                    {
+                        label: 'Counter 1',
+                        x: 125,
+                        pins: [
+                            { key: 'D', answer: 'Q̄1' },
+                            { key: 'CK', answer: clockLabel }
+                        ],
+                        outputs: [
+                            { key: 'Q', fixedLabel: 'Q1' },
+                            { key: 'Q̄', fixedLabel: 'Q̄1' }
+                        ]
+                    },
+                    {
+                        label: 'Counter 2',
+                        x: 420,
+                        pins: [
+                            { key: 'D', answer: 'Q̄2' },
+                            { key: 'CK', answer: 'Q̄1' }
+                        ],
+                        outputs: [
+                            { key: 'Q', fixedLabel: 'Q2' },
+                            { key: 'Q̄', fixedLabel: 'Q̄2' }
+                        ]
+                    }
+                ],
+                distractors: ['Q1', 'Q2', '0V', '9V']
+            };
+        }
+    },
+    {
+        id: 'datatransfer',
+        title: 'Data Transfer',
+        description: 'This D-type flip-flop is used to transfer data from an input to an output. Drag the correct connections into the empty boxes.',
+        build() {
+            const clockLabel = ffWiringPickOne(CLOCK_LABEL_POOL);
+            return {
+                boxes: [{
+                    x: 280,
+                    pins: [
+                        { key: 'D', answer: 'Data Signal' },
+                        { key: 'CK', answer: clockLabel }
+                    ],
+                    outputs: [
+                        { key: 'Q', fixedLabel: 'Output' },
+                        { key: 'Q̄', fixedLabel: 'Q̄' }
+                    ]
+                }],
+                distractors: ['Q̄', 'Q', '0V', '9V']
+            };
+        }
+    },
+    {
+        id: 'latch',
+        title: 'D-Type Latch',
+        description: 'This D-type flip-flop is wired as a <b>latch</b>. Drag the correct connections into the empty boxes.',
+        build() {
+            const voltage = ffWiringPickOne(VOLTAGE_LABEL_POOL);
+            const groundLabel = ffWiringPickOne(GROUND_LABEL_POOL);
+            const [switchSet, switchClear] = ffWiringPickTwoDistinct(SWITCH_LABEL_POOL);
+            const unusedSwitch = SWITCH_LABEL_POOL.filter(s => s !== switchSet && s !== switchClear)[0];
+
+            return {
+                boxes: [{
+                    x: 280,
+                    pins: [
+                        { key: 'D', answer: voltage },
+                        { key: 'CK', answer: switchSet, group: 'switchPair' },
+                        { key: 'R', answer: switchClear, group: 'switchPair' }
+                    ],
+                    outputs: [
+                        { key: 'Q', fixedLabel: 'Output' },
+                        { key: 'Q̄', fixedLabel: 'Q̄' }
+                    ]
+                }],
+                // Either switch can trigger either pin - they just need to be two DIFFERENT
+                // switches, since nothing on screen distinguishes "Switch A" as more of a
+                // set/reset switch than "Switch B". Grading treats this as a set, not a fixed pairing.
+                groups: {
+                    switchPair: [switchSet, switchClear]
+                },
+                // Only one voltage-pool label ever appears (the correct one) - the diagram
+                // gives no way to tell +V/5V/9V/12V apart, so including a second one would
+                // make the "correct" answer unguessable rather than testing understanding.
+                distractors: [groundLabel, 'Q̄', 'Q', unusedSwitch]
+            };
+        }
+    }
+];
+
+function generateFlipflopWiringProblem(ctx, canvas) {
+    if (!canvas || !ctx) return;
+
+    // Defensive cleanup in case a previous overlay is still around
+    const oldOverlay = document.getElementById('canvasOverlay');
+    if (oldOverlay) oldOverlay.remove();
+    document.querySelectorAll('.gcse-block-ui').forEach(el => el.remove());
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const qType = scenarioTracker.flipflop_wiring;
+    scenarioTracker.flipflop_wiring = (scenarioTracker.flipflop_wiring + 1) % flipflopWiringScenarios.length;
+    const template = flipflopWiringScenarios[qType];
+    const resolved = template.build();
+
+    const scenario = {
+        id: template.id,
+        title: template.title,
+        description: template.description,
+        boxW: template.boxW,
+        dropZoneW: template.dropZoneW,
+        outputGap: template.outputGap,
+        boxes: resolved.boxes,
+        distractors: resolved.distractors,
+        groups: resolved.groups || {}
+    };
+
+    window.ffWiringState = { scenario: scenario };
+
+    // --- Shared layout constants (scenario can override for tighter multi-box layouts) ---
+    const boxW = scenario.boxW || 130;
+    const dropZoneW = scenario.dropZoneW || 110;
+    const dropZoneH = 36;
+    const outputGap = scenario.outputGap || 90;
+    const pinSpacing = 55, topPad = 30;
+
+    // All boxes in a scenario share the same pin count, so compute the shared vertical layout once
+    const numPins = scenario.boxes[0].pins.length;
+    const boxHeight = (numPins - 1) * pinSpacing + topPad * 2;
+    const boxY = Math.max(20, (300 - boxHeight) / 2);
+    const pinY = scenario.boxes[0].pins.map((p, i) => boxY + topPad + i * pinSpacing);
+
+    // --- Overlay for dropzones + tray items (created once, shared across all boxes) ---
+    canvas.parentNode.style.position = 'relative';
+    const overlay = document.createElement('div');
+    overlay.id = 'canvasOverlay';
+    overlay.style.position = 'absolute';
+    overlay.style.top = canvas.offsetTop + 'px';
+    overlay.style.left = canvas.offsetLeft + 'px';
+    overlay.style.width = canvas.width + 'px';
+    overlay.style.height = canvas.height + 'px';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.zIndex = '10';
+    canvas.parentNode.appendChild(overlay);
+
+    const allCorrectAnswers = [];
+
+    scenario.boxes.forEach(box => {
+        const dropZoneX = box.x - 30 - dropZoneW;
+
+        // Box label (only meaningful when there's more than one box on screen) -
+        // deliberately generic ("Counter 1/2"), never mentions "D-Type" since that's
+        // already established by the diagram/question text and isn't scenario-specific.
+        if (box.label) {
+            ctx.fillStyle = "#666";
+            ctx.font = "bold 12px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(box.label, box.x + boxW / 2, boxY - 10);
+        }
+
+        // --- Draw the flip-flop box ---
+        ctx.fillStyle = "#fff";
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        ctx.fillRect(box.x, boxY, boxW, boxHeight);
+        ctx.strokeRect(box.x, boxY, boxW, boxHeight);
+
+        // --- Left pins (inputs): stub line + pin label + dropzone ---
+        box.pins.forEach((pin, i) => {
+            const y = pinY[i];
+            allCorrectAnswers.push(pin.answer);
+
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(dropZoneX + dropZoneW, y);
+            ctx.lineTo(box.x, y);
+            ctx.stroke();
+
+            ctx.fillStyle = "#000";
+            ctx.font = "bold 13px Arial";
+            ctx.textAlign = "left";
+            if (pin.key === 'CK') {
+                ctx.beginPath();
+                ctx.moveTo(box.x, y - 7);
+                ctx.lineTo(box.x + 11, y);
+                ctx.lineTo(box.x, y + 7);
+                ctx.stroke();
+            } else {
+                ctx.fillText(pin.key, box.x + 8, y + 5);
+            }
+
+            const zone = document.createElement('div');
+            zone.className = 'gcse-block-ui dropzone';
+            zone.dataset.answer = pin.answer;
+            if (pin.group) zone.dataset.group = pin.group;
+            zone.style.position = 'absolute';
+            zone.style.left = dropZoneX + 'px';
+            zone.style.top = (y - dropZoneH / 2) + 'px';
+            zone.style.width = dropZoneW + 'px';
+            zone.style.height = dropZoneH + 'px';
+            zone.style.border = '2px dashed #888';
+            zone.style.borderRadius = '4px';
+            zone.style.backgroundColor = '#fff';
+            zone.style.display = 'flex';
+            zone.style.alignItems = 'center';
+            zone.style.justifyContent = 'center';
+            zone.style.fontSize = '11px';
+            zone.style.fontWeight = 'bold';
+            zone.style.textAlign = 'center';
+            zone.style.pointerEvents = 'auto';
+            zone.style.boxSizing = 'border-box';
+            zone.style.padding = '2px';
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (isCurrentProblemSolved) return;
+                zone.style.backgroundColor = '#d1f0d1';
+            });
+            zone.addEventListener('dragleave', () => {
+                if (isCurrentProblemSolved) return;
+                zone.style.backgroundColor = '#fff';
+            });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (isCurrentProblemSolved) return;
+                zone.style.backgroundColor = '#fff';
+                zone.style.border = '2px dashed #888';
+                const data = e.dataTransfer.getData('text/plain');
+                zone.innerText = data;
+                zone.dataset.current = data;
+            });
+            zone.addEventListener('dblclick', () => {
+                if (isCurrentProblemSolved) return;
+                zone.innerText = '';
+                zone.dataset.current = '';
+                zone.style.backgroundColor = '#fff';
+                zone.style.border = '2px dashed #888';
+            });
+
+            overlay.appendChild(zone);
+        });
+
+        // --- Right pins (Q / Q̄): fixed, always shown ---
+        const rightStubEndX = box.x + boxW + outputGap;
+        const outputPins = [
+            { y: pinY[0], output: box.outputs.find(o => o.key === 'Q') },
+            { y: pinY[numPins - 1], output: box.outputs.find(o => o.key === 'Q̄') }
+        ];
+
+        outputPins.forEach(p => {
+            if (!p.output) return;
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(box.x + boxW, p.y);
+            ctx.lineTo(rightStubEndX, p.y);
+            ctx.stroke();
+
+            ctx.fillStyle = "#000";
+            ctx.font = "bold 13px Arial";
+            if (p.output.key === "Q̄") {
+                ctx.textAlign = "left";
+                ffDrawTextWithQBar(ctx, "Q̄", box.x + boxW - 20, p.y + 5);
+            } else {
+                ctx.textAlign = "right";
+                ctx.fillText(p.output.key, box.x + boxW - 8, p.y + 5);
+            }
+
+            ctx.font = "11px Arial";
+            ctx.fillStyle = "#555";
+            ctx.textAlign = "left";
+            if (p.output.fixedLabel.includes("Q̄")) {
+                ffDrawTextWithQBar(ctx, p.output.fixedLabel, rightStubEndX + 4, p.y + 4);
+            } else {
+                ctx.fillText(p.output.fixedLabel, rightStubEndX + 4, p.y + 4);
+            }
+        });
+    });
+
+    // --- Tray ---
+    const trayHeight = 90;
+    const trayY = canvas.height - trayHeight - 5;
+    ctx.strokeStyle = "#888";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.strokeRect(5, trayY, 590, trayHeight);
+    ctx.setLineDash([]);
+
+    const trayItems = allCorrectAnswers.concat(scenario.distractors);
+    const shuffledTray = trayItems.sort(() => Math.random() - 0.5);
+
+    shuffledTray.forEach((label, index) => {
+        const item = document.createElement('div');
+        item.className = 'gcse-block-ui';
+        item.innerText = label;
+        item.style.position = 'absolute';
+        const col = index % 5;
+        const row = Math.floor(index / 5);
+        item.style.left = (15 + col * 115) + 'px';
+        item.style.top = (trayY + 10 + row * 40) + 'px';
+        item.style.width = '110px';
+        item.style.height = '34px';
+        item.style.backgroundColor = '#3498db';
+        item.style.color = '#fff';
+        item.style.borderRadius = '4px';
+        item.style.cursor = 'grab';
+        item.style.fontSize = '11px';
+        item.style.fontWeight = 'bold';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.justifyContent = 'center';
+        item.style.textAlign = 'center';
+        item.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+        item.style.boxSizing = 'border-box';
+        item.style.padding = '2px';
+        item.style.pointerEvents = 'auto';
+        item.draggable = true;
+
+        item.addEventListener('dragstart', (e) => {
+            if (isCurrentProblemSolved) { e.preventDefault(); return; }
+            e.dataTransfer.setData('text/plain', label);
+            e.dataTransfer.effectAllowed = 'copy';
+        });
+
+        overlay.appendChild(item);
+    });
+
+    // --- Question text ---
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.style.textAlign = 'left';
+        qText.innerHTML = `
+            <h3 style="color:#d65093; margin-bottom:6px;">D-Type Flip-Flop: ${scenario.title}</h3>
+            <p style="font-weight:normal;">${scenario.description}<br>
+            <span style="font-size:0.8em; color:#777;">(Double-click a box to clear it.)</span></p>`;
+    }
+
+    // --- Model answer ---
+    const solText = document.getElementById('solText');
+    if (solText) {
+        const rows = [];
+        scenario.boxes.forEach(box => {
+            box.pins.forEach(pin => {
+                if (pin.group) return; // grouped/interchangeable pins are listed separately below
+                const boxTag = box.label ? `${box.label}: ` : '';
+                rows.push(`${boxTag}<b>${pin.key}</b> connects to <b>${pin.answer}</b>`);
+            });
+        });
+        Object.keys(scenario.groups || {}).forEach(groupId => {
+            const groupPinKeys = [];
+            scenario.boxes.forEach(box => box.pins.forEach(pin => { if (pin.group === groupId) groupPinKeys.push(pin.key); }));
+            const vals = scenario.groups[groupId];
+            rows.push(`<b>${groupPinKeys.join('</b> and <b>')}</b> connect to <b>${vals[0]}</b> and <b>${vals[1]}</b> (in either order)`);
+        });
+        solText.innerHTML = `<strong>Correct wiring:</strong><br>${rows.join('<br>')}`;
+    }
+}
+
+function checkFlipflopWiringAnswer(feedback, showsolutionsBtn) {
+    if (!window.ffWiringState) return;
+    const scenario = window.ffWiringState.scenario;
+
+    const dropzones = Array.from(document.querySelectorAll('#canvasOverlay .dropzone'));
+    let allFilled = true;
+    dropzones.forEach(zone => {
+        if (!(zone.dataset.current || "").trim()) allFilled = false;
+    });
+
+    if (!allFilled) {
+        feedback.innerHTML = "<span style='color: #dc3545;'>Please fill in all the empty boxes first!</span>";
+        return;
+    }
+
+    if (!hasCheckedCurrentProblem) {
+        problemsAttempted++;
+        hasCheckedCurrentProblem = true;
+    }
+
+    let allCorrect = true;
+    const handledZones = new Set();
+
+    // Grouped (interchangeable) zones: correct if the SET of dragged values matches
+    // the set of expected values, regardless of which zone got which one - and a
+    // student can't cheat by dragging the same tile into both zones, since the
+    // expected set contains two genuinely different values.
+    const groups = scenario.groups || {};
+    Object.keys(groups).forEach(groupId => {
+        const groupZones = dropzones.filter(z => z.dataset.group === groupId);
+        const expected = groups[groupId].slice().sort();
+        const actual = groupZones.map(z => z.dataset.current).sort();
+        const isRight = JSON.stringify(expected) === JSON.stringify(actual);
+
+        groupZones.forEach(z => {
+            handledZones.add(z);
+            if (isRight) {
+                z.style.backgroundColor = "#d4edda";
+                z.style.border = "2px solid #28a745";
+            } else {
+                allCorrect = false;
+                z.style.backgroundColor = "#f8d7da";
+                z.style.border = "2px solid #dc3545";
+            }
+        });
+    });
+
+    // Remaining zones: exact match against their own fixed answer
+    dropzones.forEach(zone => {
+        if (handledZones.has(zone)) return;
+        const isRight = zone.dataset.current === zone.dataset.answer;
+        if (isRight) {
+            zone.style.backgroundColor = "#d4edda";
+            zone.style.border = "2px solid #28a745";
+        } else {
+            allCorrect = false;
+            zone.style.backgroundColor = "#f8d7da";
+            zone.style.border = "2px solid #dc3545";
+        }
+    });
+
+    if (allCorrect) {
+        isCurrentProblemSolved = true;
+        if (canEarnPoints) { problemsCorrect++; }
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #198754;'>Perfect! All connections correct. Click 'New Question' to continue.</span>`;
+        const checkansBtn = document.getElementById('checkansBtn');
+        if (checkansBtn) checkansBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+    } else {
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #dc3545;'>Not quite: red boxes are wrong. Double-click a box to clear it, then try again.</span>`;
+    }
+
+    if (typeof updateScoreboard === "function") updateScoreboard();
+}
+
+//*****************************************************************************************
+// FLIP-FLOP CIRCUIT BUILDER - CLICK-TO-WIRE (Module 5: Flip Flops & Counters)
+//*****************************************************************************************
+// A different interaction style from the drag-and-drop Wiring tab: click a node, then
+// click a second node, to connect them with a wire (click the same pair again to remove
+// it). Nodes are drawn directly on the canvas and hit-tested by distance on click.
+function ffCircuitDrawBox(ctx, x, y, w, h) {
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+}
+
+function ffCircuitDrawTerminal(ctx, x, y, label) {
+    const w = 80, h = 30;
+    ctx.fillStyle = "#fef3c7";
+    ctx.strokeStyle = "#92400e";
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(x - w / 2, y - h / 2, w, h);
+    ctx.strokeRect(x - w / 2, y - h / 2, w, h);
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 11px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(label, x, y + 4);
+}
+
+// Draws a wire between two nodes. Same-y nodes get a straight line; nodes on the same
+// flip-flop (same boxId) get routed OUTSIDE the box (up and over) so the feedback loop
+// never crosses through the box or another pin; anything else gets a simple Z-route.
+// Checks whether a straight horizontal line between two same-height points would pass
+// through any of the given boxes' interiors.
+function ffCircuitSegmentCrossesAnyBox(x1, y, x2, boxes) {
+    const xMin = Math.min(x1, x2), xMax = Math.max(x1, x2);
+    return boxes.some(b => y >= b.y && y <= b.y + b.h && xMax > b.x && xMin < b.x + b.w);
+}
+
+// Same idea, for a vertical segment at a fixed x spanning y1 to y2.
+function ffCircuitVerticalSegmentCrossesAnyBox(x, y1, y2, boxes) {
+    const yMin = Math.min(y1, y2), yMax = Math.max(y1, y2);
+    return boxes.some(b => x >= b.x && x <= b.x + b.w && yMax > b.y && yMin < b.y + b.h);
+}
+
+// A simple 2-segment "L" between two raw node positions (no stub-offset jogging - that's
+// only needed for the more elaborate shared-channel routes below). Prefers horizontal-
+// then-vertical first, since a wire leaving a pin should continue in that pin's natural
+// exit direction (matching its drawn stub) before turning, rather than turning immediately.
+// Falls back to vertical-then-horizontal, or null if neither is clear of every box -
+// meaning a real detour is genuinely needed.
+function ffCircuitTryLShape(nodeA, nodeB, boxes) {
+    if (!boxes) return null;
+    const horizFirstSafe = !ffCircuitSegmentCrossesAnyBox(nodeA.x, nodeA.y, nodeB.x, boxes) &&
+        !ffCircuitVerticalSegmentCrossesAnyBox(nodeB.x, nodeA.y, nodeB.y, boxes);
+    if (horizFirstSafe) return { x: nodeB.x, y: nodeA.y };
+
+    const vertFirstSafe = !ffCircuitVerticalSegmentCrossesAnyBox(nodeA.x, nodeA.y, nodeB.y, boxes) &&
+        !ffCircuitSegmentCrossesAnyBox(nodeA.x, nodeB.y, nodeB.x, boxes);
+    if (vertFirstSafe) return { x: nodeA.x, y: nodeB.y };
+
+    return null;
+}
+
+// Every wire routes as a plain straight line whenever that's geometrically safe (same
+// height, nothing in the way) - e.g. Pulse Generator straight into Clock. If not, it tries
+// a simple single-bend "L" route next (e.g. Q down-then-across to the LED), and only falls
+// back to a shared channel - normally ABOVE the whole diagram, or BELOW via busSide:'below'
+// - when neither simple option is possible (e.g. a self-feedback loop on the same chip,
+// which genuinely has to detour around the box). Each node's own "stubOffset" jogs its
+// climb/descent sideways first in that fallback case, so a wire never travels straight
+// through another pin (or another branch's wire) stacked above/below it.
+function ffCircuitDrawWire(ctx, nodeA, nodeB, color, laneIndex, boxes, topChannelMin, railYs, bottomChannelMax) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+
+    const canGoStraight = boxes && nodeA.y === nodeB.y &&
+        !ffCircuitSegmentCrossesAnyBox(nodeA.x, nodeA.y, nodeB.x, boxes);
+    const lShape = !canGoStraight ? ffCircuitTryLShape(nodeA, nodeB, boxes) : null;
+
+    ctx.beginPath();
+    if (canGoStraight) {
+        ctx.moveTo(nodeA.x, nodeA.y);
+        ctx.lineTo(nodeB.x, nodeB.y);
+    } else if (lShape) {
+        ctx.moveTo(nodeA.x, nodeA.y);
+        ctx.lineTo(lShape.x, lShape.y);
+        ctx.lineTo(nodeB.x, nodeB.y);
+    } else {
+        const useBelow = nodeA.busSide === 'below' || nodeB.busSide === 'below';
+        const topMin = topChannelMin || 22;
+        const botMax = bottomChannelMax || 398;
+        const laneY = useBelow
+            ? botMax - ((laneIndex || 0) % 6) * 2
+            : topMin + ((laneIndex || 0) % 6) * 6;
+
+        // If one endpoint is already naturally clear of every box at its own height
+        // (e.g. a node sitting right on a rail, well above the flip-flop), don't climb
+        // any further than that - just use its own height, avoiding an overshoot past it.
+        const naturalY = useBelow ? Math.max(nodeA.y, nodeB.y) : Math.min(nodeA.y, nodeB.y);
+        const naturallyClear = !boxes || boxes.every(b => naturalY < b.y || naturalY > b.y + b.h);
+        let busY = naturallyClear
+            ? naturalY
+            : laneY;
+
+        const exitX = nodeA.x + (nodeA.stubOffset || 0);
+        const entryX = nodeB.x + (nodeB.stubOffset || 0);
+
+        // Never let the horizontal travel itself run ALONG a rail (e.g. a node that sits
+        // directly on the 0V rail) - nudge just off it, so only a short stub touches the
+        // rail rather than the wire tracing along its full length. Skip this for very
+        // short runs, where the "overlap" is just a couple of pixels and not worth a kink.
+        if (railYs && Math.abs(exitX - entryX) > 15) {
+            const nudge = railYs.find(r => Math.abs(busY - r.y) < 4);
+            if (nudge) busY = nudge.safeY;
+        }
+
+        ctx.moveTo(nodeA.x, nodeA.y);
+        ctx.lineTo(exitX, nodeA.y);
+        ctx.lineTo(exitX, busY);
+        ctx.lineTo(entryX, busY);
+        ctx.lineTo(entryX, nodeB.y);
+        ctx.lineTo(nodeB.x, nodeB.y);
+    }
+    ctx.stroke();
+
+    [nodeA, nodeB].forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+    });
+}
+
+// --- Static diagrams (boxes, pin labels, terminals) - one per scenario ---
+
+function ffCircuitLatchDrawStatic(ctx, scenario) {
+    const getN = k => scenario.nodes.find(n => n.key === k);
+    const [ffBox] = scenario.boxes;
+
+    const railTopY = 50, railBotY = 380;
+    const railLeftX = 55, railRightX = 590;
+    const branches = [
+        { x: 100, key: 'SWA', label: 'A' },
+        { x: 565, key: 'SWB', label: 'B' }
+    ];
+    const junctionY = 175;
+    const switchTopY = 100, switchBotY = 128;
+    const resistorTopY = 260, resistorBotY = 320;
+
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+
+    // Rails
+    ctx.beginPath();
+    ctx.moveTo(railLeftX, railTopY);
+    ctx.lineTo(railRightX, railTopY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(railLeftX, railBotY);
+    ctx.lineTo(railRightX, railBotY);
+    ctx.stroke();
+
+    ctx.font = "bold 13px Arial";
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "right";
+    ctx.fillText("12V", railLeftX - 8, railTopY + 5);
+    ctx.fillText("0V", railLeftX - 8, railBotY + 5);
+
+    // Decorative (non-interactive) terminal circles at the rail's true left end -
+    // the actual clickable 12V/0V nodes sit further along the rail (see scenario.nodes)
+    ctx.beginPath();
+    ctx.arc(railLeftX, railTopY, 3, 0, Math.PI * 2);
+    ctx.strokeStyle = "#333";
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(railLeftX, railBotY, 3, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Each branch: rail -> push-to-make switch -> junction (clickable) -> resistor -> rail
+    branches.forEach(branch => {
+        const bx = branch.x;
+        const node = getN(branch.key);
+
+        // Rail junction dots (solid, fixed)
+        [railTopY, railBotY].forEach(y => {
+            ctx.beginPath();
+            ctx.arc(bx, y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = "#333";
+            ctx.fill();
+        });
+
+        // Rail down to switch
+        ctx.beginPath();
+        ctx.moveTo(bx, railTopY);
+        ctx.lineTo(bx, switchTopY);
+        ctx.stroke();
+
+        // Push-to-make switch symbol: the two terminals are completely disconnected
+        // (a real gap - no line between them at all). Floating to the left, offset
+        // and not touching either terminal, is the "bridge": a vertical contact arm
+        // whose length spans the full distance between the terminals, so it's clear
+        // that pressing it (shifting it right) would touch both simultaneously.
+        ctx.beginPath();
+        ctx.arc(bx, switchTopY, 3.5, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(bx, switchBotY, 3.5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        const switchOffsetX = 14;
+        ctx.beginPath();
+        ctx.moveTo(bx - switchOffsetX, switchTopY);
+        ctx.lineTo(bx - switchOffsetX, switchBotY);
+        ctx.stroke();
+
+        // Stub: short horizontal tick off the bridge's middle, pointing toward the
+        // terminals but not reaching them - the contact lever, still shown as open
+        const switchMidY = (switchTopY + switchBotY) / 2;
+        const stubEndX = bx - switchOffsetX - 7;
+        ctx.beginPath();
+        ctx.moveTo(bx - switchOffsetX, switchMidY);
+        ctx.lineTo(stubEndX, switchMidY);
+        ctx.stroke();
+
+        // Second line, parallel to the bridge, at the stub's end - the contact tip
+        ctx.beginPath();
+        ctx.moveTo(stubEndX, switchMidY - 6);
+        ctx.lineTo(stubEndX, switchMidY + 6);
+        ctx.stroke();
+
+        ctx.font = "bold 13px Arial";
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#000";
+        ctx.fillText(branch.label, bx + 12, (switchTopY + switchBotY) / 2 + 5);
+
+        // Switch down to junction
+        ctx.beginPath();
+        ctx.moveTo(bx, switchBotY);
+        ctx.lineTo(bx, junctionY);
+        ctx.stroke();
+
+        // Junction dot (solid, fixed) + stub out to the clickable node
+        ctx.beginPath();
+        ctx.arc(bx, junctionY, 3, 0, Math.PI * 2);
+        ctx.fillStyle = "#333";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(bx, junctionY);
+        ctx.lineTo(node.x, node.y);
+        ctx.stroke();
+
+        // Junction down through the resistor to 0V
+        ctx.beginPath();
+        ctx.moveTo(bx, junctionY);
+        ctx.lineTo(bx, resistorTopY);
+        ctx.stroke();
+        ctx.strokeRect(bx - 12, resistorTopY, 24, resistorBotY - resistorTopY);
+        ctx.beginPath();
+        ctx.moveTo(bx, resistorBotY);
+        ctx.lineTo(bx, railBotY);
+        ctx.stroke();
+    });
+
+    // Flip-flop box
+    ffCircuitDrawBox(ctx, ffBox.x, ffBox.y, ffBox.w, ffBox.h);
+
+    const D = getN('D'), CK = getN('CK'), R = getN('R'), Q = getN('Q'), QBAR = getN('QBAR'), LED_IN = getN('LED_IN');
+
+    ctx.font = "bold 13px Arial";
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "left";
+    ctx.fillText("D", ffBox.x + 8, D.y + 5);
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ffBox.x, CK.y - 7);
+    ctx.lineTo(ffBox.x + 11, CK.y);
+    ctx.lineTo(ffBox.x, CK.y + 7);
+    ctx.stroke();
+    ctx.fillText("R", R.x - 6, ffBox.y + ffBox.h - 8);
+
+    ctx.textAlign = "right";
+    ctx.fillText("Q", ffBox.x + ffBox.w - 8, Q.y + 5);
+    ffDrawQBarSubscriptRight(ctx, ffBox.x + ffBox.w - 8, QBAR.y + 5, null, 13);
+
+    // Stub lines from box edges to external clickable nodes
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    [D, CK].forEach(n => {
+        ctx.beginPath();
+        ctx.moveTo(ffBox.x, n.y);
+        ctx.lineTo(n.x, n.y);
+        ctx.stroke();
+    });
+    [Q, QBAR].forEach(n => {
+        ctx.beginPath();
+        ctx.moveTo(ffBox.x + ffBox.w, n.y);
+        ctx.lineTo(n.x, n.y);
+        ctx.stroke();
+    });
+    ctx.beginPath();
+    ctx.moveTo(R.x, ffBox.y + ffBox.h);
+    ctx.lineTo(R.x, R.y);
+    ctx.stroke();
+
+    // Protective resistor + LED, wired vertically down to 0V - matching the switch
+    // branches' style. LED_IN is deliberately NOT connected to Q here; the student
+    // must draw that connection themselves by clicking Q then LED_IN.
+    const ledResistorTopY = LED_IN.y + 60, ledResistorBotY = ledResistorTopY + 50;
+    const ledDiodeY = ledResistorBotY + 35;
+
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(LED_IN.x, LED_IN.y);
+    ctx.lineTo(LED_IN.x, ledResistorTopY);
+    ctx.stroke();
+    ctx.strokeRect(LED_IN.x - 12, ledResistorTopY, 24, ledResistorBotY - ledResistorTopY);
+    ctx.beginPath();
+    ctx.moveTo(LED_IN.x, ledResistorBotY);
+    ctx.lineTo(LED_IN.x, ledDiodeY - 15);
+    ctx.stroke();
+
+    drawDiode(ctx, LED_IN.x, ledDiodeY, "down", 15);
+    // Small light-emission arrows, marking this diode specifically as an LED
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 1.5;
+    [-6, 2].forEach(dx => {
+        ctx.beginPath();
+        ctx.moveTo(LED_IN.x + 12 + dx, ledDiodeY - 18);
+        ctx.lineTo(LED_IN.x + 20 + dx, ledDiodeY - 26);
+        ctx.moveTo(LED_IN.x + 17 + dx, ledDiodeY - 26);
+        ctx.lineTo(LED_IN.x + 20 + dx, ledDiodeY - 26);
+        ctx.lineTo(LED_IN.x + 20 + dx, ledDiodeY - 23);
+        ctx.stroke();
+    });
+
+    ctx.beginPath();
+    ctx.moveTo(LED_IN.x, ledDiodeY + 15);
+    ctx.lineTo(LED_IN.x, railBotY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(LED_IN.x, railBotY, 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#333";
+    ctx.fill();
+}
+
+function ffCircuitOnebitDrawStatic(ctx, scenario) {
+    const getN = k => scenario.nodes.find(n => n.key === k);
+    const [pulseBox, ffBox] = scenario.boxes;
+    ffCircuitDrawBox(ctx, ffBox.x, ffBox.y, ffBox.w, ffBox.h);
+
+    const D = getN('D'), CK = getN('CK'), Q = getN('Q'), QBAR = getN('QBAR'), PULSE = getN('PULSE');
+
+    ctx.font = "bold 13px Arial";
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "left";
+    ctx.fillText("D", ffBox.x + 8, D.y + 5);
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ffBox.x, CK.y - 7);
+    ctx.lineTo(ffBox.x + 11, CK.y);
+    ctx.lineTo(ffBox.x, CK.y + 7);
+    ctx.stroke();
+
+    ctx.textAlign = "right";
+    ctx.fillText("Q", ffBox.x + ffBox.w - 8, Q.y + 5);
+    ffDrawQBarSubscriptRight(ctx, ffBox.x + ffBox.w - 8, QBAR.y + 5, null, 13);
+
+    // Fixed stub lines (plain, neutral - not part of the student's answer) from each
+    // pin out to its clickable node, matching the exam diagram convention
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    [D, CK].forEach(n => {
+        ctx.beginPath();
+        ctx.moveTo(ffBox.x, n.y);
+        ctx.lineTo(n.x, n.y);
+        ctx.stroke();
+    });
+    [Q, QBAR].forEach(n => {
+        ctx.beginPath();
+        ctx.moveTo(ffBox.x + ffBox.w, n.y);
+        ctx.lineTo(n.x, n.y);
+        ctx.stroke();
+    });
+
+    // Pulse generator box, with its own plain stub out to its node
+    ffFreqDrawBox(ctx, pulseBox.x, pulseBox.y, pulseBox.w, pulseBox.h, "Pulse\nGenerator");
+    ctx.beginPath();
+    ctx.moveTo(pulseBox.x + pulseBox.w, PULSE.y);
+    ctx.lineTo(PULSE.x, PULSE.y);
+    ctx.stroke();
+}
+
+function ffCircuitTwobitDrawStatic(ctx, scenario) {
+    const getN = k => scenario.nodes.find(n => n.key === k);
+    const [pulseBox, boxA, boxB] = scenario.boxes;
+    ffCircuitDrawBox(ctx, boxA.x, boxA.y, boxA.w, boxA.h);
+    ffCircuitDrawBox(ctx, boxB.x, boxB.y, boxB.w, boxB.h);
+
+    ctx.font = "bold 11px Arial";
+    ctx.fillStyle = "#666";
+    ctx.textAlign = "center";
+    ctx.fillText("Counter 1", boxA.x + boxA.w / 2, boxA.y - 8);
+    ctx.fillText("Counter 2", boxB.x + boxB.w / 2, boxB.y - 8);
+
+    [
+        ['D1', 'CK1', 'Q1', 'QBAR1', boxA],
+        ['D2', 'CK2', 'Q2', 'QBAR2', boxB]
+    ].forEach(([dKey, ckKey, qKey, qbarKey, box]) => {
+        const D = getN(dKey), CK = getN(ckKey), Q = getN(qKey), QBAR = getN(qbarKey);
+        ctx.font = "bold 12px Arial";
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "left";
+        ctx.fillText("D", box.x + 6, D.y + 5);
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(box.x, CK.y - 6);
+        ctx.lineTo(box.x + 9, CK.y);
+        ctx.lineTo(box.x, CK.y + 6);
+        ctx.stroke();
+        ctx.textAlign = "right";
+        ctx.fillText("Q", box.x + box.w - 6, Q.y + 5);
+        ffDrawQBarSubscriptRight(ctx, box.x + box.w - 6, QBAR.y + 5, null, 12);
+
+        // Fixed stub lines out to each pin's clickable node
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        [D, CK].forEach(n => {
+            ctx.beginPath();
+            ctx.moveTo(box.x, n.y);
+            ctx.lineTo(n.x, n.y);
+            ctx.stroke();
+        });
+        [Q, QBAR].forEach(n => {
+            ctx.beginPath();
+            ctx.moveTo(box.x + box.w, n.y);
+            ctx.lineTo(n.x, n.y);
+            ctx.stroke();
+        });
+    });
+
+    // Pulse generator box, with its own plain stub out to its node
+    const PULSE = getN('PULSE');
+    ffFreqDrawBox(ctx, pulseBox.x, pulseBox.y, pulseBox.w, pulseBox.h, "Pulse\nGenerator");
+    ctx.beginPath();
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.moveTo(pulseBox.x + pulseBox.w, PULSE.y);
+    ctx.lineTo(PULSE.x, PULSE.y);
+    ctx.stroke();
+}
+
+// --- Validation - returns { allCorrect, wireStatus } where wireStatus maps a
+// normalized "a|b" key to true/false for coloring each drawn wire ---
+
+function ffCircuitKey(a, b) { return [a, b].sort().join('|'); }
+
+function ffCircuitValidateLatch(userWires) {
+    const wireMap = {};
+    userWires.forEach(w => { wireMap[ffCircuitKey(w.a, w.b)] = true; });
+
+    const dOk = !!wireMap[ffCircuitKey('RAIL_V', 'D')];
+    const ckSwitch = wireMap[ffCircuitKey('SWA', 'CK')] ? 'SWA' : (wireMap[ffCircuitKey('SWB', 'CK')] ? 'SWB' : null);
+    const rSwitch = wireMap[ffCircuitKey('SWA', 'R')] ? 'SWA' : (wireMap[ffCircuitKey('SWB', 'R')] ? 'SWB' : null);
+    const switchesOk = ckSwitch && rSwitch && ckSwitch !== rSwitch;
+    const ledOk = !!wireMap[ffCircuitKey('Q', 'LED_IN')];
+
+    const wireStatus = {};
+    userWires.forEach(w => {
+        const k = ffCircuitKey(w.a, w.b);
+        let ok = false;
+        if (k === ffCircuitKey('RAIL_V', 'D')) ok = dOk;
+        else if (ckSwitch && k === ffCircuitKey(ckSwitch, 'CK')) ok = switchesOk;
+        else if (rSwitch && k === ffCircuitKey(rSwitch, 'R')) ok = switchesOk;
+        else if (k === ffCircuitKey('Q', 'LED_IN')) ok = ledOk;
+        wireStatus[k] = ok;
+    });
+
+    const allCorrect = dOk && switchesOk && ledOk && userWires.length === 4;
+    return { allCorrect, wireStatus };
+}
+
+function ffCircuitValidateOnebit(userWires) {
+    const wireMap = {};
+    userWires.forEach(w => { wireMap[ffCircuitKey(w.a, w.b)] = true; });
+
+    const fbKey = ffCircuitKey('QBAR', 'D');
+    const pulseKey = ffCircuitKey('PULSE', 'CK');
+    const fbOk = !!wireMap[fbKey];
+    const pulseOk = !!wireMap[pulseKey];
+
+    const wireStatus = {};
+    userWires.forEach(w => {
+        const k = ffCircuitKey(w.a, w.b);
+        wireStatus[k] = (k === fbKey && fbOk) || (k === pulseKey && pulseOk);
+    });
+
+    const allCorrect = fbOk && pulseOk && userWires.length === 2;
+    return { allCorrect, wireStatus };
+}
+
+function ffCircuitValidateTwobit(userWires) {
+    const required = [
+        ffCircuitKey('PULSE', 'CK1'),
+        ffCircuitKey('QBAR1', 'D1'),
+        ffCircuitKey('QBAR1', 'CK2'),
+        ffCircuitKey('QBAR2', 'D2')
+    ];
+
+    const wireStatus = {};
+    userWires.forEach(w => {
+        const k = ffCircuitKey(w.a, w.b);
+        wireStatus[k] = required.includes(k);
+    });
+
+    const presentKeys = userWires.map(w => ffCircuitKey(w.a, w.b));
+    const allCorrect = required.every(k => presentKeys.includes(k)) && userWires.length === required.length;
+    return { allCorrect, wireStatus };
+}
+
+// --- Scenario definitions ---
+
+const flipflopCircuitScenarios = [
+    {
+        id: 'latch',
+        title: 'Interactive Latch',
+        description: 'Wire this D-type flip-flop as a latch that <b>Sets</b> (Q = 1) when one switch is pressed, and <b>Resets</b> (Q = 0) when the other is pressed. Also connect <b>Q</b> to the protective resistor so the LED lights up correctly.',
+        topChannelMin: 58,
+        bottomChannelMax: 374,
+        railYs: [{ y: 50, safeY: 60 }, { y: 380, safeY: 370 }],
+        boxes: [
+            { x: 250, y: 100, w: 120, h: 100 },  // Flip-flop
+            { x: 448, y: 260, w: 24, h: 100 }    // LED's resistor + diode
+        ],
+        nodes: [
+            { key: 'D', x: 210, y: 130, label: 'D', boxId: 'latch', stubOffset: -15 },
+            { key: 'CK', x: 210, y: 175, label: 'CK', boxId: 'latch', stubOffset: -30 },
+            { key: 'R', x: 280, y: 230, label: 'R', boxId: 'latch', busSide: 'below' },
+            { key: 'Q', x: 410, y: 130, label: 'Q', boxId: 'latch', stubOffset: 15 },
+            { key: 'QBAR', x: 410, y: 175, label: 'Q̄', boxId: 'latch', stubOffset: 30 },
+            { key: 'LED_IN', x: 460, y: 200, label: 'LED' },
+            { key: 'RAIL_V', x: 190, y: 50, label: '12V' },
+            { key: 'RAIL_0_DECOY', x: 190, y: 380, label: '0V' },
+            { key: 'SWA', x: 140, y: 175, label: 'A', stubOffset: 20 },
+            { key: 'SWB', x: 565, y: 175, label: 'B', stubOffset: -30, busSide: 'below' }
+        ],
+        drawStatic: ffCircuitLatchDrawStatic,
+        validate: ffCircuitValidateLatch
+    },
+    {
+        id: 'onebit',
+        title: 'One-Bit Counter (Feedback Loop)',
+        description: 'Connect this D-type flip-flop so that it divides the clock frequency by 2.',
+        boxes: [
+            { x: 20, y: 190, w: 120, h: 70 },   // Pulse generator
+            { x: 330, y: 150, w: 120, h: 100 }  // D-type
+        ],
+        nodes: [
+            { key: 'D', x: 270, y: 180, label: 'D', boxId: 'ff1', stubOffset: -15 },
+            { key: 'CK', x: 270, y: 225, label: 'CK', boxId: 'ff1', stubOffset: -30 },
+            { key: 'Q', x: 510, y: 180, label: 'Q', boxId: 'ff1', stubOffset: 15 },
+            { key: 'QBAR', x: 510, y: 225, label: 'Q̄', boxId: 'ff1', stubOffset: 30 },
+            { key: 'PULSE', x: 200, y: 225, label: 'Pulse Generator' }
+        ],
+        drawStatic: ffCircuitOnebitDrawStatic,
+        validate: ffCircuitValidateOnebit
+    },
+    {
+        id: 'twobit',
+        title: 'Two-Bit Ripple Counter',
+        description: 'Connect these two D-type flip-flops to form a 2-bit counter (counting 0 to 3).',
+        boxes: [
+            { x: 10, y: 197, w: 70, h: 55 },     // Pulse generator
+            { x: 205, y: 150, w: 75, h: 100 },   // Counter 1
+            { x: 450, y: 150, w: 75, h: 100 }    // Counter 2
+        ],
+        nodes: [
+            { key: 'D1', x: 170, y: 180, label: 'D1', boxId: 'ff1', stubOffset: -15 },
+            { key: 'CK1', x: 170, y: 225, label: 'CK1', boxId: 'ff1', stubOffset: -30 },
+            { key: 'Q1', x: 315, y: 180, label: 'Q1', boxId: 'ff1', stubOffset: 15 },
+            { key: 'QBAR1', x: 315, y: 225, label: 'Q̄1', boxId: 'ff1', stubOffset: 35 },
+            { key: 'D2', x: 415, y: 180, label: 'D2', boxId: 'ff2', stubOffset: -15 },
+            { key: 'CK2', x: 415, y: 225, label: 'CK2', boxId: 'ff2', stubOffset: -35 },
+            { key: 'Q2', x: 560, y: 180, label: 'Q2', boxId: 'ff2', stubOffset: 15 },
+            { key: 'QBAR2', x: 560, y: 225, label: 'Q̄2', boxId: 'ff2', stubOffset: 30 },
+            { key: 'PULSE', x: 120, y: 225, label: 'Pulse Generator' }
+        ],
+        drawStatic: ffCircuitTwobitDrawStatic,
+        validate: ffCircuitValidateTwobit
+    }
+];
+
+// --- Main generate / draw / interact / check functions ---
+
+function generateFlipflopCircuitProblem(ctx, canvas) {
+    if (!canvas || !ctx) return;
+
+    const qType = scenarioTracker.flipflop_circuit;
+    scenarioTracker.flipflop_circuit = (scenarioTracker.flipflop_circuit + 1) % flipflopCircuitScenarios.length;
+    const scenario = flipflopCircuitScenarios[qType];
+
+    window.ffCircuitState = {
+        scenario: scenario,
+        userWires: [],
+        pendingNode: null,
+        checked: false
+    };
+
+    const groupEl = document.getElementById('inputGroupFlipflopCircuit');
+    if (groupEl) groupEl.style.display = 'flex';
+
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = `
+            <h3 style="color:#d65093; margin-bottom:6px;">D-Type Flip-Flop: ${scenario.title}</h3>
+            <p style="font-weight:normal;">${scenario.description}</p>`;
+    }
+
+    const solText = document.getElementById('solText');
+    if (solText) {
+        let rows;
+        if (scenario.id === 'latch') {
+            rows = "<b>+12V</b> connects to <b>D</b><br><b>Switch A</b> and <b>Switch B</b> connect to <b>CK</b> and <b>R</b> (in either order)<br><b>Q</b> connects to the protective resistor/<b>LED</b>";
+        } else if (scenario.id === 'onebit') {
+            rows = "<b>Pulse Generator</b> connects to <b>CK</b><br><b>Q̄</b> connects to <b>D</b>";
+        } else {
+            rows = "<b>Pulse Generator</b> connects to <b>CK1</b><br><b>Q̄1</b> connects to <b>D1</b><br><b>Q̄1</b> connects to <b>CK2</b><br><b>Q̄2</b> connects to <b>D2</b>";
+        }
+        solText.innerHTML = `<strong>Correct wiring:</strong><br>${rows}`;
+    }
+
+    drawFlipflopCircuit(ctx, canvas);
+}
+
+function drawFlipflopCircuit(ctx, canvas) {
+    const state = window.ffCircuitState;
+    if (!state) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const scenario = state.scenario;
+    scenario.drawStatic(ctx, scenario);
+
+    const { wireStatus } = state.checked ? scenario.validate(state.userWires) : { wireStatus: {} };
+
+    state.userWires.forEach((w, idx) => {
+        const nodeA = scenario.nodes.find(n => n.key === w.a);
+        const nodeB = scenario.nodes.find(n => n.key === w.b);
+        if (!nodeA || !nodeB) return;
+        let color = "#0d6efd";
+        if (state.checked) {
+            const k = ffCircuitKey(w.a, w.b);
+            color = wireStatus[k] ? "#28a745" : "#dc3545";
+        }
+        ffCircuitDrawWire(ctx, nodeA, nodeB, color, idx, scenario.boxes, scenario.topChannelMin, scenario.railYs, scenario.bottomChannelMax);
+    });
+
+    scenario.nodes.forEach(n => {
+        const isPending = state.pendingNode === n.key;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = isPending ? "#ffc107" : "#fff";
+        ctx.fill();
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    });
+}
+
+function setupFlipflopCircuitClick(ctx, canvas) {
+    if (window.ffCircuitClickHandler) {
+        canvas.removeEventListener('click', window.ffCircuitClickHandler);
+    }
+
+    window.ffCircuitClickHandler = function (e) {
+        if (currentMode !== 'flipflop_circuit' || !window.ffCircuitState) return;
+        if (isCurrentProblemSolved) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        const state = window.ffCircuitState;
+        const clickedNode = state.scenario.nodes.find(n => {
+            const dx = n.x - mouseX, dy = n.y - mouseY;
+            return Math.sqrt(dx * dx + dy * dy) <= 14;
+        });
+        if (!clickedNode) return;
+
+        if (!state.pendingNode) {
+            state.pendingNode = clickedNode.key;
+        } else if (state.pendingNode === clickedNode.key) {
+            state.pendingNode = null;
+        } else {
+            const a = state.pendingNode, b = clickedNode.key;
+            const idx = state.userWires.findIndex(w => (w.a === a && w.b === b) || (w.a === b && w.b === a));
+            if (idx >= 0) {
+                state.userWires.splice(idx, 1);
+            } else {
+                state.userWires.push({ a, b });
+            }
+            state.pendingNode = null;
+            state.checked = false; // editing after a check clears the red/green coloring
+        }
+
+        drawFlipflopCircuit(ctx, canvas);
+    };
+
+    canvas.addEventListener('click', window.ffCircuitClickHandler);
+}
+
+function ffCircuitClearWires() {
+    const state = window.ffCircuitState;
+    if (!state || isCurrentProblemSolved) return;
+    state.userWires = [];
+    state.pendingNode = null;
+    state.checked = false;
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    if (ctx && canvas) drawFlipflopCircuit(ctx, canvas);
+}
+
+function checkFlipflopCircuitAnswer(feedback, showsolutionsBtn) {
+    const state = window.ffCircuitState;
+    if (!state) return;
+
+    if (state.userWires.length === 0) {
+        feedback.innerHTML = "<span style='color: #dc3545;'>Please connect some wires first!</span>";
+        return;
+    }
+
+    if (!hasCheckedCurrentProblem) {
+        problemsAttempted++;
+        hasCheckedCurrentProblem = true;
+    }
+
+    state.checked = true;
+    const { allCorrect } = state.scenario.validate(state.userWires);
+
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    if (ctx && canvas) drawFlipflopCircuit(ctx, canvas);
+
+    if (allCorrect) {
+        isCurrentProblemSolved = true;
+        if (canEarnPoints) { problemsCorrect++; }
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #198754;'>Perfect! All connections correct. Click 'New Question' to continue.</span>`;
+        const checkansBtn = document.getElementById('checkansBtn');
+        if (checkansBtn) checkansBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+    } else {
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #dc3545;'>Not quite: red wires are wrong. Click a wire's two ends again to remove it, then try again.</span>`;
+    }
+
+    if (typeof updateScoreboard === "function") updateScoreboard();
+}
+
+//*****************************************************************************************
+// DECADE COUNTER: RESET WIRING + WAVEFORMS (Module 5: Flip Flops & Counters)
+//*****************************************************************************************
+// DECADE COUNTER: RESET WIRING + WAVEFORMS (Module 5: Flip Flops & Counters)
+//*****************************************************************************************
+// Chip is drawn wide and short: Q0-Q9 in a row along the top, Clock (given/fixed) and
+// R (reset - the only interactive wiring node) along the bottom. The reset connection
+// uses click-node-then-click-node (like the Circuit Builder tab), with the wire routed
+// around the side of the chip rather than through it. This coexists with a click-to-
+// toggle waveform system below, by occupying a different vertical region of the canvas -
+// clicks are dispatched to whichever region they land in.
+const FFDECADE_PLOT_X = 110;
+const FFDECADE_PLOT_WIDTH = 470;
+
+function ffDecadeBuildClock(segments) {
+    // Simple square wave: high for 1 segment, low for 1 segment, repeating
+    const vals = [];
+    for (let i = 0; i < segments; i++) vals.push(i % 2 === 1 ? 1 : 0);
+    return vals;
+}
+
+// Simulates the decade counter's outputs. Always builds all 10 rows (Q0-Q9), since GCSE
+// mark schemes grade every output - the ones beyond the reset point (Q[N] to Q9) must
+// stay permanently zero, and that's an explicit thing students need to demonstrate they
+// understand, not just an implementation detail to hide.
+// Q0 starts high (matching exam convention). Reset is asynchronous and immediate: on the
+// very same clock edge that would have made Q[N] go high, it instead forces Q0 high
+// straight away - there's no extra "everything zero" cycle and no delay to the next pulse.
+function ffDecadeSimulateOutputs(clockVals, N) {
+    const rows = [];
+    for (let i = 0; i < 10; i++) rows.push(new Array(clockVals.length).fill(0));
+    rows[0][0] = 1;
+
+    let state = 0;
+    for (let i = 1; i < clockVals.length; i++) {
+        const risingEdge = clockVals[i] === 1 && clockVals[i - 1] === 0;
+        if (risingEdge) state = (state + 1) % N;
+        // Only rows 0..N-1 are ever driven high - rows N..9 are intentionally left at
+        // their initial 0 for the entire simulation.
+        for (let q = 0; q < N; q++) rows[q][i] = (q === state) ? 1 : 0;
+    }
+    return rows;
+}
+
+function ffDecadeDrawStepLine(ctx, values, centerY, amplitude, segWidth, color) {
+    const highY = centerY - amplitude, lowY = centerY + amplitude;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    for (let i = 0; i < values.length; i++) {
+        const x1 = FFDECADE_PLOT_X + i * segWidth;
+        const x2 = FFDECADE_PLOT_X + (i + 1) * segWidth;
+        const y = values[i] === 1 ? highY : lowY;
+        ctx.beginPath();
+        ctx.moveTo(x1, y);
+        ctx.lineTo(x2, y);
+        ctx.stroke();
+        if (i < values.length - 1) {
+            const nextY = values[i + 1] === 1 ? highY : lowY;
+            if (nextY !== y) {
+                ctx.beginPath();
+                ctx.moveTo(x2, y);
+                ctx.lineTo(x2, nextY);
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+// Same as above, but each segment can have its own colour (used after checking).
+function ffDecadeDrawColoredStepLine(ctx, values, centerY, amplitude, segWidth, colors) {
+    const highY = centerY - amplitude, lowY = centerY + amplitude;
+    for (let i = 0; i < values.length; i++) {
+        const x1 = FFDECADE_PLOT_X + i * segWidth;
+        const x2 = FFDECADE_PLOT_X + (i + 1) * segWidth;
+        const y = values[i] === 1 ? highY : lowY;
+        ctx.strokeStyle = colors[i];
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(x1, y);
+        ctx.lineTo(x2, y);
+        ctx.stroke();
+        if (i < values.length - 1) {
+            const nextY = values[i + 1] === 1 ? highY : lowY;
+            if (nextY !== y) {
+                ctx.beginPath();
+                ctx.moveTo(x2, y);
+                ctx.lineTo(x2, nextY);
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+// Draws a wire routed around the SIDE of the chip (left or right, whichever is closer),
+// rather than through it - since Q-pins sit above the chip and R sits below, a direct
+// line would cross straight through the box.
+function ffDecadeDrawResetWire(ctx, nodeA, nodeB, chipBox, color) {
+    const top = nodeA.y < nodeB.y ? nodeA : nodeB;
+    const bottom = nodeA.y < nodeB.y ? nodeB : nodeA;
+
+    const distToLeft = Math.min(top.x, bottom.x) - chipBox.x;
+    const distToRight = (chipBox.x + chipBox.w) - Math.max(top.x, bottom.x);
+    const wrapX = distToLeft < distToRight ? chipBox.x - 15 : chipBox.x + chipBox.w + 15;
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(top.x, top.y);
+    ctx.lineTo(wrapX, top.y);
+    ctx.lineTo(wrapX, bottom.y);
+    ctx.lineTo(bottom.x, bottom.y);
+    ctx.stroke();
+
+    [top, bottom].forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+    });
+}
+
+function ffDecadeDrawWiringDiagram(ctx, state) {
+    const box = state.chipBox;
+
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.fillRect(box.x, box.y, box.w, box.h);
+    ctx.strokeRect(box.x, box.y, box.w, box.h);
+
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 15px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("4017", box.x + box.w / 2, box.y + box.h / 2 + 5);
+
+    // Q0-Q9 pins along the top: fixed stub from the chip up to each clickable node,
+    // with the label above the node
+    ctx.font = "10px Arial";
+    state.nodes.filter(n => n.key !== 'R').forEach(n => {
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(n.x, box.y);
+        ctx.lineTo(n.x, n.y);
+        ctx.stroke();
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "center";
+        ctx.fillText(n.key, n.x, n.y - 10);
+    });
+
+    // Clock: given/fixed, not interactive
+    const ckX = state.clockPoint.x, ckY = box.y + box.h / 2;
+    ctx.strokeStyle = "#333";
+    ctx.beginPath();
+    ctx.moveTo(ckX, box.y + box.h);
+    ctx.lineTo(ckX, state.clockPoint.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ckX - 7, box.y + box.h);
+    ctx.lineTo(ckX, box.y + box.h - 11);
+    ctx.lineTo(ckX + 7, box.y + box.h);
+    ctx.stroke();
+    ctx.font = "11px Arial";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#000";
+    ctx.fillText("Clock", ckX, state.clockPoint.y + 16);
+
+    // R: fixed stub from chip down to the clickable node
+    const rNode = state.nodes.find(n => n.key === 'R');
+    ctx.strokeStyle = "#333";
+    ctx.beginPath();
+    ctx.moveTo(rNode.x, box.y + box.h);
+    ctx.lineTo(rNode.x, rNode.y);
+    ctx.stroke();
+    ctx.font = "bold 11px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText("R", rNode.x + 8, box.y + box.h - 4);
+}
+
+function ffDecadeRedrawAll(ctx, canvas) {
+    const state = window.ffDecadeState;
+    if (!state) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ffDecadeDrawWiringDiagram(ctx, state);
+
+    // Draw the reset wire (if any), then the nodes on top so they're never obscured
+    if (state.wire) {
+        const nodeA = state.nodes.find(n => n.key === state.wire.a);
+        const nodeB = state.nodes.find(n => n.key === state.wire.b);
+        let color = "#0d6efd";
+        if (state.checked) {
+            const correct = (state.wire.a === 'R' && state.wire.b === `Q${state.N}`) ||
+                             (state.wire.b === 'R' && state.wire.a === `Q${state.N}`);
+            color = correct ? "#28a745" : "#dc3545";
+        }
+        ffDecadeDrawResetWire(ctx, nodeA, nodeB, state.chipBox, color);
+    }
+    state.nodes.forEach(n => {
+        const isPending = state.pendingNode === n.key;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = isPending ? "#ffc107" : "#fff";
+        ctx.fill();
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    });
+
+    // --- Waveform rows (always all 10 outputs, so students see Q[N]-Q9 stay at zero) ---
+    const N = state.N;
+    const rowsTotal = 11; // clock + Q0-Q9, always
+    const topY = 148, botY = 555;
+    const rowSpacing = (botY - topY) / rowsTotal;
+    const amplitude = Math.min(15, rowSpacing * 0.35);
+    const fontSize = rowSpacing < 30 ? 9 : 12;
+
+    const rowY = [];
+    for (let i = 0; i < rowsTotal; i++) rowY.push(topY + rowSpacing * (i + 0.5));
+
+    ffDecadeDrawStepLine(ctx, state.clockVals, rowY[0], amplitude, state.segWidth, "#000");
+    ctx.fillStyle = "#333";
+    ctx.font = `bold ${fontSize}px Arial`;
+    ctx.textAlign = "left";
+    ctx.fillText("Clock", 8, rowY[0] + 4);
+
+    for (let q = 0; q < 10; q++) {
+        const row = state.studentRows[q];
+        if (state.checked && state.segmentColors) {
+            ffDecadeDrawColoredStepLine(ctx, row, rowY[q + 1], amplitude, state.segWidth, state.segmentColors[q]);
+        } else {
+            ffDecadeDrawStepLine(ctx, row, rowY[q + 1], amplitude, state.segWidth, "#0d6efd");
+        }
+        ctx.fillStyle = "#333";
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.textAlign = "left";
+        ctx.fillText(`Q${q}`, 8, rowY[q + 1] + 4);
+    }
+
+    state.rowY = rowY;
+    state.amplitude = amplitude;
+}
+
+function generateFlipflopDecadeProblem(ctx, canvas) {
+    if (!canvas || !ctx) return;
+
+    const oldOverlay = document.getElementById('canvasOverlay');
+    if (oldOverlay) oldOverlay.remove();
+    document.querySelectorAll('.gcse-block-ui').forEach(el => el.remove());
+
+    const N = 3 + Math.floor(Math.random() * 7); // 3 through 9
+    const segments = Math.min(24, 2 * N);   // ~2 full cycles, capped for canvas width
+    const segWidth = FFDECADE_PLOT_WIDTH / segments;
+    const clockVals = ffDecadeBuildClock(segments);
+    const correctRows = ffDecadeSimulateOutputs(clockVals, N);
+
+    const studentRows = [];
+    for (let q = 0; q < 10; q++) {
+        const row = new Array(segments).fill(0);
+        if (q === 0) row[0] = 1; // Q0 = 1 initially - given, matches exam convention
+        studentRows.push(row);
+    }
+
+    // --- Chip + pin layout: Q0-Q9 along the top, Clock + R along the bottom ---
+    const chipBox = { x: 65, y: 55, w: 460, h: 40 };
+    const nodes = [];
+    for (let i = 0; i <= 9; i++) {
+        nodes.push({ key: `Q${i}`, x: chipBox.x + 23 + i * 46, y: chipBox.y - 20 });
+    }
+    nodes.push({ key: 'R', x: chipBox.x + chipBox.w - 30, y: chipBox.y + chipBox.h + 25 });
+    const clockPoint = { x: chipBox.x + 40, y: chipBox.y + chipBox.h + 25 };
+
+    window.ffDecadeState = {
+        N: N,
+        segments: segments,
+        segWidth: segWidth,
+        clockVals: clockVals,
+        correctRows: correctRows,
+        studentRows: studentRows,
+        checked: false,
+        chipBox: chipBox,
+        nodes: nodes,
+        clockPoint: clockPoint,
+        wire: null,
+        pendingNode: null
+    };
+
+    ffDecadeRedrawAll(ctx, canvas);
+
+    const groupEl = document.getElementById('inputGroupFlipflopDecade');
+    if (groupEl) groupEl.style.display = 'flex';
+
+    // --- Question text ---
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.style.display = 'block';
+        qText.innerHTML = `
+            <h3 style="color:#d65093;">Decade Counter: Reset & Waveforms</h3>
+            <p>Add to the diagram the connection needed to reset the counter so the counter only counts up to <b>Q${N - 1}</b> and the pattern repeats.</p>`;
+    }
+
+    // --- Model answer ---
+    const solText = document.getElementById('solText');
+    if (solText) {
+        solText.innerHTML = `<strong>Reset:</strong> Q${N} connects to R (so reaching Q${N} immediately resets everything to zero).<br><strong>Waveforms:</strong> Q0 is high first, then Q1, Q2, &hellip; Q${N - 1} in turn (one clock period each). On the very same pulse that would have made Q${N} go high, the reset kicks in instead and Q0 goes high immediately - no delay, no gap. Q${N}${N < 9 ? `&ndash;Q9` : ''} never go${N < 9 ? '' : 'es'} high &mdash; they stay at 0 throughout.`;
+    }
+}
+
+function setupFlipflopDecadeClick(ctx, canvas) {
+    if (window.ffDecadeClickHandler) {
+        canvas.removeEventListener('click', window.ffDecadeClickHandler);
+    }
+
+    window.ffDecadeClickHandler = function (e) {
+        if (currentMode !== 'flipflop_decade' || !window.ffDecadeState) return;
+        if (isCurrentProblemSolved) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+        const state = window.ffDecadeState;
+
+        // Try the wiring nodes first (Q0-Q9, R)
+        const clickedNode = state.nodes.find(n => {
+            const dx = n.x - mouseX, dy = n.y - mouseY;
+            return Math.sqrt(dx * dx + dy * dy) <= 14;
+        });
+        if (clickedNode) {
+            if (!state.pendingNode) {
+                state.pendingNode = clickedNode.key;
+            } else if (state.pendingNode === clickedNode.key) {
+                state.pendingNode = null;
+            } else {
+                const a = state.pendingNode, b = clickedNode.key;
+                if (state.wire && ((state.wire.a === a && state.wire.b === b) || (state.wire.a === b && state.wire.b === a))) {
+                    state.wire = null;
+                } else {
+                    state.wire = { a, b };
+                }
+                state.pendingNode = null;
+                state.checked = false;
+            }
+            ffDecadeRedrawAll(ctx, canvas);
+            return;
+        }
+
+        // Otherwise, try the waveform rows
+        if (!state.rowY) return;
+        const amp = state.amplitude || 9;
+        if (mouseX < FFDECADE_PLOT_X || mouseX > FFDECADE_PLOT_X + FFDECADE_PLOT_WIDTH) return;
+        const segIndex = Math.floor((mouseX - FFDECADE_PLOT_X) / state.segWidth);
+        if (segIndex < 0 || segIndex >= state.segments) return;
+
+        for (let q = 0; q < 10; q++) {
+            const centerY = state.rowY[q + 1];
+            if (mouseY < centerY - amp - 8 || mouseY > centerY + amp + 8) continue;
+            if (q === 0 && segIndex === 0) return; // Q0's first segment is given, locked
+
+            state.studentRows[q][segIndex] = 1 - state.studentRows[q][segIndex];
+            state.checked = false;
+            ffDecadeRedrawAll(ctx, canvas);
+            return;
+        }
+    };
+
+    canvas.addEventListener('click', window.ffDecadeClickHandler);
+}
+
+function ffDecadeClearAll() {
+    const state = window.ffDecadeState;
+    if (!state || isCurrentProblemSolved) return;
+
+    for (let q = 0; q < 10; q++) {
+        for (let i = 0; i < state.segments; i++) {
+            state.studentRows[q][i] = (q === 0 && i === 0) ? 1 : 0;
+        }
+    }
+    state.wire = null;
+    state.pendingNode = null;
+    state.checked = false;
+
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    if (ctx && canvas) ffDecadeRedrawAll(ctx, canvas);
+}
+
+function checkFlipflopDecadeAnswer(feedback, showsolutionsBtn) {
+    const state = window.ffDecadeState;
+    if (!state) return;
+
+    if (!state.wire) {
+        feedback.innerHTML = "<span style='color: #dc3545;'>Please wire the reset connection first!</span>";
+        return;
+    }
+
+    if (!hasCheckedCurrentProblem) {
+        problemsAttempted++;
+        hasCheckedCurrentProblem = true;
+    }
+
+    const resetCorrect = (state.wire.a === 'R' && state.wire.b === `Q${state.N}`) ||
+                          (state.wire.b === 'R' && state.wire.a === `Q${state.N}`);
+
+    state.checked = true;
+    state.segmentColors = [];
+    let allSegmentsCorrect = true;
+
+    for (let q = 0; q < 10; q++) {
+        const rowColors = [];
+        for (let i = 0; i < state.segments; i++) {
+            const ok = state.studentRows[q][i] === state.correctRows[q][i];
+            if (!ok) allSegmentsCorrect = false;
+            rowColors.push(ok ? "#28a745" : "#dc3545");
+        }
+        state.segmentColors.push(rowColors);
+    }
+
+    const canvas = document.getElementById('circuitCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    if (ctx && canvas) ffDecadeRedrawAll(ctx, canvas);
+
+    const allCorrect = resetCorrect && allSegmentsCorrect;
+
+    if (allCorrect) {
+        isCurrentProblemSolved = true;
+        if (canEarnPoints) { problemsCorrect++; }
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #198754;'>Perfect! Reset wired correctly and all waveforms match. Click 'New Question' to continue.</span>`;
+        const checkansBtn = document.getElementById('checkansBtn');
+        if (checkansBtn) checkansBtn.style.display = 'none';
+        if (showsolutionsBtn) showsolutionsBtn.style.display = 'none';
+    } else {
+        canEarnPoints = false;
+        feedback.innerHTML = `<span style='color: #dc3545;'>Not quite yet: red marks the reset connection and/or waveform segments that are wrong. Keep adjusting and check again.</span>`;
     }
 
     if (typeof updateScoreboard === "function") updateScoreboard();
