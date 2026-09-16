@@ -848,12 +848,12 @@
 </div>
 
 <div id="menuBasics" class="tabs" style="display:none;">
-    <button class="tab" id="tab-analysis" onclick="safeSwitchTab('analysis')">Circuit Analysis</button>
+    <button class="tab" id="tab-siprefix" onclick="safeSwitchTab('siprefix')">SI Prefix</button>
+    <button class="tab" id="tab-colorcode" onclick="safeSwitchTab('colorcode')">Colour Codes</button>
     <button class="tab" id="tab-divider" onclick="safeSwitchTab('divider')">Potential Divider</button>
     <button class="tab" id="tab-resistance" onclick="safeSwitchTab('resistance')">Total Resistance</button>
-    <button class="tab" id="tab-colorcode" onclick="safeSwitchTab('colorcode')">Colour Codes</button>
+    <button class="tab" id="tab-analysis" onclick="safeSwitchTab('analysis')">Circuit Analysis</button>
     <button class="tab" id="tab-power" onclick="safeSwitchTab('power')">Power</button>
-    <button class="tab" id="tab-siprefix" onclick="safeSwitchTab('siprefix')">SI Prefix</button>
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
 </div>
 
@@ -895,6 +895,8 @@
 </div>
 
 <div id="menuTransistors" class="tabs" style="display:none;">
+    <button class="tab" id="tab-transistorvoltages" onclick="safeSwitchTab('transistorvoltages')">Transistor Voltages</button>
+    <button class="tab" id="tab-transistorcurrents" onclick="safeSwitchTab('transistorcurrents')">Transistor Currents</button>
     <button class="tab" id="tab-transistor" onclick="safeSwitchTab('transistor')">Transistors</button>
     <button class="tab" id="tab-mosfet" onclick="safeSwitchTab('mosfet')">MOSFETs</button>
     <button class="tab" style="background:#6c757d; color:white;" onclick="safeGoHome()">🏠 Home</button>
@@ -1618,6 +1620,36 @@
 
 </div>
 
+<!-- Input group TRANSISTOR VOLTAGES -->
+<div id="inputGroupTransistorVoltages" style="display: none; flex-direction: column; align-items: center; padding: 10px 0; gap: 12px; width: 100%;">
+
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; gap: 8px;">
+        <div style="font-weight: bold; color: #E64097; font-size: 16px; white-space: nowrap; width: 90px; text-align: right;">V<sub>RB</sub> =</div>
+        <input type="text" id="transVoltVRB" placeholder="e.g. 1.3 V" style="width: 85px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; flex-shrink: 0;">
+    </div>
+
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; gap: 8px;">
+        <div style="font-weight: bold; color: #E64097; font-size: 16px; white-space: nowrap; width: 90px; text-align: right;">V<sub>BE</sub> =</div>
+        <input type="text" id="transVoltVBE" placeholder="e.g. 0.7 V" style="width: 85px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; flex-shrink: 0;">
+    </div>
+
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; gap: 8px;">
+        <div style="font-weight: bold; color: #E64097; font-size: 16px; white-space: nowrap; width: 90px; text-align: right;">V<sub>CE</sub> =</div>
+        <input type="text" id="transVoltVCE" placeholder="e.g. 0.2 V" style="width: 85px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; flex-shrink: 0;">
+    </div>
+
+</div>
+
+<!-- Input group TRANSISTOR CURRENTS -->
+<div id="inputGroupTransistorCurrents" style="display: none; flex-direction: column; align-items: center; padding: 10px 0; gap: 12px; width: 100%;">
+
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; gap: 8px;">
+        <div id="transCurrLabel" style="font-weight: bold; color: #E64097; font-size: 16px; white-space: nowrap; width: 50px; text-align: right;">I<sub>B</sub> =</div>
+        <input type="text" id="transCurrValue" placeholder="e.g. 1.5 mA" style="width: 85px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center; flex-shrink: 0;">
+    </div>
+
+</div>
+
 <!-- Input group G9 TRANSISTOR--> 
 <div id="inputGroupGrade9Transistor" style="display: none; text-align: center; margin-top: 20px;">
 
@@ -1895,7 +1927,6 @@
                 <option value="Mr. Brooks">Mr. Brooks</option>
                 <option value="Mr. Mason">Mr. Mason</option>
                 <option value="Mr. Willoughby">Mr. Willoughby</option>
-                <option value="Mrs. Salow">Mrs. Salow</option>
             </select>
         </div>
         <div class="modal-actions">
@@ -9352,7 +9383,358 @@ function generateTransistorProblem(ctx, canvas) {
     }
 }
 //************************************************************************************
-    
+
+// ====================================================================================
+// TRANSISTOR VOLTAGES - a simpler bridge into the full Transistors page. Tests the
+// ON/OFF conceptual trap directly: if V_IN < 0.7V, no current flows at all, so there's
+// no drop across R_B (the "voltage after it" stays at V_IN, not V_IN - 0.7) and the
+// collector floats to the full supply rather than sitting near 0V.
+// ====================================================================================
+function generateTransistorVoltagesProblem(ctx, canvas) {
+    if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
+
+    const inputGroup = document.getElementById('inputGroupTransistorVoltages');
+    if (inputGroup) inputGroup.style.display = 'flex';
+
+    ['transVoltVRB', 'transVoltVBE', 'transVoltVCE'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = '';
+            el.style.removeProperty('border-color');
+            el.style.removeProperty('border-width');
+            el.style.removeProperty('border-style');
+            el.style.removeProperty('box-shadow');
+            el.style.removeProperty('color');
+            el.style.removeProperty('background-color');
+        }
+    });
+
+    currentMode = 'transistorvoltages';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+    const pinkColor = "#E64097";
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
+
+    const solText = document.getElementById('solText');
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none";
+    if (solText) solText.innerHTML = "";
+
+    const hfeValues = [50, 80, 100, 120, 150, 200, 250];
+    const rbValues = [220, 330, 470, 680, 1000, 1200, 1500, 2200];
+    const supplyVoltage = Math.random() < 0.5 ? 9 : 12;
+
+    let hfe = hfeValues[Math.floor(Math.random() * hfeValues.length)];
+    let rb = rbValues[Math.floor(Math.random() * rbValues.length)];
+
+    const isOn = Math.random() < 0.5;
+    let vin;
+    if (isOn) {
+        const vinOnValues = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0];
+        vin = vinOnValues[Math.floor(Math.random() * vinOnValues.length)];
+    } else {
+        const vinOffValues = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6];
+        vin = vinOffValues[Math.floor(Math.random() * vinOffValues.length)];
+    }
+
+    // Proper 3-quantity KVL breakdown around the base loop: V_IN = V_RB + V_BE
+    let vRB, vBE, vCE;
+    if (isOn) {
+        vBE = 0.7;
+        vRB = vin - 0.7;
+        vCE = 0; // "just saturated" - matches the existing Transistors page's convention
+    } else {
+        vRB = 0;    // no current flows -> nothing dropped across R_B
+        vBE = vin;  // so ALL of V_IN appears directly across the base-emitter junction
+        vCE = supplyVoltage; // no current flows -> collector floats to the supply rail
+    }
+
+    currentAnswers = { vin: vin, hfe: hfe, rb: rb, vSupply: supplyVoltage, isOn: isOn, vRB: vRB, vBE: vBE, vCE: vCE };
+
+    const qText = document.getElementById('questionText');
+    if (qText) {
+        qText.innerHTML = `
+            Calculate the following:<br>
+            &bull; <strong>V<sub>RB</sub></strong>: the voltage across the base resistor.<br>
+            &bull; <strong>V<sub>BE</sub></strong>: the base-emitter voltage.<br>
+            &bull; <strong>V<sub>CE</sub></strong>: the collector-emitter voltage.
+            <div style="margin-top: 15px; font-weight: normal; font-size: 0.85em; color: #777;">
+                <em>Think carefully about whether the transistor is ON or OFF first! Enter your calculated values followed by V.</em>
+            </div>
+        `;
+        qText.style.display = 'block';
+    }
+
+    if (solText) {
+        if (isOn) {
+            solText.innerHTML = "<strong>The transistor is ON</strong> (V<sub>IN</sub> = " + vin + " V &ge; 0.7 V)<br><br>" +
+                "<em>Step 1:</em> The base-emitter junction clamps at 0.7V once current flows.<br>" +
+                "V<sub>BE</sub> = <strong>0.7 V</strong><br><br>" +
+                "<em>Step 2:</em> By KVL around the base loop, whatever's left of V<sub>IN</sub> is dropped across R<sub>B</sub>.<br>" +
+                "V<sub>RB</sub> = V<sub>IN</sub> - V<sub>BE</sub> = " + vin + " V - 0.7 V = <strong>" + vRB.toFixed(1) + " V</strong><br><br>" +
+                "<em>Step 3:</em> With base current flowing, the transistor is (just) saturated, pulling the collector down close to 0V.<br>" +
+                "V<sub>CE</sub> = <strong>0 V</strong> (approx.)";
+        } else {
+            solText.innerHTML = "<strong>The transistor is OFF</strong> (V<sub>IN</sub> = " + vin + " V &lt; 0.7 V)<br><br>" +
+                "<em>Step 1:</em> Since V<sub>IN</sub> is below the 0.7V threshold, the base-emitter junction never conducts, so no base current can flow.<br>" +
+                "With I<sub>B</sub> = 0, there is no voltage drop across R<sub>B</sub> (V = I &times; R = 0).<br>" +
+                "V<sub>RB</sub> = <strong>0 V</strong><br><br>" +
+                "<em>Step 2:</em> With nothing dropped across R<sub>B</sub>, all of V<sub>IN</sub> appears directly across the base-emitter junction instead.<br>" +
+                "V<sub>BE</sub> = V<sub>IN</sub> = <strong>" + vin + " V</strong><br><br>" +
+                "<em>Step 3:</em> With no base current, no collector current flows either, so nothing pulls the collector down - it floats up to the supply rail.<br>" +
+                "V<sub>CE</sub> = V<sub>supply</sub> = <strong>" + supplyVoltage + " V</strong>";
+        }
+    }
+
+    // --- DRAW THE CIRCUIT (same coordinate system as the main Transistors page) ---
+    const ty = 250, rx = 200, railStartX = 80, tx = 380, lx = tx + 10, ly = 145;
+
+    if (typeof drawStandardTransistorCircuit === 'function') {
+        drawStandardTransistorCircuit(ctx, supplyVoltage);
+    }
+
+    // hFE label
+    ctx.fillStyle = strokeColor;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = "14px Arial";
+    ctx.fillText("h", tx + 45, ty + 5);
+    let hW = ctx.measureText("h").width;
+    ctx.font = "10px Arial";
+    ctx.fillText("FE", tx + 45 + hW, ty + 8);
+    let feW = ctx.measureText("FE").width;
+    ctx.font = "14px Arial";
+    ctx.fillText(" = " + hfe, tx + 45 + hW + feW, ty + 5);
+
+    // R_B label (known)
+    ctx.fillStyle = strokeColor;
+    ctx.textAlign = "left";
+    let rbValText = " = " + (rb >= 1000 ? (rb / 1000) + " kΩ" : rb + " Ω");
+    let rbYOffset = ty - 25;
+    let rbStartX = rx - 35;
+    ctx.font = "16px Arial";
+    ctx.fillText("R", rbStartX, rbYOffset);
+    let rWidth = ctx.measureText("R").width;
+    ctx.font = "12px Arial";
+    ctx.fillText("B", rbStartX + rWidth + 1, rbYOffset + 4);
+    let bWidth = ctx.measureText("B").width;
+    ctx.font = "16px Arial";
+    ctx.fillText(rbValText, rbStartX + rWidth + bWidth + 3, rbYOffset);
+
+    // V_RB label - unknown, pink - same position as before (the placement that was good)
+    ctx.fillStyle = pinkColor;
+    ctx.textAlign = "left";
+    let vRBYOffset = ty + 35;
+    ctx.font = "16px Arial";
+    ctx.fillText("V", rbStartX, vRBYOffset);
+    let vRBVWidth = ctx.measureText("V").width;
+    ctx.font = "12px Arial";
+    ctx.fillText("RB", rbStartX + vRBVWidth + 1, vRBYOffset + 4);
+    let vRBSubWidth = ctx.measureText("RB").width;
+    ctx.font = "16px Arial";
+    ctx.fillText(" = ?", rbStartX + vRBVWidth + vRBSubWidth + 3, vRBYOffset);
+
+    // V_IN label (known)
+    ctx.fillStyle = strokeColor;
+    ctx.textAlign = "left";
+    let vinY = ty + 20;
+    ctx.font = "18px Arial";
+    ctx.fillText("V", railStartX - 70, vinY);
+    let vW = ctx.measureText("V").width;
+    ctx.font = "13px Arial";
+    ctx.fillText("IN", railStartX - 70 + vW + 2, vinY + 5);
+    let inW = ctx.measureText("IN").width;
+    ctx.font = "16px Arial";
+    ctx.fillText(" = " + vin + " V", railStartX - 70 + vW + inW + 5, vinY);
+
+    // I_B arrow (visual only, not asked for here)
+    if (typeof drawArrowOnWire === 'function') {
+        drawArrowOnWire(ctx, rx + 45, ty, tx - 45, ty);
+    }
+
+    // V_BE label - unknown, pink - below the base line, at the transistor's base entrance
+    ctx.fillStyle = pinkColor;
+    ctx.textAlign = "left";
+    let vBEX = tx - 70, vBEY = ty + 35;
+    ctx.font = "16px Arial";
+    ctx.fillText("V", vBEX, vBEY);
+    let vBEVWidth = ctx.measureText("V").width;
+    ctx.font = "12px Arial";
+    ctx.fillText("BE", vBEX + vBEVWidth + 1, vBEY + 4);
+    let vBESubWidth = ctx.measureText("BE").width;
+    ctx.font = "16px Arial";
+    ctx.fillText(" = ?", vBEX + vBEVWidth + vBESubWidth + 3, vBEY);
+
+    // V_CE label - unknown, pink - close to the transistor's collector output
+    ctx.fillStyle = pinkColor;
+    ctx.textAlign = "left";
+    let vCEX = tx + 15, vCEY = ty - 35;
+    ctx.font = "16px Arial";
+    ctx.fillText("V", vCEX, vCEY);
+    let vCEVWidth = ctx.measureText("V").width;
+    ctx.font = "12px Arial";
+    ctx.fillText("CE", vCEX + vCEVWidth + 1, vCEY + 4);
+    let vCESubWidth = ctx.measureText("CE").width;
+    ctx.font = "16px Arial";
+    ctx.fillText(" = ?", vCEX + vCEVWidth + vCESubWidth + 3, vCEY);
+
+    // Supply voltage label above the motor (matches existing page's convention)
+    ctx.fillStyle = strokeColor;
+    ctx.font = "bold 14px Arial";
+    ctx.fillText(supplyVoltage + "V", lx + 30, ly - 5);
+}
+
+// ====================================================================================
+// TRANSISTOR CURRENTS - simple I_B / I_C / h_FE cycling, one unknown per question.
+// Always gives two of the three, asks for the third via I_C = h_FE x I_B.
+// ====================================================================================
+function generateTransistorCurrentsProblem(ctx, canvas) {
+    if (typeof hideAllInputGroups === 'function') hideAllInputGroups();
+
+    const inputGroup = document.getElementById('inputGroupTransistorCurrents');
+    if (inputGroup) inputGroup.style.display = 'flex';
+
+    const currInput = document.getElementById('transCurrValue');
+    if (currInput) {
+        currInput.value = '';
+        currInput.style.removeProperty('border-color');
+        currInput.style.removeProperty('border-width');
+        currInput.style.removeProperty('border-style');
+        currInput.style.removeProperty('box-shadow');
+        currInput.style.removeProperty('color');
+        currInput.style.removeProperty('background-color');
+    }
+
+    currentMode = 'transistorcurrents';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const strokeColor = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
+    const pinkColor = "#E64097";
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
+
+    const solText = document.getElementById('solText');
+    const solContainer = document.getElementById('solutions');
+    if (solContainer) solContainer.style.display = "none";
+    if (solText) solText.innerHTML = "";
+
+    const hfeValues = [20, 50, 80, 100, 120, 150, 200, 250];
+    const ibValues = [2, 3, 4, 5, 6, 8, 10, 12, 15]; // mA
+
+    const hfe = hfeValues[Math.floor(Math.random() * hfeValues.length)];
+    const ib_mA = ibValues[Math.floor(Math.random() * ibValues.length)];
+    const ic_mA = ib_mA * hfe;
+
+    // Cycle through the 3 unknowns sequentially, same pattern as other modules on this site
+    if (typeof scenarioTracker.transistorcurrents === 'undefined') {
+        scenarioTracker.transistorcurrents = 0;
+    }
+    scenarioTracker.transistorcurrents = (scenarioTracker.transistorcurrents % 3) + 1;
+    window.transCurrMode = scenarioTracker.transistorcurrents; // 1=find IC, 2=find IB, 3=find hFE
+
+    currentAnswers = { ib: ib_mA, ic: ic_mA, hfe: hfe };
+
+    const qText = document.getElementById('questionText');
+    const currLabel = document.getElementById('transCurrLabel');
+    const currInputEl = document.getElementById('transCurrValue');
+
+    let questionHTML = '';
+    if (window.transCurrMode === 1) {
+        // Given IB and hFE, find IC
+        questionHTML = `Calculate the <strong>collector current, I<sub>C</sub></strong>.`;
+        if (currLabel) currLabel.innerHTML = 'I<sub>C</sub> =';
+        if (currInputEl) currInputEl.placeholder = 'e.g. 300 mA';
+        if (solText) {
+            solText.innerHTML = "<strong>I<sub>C</sub> = " + ic_mA + " mA</strong><br><br>" +
+                "<em>Equation:</em> <strong>I<sub>C</sub> = h<sub>FE</sub> &times; I<sub>B</sub></strong><br><br>" +
+                "I<sub>C</sub> = " + hfe + " &times; " + ib_mA + " mA = <strong>" + ic_mA + " mA</strong>";
+        }
+    } else if (window.transCurrMode === 2) {
+        // Given IC and hFE, find IB
+        questionHTML = `Calculate the <strong>base current, I<sub>B</sub></strong>.`;
+        if (currLabel) currLabel.innerHTML = 'I<sub>B</sub> =';
+        if (currInputEl) currInputEl.placeholder = 'e.g. 5 mA';
+        if (solText) {
+            solText.innerHTML = "<strong>I<sub>B</sub> = " + ib_mA + " mA</strong><br><br>" +
+                "<em>Equation:</em> <strong>I<sub>B</sub> = I<sub>C</sub> / h<sub>FE</sub></strong><br><br>" +
+                "I<sub>B</sub> = " + ic_mA + " mA / " + hfe + " = <strong>" + ib_mA + " mA</strong>";
+        }
+    } else {
+        // Given IB and IC, find hFE
+        questionHTML = `Calculate the <strong>current gain, h<sub>FE</sub></strong>.`;
+        if (currLabel) currLabel.innerHTML = 'h<sub>FE</sub> =';
+        if (currInputEl) currInputEl.placeholder = 'e.g. 100';
+        if (solText) {
+            solText.innerHTML = "<strong>h<sub>FE</sub> = " + hfe + "</strong><br><br>" +
+                "<em>Equation:</em> <strong>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></strong><br><br>" +
+                "h<sub>FE</sub> = " + ic_mA + " mA / " + ib_mA + " mA = <strong>" + hfe + "</strong>";
+        }
+    }
+
+    if (qText) {
+        qText.innerHTML = questionHTML + `
+            <div style="margin-top: 15px; font-weight: normal; font-size: 0.85em; color: #777;">
+                <em>Enter your calculated value followed by a standard unit symbol where relevant (e.g., 5 mA). h<sub>FE</sub> has no unit.</em>
+            </div>
+        `;
+        qText.style.display = 'block';
+    }
+
+    // --- DRAW THE CIRCUIT (same coordinate system as the main Transistors page) ---
+    const ty = 250, rx = 200, railStartX = 80, tx = 380, lx = tx + 10, ly = 145;
+    const supplyVoltage = 9; // fixed for this page - the supply value isn't part of the question
+
+    if (typeof drawStandardTransistorCircuit === 'function') {
+        drawStandardTransistorCircuit(ctx, supplyVoltage);
+    }
+
+    // hFE label
+    ctx.fillStyle = (window.transCurrMode === 3) ? pinkColor : strokeColor;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.font = "14px Arial";
+    ctx.fillText("h", tx + 45, ty + 5);
+    let hW = ctx.measureText("h").width;
+    ctx.font = "10px Arial";
+    ctx.fillText("FE", tx + 45 + hW, ty + 8);
+    let feW = ctx.measureText("FE").width;
+    ctx.font = "14px Arial";
+    ctx.fillText(window.transCurrMode === 3 ? " = ?" : " = " + hfe, tx + 45 + hW + feW, ty + 5);
+
+    // I_B arrow + label
+    if (typeof drawArrowOnWire === 'function') {
+        drawArrowOnWire(ctx, rx + 45, ty, tx - 45, ty);
+    }
+    ctx.fillStyle = (window.transCurrMode === 2) ? pinkColor : strokeColor;
+    ctx.textAlign = "left";
+    ctx.font = "16px Arial";
+    ctx.fillText("I", tx - 95, ty - 15);
+    let ibW = ctx.measureText("I").width;
+    ctx.font = "12px Arial";
+    ctx.fillText("B", tx - 95 + ibW + 2, ty - 10);
+    let bW = ctx.measureText("B").width;
+    ctx.font = "16px Arial";
+    ctx.fillText(window.transCurrMode === 2 ? " = ?" : " = " + ib_mA + " mA", tx - 95 + ibW + bW + 5, ty - 15);
+
+    // I_C arrow + label
+    if (typeof drawArrowOnWire === 'function') {
+        drawArrowOnWire(ctx, lx, ly + 25, lx, ty - 25);
+    }
+    ctx.fillStyle = (window.transCurrMode === 1) ? pinkColor : strokeColor;
+    ctx.textAlign = "left";
+    ctx.font = "16px Arial";
+    ctx.fillText("I", lx + 15, ty - 50);
+    let icW = ctx.measureText("I").width;
+    ctx.font = "12px Arial";
+    ctx.fillText("C", lx + 15 + icW + 2, ty - 45);
+    let cW = ctx.measureText("C").width;
+    ctx.font = "16px Arial";
+    ctx.fillText(window.transCurrMode === 1 ? " = ?" : " = " + ic_mA + " mA", lx + 15 + icW + cW + 5, ty - 50);
+}
+//************************************************************************************
+
 // Helper function to shuffle dropdown arrays
 function shuffleSelectOptions(selectId, optionsArray) {
     const select = document.getElementById(selectId);
@@ -11052,7 +11434,7 @@ function openModule(module) {
         switchTab('logic_ic'); 
     } else if (module === 'transistors') {
         if (document.getElementById('menuTransistors')) document.getElementById('menuTransistors').style.display = 'flex';
-        switchTab('transistor'); 
+        switchTab('transistorvoltages'); 
     } else if (module === 'opamps') {
         // 👇 NEW: Handle the Op-Amps module opening
         if (document.getElementById('menuOpAmps')) document.getElementById('menuOpAmps').style.display = 'flex';
@@ -11150,7 +11532,7 @@ function switchTab(mode) {
         else if (['oscilloscope', 'astable', 'monostable'].includes(mode)) subtitle.innerText = "Module 3: Timing Circuits";
         else if (['silicon', 'zener', 'grade9zener', 'grade9silicon'].includes(mode)) subtitle.innerText = "Module 8: Diodes"; 
         else if (['logic_ic', 'logic_system', 'logic_boolean', 'logic_nand', 'grade9boolean'].includes(mode)) subtitle.innerText = "Module 2: Logic Gates"; 
-        else if (['transistor', 'mosfet', 'grade9transistor', 'grade9mosfet'].includes(mode)) subtitle.innerText = "Module 6: Transistors"; 
+        else if (['transistor', 'transistorvoltages', 'transistorcurrents', 'mosfet', 'grade9transistor', 'grade9mosfet'].includes(mode)) subtitle.innerText = "Module 6: Transistors"; 
         
         // 👇 UPDATED: OP-AMP & COMPARATOR
         else if (['opamp', 'comparator', 'grade9opamp'].includes(mode)) subtitle.innerText = "Module 7: Op Amps"; 
@@ -11415,6 +11797,16 @@ function hubController(ctx, canvas) {
         if (document.getElementById('inputGroupTransistor')) document.getElementById('inputGroupTransistor').style.display = 'flex';
         if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'inline-block';
         if (typeof generateTransistorProblem === "function") generateTransistorProblem(ctx, canvas);
+
+    } else if (currentMode === 'transistorvoltages') {
+        if (document.getElementById('inputGroupTransistorVoltages')) document.getElementById('inputGroupTransistorVoltages').style.display = 'flex';
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
+        if (typeof generateTransistorVoltagesProblem === "function") generateTransistorVoltagesProblem(ctx, canvas);
+
+    } else if (currentMode === 'transistorcurrents') {
+        if (document.getElementById('inputGroupTransistorCurrents')) document.getElementById('inputGroupTransistorCurrents').style.display = 'flex';
+        if (document.getElementById('mainGrade9Btn')) document.getElementById('mainGrade9Btn').style.display = 'none';
+        if (typeof generateTransistorCurrentsProblem === "function") generateTransistorCurrentsProblem(ctx, canvas);
 
     } else if (currentMode === 'grade9transistor') {
         if (document.getElementById('inputGroupGrade9Transistor')) document.getElementById('inputGroupGrade9Transistor').style.display = 'block';
@@ -12361,6 +12753,14 @@ function checkAnswers() {
             activeInputs = ['transIB', 'transVRB', 'transRB'];            // Mode 3: Design Mode
         }
     }
+    // 👇 TRANSISTOR VOLTAGES ACTIVE INPUTS 👇
+    else if (currentMode === 'transistorvoltages') {
+        activeInputs = ['transVoltVRB', 'transVoltVBE', 'transVoltVCE'];
+    }
+    // 👇 TRANSISTOR CURRENTS ACTIVE INPUTS 👇
+    else if (currentMode === 'transistorcurrents') {
+        activeInputs = ['transCurrValue'];
+    }
     // 👇 GRADE 9 TRANSISTOR ACTIVE INPUTS 👇
     else if (currentMode === 'grade9transistor') {
         if (window.g9TransMode === 0) {
@@ -12632,6 +13032,24 @@ function checkAnswers() {
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transIB').value)), currentAnswers.ib, 'mA'));
             results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transVRB').value)), currentAnswers.vrb, 'V'));
             results.push(validateMatch(parseInput(cleanR), currentAnswers.rb, 'Ω'));
+        }
+    }
+
+    // 👇 TRANSISTOR VOLTAGES GRADING LOGIC 👇
+    else if (currentMode === 'transistorvoltages') {
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transVoltVRB').value)), currentAnswers.vRB, 'V'));
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transVoltVBE').value)), currentAnswers.vBE, 'V'));
+        results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transVoltVCE').value)), currentAnswers.vCE, 'V'));
+    }
+
+    // 👇 TRANSISTOR CURRENTS GRADING LOGIC 👇
+    else if (currentMode === 'transistorcurrents') {
+        if (window.transCurrMode === 1) {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transCurrValue').value)), currentAnswers.ic, 'mA'));
+        } else if (window.transCurrMode === 2) {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transCurrValue').value)), currentAnswers.ib, 'mA'));
+        } else {
+            results.push(validateMatch(parseInput(acceptSpaces(document.getElementById('transCurrValue').value)), currentAnswers.hfe, 'ratio'));
         }
     }
 
@@ -13533,7 +13951,28 @@ function provideHint() {
                 • Remember your core transistor equations: <b>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></b> and standard Ohm's Law (<b>V = I &times; R</b>).
                 ${specificHint}
             </div>`;
-            
+
+    } else if (currentMode === 'transistorvoltages') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint: Is it ON or OFF?</strong><br>
+                • First check V<sub>IN</sub> against the 0.7V threshold - this decides everything else.<br>
+                • <b>If V<sub>IN</sub> &ge; 0.7V (ON):</b> the base-emitter junction clamps at exactly <b>V<sub>BE</sub> = 0.7V</b>. Whatever's left of V<sub>IN</sub> is dropped across the resistor: <b>V<sub>RB</sub> = V<sub>IN</sub> - 0.7V</b>. Current flows, and since it's just saturated, the collector is pulled down close to <b>V<sub>CE</sub> = 0V</b>.<br>
+                • <b>If V<sub>IN</sub> &lt; 0.7V (OFF):</b> no current can flow at all. With I<sub>B</sub> = 0, there's <i>nothing</i> to drop across R<sub>B</sub>, so <b>V<sub>RB</sub> = 0V</b> - and all of V<sub>IN</sub> appears directly across the junction instead: <b>V<sub>BE</sub> = V<sub>IN</sub></b>. With no collector current either, nothing pulls the collector down, so <b>V<sub>CE</sub></b> floats up to the full supply voltage.
+            </div>`;
+
+    } else if (currentMode === 'transistorcurrents') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint:</strong><br>
+                • There is only one equation you need here: <b>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></b><br>
+                • Rearrange it depending on which value is missing:<br>
+                &nbsp;&nbsp;- Finding I<sub>C</sub>? Use <b>I<sub>C</sub> = h<sub>FE</sub> &times; I<sub>B</sub></b><br>
+                &nbsp;&nbsp;- Finding I<sub>B</sub>? Use <b>I<sub>B</sub> = I<sub>C</sub> / h<sub>FE</sub></b><br>
+                &nbsp;&nbsp;- Finding h<sub>FE</sub>? Use <b>h<sub>FE</sub> = I<sub>C</sub> / I<sub>B</sub></b> directly.<br>
+                • h<sub>FE</sub> has no unit - it's just a ratio.
+            </div>`;
+
     } else if (currentMode === 'grade9transistor') {
         let specificHint = "";
         
@@ -14055,6 +14494,8 @@ function hideAllInputGroups() {
         'inputGroupGrade9NandMaster',       // (In case you missed this from Logic)
         'inputGroupBlockBuilder',           // Block Builder System
         'inputGroupTransistor',             // Standard Transistor inputs
+        'inputGroupTransistorVoltages',     // NEW: Transistor Voltages inputs
+        'inputGroupTransistorCurrents',     // NEW: Transistor Currents inputs
         'inputGroupGrade9Transistor',       // Grade 9 Transistor inputs
         'inputGroupMosfet',                 // NEW: Standard Mosfet inputs
         'inputGroupGrade9Mosfet',           // NEW: Grade 9 Mosfet inputs
@@ -15421,16 +15862,18 @@ const flipflopWiringScenarios = [
         id: 'twobit',
         title: 'Two-Bit Counter',
         description: 'Two D-type flip-flops are connected in series to form a <b>two-bit counter</b>. Drag the correct connections into the empty boxes.',
-        boxW: 90,
-        dropZoneW: 95,
-        outputGap: 55,
+        boxW: 130,
+        dropZoneW: 110,
+        outputGap: 90,
+        canvasHeight: 520,
         build() {
             const clockLabel = ffWiringPickOne(CLOCK_LABEL_POOL);
             return {
                 boxes: [
                     {
                         label: 'Counter 1',
-                        x: 125,
+                        x: 235,
+                        y: 50,
                         pins: [
                             { key: 'D', answer: 'Q̄1' },
                             { key: 'CK', answer: clockLabel }
@@ -15442,7 +15885,8 @@ const flipflopWiringScenarios = [
                     },
                     {
                         label: 'Counter 2',
-                        x: 420,
+                        x: 235,
+                        y: 250,
                         pins: [
                             { key: 'D', answer: 'Q̄2' },
                             { key: 'CK', answer: 'Q̄1' }
@@ -15525,12 +15969,15 @@ function generateFlipflopWiringProblem(ctx, canvas) {
     if (oldOverlay) oldOverlay.remove();
     document.querySelectorAll('.gcse-block-ui').forEach(el => el.remove());
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     const qType = scenarioTracker.flipflop_wiring;
     scenarioTracker.flipflop_wiring = (scenarioTracker.flipflop_wiring + 1) % flipflopWiringScenarios.length;
     const template = flipflopWiringScenarios[qType];
     const resolved = template.build();
+
+    // Some scenarios need more vertical room than the generic default (e.g. the
+    // vertically-stacked two-bit counter) - resize before clearing/drawing.
+    canvas.height = template.canvasHeight || 420;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const scenario = {
         id: template.id,
@@ -15553,11 +16000,13 @@ function generateFlipflopWiringProblem(ctx, canvas) {
     const outputGap = scenario.outputGap || 90;
     const pinSpacing = 55, topPad = 30;
 
-    // All boxes in a scenario share the same pin count, so compute the shared vertical layout once
+    // All boxes in a scenario share the same pin count, so compute the default vertical
+    // layout once - but an individual box can override its own Y position (box.y) to sit
+    // above/below another box instead of at the shared height, e.g. for a vertically
+    // stacked two-bit counter.
     const numPins = scenario.boxes[0].pins.length;
     const boxHeight = (numPins - 1) * pinSpacing + topPad * 2;
-    const boxY = Math.max(20, (300 - boxHeight) / 2);
-    const pinY = scenario.boxes[0].pins.map((p, i) => boxY + topPad + i * pinSpacing);
+    const defaultBoxY = Math.max(20, (300 - boxHeight) / 2);
 
     // --- Overlay for dropzones + tray items (created once, shared across all boxes) ---
     canvas.parentNode.style.position = 'relative';
@@ -15575,6 +16024,8 @@ function generateFlipflopWiringProblem(ctx, canvas) {
     const allCorrectAnswers = [];
 
     scenario.boxes.forEach(box => {
+        const boxY = box.y !== undefined ? box.y : defaultBoxY;
+        const pinY = box.pins.map((p, i) => boxY + topPad + i * pinSpacing);
         const dropZoneX = box.x - 30 - dropZoneW;
 
         // Box label (only meaningful when there's more than one box on screen) -
