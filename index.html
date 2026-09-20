@@ -2164,6 +2164,14 @@
             <span style="font-size: 18px; font-weight: bold; color: #333;">&Omega;</span>
         </div>
 
+        <div style="display: flex; align-items: center; gap: 5px;">
+            <label for="g9MosfetE24" style="font-weight: bold; color: #E64097; font-size: 1.1em; width: 90px; text-align: left; white-space: nowrap;">
+                E24 R<sub style="position: relative; top: 6px; font-size: 0.7em;">2</sub> =
+            </label>
+            <input type="text" id="g9MosfetE24" placeholder="e.g. 10k" style="height: 40px; width: 90px; font-size: 16px; padding: 5px; text-align: center; border: 2px solid #ced4da; border-radius: 5px;">
+            <span style="font-size: 18px; font-weight: bold; color: #333;">&Omega;</span>
+        </div>
+
     </div>
 </div>
 
@@ -2285,7 +2293,7 @@
                 <button class="btn-new-question" 
                         style="flex: 1; font-weight: bold; font-size: 15px;" 
                         onclick="handleNewQuestionClick()">
-                    ❓ Standard Question
+                    ❓ New Question
                 </button>
                 
                 <button id="mainGrade9Btn" 
@@ -2440,6 +2448,49 @@
 <!-- ==========================================
       MODALS                                     
      ========================================== -->
+
+<!-- Welcome / Identity Modal - shown once per device, blocks the site until
+     Name + Teacher are entered and confirmed. After that, every score
+     submission uses these saved details with no further prompting. -->
+<div id="welcomeModal" class="modal-overlay" style="display: none; z-index: 10000;">
+    <div class="modal-content">
+        <div id="welcomeStepEntry">
+            <h3>Welcome!</h3>
+            <p style="text-align: center; color: #555; margin-top: -10px; margin-bottom: 20px;">
+                Please tell us who you are. This is only asked once on this device - every score you submit from now on will use these details automatically.
+            </p>
+            <div class="form-group">
+                <label for="welcomeNameInput">Your Name:</label>
+                <input type="text" id="welcomeNameInput">
+            </div>
+            <div class="form-group">
+                <label for="welcomeTeacherSelect">Your Teacher:</label>
+                <select id="welcomeTeacherSelect">
+                    <option value="">-- Select Your Teacher --</option>
+                    <option value="Mr. Magee">Mr. Magee</option>
+                    <option value="Mr. Brooks">Mr. Brooks</option>
+                    <option value="Mr. Mason">Mr. Mason</option>
+                    <option value="Mr. Willoughby">Mr. Willoughby</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-submit" style="width: 100%;" onclick="reviewWelcomeDetails()">Continue</button>
+            </div>
+        </div>
+        <div id="welcomeStepConfirm" style="display: none;">
+            <h3>Please Confirm</h3>
+            <p style="text-align: center; font-size: 1.1em; margin-bottom: 5px;">Name: <strong id="welcomeConfirmName"></strong></p>
+            <p style="text-align: center; font-size: 1.1em; margin-bottom: 20px;">Teacher: <strong id="welcomeConfirmTeacher"></strong></p>
+            <p style="text-align: center; font-size: 0.85em; color: #666; margin-bottom: 20px;">
+                Double-check this is spelled correctly - it will be used every time you submit a score from now on.
+            </p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="editWelcomeDetails()">Edit</button>
+                <button class="btn-submit" onclick="confirmWelcomeDetails()">Confirm &amp; Enter Site</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Score Submission Modal -->
 <div id="submissionModal" class="modal-overlay" style="display: none;">
@@ -11386,7 +11437,13 @@ function generateGrade9TransistorProblem() {
 //*************************************************************************************
     
 // This helper exists for Mode 0 MOSFET (simple Id and gm question) 
-function drawDirectMosfetCircuit(ctx, vcc) {
+// gateVoltageValue is optional: when a number is passed, an arrow is drawn
+// rising all the way from the 0V rail up to the gate line, labelled with
+// that actual value (e.g. "4V") - a schematic stand-in for "whatever voltage
+// is being applied at the gate", used only where the calling page wants it
+// (MOSFET Voltages). Omit it (or pass nothing) for pages that don't want
+// this drawn at all - the circuit is then identical to its original form.
+function drawDirectMosfetCircuit(ctx, vcc, gateVoltageValue) {
     const topY = 40, botY = 360;
     const tx = 380, ty = 250, lx = tx + 10;
     const railStartX = 80, railEndX = 500;
@@ -11397,34 +11454,30 @@ function drawDirectMosfetCircuit(ctx, vcc) {
     drawLabel(ctx, `+${vcc}V`, railStartX - 35, topY + 5, 16);
     drawLabel(ctx, `0V`, railStartX - 30, botY + 5, 16);
 
-
-    
-
     // Gate Connection
-    const gateInputX = 220;
-    drawLine(ctx, gateInputX, ty, tx - 25, ty);
-    drawNode(ctx, gateInputX, ty);
+    drawLine(ctx, 150, ty, tx - 25, ty);
+    drawNode(ctx, 150, ty);
 
-    // Gate drive, shown schematically: an arrow rising from ground up to the
-    // gate line, labelled simply "V" - whatever voltage is being APPLIED at
-    // the gate (V_GS, since the source sits at 0V here). V_th is deliberately
-    // NOT shown anywhere on the diagram - it's a fixed device property (3V)
-    // students are expected to know, not something read off a label.
-    const groundY = ty + 50;
-    drawLine(ctx, gateInputX, groundY - 5, gateInputX, ty);
-    if (typeof drawArrowOnWire === 'function') {
-        drawArrowOnWire(ctx, gateInputX, groundY - 5, gateInputX, ty);
+    if (gateVoltageValue !== undefined && gateVoltageValue !== null) {
+        // Arrow runs the full height from the 0V rail up to the gate line -
+        // no ground symbol - labelled with the actual applied voltage value.
+        // V_th is deliberately NOT shown anywhere on the diagram - it's a
+        // fixed device property (3V) students are expected to know already.
+        drawLine(ctx, 150, botY, 150, ty);
+        if (typeof drawArrowOnWire === 'function') {
+            drawArrowOnWire(ctx, 150, botY, 150, ty);
+        }
+        ctx.save();
+        const pinkColor = "#E64097";
+        const isUnknown = (gateVoltageValue === '?');
+        ctx.fillStyle = isUnknown ? pinkColor : ((typeof brandBlack !== 'undefined') ? brandBlack : "#000000");
+        ctx.font = "bold 16px Arial";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        const labelText = isUnknown ? "?" : (gateVoltageValue + "V");
+        ctx.fillText(labelText, 150 - 12, (ty + botY) / 2);
+        ctx.restore();
     }
-    if (typeof drawGround === 'function') {
-        drawGround(ctx, gateInputX, groundY);
-    }
-    ctx.save();
-    ctx.fillStyle = (typeof brandBlack !== 'undefined') ? brandBlack : "#000000";
-    ctx.font = "bold 16px Arial";
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.fillText("V", gateInputX - 12, (ty + groundY) / 2);
-    ctx.restore();
 
     // Vertical Wires
     drawLine(ctx, lx, topY, lx, 145 - 25);
@@ -11802,8 +11855,10 @@ function generateMosfetVoltagesProblem(ctx, canvas) {
     }
 
     // --- DRAW THE CIRCUIT (direct gate drive - gate current is zero, no divider needed) ---
+    // vgs is passed through so the gate-drive arrow shows the actual applied
+    // voltage (e.g. "4V") - this replaces the separate V_GS text label below.
     if (typeof drawDirectMosfetCircuit === 'function') {
-        drawDirectMosfetCircuit(ctx, vcc);
+        drawDirectMosfetCircuit(ctx, vcc, vgs);
     }
 
     function drawSafeSubscript(mainStr, subStr, suffixStr, x, y, size, color) {
@@ -11824,9 +11879,9 @@ function generateMosfetVoltagesProblem(ctx, canvas) {
         ctx.restore();
     }
 
-    // V_GS label (known). V_th is NOT labelled anywhere on the diagram - it's a
-    // fixed device property (3V) students must know, not a per-problem given.
-    drawSafeSubscript("V", "GS", " = " + vgs + "V", 80, 245, 16, strokeColor);
+    // No V_GS label here at all - its value is shown by the gate-drive arrow
+    // instead. V_th is likewise never labelled - it's a fixed device property
+    // (3V) students must know, not a per-problem given.
     // V_DS label (unknown, pink) - sits right at the drain terminal (just above
     // the MOSFET body, at the top of its drain leg) rather than up by the load.
     drawSafeSubscript("V", "DS", " = ?", 400, 215, 16, pinkColor);
@@ -11957,12 +12012,13 @@ function generateMosfetCurrentsProblem(ctx, canvas) {
 
     // V_th is NOT labelled anywhere on the diagram - it's a fixed device
     // property (3V) students must know, not a per-problem given.
-    // V_GS label
-    drawSafeSubscript("V", "GS", (window.mosfetCurrMode === 2 ? " = ?" : " = " + vgs + "V"), 80, 245, 16, (window.mosfetCurrMode === 2 ? pinkColor : strokeColor));
-    // g_m label
-    drawSafeSubscript("g", "m", (window.mosfetCurrMode === 3 ? " = ?" : " = " + gm + "S"), 80, 270, 16, (window.mosfetCurrMode === 3 ? pinkColor : strokeColor));
-    // I_D label, near the drain/load
-    drawSafeSubscript("I", "D", (window.mosfetCurrMode === 1 ? " = ?" : " = " + id + "A"), 425, 150, 16, (window.mosfetCurrMode === 1 ? pinkColor : strokeColor));
+    // V_GS label - sits below the gate wire, close to the gate itself (no
+    // gate-drive arrow on this page - that's specific to MOSFET Voltages).
+    drawSafeSubscript("V", "GS", (window.mosfetCurrMode === 2 ? " = ?" : " = " + vgs + "V"), 300, 275, 16, (window.mosfetCurrMode === 2 ? pinkColor : strokeColor));
+    // g_m label - directly to the right of the MOSFET body
+    drawSafeSubscript("g", "m", (window.mosfetCurrMode === 3 ? " = ?" : " = " + gm + "S"), 420, 255, 16, (window.mosfetCurrMode === 3 ? pinkColor : strokeColor));
+    // I_D label - close to the drain terminal, not centred on the load
+    drawSafeSubscript("I", "D", (window.mosfetCurrMode === 1 ? " = ?" : " = " + id + "A"), 400, 215, 16, (window.mosfetCurrMode === 1 ? pinkColor : strokeColor));
 }
 //************************************************************************************
 
@@ -12092,7 +12148,8 @@ function generateMosfetLoadPowerProblem(ctx, canvas) {
         // V_th is NOT labelled anywhere on the diagram - it's a fixed device
         // property (3V) students must know, not a per-problem given.
         drawSafeSubscript("V", "GS", " = " + vgs + "V", 80, 245, 16, strokeColor);
-        drawSafeSubscript("g", "m", " = " + gm + "S", 80, 270, 16, strokeColor);
+        // g_m label - directly to the right of the MOSFET body
+        drawSafeSubscript("g", "m", " = " + gm + "S", 420, 255, 16, strokeColor);
 
         // Power unknown, pink, near the load
         ctx.fillStyle = pinkColor;
@@ -12140,12 +12197,16 @@ function generateMosfetLoadPowerProblem(ctx, canvas) {
         ctx.fillText("P = ?", lx + 35, ly + 40);
 
     } else {
-        // --- TYPE 3: given a fixed R1 and target VGS, find ideal R2, then pick the E24 value ---
+        // --- TYPE 3: given a fixed R1, find the ideal R2 to JUST SATURATE the
+        // MOSFET, then pick the E24 value. "Just saturated" always means
+        // V_GS has reached exactly the 3V threshold - never some other target
+        // voltage, since a MOSFET on this course is never on with less than
+        // 3V at the gate (the old version asked for targets as low as 2V,
+        // which would never actually turn the MOSFET on - a real bug). ---
         const supplyVoltage = 12;
         const r1Values = [1000, 1500, 2200, 3300, 4700]; // Ω
-        const vgsValues = [2, 3, 4, 5, 6];
+        const vgs = 3; // "just saturated" means V_GS = V_th = 3V, always
         const r1 = r1Values[Math.floor(Math.random() * r1Values.length)];
-        const vgs = vgsValues[Math.floor(Math.random() * vgsValues.length)];
         const idealR2 = r1 * vgs / (supplyVoltage - vgs); // Ω
         const correctE24 = findE24AtOrAbove(idealR2);
 
@@ -12157,17 +12218,22 @@ function generateMosfetLoadPowerProblem(ctx, canvas) {
         const qText = document.getElementById('questionText');
         if (qText) {
             qText.innerHTML = `
-                Calculate the <strong>ideal R<sub>2</sub></strong> to give the MOSFET a gate-source voltage of at least V<sub>GS</sub> = ${vgs} V.<br><br>
+                Calculate the <strong>ideal R<sub>2</sub></strong> to just saturate the MOSFET.<br><br>
                 Then, <strong>select a preferred resistor value from the E24 series</strong> to ensure the MOSFET is fully turned on.
+                <div style="margin-top: 15px; font-weight: normal; font-size: 0.85em; color: #777;">
+                    <em>Remember: every MOSFET on this course has V<sub>th</sub> = 3V - "just saturated" means V<sub>GS</sub> has reached exactly that.</em>
+                </div>
             `;
             qText.style.display = 'block';
         }
 
         if (solText) {
             solText.innerHTML = "<strong>Ideal R<sub>2</sub> = " + idealR2.toFixed(1) + " &Omega; &rarr; nearest E24 (at or ABOVE) = " + formatE24Value(correctE24) + "</strong><br><br>" +
-                "<em>Step 1:</em> Rearrange the potential divider equation to solve for R<sub>2</sub>.<br>" +
+                "<em>Step 1:</em> \"Just saturated\" means V<sub>GS</sub> only needs to reach the 3V threshold - nothing more.<br>" +
+                "V<sub>GS</sub> = V<sub>th</sub> = <strong>3 V</strong><br><br>" +
+                "<em>Step 2:</em> Rearrange the potential divider equation to solve for R<sub>2</sub>.<br>" +
                 "R<sub>2</sub> = R<sub>1</sub> &times; V<sub>GS</sub> / (V<sub>supply</sub> - V<sub>GS</sub>) = " + formatE24Value(r1) + " &times; " + vgs + " / (" + supplyVoltage + " - " + vgs + ") = <strong>" + idealR2.toFixed(1) + " &Omega;</strong><br><br>" +
-                "<em>Step 2:</em> Real resistors only come in standard E24 values. This time, choose the nearest E24 value <u>at or ABOVE</u> the ideal value - never below, or V<sub>GS</sub> would fall short of the target and the MOSFET wouldn't be fully on. (Notice this is the opposite direction to the transistor's R<sub>B</sub> rule!)<br>" +
+                "<em>Step 3:</em> Real resistors only come in standard E24 values. Choose the nearest E24 value <u>at or ABOVE</u> the ideal value - never below, or V<sub>GS</sub> would fall short of 3V and the MOSFET wouldn't be fully on. (Notice this is the opposite direction to the transistor's R<sub>B</sub> rule!)<br>" +
                 "Nearest E24 &ge; " + idealR2.toFixed(1) + " &Omega; = <strong>" + formatE24Value(correctE24) + "</strong>";
         }
 
@@ -12175,7 +12241,9 @@ function generateMosfetLoadPowerProblem(ctx, canvas) {
 
         drawSafeSubscript("R", "1", " = " + formatE24Value(r1), 218, 150, 14, strokeColor);
         drawSafeSubscript("R", "2", " = ?", 218, 310, 14, pinkColor);
-        drawSafeSubscript("V", "GS", " = " + vgs + "V", 255, 235, 16, strokeColor);
+        // V_GS is NOT labelled with a target value here - "just saturated" already
+        // tells the student it must reach exactly V_th (3V), which they're
+        // expected to know rather than read off the diagram.
     }
 }
 //************************************************************************************
@@ -12207,7 +12275,7 @@ function generateGrade9MosfetProblem() {
     if (solText) solText.innerHTML = ""; 
 
     // Clear and color inputs
-    ['g9MosfetVGS', 'g9MosfetR2'].forEach(id => {
+    ['g9MosfetVGS', 'g9MosfetR2', 'g9MosfetE24'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.value = '';
@@ -12309,21 +12377,41 @@ function generateGrade9MosfetProblem() {
         ${fractionText} = ${knownR} / (R<sub>1</sub> + ${knownR})`;
     }
 
-    currentAnswers = { vgs: vgs, r2: answerR };
+    // The E24 rounding direction depends on WHICH resistor is unknown, because
+    // R1 and R2 affect V_GS in opposite directions in V_GS = Vcc x R2/(R1+R2):
+    // - Solving for R2 (R1 fixed): a BIGGER R2 gives a bigger V_GS, so round UP
+    //   (findE24AtOrAbove) to guarantee V_GS reaches at least the target.
+    // - Solving for R1 (R2 fixed): a SMALLER R1 gives a bigger V_GS, so round
+    //   DOWN (findE24AtOrBelow) to guarantee the same thing.
+    let correctE24;
+    if (window.g9MosfetSubMode === 0) {
+        correctE24 = (typeof findE24AtOrAbove === 'function') ? findE24AtOrAbove(answerR) : answerR;
+    } else {
+        correctE24 = (typeof findE24AtOrBelow === 'function') ? findE24AtOrBelow(answerR) : answerR;
+    }
+
+    currentAnswers = { vgs: vgs, r2: answerR, e24: correctE24 };
 
     const rLabel = document.querySelector('label[for="g9MosfetR2"]');
     if (rLabel) rLabel.innerHTML = `${targetLabelPanelHTML} = `;
 
-    // 3. Update Text 
+    const e24Label = document.querySelector('label[for="g9MosfetE24"]');
+    if (e24Label) e24Label.innerHTML = `E24 ${targetLabelPanelHTML} = `;
+    const e24InputEl = document.getElementById('g9MosfetE24');
+    if (e24InputEl) e24InputEl.placeholder = "e.g. " + correctE24 + "k";
+
+    // 3. Update Text
     const qText = document.getElementById('questionText');
     const instructionsDiv = document.getElementById('g9MosfetInstructions');
-    
+
     if (qText) {
         qText.style.display = 'block';
         qText.innerHTML = `
+            <div style="margin-bottom: 10px;"><strong style="color: #D4A017;">🏆 Grade 9 Challenge.</strong></div>
             A cooling fan requires exactly <strong>${iD} A</strong> to run. The MOSFET has a transconductance (g<sub>m</sub>) of <strong>${gm} S</strong>.<br><br>
-            1. Calculate the gate voltage (<strong>V<sub>GS</sub></strong>) required for the fan.<br>
-            2. Determine the required value for <strong>${targetLabel}</strong>.<br><br>
+            1) Calculate the gate voltage (<strong>V<sub>GS</sub></strong>) required for the fan.<br>
+            2) Determine the ideal value for <strong>${targetLabel}</strong>.<br>
+            3) Choose the correct E24 series resistor for <strong>${targetLabel}</strong>.<br><br>
             <div style="font-size: 15px; line-height: 1.2; margin-top: 5px; color: #444;">
                 <em>Enter the resistor value with or without a prefix (e.g., 520, 83k, or 6.1M).</em>
             </div>
@@ -12346,12 +12434,18 @@ function generateGrade9MosfetProblem() {
     drawSafeSubscript("V", "GS", "= ?", 255, 235, 16, pinkColor);
 
     // 5. Solution Logic
+    const e24Direction = (window.g9MosfetSubMode === 0)
+        ? `a bigger ${targetLabel} gives a bigger V<sub>GS</sub>, so we round <u>UP</u> to the nearest E24 value`
+        : `a smaller ${targetLabel} gives a bigger V<sub>GS</sub>, so we round <u>DOWN</u> to the nearest E24 value`;
+
     if (solText) {
-        solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | ${targetLabel} = ${answerR} k&Omega;</strong><br><br>
+        solText.innerHTML = `<strong>V<sub>GS</sub> = ${vgs} V | Ideal ${targetLabel} = ${answerR} k&Omega; | E24 ${targetLabel} = ${correctE24} k&Omega;</strong><br><br>
         <em>Step 1:</em> Find the required V<sub>GS</sub> using I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - V<sub>th</sub>):<br>
         V<sub>GS</sub> = (${iD} / ${gm}) + 3 = <strong>${vgs} V</strong><br><br>
         <em>Step 2:</em> ${step2Formula}<br><br>
-        <em>Mental Math Check:</em> From the simple fraction above, we can see <strong>${targetLabel} = ${answerR} k&Omega;</strong>`;
+        <em>Mental Math Check:</em> From the simple fraction above, we can see <strong>${targetLabel} = ${answerR} k&Omega;</strong> (ideal value)<br><br>
+        <em>Step 3:</em> Real resistors only come in E24 values. Since ${e24Direction}, ensuring the fan always gets at least the current it needs:<br>
+        E24 ${targetLabel} = <strong>${correctE24} k&Omega;</strong>`;
     }
 }
 //*************************************************************************************************************************************
@@ -13948,8 +14042,92 @@ function switchTab(mode) {
 //*****************************************************************************************
     
 // =============================
-// MODAL CONTROLLERS
+// IDENTITY GATE (Welcome Modal)
 // =============================
+// Captures Name + Teacher exactly once per device, on first visit, and saves
+// them to localStorage. Every future score submission on this device then
+// goes through silently with no modal at all - see openSubmissionModal().
+// A "?reset=1" link clears the saved identity so a genuine typo can be fixed,
+// without ever showing a "not you?" prompt during normal use.
+
+const SAVED_STUDENT_NAME_KEY = 'savedStudentName';
+const SAVED_TEACHER_NAME_KEY = 'savedTeacherName';
+
+function getSavedIdentity() {
+    return {
+        name: (typeof localStorage !== 'undefined' && localStorage.getItem(SAVED_STUDENT_NAME_KEY)) || '',
+        teacher: (typeof localStorage !== 'undefined' && localStorage.getItem(SAVED_TEACHER_NAME_KEY)) || ''
+    };
+}
+
+function reviewWelcomeDetails() {
+    const nameInput = document.getElementById('welcomeNameInput');
+    const teacherSelect = document.getElementById('welcomeTeacherSelect');
+    const name = nameInput.value.trim();
+    const teacher = teacherSelect.value;
+
+    if (!name) { alert("Please enter your name."); return; }
+    if (!teacher) { alert("Please select your teacher."); return; }
+
+    document.getElementById('welcomeConfirmName').textContent = name;
+    document.getElementById('welcomeConfirmTeacher').textContent = teacher;
+    document.getElementById('welcomeStepEntry').style.display = 'none';
+    document.getElementById('welcomeStepConfirm').style.display = 'block';
+}
+
+function editWelcomeDetails() {
+    document.getElementById('welcomeStepConfirm').style.display = 'none';
+    document.getElementById('welcomeStepEntry').style.display = 'block';
+}
+
+function confirmWelcomeDetails() {
+    const name = document.getElementById('welcomeConfirmName').textContent;
+    const teacher = document.getElementById('welcomeConfirmTeacher').textContent;
+
+    if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(SAVED_STUDENT_NAME_KEY, name);
+        localStorage.setItem(SAVED_TEACHER_NAME_KEY, teacher);
+    }
+
+    const modal = document.getElementById('welcomeModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// A link with "?reset=1" on the end (e.g. https://yoursite/?reset=1) clears the
+// saved identity on that device so the welcome popup appears again - handy for
+// fixing a genuine typo without ever exposing a "change my name" control that
+// students would see during normal use.
+function checkForIdentityResetParam() {
+    if (typeof window === 'undefined' || !window.location) return;
+    let params;
+    try {
+        params = new URLSearchParams(window.location.search);
+    } catch (e) { return; }
+
+    if (params.get('reset') === '1') {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem(SAVED_STUDENT_NAME_KEY);
+            localStorage.removeItem(SAVED_TEACHER_NAME_KEY);
+        }
+        // Strip "reset=1" out of the address bar so refreshing or bookmarking
+        // the page afterwards doesn't keep wiping the identity every time.
+        params.delete('reset');
+        const query = params.toString();
+        const newUrl = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
+        if (window.history && typeof window.history.replaceState === 'function') {
+            window.history.replaceState({}, '', newUrl);
+        }
+    }
+}
+
+function initIdentityGate() {
+    checkForIdentityResetParam();
+    const saved = getSavedIdentity();
+    if (!saved.name || !saved.teacher) {
+        const modal = document.getElementById('welcomeModal');
+        if (modal) modal.style.display = 'flex';
+    }
+}
 
 function openDataSheet() {
     const modal = document.getElementById('dataSheetModal');
@@ -13986,10 +14164,23 @@ function openSubmissionModal() {
         alert("Please attempt at least one question before downloading your score!");
         return;
     }
-    // Clear previous inputs
+
+    // If this device already has a saved identity (set once via the welcome
+    // popup), skip the modal entirely and submit straight away - no typing,
+    // no confirmation, no interruption.
+    const saved = getSavedIdentity();
+    if (saved.name && saved.teacher) {
+        document.getElementById('studentNameInput').value = saved.name;
+        document.getElementById('teacherSelect').value = saved.teacher;
+        processSubmission();
+        return;
+    }
+
+    // Fallback (should only be reached if the welcome popup was somehow
+    // bypassed, e.g. localStorage was cleared mid-session): ask manually.
     document.getElementById('studentNameInput').value = '';
     document.getElementById('teacherSelect').value = '';
-    
+
     // Show modal
     document.getElementById('submissionModal').style.display = 'flex';
 }
@@ -15393,7 +15584,7 @@ function checkAnswers() {
     }
   // 👇 GRADE 9 MOSFET ACTIVE INPUTS 👇
     else if (currentMode === 'grade9mosfet') {
-        activeInputs = ['g9MosfetVGS', 'g9MosfetR2'];
+        activeInputs = ['g9MosfetVGS', 'g9MosfetR2', 'g9MosfetE24'];
     }
     
     // 👇 POWER ACTIVE INPUTS (Fixed the missing 'else'!) 👇
@@ -15815,6 +16006,14 @@ function checkAnswers() {
                     cleanR2 += "Ω";
                 }
                 results.push(validateMatch(parseInput(cleanR2), currentAnswers.r2, 'kΩ'));
+
+                // Grade the E24 selection with the same Ohms fallback (Answer targets kΩ)
+                let e24Input = document.getElementById('g9MosfetE24').value;
+                let cleanE24 = acceptSpaces(e24Input);
+                if (cleanE24 !== "" && !cleanE24.includes("Ω") && !cleanE24.toLowerCase().includes("ohm")) {
+                    cleanE24 += "Ω";
+                }
+                results.push(validateMatch(parseInput(cleanE24), currentAnswers.e24, 'kΩ'));
             }
                 
   // 👇 OP-AMP GRADING LOGIC 👇
@@ -16764,9 +16963,9 @@ function provideHint() {
                 • Just use <b>P = I &times; V</b> directly - no need to involve g<sub>m</sub> or V<sub>GS</sub> at all here.`;
         } else {
             mlpHint = `
-                • First find the required V<sub>GS</sub>, then use the potential divider equation to find the ideal R<sub>2</sub>: <b>R<sub>2</sub> = R<sub>1</sub> &times; V<sub>GS</sub> / (V<sub>supply</sub> - V<sub>GS</sub>)</b>.<br>
+                • "Just saturate" always means V<sub>GS</sub> = V<sub>th</sub> = <b>3V</b> - use that in the potential divider equation to find the ideal R<sub>2</sub>: <b>R<sub>2</sub> = R<sub>1</sub> &times; V<sub>GS</sub> / (V<sub>supply</sub> - V<sub>GS</sub>)</b>.<br>
                 • Real resistors only come in E24 values - here's the twist: with a MOSFET divider, pick the nearest E24 value <u>at or ABOVE</u> your ideal R<sub>2</sub>, never below.<br>
-                • 🚨 This is the <b>opposite direction</b> to the BJT base resistor rule! Increasing R<sub>2</sub> <i>increases</i> V<sub>GS</sub> (since V<sub>GS</sub> = V<sub>supply</sub> &times; R<sub>2</sub>/(R<sub>1</sub>+R<sub>2</sub>)), so rounding up guarantees you reach at least the target V<sub>GS</sub> needed to fully turn the MOSFET on.`;
+                • 🚨 This is the <b>opposite direction</b> to the BJT base resistor rule! Increasing R<sub>2</sub> <i>increases</i> V<sub>GS</sub> (since V<sub>GS</sub> = V<sub>supply</sub> &times; R<sub>2</sub>/(R<sub>1</sub>+R<sub>2</sub>)), so rounding up guarantees you reach at least the 3V needed to fully turn the MOSFET on.`;
         }
         helpText = `
             <div style="${blueBox}">
@@ -16810,7 +17009,8 @@ function provideHint() {
             <div style="${blueBox}">
                 <strong>💡 Grade 9 MOSFET Hint:</strong><br>
                 • <b>V<sub>GS</sub>:</b> You know the required drain current (I<sub>D</sub>) and the transconductance (g<sub>m</sub>). Rearrange the MOSFET formula (<b>I<sub>D</sub> = g<sub>m</sub>(V<sub>GS</sub> - 3)</b>) from your data sheet to solve for V<sub>GS</sub>.<br>
-                • <b>Missing Resistor:</b> Once you have V<sub>GS</sub>, plug it into the standard Potential Divider equation (<b>V<sub>out</sub> = V<sub>in</sub> &times; [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)]</b>). Because the numbers are simple, you can simplify the fraction to easily find the missing resistor!
+                • <b>Missing Resistor:</b> Once you have V<sub>GS</sub>, plug it into the standard Potential Divider equation (<b>V<sub>out</sub> = V<sub>in</sub> &times; [R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>)]</b>). Because the numbers are simple, you can simplify the fraction to easily find the missing resistor!<br>
+                • <b>E24:</b> Real resistors only come in E24 values, never the exact ideal number. If <b>R<sub>2</sub></b> is the unknown, round UP to the nearest E24 value; if <b>R<sub>1</sub></b> is the unknown, round DOWN - either way this guarantees V<sub>GS</sub> reaches at least the value you need.
             </div>`;
 
 } else if (currentMode === 'grade9opamp') {
@@ -21742,9 +21942,12 @@ function checkFlipflopDecadeAnswer(feedback, showsolutionsBtn) {
 
 // Master Switch on Load
 window.onload = function() {
-    hideAllInputGroups(); 
+    if (typeof initIdentityGate === "function") {
+        initIdentityGate();
+    }
+    hideAllInputGroups();
     if (typeof goHome === "function") {
-        goHome(); 
+        goHome();
     }
 };
 </script>
