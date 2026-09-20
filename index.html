@@ -17372,9 +17372,13 @@ async function processSubmission() {
         formData.append('attempted', problemsAttempted);
     }
 
+    let submissionSucceeded = false;
+
     try {
         await fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' });
         console.log('Submitted successfully.');
+        submissionSucceeded = true;
+
         if (isSIPrefixSubmission) {
             alert("Success! Your SI Prefix time of " + siPrefixState.finalTime.toFixed(1) + "s has been submitted to " + teacherName + ".");
         } else if (isStandardFormSubmission) {
@@ -17388,33 +17392,39 @@ async function processSubmission() {
         }
     } catch (error) {
         console.error('Error submitting!', error.message);
-        alert("Hmm, there was an issue sending your result to Google Sheets. Please let your teacher know.");
+        alert("Hmm, there was an issue sending your result. Please check your connection and hit Submit again.");
+        // submissionSucceeded stays false - the score/attempt counters below are
+        // deliberately left untouched so the "leave without submitting" warning
+        // still protects this student and they can just press Submit again.
     } finally {
-        // 4. Reset Everything
+        // Re-enable the button either way so a failed submission can be retried immediately.
         if (submitBtn) {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
 
-        problemsAttempted = 0;
-        problemsCorrect = 0;
-        
-        // Ensure these functions exist in your code
-        if (typeof updateScoreboard === 'function') updateScoreboard();
-        
-        // Trigger a new problem based on current mode
-        if (isSIPrefixSubmission) {
-            // Don't auto-restart the game - let the student see their completed result
-            // and press "Play Again" themselves if they want another go.
-        } else if (currentMode === 'logic_boolean' || currentMode === 'grade9boolean') {
-            // Boolean logic needs the canvas context passed to it!
-            const canvas = document.getElementById('circuitCanvas'); 
-            const ctx = canvas.getContext('2d');
-            if (currentMode === 'logic_boolean') generateBooleanProblem(ctx, canvas);
-            if (currentMode === 'grade9boolean') generateGrade9booleanProblem(ctx, canvas);
-        } else if (typeof window['generate' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1) + 'Problem'] === 'function') {
-            // Standard fallback for other modules
-            window['generate' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1) + 'Problem']();
+        // Only clear the score/attempts (and move on to a new problem) once we
+        // know the submission actually went out - never on a failed attempt.
+        if (submissionSucceeded) {
+            problemsAttempted = 0;
+            problemsCorrect = 0;
+
+            if (typeof updateScoreboard === 'function') updateScoreboard();
+
+            // Trigger a new problem based on current mode
+            if (isSIPrefixSubmission) {
+                // Don't auto-restart the game - let the student see their completed result
+                // and press "Play Again" themselves if they want another go.
+            } else if (currentMode === 'logic_boolean' || currentMode === 'grade9boolean') {
+                // Boolean logic needs the canvas context passed to it!
+                const canvas = document.getElementById('circuitCanvas');
+                const ctx = canvas.getContext('2d');
+                if (currentMode === 'logic_boolean') generateBooleanProblem(ctx, canvas);
+                if (currentMode === 'grade9boolean') generateGrade9booleanProblem(ctx, canvas);
+            } else if (typeof window['generate' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1) + 'Problem'] === 'function') {
+                // Standard fallback for other modules
+                window['generate' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1) + 'Problem']();
+            }
         }
     }
 }
