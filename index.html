@@ -13875,7 +13875,7 @@ function openModule(module) {
     // Show the correct sub-menu and trigger the first tab
     if (module === 'basics') {
         document.getElementById('menuBasics').style.display = 'flex';
-        switchTab('analysis'); // This also calls resetScore() again - double safety!
+        switchTab('colorcode'); // This also calls resetScore() again - double safety!
     } else if (module === 'timing') {
         document.getElementById('menuTiming').style.display = 'flex';
         switchTab('oscilloscope'); 
@@ -16665,6 +16665,14 @@ function provideHint() {
                     <strong>💡 Hint (Switch CLOSED):</strong> First calculate the Load current using Ohm's law. All other current passes through the Zener diode.
                 </div>`;
         }
+    } else if (currentMode === 'divider') {
+        helpText = `
+            <div style="${blueBox}">
+                <strong>💡 Hint:</strong><br>
+                • <b>Core Equation:</b> V<sub>OUT</sub> = V<sub>supply</sub> &times; (R<sub>2</sub> / (R<sub>1</sub> + R<sub>2</sub>))<br>
+                • <b>Finding V<sub>supply</sub>:</b> Rearrange the equation above.<br>
+                • <b>Finding R<sub>1</sub> or R<sub>2</sub>:</b> Use the voltage across each resistor (V<sub>R1</sub> = V<sub>supply</sub> − V<sub>OUT</sub>) and the ratio R<sub>1</sub>/R<sub>2</sub> = V<sub>R1</sub>/V<sub>R2</sub>.
+            </div>`;
     } else if (currentMode === 'analysis') {
         helpText = `
             <div style="${blueBox}">
